@@ -321,6 +321,43 @@
   .taskfrage { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 0 10px 32px; font-size: 13px; color: var(--leise); }
   .taskfrage button { padding: 6px 10px; border-radius: 10px; background: #0B8043; color: #fff; font-weight: 600; white-space: nowrap; }
   .knopf.planen { margin-top: 12px; }
+  /* Neu Fenster (Plus): drei Wege oben, Fokus Vorschau, Tagesleiste */
+  #planen.offen { animation: neuein .22s ease-out; }
+  @keyframes neuein { 0% { opacity: 0; transform: translateY(12px); } 100% { opacity: 1; transform: none; } }
+  .neu-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 14px; background: var(--chip); margin-bottom: 12px; }
+  .neu-tabs button { height: 38px; border-radius: 11px; font-size: 14px; font-weight: 600; color: var(--leise); display: flex; align-items: center; justify-content: center; gap: 6px; transition: background .2s, color .2s, transform .08s; }
+  .neu-tabs button:active { transform: scale(.95); }
+  .neu-tabs button.an { background: var(--karte); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .neu-tabs .ic { font-size: 13px; opacity: .8; }
+  .nz-kopf { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px; }
+  .nz-kopf b { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .nz-kopf b small { font-size: 13px; font-weight: 500; color: var(--leise); }
+  .nz-bonus { font-size: 13px; font-weight: 600; color: var(--gruen); background: var(--gruen-hell); padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+  .nz-bonus.leise { color: var(--leise); background: var(--chip); }
+  .nz-seg { display: flex; gap: 3px; height: 10px; margin: 10px 0 7px; }
+  .nz-seg span { min-width: 4px; border-radius: 5px; }
+  .nz-seg .fertig { background: var(--rosa-voll); }
+  .nz-seg .geplant { background: var(--rosa-hell); }
+  .nz-seg .sneu { background: repeating-linear-gradient(135deg, var(--gold) 0 4px, var(--gold-hell) 4px 8px); animation: nzatmen 1.6s ease-in-out infinite; }
+  .nz-seg .rest { background: var(--chip); }
+  @keyframes nzatmen { 0%, 100% { opacity: .6; } 50% { opacity: 1; } }
+  .nz-text { font-size: 12px; color: var(--leise); }
+  .nz-text b { color: var(--text); font-weight: 600; }
+  .nz-voll { color: var(--gruen); font-weight: 600; }
+  .leiste { position: relative; height: 42px; margin: 14px 0 3px; border-radius: 10px; background: var(--chip); cursor: pointer; overflow: hidden; }
+  .leiste .lvorbei { position: absolute; left: 0; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, transparent 0 5px, var(--linie) 5px 6px); opacity: .7; }
+  .leiste .bl { position: absolute; top: 7px; bottom: 7px; border-radius: 6px; background: var(--rosa-hell); box-shadow: inset 0 0 0 1px var(--rosa-voll); }
+  .leiste .bl.gemacht { background: var(--rosa-voll); box-shadow: none; }
+  .leiste .bl.grau { background: var(--linie); box-shadow: none; }
+  .leiste .te { position: absolute; top: 4px; bottom: 4px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--akzent); }
+  .leiste .ljetzt { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--text); }
+  .leiste .lneu { position: absolute; top: 3px; bottom: 3px; border-radius: 8px; background: var(--gold-hell); box-shadow: inset 0 0 0 2px var(--gold); animation: nzatmen 1.6s ease-in-out infinite; }
+  .leiste-uhr { position: relative; height: 14px; font-size: 10px; color: var(--leise); font-variant-numeric: tabular-nums; }
+  .leiste-uhr span { position: absolute; transform: translateX(-50%); }
+  .leiste-legende { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px; color: var(--leise); margin-top: 4px; }
+  .leiste-legende i { display: inline-block; width: 10px; height: 8px; border-radius: 2px; margin-right: 4px; vertical-align: 0; }
+  .planknopf .bonus { font-weight: 600; opacity: .85; margin-left: 8px; font-size: 14px; }
+  .planknopf.fertig { background: #1D9E75; animation: hzpop .45s ease-out; }
 
   /* Geld Karte: letzte 7 Tage, nach Tag */
   .tag7 { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--leise); margin: 12px 0 2px; font-variant-numeric: tabular-nums; }
@@ -425,7 +462,7 @@
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611102331';
+const PWA_VERSION = '202611102350';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -1420,12 +1457,18 @@ function heuteAbhaken(i) {
   melden('Erledigt: ' + t.titel);
   nacheinander('appHeuteAbhaken', t.ref);
 }
-function plusOeffnen() {
-  $('planen').classList.add('offen');
-  document.body.style.overflow = 'hidden';
-  $('planen').innerHTML = '<div class="planinnen"><div class="plankopf"><b>Was willst du?</b><button class="rund" onclick="planSchliessen()" aria-label="Schließen">✕</button></div>' +
-    '<button class="hz-opt" onclick="planOeffnen()"><span class="hz-ic blau">◷</span><span><b>Block planen</b><small>Zeit für etwas Größeres, mit erstem Schritt</small></span></button>' +
-    '<button class="hz-opt" onclick="heuteWahlOeffnen()"><span class="hz-ic gruen">✓</span><span><b>Tasks vormerken</b><small>Heute oder morgen, höchstens ' + HEUTE_MAX + ' pro Tag</small></span></button></div>';
+/* Plus öffnet direkt Block planen. Oben wechselst du zwischen Block, Nachtragen und Tasks, ohne zweites Fenster */
+function plusOeffnen() { haptik(); planOeffnen(false); }
+function neuTabs(an) {
+  const t = (k, ic, txt) => '<button class="' + (an === k ? 'an' : '') + '" onclick="neuWechsel(\'' + k + '\')"><span class="ic">' + ic + '</span>' + txt + '</button>';
+  return '<div class="neu-tabs">' + t('block', '◷', 'Block') + t('nach', '↺', 'Nachtragen') + t('tasks', '✓', 'Tasks') + '</div>';
+}
+function neuWechsel(k) {
+  haptik();
+  if (k === 'tasks') { if (hwahl) return; plan = null; heuteWahlOeffnen(); return; }
+  if (hwahl) { if (hwahl.tasks) tasksVorratSetzen({ tasks: hwahl.tasks, listen: hwahl.listen }); hwahl = null; }
+  if (!plan) { planOeffnen(k === 'nach'); return; }
+  if (plan.nach !== (k === 'nach')) planSetzen('nach', k === 'nach');
 }
 function heuteWahlOeffnen() {
   const h = heute(), jetzt = new Set((heuteTasks || []).map(t => t.ref));
@@ -1493,7 +1536,7 @@ function heuteWahlZeichnen() {
     }).join('');
   }
   const chip = (tag, txt) => '<button class="' + (hwahl.tag === tag ? 'an' : '') + '" onclick="heuteWahlTag(\'' + tag + '\')">' + txt + '</button>';
-  $('planen').innerHTML = '<div class="planinnen"><div class="plankopf"><b>Tasks vormerken</b><button class="rund" onclick="heuteWahlZu()" aria-label="Schließen">✕</button></div>' +
+  $('planen').innerHTML = '<div class="planinnen"><div class="plankopf"><b>Tasks vormerken</b><button class="rund" onclick="heuteWahlZu()" aria-label="Schließen">✕</button></div>' + neuTabs('tasks') +
     '<div class="karte"><div class="bereich">Für wann</div><div class="wahl raster zwei">' + chip(h, 'Heute') + chip(m, 'Morgen') + '</div>' +
     '<div class="slotinfo">' + (an ? an.size : 0) + ' von ' + HEUTE_MAX + ' für ' + (hwahl.tag === m ? 'morgen' : 'heute') + ' gewählt</div></div>' +
     '<div class="karte"><div class="tw-kopf"><span class="bereich">Deine Tasks</span>' +
@@ -1690,10 +1733,10 @@ function fokusLokal(iso) {
 
 /* ── Planen: aus Task oder frei, Lücke sucht der Server ── */
 let plan = null;
-function planOeffnen() {
+function planOeffnen(nach) {
   const h = heute();
-  plan = { tag: new Date().getHours() >= 17 ? tagPlus(h, 1) : h, min: 45, quelle: 'task', wahl: [],
-    bereich: null, titel: '', schritt: '', tasks: null, bereiche: ['FW', 'Projekte', 'HFBK', 'Admin', 'Sport', 'System', 'Sonstiges'], nach: false,
+  plan = { tag: !nach && new Date().getHours() >= 17 ? tagPlus(h, 1) : h, min: 45, quelle: 'task', wahl: [],
+    bereich: null, titel: '', schritt: '', tasks: null, bereiche: ['FW', 'Projekte', 'HFBK', 'Admin', 'Sport', 'System', 'Sonstiges'], nach: !!nach,
     dauern: [30, 45, 60, 90, 120], fehler: '', sendet: false, start: '', slot: null };
   $('planen').classList.add('offen');
   document.body.style.overflow = 'hidden';
@@ -1774,8 +1817,79 @@ function slotText() {
   if (!s.frei) return 'An dem Tag ist nichts mehr frei. Wähl eine Uhrzeit.';
   return 'Nächster freier Platz <b>' + esc(s.start) + '</b> bis ' + esc(s.ende) + (s.ausserhalb ? ' · außerhalb deiner Fenster' : '');
 }
-function planZeichnen() {
+/* Fokus Vorschau: was schon zählt, was noch geplant ist, was dieser Block dazu bringt */
+function neuBereich() { return plan.quelle === 'task' ? (plan.wahl[0] && plan.wahl[0].bereich) : plan.bereich; }
+function neuMinuten() { return neuBereich() === 'System' ? 0 : plan.nach ? Math.round(plan.min * NACH_FAKTOR) : plan.min; }
+function neuOffenMin(iso) {
+  return bloeckeVon(iso).filter(b => zaehlt(b) && !b.status && !gestartet(b) && !begonnen(iso, b)).reduce((n, b) => n + (b.min || 0), 0);
+}
+/* Wie viel der Block den Tageswert hebt. Ehrlich: gerechnet auf das, was schon zählt plus was noch geplant ist */
+function neuBonus() {
+  if (!plan || plan.tag !== heute()) return '';
+  const n = neuMinuten();
+  if (!n) return '';
+  const z = zuwachsText(tagZuwachs(plan.tag, n, fokusTagMin(plan.tag) + (plan.nach ? 0 : neuOffenMin(plan.tag))));
+  return z ? (plan.nach ? z : 'bis ' + z) + ' Tag' : '';
+}
+function neuZielHtml() {
+  const iso = plan.tag, h = heute(), ziel = fokusZielMin(iso);
+  const fertig = fokusTagMin(iso), offen = neuOffenMin(iso), neu = neuMinuten(), summe = fertig + offen + neu;
+  const wann = iso === h ? 'heute' : iso === tagPlus(h, 1) ? 'morgen' : 'gestern';
+  const bon = neuBonus();
+  const pille = !neu ? '<span class="nz-bonus leise">zählt nicht</span>'
+    : bon ? '<span class="nz-bonus">' + bon + '</span>' : '<span class="nz-bonus leise">+' + dauerText(neu) + '</span>';
+  const teil = (cls, m) => m > 0 ? '<span class="' + cls + '" style="flex:' + m + '"></span>' : '';
+  const rest = Math.max(0, ziel - summe);
+  let text;
+  if (neu && summe >= ziel && summe - neu < ziel) text = '<span class="nz-voll">Damit ist dein Tagesziel voll ✓</span>';
+  else if (summe >= ziel) text = 'Tagesziel ist schon voll geplant';
+  else text = 'Mit diesem Block noch <b>' + hm(rest) + '</b> bis zum Tagesziel';
+  if (plan.nach && neu) text += ' · nachgetragen zählt halb';
+  return '<div class="karte"><div class="bereich">Fokus ' + wann + '</div>' +
+    '<div class="nz-kopf"><b>' + hm(summe) + ' <small>von ' + hm(ziel) + '</small></b>' + pille + '</div>' +
+    '<div class="nz-seg">' + teil('fertig', fertig) + teil('geplant', offen) + teil('sneu', neu) + teil('rest', rest) + '</div>' +
+    '<div class="nz-text">' + text + '</div></div>';
+}
+/* Tagesleiste 7 bis 24 Uhr: Blöcke, Termine, jetzt, und der neue Block. Antippen setzt ihn dorthin */
+const LEISTE_VON = 7 * 60, LEISTE_BIS = 24 * 60;
+function leisteHtml() {
+  const iso = plan.tag, h = heute(), jm = jetztMin();
+  const p = m => Math.max(0, Math.min(100, (m - LEISTE_VON) / (LEISTE_BIS - LEISTE_VON) * 100));
+  let html = '';
+  if (iso === h && !plan.nach) html += '<span class="lvorbei" style="width:' + p(jm) + '%"></span>';
+  bloeckeVon(iso).forEach(b => {
+    const a = minVon(b.start), e = b.ende ? minVon(b.ende) : a + (b.min || 0);
+    const cls = !zaehlt(b) || b.status === 'nicht' ? 'grau' : (b.status === 'gemacht' || b.status === 'teils' || gestartet(b)) ? 'gemacht' : '';
+    html += '<span class="bl ' + cls + '" style="left:' + p(a) + '%;width:' + Math.max(0.8, p(e) - p(a)) + '%"></span>';
+  });
+  ((P && P.termine && P.termine[iso]) || []).forEach(t => {
+    if (/^\d{1,2}:\d{2}/.test(t.zeit)) html += '<span class="te" style="left:' + p(minVon(t.zeit)) + '%"></span>';
+  });
+  if (iso === h) html += '<span class="ljetzt" style="left:' + p(jm) + '%"></span>';
+  const st = plan.start || (!plan.nach && plan.slot && plan.slot.frei ? plan.slot.start : '');
+  if (st) { const a = minVon(st); html += '<span class="lneu" style="left:' + p(a) + '%;width:' + Math.max(1.5, p(a + plan.min) - p(a)) + '%"></span>'; }
+  const uhr = [8, 12, 16, 20].map(x => '<span style="left:' + p(x * 60) + '%">' + x + '</span>').join('');
+  const leg = (farbe, txt) => '<span><i style="background:' + farbe + '"></i>' + txt + '</span>';
+  return '<div class="leiste" onclick="leisteTippen(event)">' + html + '</div><div class="leiste-uhr">' + uhr + '</div>' +
+    '<div class="leiste-legende">' + leg('var(--gold)', 'neu') + leg('var(--rosa-voll)', 'Blöcke') + leg('var(--akzent)', 'Termine') +
+    (plan.start ? '' : '<span>· tippen zum Setzen</span>') + '</div>';
+}
+function leisteTippen(ev) {
   if (!plan) return;
+  const r = ev.currentTarget.getBoundingClientRect();
+  let m = LEISTE_VON + (ev.clientX - r.left) / r.width * (LEISTE_BIS - LEISTE_VON) - plan.min / 2;   // Block mittig unter den Finger
+  m = Math.round(m / 15) * 15;
+  const jm = jetztMin();
+  if (plan.tag === heute()) {
+    if (!plan.nach && m < jm) m = Math.ceil(jm / 5) * 5;
+    if (plan.nach && m + plan.min > jm) m = Math.floor((jm - plan.min) / 5) * 5;
+  }
+  m = Math.max(0, Math.min(23 * 60 + 55, m));
+  haptik();
+  planStart(zwei(Math.floor(m / 60)) + ':' + zwei(m % 60));
+}
+function planZeichnen() {
+  if (!plan || plan.fertig) return;
   const h = heute(), m = tagPlus(h, 1);
   const chip = (an, txt, fn) => '<button class="' + (an ? 'an' : '') + '" onclick="' + fn + '">' + txt + '</button>';
   const anzahl = bloeckeVon(plan.tag).length;
@@ -1799,7 +1913,7 @@ function planZeichnen() {
   }
   $('planen').innerHTML = '<div class="planinnen">' +
     '<div class="plankopf"><b>' + (plan.nach ? 'Block nachtragen' : 'Block planen') + '</b><button class="rund" onclick="planSchliessen()" aria-label="Schließen">✕</button></div>' +
-    '<div class="wahl raster zwei">' + chip(!plan.nach, 'Planen', "planSetzen('nach',false)") + chip(plan.nach, 'Schon gemacht', "planSetzen('nach',true)") + '</div>' +
+    neuTabs(plan.nach ? 'nach' : 'block') + neuZielHtml() +
     '<div class="karte"><div class="bereich">Wie lange</div><div class="wahl raster">' +
       plan.dauern.slice(0, 5).map(d => chip(plan.min === d, dauerKurz(d), 'planSetzen(\'min\',' + d + ')')).join('') +
       '<input type="time" class="dauerfrei' + (plan.dauern.slice(0, 5).indexOf(plan.min) === -1 ? ' an' : '') + '" step="300" value="' + zwei(Math.floor(plan.min / 60)) + ':' + zwei(plan.min % 60) +
@@ -1808,7 +1922,7 @@ function planZeichnen() {
       chip(plan.tag === h, 'Heute', "planSetzen('tag','" + h + "')") +
       (plan.nach ? chip(plan.tag === tagPlus(h, -1), 'Gestern', "planSetzen('tag','" + tagPlus(h, -1) + "')") : chip(plan.tag === m, 'Morgen', "planSetzen('tag','" + m + "')")) +
       '<input type="time" class="dauerfrei' + (plan.start ? ' an' : '') + '" step="300" value="' + esc(plan.start) + '" onchange="planStart(this.value)" aria-label="Eigene Startzeit"></div>' +
-    '<div class="slotinfo">' + slotText() + '</div></div>' +
+    leisteHtml() + '<div class="slotinfo">' + slotText() + '</div></div>' +
     '<div class="karte"><div class="bereich">Was</div><div class="wahl raster zwei">' +
       chip(plan.quelle === 'task', 'Aus Tasks', "planSetzen('quelle','task')") + chip(plan.quelle === 'frei', 'Ohne Task', "planSetzen('quelle','frei')") +
     '</div><div class="planwas">' + was + '</div></div>' +
@@ -1816,7 +1930,8 @@ function planZeichnen() {
       '<input type="text" placeholder="Was tust du in den ersten 5 Minuten?" value="' + esc(plan.schritt) + '" oninput="planText(\'schritt\', this.value)"></div>' +
     (anzahl >= 3 && !plan.nach ? '<div class="warnung">An dem Tag stehen schon ' + anzahl + ' Blöcke. Mehr als drei sind meist zu viel.</div>' : '') +
     '<button class="planknopf" id="planOk" onclick="planAnlegen()"' + (planBereit() ? '' : ' disabled') + '>' +
-      (plan.sendet ? 'Lege an …' : plan.nach ? 'Nachtragen' : anzahl >= 3 ? 'Trotzdem anlegen' : 'Block anlegen') + '</button></div>';
+      (plan.sendet ? 'Lege an …' : plan.nach ? 'Nachtragen' : anzahl >= 3 ? 'Trotzdem anlegen' : 'Block anlegen') +
+      (!plan.sendet && neuBonus() ? '<span class="bonus">' + neuBonus() + '</span>' : '') + '</button></div>';
 }
 function planAnlegen() {
   if (!planBereit()) return;
@@ -1832,10 +1947,17 @@ function planAnlegen() {
   plan.sendet = true;
   planZeichnen();
   server('appBlockPlanen', o).then(d => {
-    planSchliessen();
+    const p = plan;
+    if (p) {
+      p.fertig = true;
+      const k = $('planOk');
+      if (k) { k.classList.add('fertig'); k.disabled = false; k.textContent = '✓ ' + (p.nach ? 'Nachgetragen' : 'Eingeplant'); }
+    }
+    haptik();
     if (d && d.paket) uebernehmen(d.paket); else abfragen(true);
     if (d && d.key) merken({ art: 'plan', tag: tagIso, key: d.key, name: 'Block geplant' });
     melden(d && d.meldung ? d.meldung : 'Eingeplant');
+    setTimeout(() => { if (plan === p) planSchliessen(); }, p ? 700 : 0);
   }).catch(e => {
     if (plan) { plan.sendet = false; planZeichnen(); }
     melden(e.message || String(e));
