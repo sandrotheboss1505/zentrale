@@ -313,7 +313,7 @@
   .taskzeile.unter { padding-left: 24px; }
   .taskzeile .kreis { width: 20px; height: 20px; border-radius: 10px; border: 2px solid var(--linie); flex: none; }
   .taskzeile.an { font-weight: 600; }
-  .taskzeile.an .kreis { background: var(--akzent); border-color: var(--akzent); }
+  .taskzeile.an .kreis { background: var(--gold); border-color: var(--gold); }
   #planen input[type=text] { width: 100%; text-align: left; margin-top: 10px; font-size: 16px; }
   .planknopf { display: block; width: 100%; margin-top: 6px; padding: 14px; border-radius: 14px; background: var(--akzent); color: #fff; font-weight: 700; font-size: 16px; }
   .planknopf:disabled { opacity: .4; }
@@ -356,6 +356,17 @@
   .leiste-uhr span { position: absolute; transform: translateX(-50%); }
   .leiste-legende { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px; color: var(--leise); margin-top: 4px; }
   .leiste-legende i { display: inline-block; width: 10px; height: 8px; border-radius: 2px; margin-right: 4px; vertical-align: 0; }
+  .wahl.raster.vier { grid-template-columns: repeat(4, 1fr); }
+  .tagwahl { position: relative; display: flex; align-items: center; justify-content: center; min-height: 36px; padding: 2px 4px; border-radius: 12px;
+    background: var(--chip); font-weight: 600; font-size: 12.5px; line-height: 1.1; text-align: center; overflow: hidden; }
+  .tagwahl.an { background: var(--akzent); color: #fff; }
+  .tagwahl input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; margin: 0 !important; padding: 0; border: 0; cursor: pointer; }
+  .wahl button.q-task { background: var(--gold-hell); color: var(--gold); }
+  .wahl button.q-task.an { background: var(--gold); color: var(--karte); }
+  .wahl button.q-frei { background: var(--rosa-hell); color: var(--rosa); }
+  .wahl button.q-frei.an { background: var(--rosa-voll); color: var(--karte); }
+  .planwas .wahl button.an { background: var(--rosa-voll); color: var(--karte); }
+  .leiste .te.dauer { width: auto; margin-left: 0; top: 9px; bottom: 9px; border-radius: 4px; opacity: .85; }
   .planknopf .bonus { font-weight: 600; opacity: .85; margin-left: 8px; font-size: 14px; }
   .planknopf.fertig { background: #1D9E75; animation: hzpop .45s ease-out; }
 
@@ -462,7 +473,7 @@
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611102350';
+const PWA_VERSION = '202611110003';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -1461,11 +1472,11 @@ function heuteAbhaken(i) {
 function plusOeffnen() { haptik(); planOeffnen(false); }
 function neuTabs(an) {
   const t = (k, ic, txt) => '<button class="' + (an === k ? 'an' : '') + '" onclick="neuWechsel(\'' + k + '\')"><span class="ic">' + ic + '</span>' + txt + '</button>';
-  return '<div class="neu-tabs">' + t('block', '◷', 'Block') + t('nach', '↺', 'Nachtragen') + t('tasks', '✓', 'Tasks') + '</div>';
+  return '<div class="neu-tabs">' + t('block', '◷', 'Block') + t('tasks', '✓', 'Tasks') + t('nach', '↺', 'Nachtragen') + '</div>';
 }
 function neuWechsel(k) {
   haptik();
-  if (k === 'tasks') { if (hwahl) return; plan = null; heuteWahlOeffnen(); return; }
+  if (k === 'tasks') { if (hwahl) return; planTimerAus(); plan = null; heuteWahlOeffnen(); return; }
   if (hwahl) { if (hwahl.tasks) tasksVorratSetzen({ tasks: hwahl.tasks, listen: hwahl.listen }); hwahl = null; }
   if (!plan) { planOeffnen(k === 'nach'); return; }
   if (plan.nach !== (k === 'nach')) planSetzen('nach', k === 'nach');
@@ -1735,23 +1746,24 @@ function fokusLokal(iso) {
 let plan = null;
 function planOeffnen(nach) {
   const h = heute();
-  plan = { tag: !nach && new Date().getHours() >= 17 ? tagPlus(h, 1) : h, min: 45, quelle: 'task', wahl: [],
+  plan = { tag: !nach && new Date().getHours() >= 17 ? tagPlus(h, 1) : h, min: 30, quelle: 'task', wahl: [],
     bereich: null, titel: '', schritt: '', tasks: null, bereiche: ['FW', 'Projekte', 'HFBK', 'Admin', 'Sport', 'System', 'Sonstiges'], nach: !!nach,
-    dauern: [30, 45, 60, 90, 120], fehler: '', sendet: false, start: '', slot: null };
+    dauern: [30, 75], fehler: '', sendet: false, start: '', slot: null, belegt: null };
   $('planen').classList.add('offen');
   document.body.style.overflow = 'hidden';
   slotHolen();
+  planTimerAn();
   if (tasksVorrat && tasksVorrat.tasks) plan.tasks = tasksVorrat.tasks.slice();
   planZeichnen();
   server('appPlanDaten').then(d => {
     if (!plan) return;
     plan.tasks = d.tasks || [];
     plan.bereiche = d.bereiche || plan.bereiche;
-    plan.dauern = d.dauern || plan.dauern;
     planZeichnen();
   }).catch(e => { if (!plan) return; plan.tasks = []; plan.fehler = e.message || String(e); planZeichnen(); });
 }
 function planSchliessen() {
+  planTimerAus();
   plan = null;
   $('planen').classList.remove('offen');
   $('planen').innerHTML = '';
@@ -1791,15 +1803,32 @@ function planDauerFrei(txt) {
   const min = Number(m[1]) * 60 + Number(m[2]);
   if (min >= 5) planSetzen('min', min);
 }
-/* Nächster freier Platz für Dauer und Tag, oder eine feste Startzeit über das Rad */
-function slotHolen() {
+/* Nächster freier Platz für Dauer und Tag. Der Server schickt dazu die belegten Zeiten des Tages direkt aus dem Kalender.
+   Solange das Fenster offen ist, alle 30 Sekunden neu, ohne dass das Fenster neu gezeichnet wird */
+let planTakt = null;
+function planTimerAn() { planTimerAus(); planTakt = setInterval(() => { if (plan && !plan.sendet && !plan.fertig && !document.hidden) slotHolen(true); }, 30000); }
+function planTimerAus() { if (planTakt) clearInterval(planTakt); planTakt = null; }
+function slotHolen(still) {
   if (!plan) return;
   const k = plan.tag + '|' + plan.min;
-  plan.slot = { laedt: true, k: k };
+  if (!still || !plan.slot || plan.slot.k !== k) plan.slot = { laedt: true, k: k };
   server('appFreierSlot', plan.tag, plan.min).then(s => {
-    if (!plan || plan.tag + '|' + plan.min !== k) return;
-    plan.slot = s; planZeichnen();
-  }).catch(() => { if (plan && plan.slot && plan.slot.k === k) { plan.slot = null; planZeichnen(); } });
+    if (!plan || plan.tag + '|' + plan.min !== k || !s) return;
+    s.k = k;
+    plan.slot = s;
+    if (s.belegt && s.tag === plan.tag) plan.belegt = { tag: s.tag, liste: s.belegt };
+    leisteNeu();
+  }).catch(() => { if (plan && plan.slot && plan.slot.k === k && plan.slot.laedt) { plan.slot = null; leisteNeu(); } });
+}
+/* Nur Leiste und Hinweis neu, damit Eingaben im Fenster nicht verloren gehen */
+function leisteNeu() {
+  if (!plan || plan.fertig) return;
+  const box = $('leisteBox');
+  if (box) box.innerHTML = leisteHtml() + '<div class="slotinfo">' + slotText() + '</div>'; else planZeichnen();
+}
+function planTagFrei(v) {
+  if (!plan || !/^\d{4}-\d{2}-\d{2}$/.test(String(v || '')) || v < heute()) return;
+  planSetzen('tag', v);
 }
 function planStart(txt) {
   if (!plan) return;
@@ -1831,25 +1860,6 @@ function neuBonus() {
   const z = zuwachsText(tagZuwachs(plan.tag, n, fokusTagMin(plan.tag) + (plan.nach ? 0 : neuOffenMin(plan.tag))));
   return z ? (plan.nach ? z : 'bis ' + z) + ' Tag' : '';
 }
-function neuZielHtml() {
-  const iso = plan.tag, h = heute(), ziel = fokusZielMin(iso);
-  const fertig = fokusTagMin(iso), offen = neuOffenMin(iso), neu = neuMinuten(), summe = fertig + offen + neu;
-  const wann = iso === h ? 'heute' : iso === tagPlus(h, 1) ? 'morgen' : 'gestern';
-  const bon = neuBonus();
-  const pille = !neu ? '<span class="nz-bonus leise">zählt nicht</span>'
-    : bon ? '<span class="nz-bonus">' + bon + '</span>' : '<span class="nz-bonus leise">+' + dauerText(neu) + '</span>';
-  const teil = (cls, m) => m > 0 ? '<span class="' + cls + '" style="flex:' + m + '"></span>' : '';
-  const rest = Math.max(0, ziel - summe);
-  let text;
-  if (neu && summe >= ziel && summe - neu < ziel) text = '<span class="nz-voll">Damit ist dein Tagesziel voll ✓</span>';
-  else if (summe >= ziel) text = 'Tagesziel ist schon voll geplant';
-  else text = 'Mit diesem Block noch <b>' + hm(rest) + '</b> bis zum Tagesziel';
-  if (plan.nach && neu) text += ' · nachgetragen zählt halb';
-  return '<div class="karte"><div class="bereich">Fokus ' + wann + '</div>' +
-    '<div class="nz-kopf"><b>' + hm(summe) + ' <small>von ' + hm(ziel) + '</small></b>' + pille + '</div>' +
-    '<div class="nz-seg">' + teil('fertig', fertig) + teil('geplant', offen) + teil('sneu', neu) + teil('rest', rest) + '</div>' +
-    '<div class="nz-text">' + text + '</div></div>';
-}
 /* Tagesleiste 7 bis 24 Uhr: Blöcke, Termine, jetzt, und der neue Block. Antippen setzt ihn dorthin */
 const LEISTE_VON = 7 * 60, LEISTE_BIS = 24 * 60;
 function leisteHtml() {
@@ -1857,14 +1867,26 @@ function leisteHtml() {
   const p = m => Math.max(0, Math.min(100, (m - LEISTE_VON) / (LEISTE_BIS - LEISTE_VON) * 100));
   let html = '';
   if (iso === h && !plan.nach) html += '<span class="lvorbei" style="width:' + p(jm) + '%"></span>';
-  bloeckeVon(iso).forEach(b => {
-    const a = minVon(b.start), e = b.ende ? minVon(b.ende) : a + (b.min || 0);
-    const cls = !zaehlt(b) || b.status === 'nicht' ? 'grau' : (b.status === 'gemacht' || b.status === 'teils' || gestartet(b)) ? 'gemacht' : '';
-    html += '<span class="bl ' + cls + '" style="left:' + p(a) + '%;width:' + Math.max(0.8, p(e) - p(a)) + '%"></span>';
-  });
-  ((P && P.termine && P.termine[iso]) || []).forEach(t => {
-    if (/^\d{1,2}:\d{2}/.test(t.zeit)) html += '<span class="te" style="left:' + p(minVon(t.zeit)) + '%"></span>';
-  });
+  const breit = (a, e) => 'left:' + p(a) + '%;width:' + Math.max(0.8, p(e) - p(a)) + '%';
+  const blockKlasse = b => !zaehlt(b) || b.status === 'nicht' ? 'grau' : (b.status === 'gemacht' || b.status === 'teils' || gestartet(b)) ? 'gemacht' : '';
+  const live = plan.belegt && plan.belegt.tag === iso ? plan.belegt.liste : null;
+  if (live) {
+    live.forEach(x => {
+      const a = minVon(x.a), e = minVon(x.e) > a ? minVon(x.e) : 24 * 60;
+      if (x.art === 'block') {
+        const b = bloeckeVon(iso).find(y => y.start === x.a) || { bereich: String(x.titel || '').split(':')[0] };
+        html += '<span class="bl ' + blockKlasse(b) + '" style="' + breit(a, e) + '"></span>';
+      } else html += '<span class="te dauer" style="' + breit(a, e) + '"></span>';
+    });
+  } else {
+    bloeckeVon(iso).forEach(b => {
+      const a = minVon(b.start), e = b.ende ? minVon(b.ende) : a + (b.min || 0);
+      html += '<span class="bl ' + blockKlasse(b) + '" style="' + breit(a, e) + '"></span>';
+    });
+    ((P && P.termine && P.termine[iso]) || []).forEach(t => {
+      if (/^\d{1,2}:\d{2}/.test(t.zeit)) html += '<span class="te" style="left:' + p(minVon(t.zeit)) + '%"></span>';
+    });
+  }
   if (iso === h) html += '<span class="ljetzt" style="left:' + p(jm) + '%"></span>';
   const st = plan.start || (!plan.nach && plan.slot && plan.slot.frei ? plan.slot.start : '');
   if (st) { const a = minVon(st); html += '<span class="lneu" style="left:' + p(a) + '%;width:' + Math.max(1.5, p(a + plan.min) - p(a)) + '%"></span>'; }
@@ -1892,7 +1914,8 @@ function planZeichnen() {
   if (!plan || plan.fertig) return;
   const h = heute(), m = tagPlus(h, 1);
   const chip = (an, txt, fn) => '<button class="' + (an ? 'an' : '') + '" onclick="' + fn + '">' + txt + '</button>';
-  const anzahl = bloeckeVon(plan.tag).length;
+  const anzahl = plan.belegt && plan.belegt.tag === plan.tag ? plan.belegt.liste.filter(x => x.art === 'block').length : bloeckeVon(plan.tag).length;
+  const anders = !plan.nach && plan.tag !== h && plan.tag !== m;
   let was = '';
   if (plan.quelle === 'task') {
     if (plan.tasks === null) was = '<div class="hinweis">Lädt deine Tasks …</div>';
@@ -1913,18 +1936,21 @@ function planZeichnen() {
   }
   $('planen').innerHTML = '<div class="planinnen">' +
     '<div class="plankopf"><b>' + (plan.nach ? 'Block nachtragen' : 'Block planen') + '</b><button class="rund" onclick="planSchliessen()" aria-label="Schließen">✕</button></div>' +
-    neuTabs(plan.nach ? 'nach' : 'block') + neuZielHtml() +
+    neuTabs(plan.nach ? 'nach' : 'block') +
     '<div class="karte"><div class="bereich">Wie lange</div><div class="wahl raster">' +
-      plan.dauern.slice(0, 5).map(d => chip(plan.min === d, dauerKurz(d), 'planSetzen(\'min\',' + d + ')')).join('') +
-      '<input type="time" class="dauerfrei' + (plan.dauern.slice(0, 5).indexOf(plan.min) === -1 ? ' an' : '') + '" step="300" value="' + zwei(Math.floor(plan.min / 60)) + ':' + zwei(plan.min % 60) +
+      plan.dauern.map(d => chip(plan.min === d, dauerKurz(d), 'planSetzen(\'min\',' + d + ')')).join('') +
+      '<input type="time" class="dauerfrei' + (plan.dauern.indexOf(plan.min) === -1 ? ' an' : '') + '" step="300" value="' + zwei(Math.floor(plan.min / 60)) + ':' + zwei(plan.min % 60) +
       '" onchange="planDauerFrei(this.value)" aria-label="Eigene Dauer"></div>' +
-    '<div class="bereich" style="margin-top:14px">Wann</div><div class="wahl raster">' +
+    '<div class="bereich" style="margin-top:14px">Wann</div><div class="wahl raster' + (plan.nach ? '' : ' vier') + '">' +
       chip(plan.tag === h, 'Heute', "planSetzen('tag','" + h + "')") +
-      (plan.nach ? chip(plan.tag === tagPlus(h, -1), 'Gestern', "planSetzen('tag','" + tagPlus(h, -1) + "')") : chip(plan.tag === m, 'Morgen', "planSetzen('tag','" + m + "')")) +
+      (plan.nach ? chip(plan.tag === tagPlus(h, -1), 'Gestern', "planSetzen('tag','" + tagPlus(h, -1) + "')") : chip(plan.tag === m, 'Morgen', "planSetzen('tag','" + m + "')") +
+        '<label class="tagwahl' + (anders ? ' an' : '') + '"><span>' + (anders ? esc(label(plan.tag)) : 'Anderer Tag') + '</span>' +
+        '<input type="date" min="' + h + '" value="' + (anders ? plan.tag : '') + '" onchange="planTagFrei(this.value)" aria-label="Anderer Tag"></label>') +
       '<input type="time" class="dauerfrei' + (plan.start ? ' an' : '') + '" step="300" value="' + esc(plan.start) + '" onchange="planStart(this.value)" aria-label="Eigene Startzeit"></div>' +
-    leisteHtml() + '<div class="slotinfo">' + slotText() + '</div></div>' +
+    '<div id="leisteBox">' + leisteHtml() + '<div class="slotinfo">' + slotText() + '</div></div></div>' +
     '<div class="karte"><div class="bereich">Was</div><div class="wahl raster zwei">' +
-      chip(plan.quelle === 'task', 'Aus Tasks', "planSetzen('quelle','task')") + chip(plan.quelle === 'frei', 'Ohne Task', "planSetzen('quelle','frei')") +
+      '<button class="q-task' + (plan.quelle === 'task' ? ' an' : '') + '" onclick="planSetzen(\'quelle\',\'task\')">Aus Tasks</button>' +
+      '<button class="q-frei' + (plan.quelle === 'frei' ? ' an' : '') + '" onclick="planSetzen(\'quelle\',\'frei\')">Ohne Task</button>' +
     '</div><div class="planwas">' + was + '</div></div>' +
     '<div class="karte"><div class="bereich">Erster Schritt</div>' +
       '<input type="text" placeholder="Was tust du in den ersten 5 Minuten?" value="' + esc(plan.schritt) + '" oninput="planText(\'schritt\', this.value)"></div>' +
