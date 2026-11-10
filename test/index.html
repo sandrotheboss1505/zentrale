@@ -373,22 +373,29 @@
   .ringe-leg { display: flex; gap: 10px; font-size: 11px; color: var(--leise); font-variant-numeric: tabular-nums; white-space: nowrap; }
   .ringe-leg span { display: inline-flex; align-items: center; gap: 4px; }
   .ringe-leg i { width: 7px; height: 7px; border-radius: 4px; display: inline-block; }
-  .ns-karte { background: var(--karte); border-radius: 18px; box-shadow: var(--schatten); border: 2px solid #8B7FE0; padding: 11px 14px; margin-bottom: 12px; animation: ciein .35s ease-out; }
-  .ns-kopf { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #5B50C8; }
-  .ns-titel { font-size: 17px; font-weight: 600; margin-top: 4px; }
-  .ns-unter { font-size: 13px; color: var(--leise); margin-top: 2px; }
-  .ns-los { display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; height: 48px; margin-top: 10px; border-radius: 12px; background: #5B50C8; color: #fff; font-size: 16px; font-weight: 600; }
-  .ns-los .play { font-size: 12px; }
-  .ns-los i { font-style: normal; font-weight: 500; opacity: .85; }
-  .ns-los:active { transform: scale(.97); }
-  .ns-oder { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 9px; font-size: 12px; color: var(--leise); }
-  .ns-oder button { padding: 5px 11px; border-radius: 999px; background: var(--chip); color: var(--text); font-size: 12px; }
-  .ns-oder b { color: var(--gruen); font-weight: 600; }
-  .ns-karte.ns-leer { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--leise); border: 0; padding: 13px 16px; }
-  .ns-haken { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 10px; background: #1D9E75; color: #fff; font-size: 12px; }
-  @media (prefers-color-scheme: dark) { .ns-kopf { color: #B4ACF0; } .ns-los { background: #6E63D6; } }
-  .leuchten { animation: leuchten 1.6s ease-out; border-radius: 12px; }
-  @keyframes leuchten { 0%, 35% { box-shadow: 0 0 0 3px #8B7FE0; } 100% { box-shadow: 0 0 0 3px transparent; } }
+  .er-kopf { display: flex; justify-content: space-between; align-items: baseline; margin: 20px 0 8px; }
+  .er-kopf .h { font-size: 13px; font-weight: 600; }
+  .er-kopf .s { font-size: 12px; color: var(--leise); }
+  .er-bloecke { display: grid; gap: 6px; }
+  .er-block { display: grid; grid-template-columns: 38px 4px minmax(0, 1fr) auto; gap: 10px; align-items: center; width: 100%; text-align: left;
+    padding: 9px 12px 9px 10px; border-radius: 12px; background: var(--chip); }
+  .er-zeit { font-size: 12px; color: var(--leise); font-variant-numeric: tabular-nums; }
+  .er-strich { width: 4px; align-self: stretch; min-height: 22px; border-radius: 2px; background: var(--gruen); }
+  .er-block.er-halb .er-strich { background: linear-gradient(var(--gruen) 50%, var(--gruen-hell) 50%); }
+  .er-block.er-nicht .er-strich, .er-block.er-aus .er-strich { background: var(--kreis); }
+  .er-block.er-nach .er-strich { background: repeating-linear-gradient(var(--gruen) 0 4px, transparent 4px 7px); }
+  .er-was { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .er-was b { font-weight: 500; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .er-was small { font-size: 12px; color: var(--leise); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .er-block.er-nicht .er-was b { color: var(--leise); }
+  .er-min { font-size: 14px; font-weight: 600; color: var(--gruen); font-variant-numeric: tabular-nums; }
+  .er-block.er-nicht .er-min, .er-block.er-aus .er-min { color: var(--leise); font-weight: 500; }
+  .er-tasks { margin-top: 12px; }
+  .er-task { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 7px 2px; font-size: 14px; border-top: 1px solid var(--linie); }
+  .er-task:first-child { border-top: 0; }
+  .er-haken { width: 18px; height: 18px; border-radius: 9px; background: var(--gold-hell); color: var(--gold); font-size: 10px; font-weight: 700; display: grid; place-items: center; }
+  .er-tt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .er-tz { font-size: 12px; color: var(--leise); font-variant-numeric: tabular-nums; }
   .flug-plus { position: fixed; z-index: 50; pointer-events: none; font-size: 15px; font-weight: 700; color: #fff; background: #1D9E75;
     padding: 3px 10px; border-radius: 999px; font-variant-numeric: tabular-nums; box-shadow: 0 2px 10px rgba(0,0,0,.18); }
 </style>
@@ -418,7 +425,7 @@
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611102321';
+const PWA_VERSION = '202611102330';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -608,7 +615,7 @@ document.addEventListener('pointerdown', e => {
 }, { passive: true });
 function tippAnimation(el) {
   const z = el && el.closest ? el.closest(TIPP_ZIEL) : null;
-  if (!z) return;
+  if (!z || z.closest('.ruhig')) return;
   z.classList.remove('tipp'); void z.offsetWidth; z.classList.add('tipp');
   setTimeout(() => z.classList.remove('tipp'), 400);
 }
@@ -654,7 +661,6 @@ function zeichneTag() {
         '><small>' + esc(o.spalte) + (o.liste ? '<span class="pfeil">▸</span>' : '') + '</small><b style="' + ton(o, stufe(o, wertVon(o.spalte))) + '">' +
         (esc(anzeigeVon(o.spalte)) || '–') + '</b></div>').join('') + '</div></div>';
   });
-  if (tagIso === heute()) html += schrittHtml();
 
   let listen = '';
   oben.filter(o => o.liste && auf.has(o.spalte)).forEach(o => {
@@ -673,7 +679,8 @@ function zeichneTag() {
     const kopfZeile = bloecke ? '' :
       '<div class="bereich"><span class="punkt" style="background:' + b.farbe + '"></span>' + esc(b.name) +
       (b.felder.some(f => CHECKIN_FELDER.indexOf(f.spalte) !== -1) && checkinOffen() ? '<span class="ci-offen">' + checkinOffen() + ' offen</span>' : '') + '</div>';
-    return { name: b.name, bloecke: bloecke, html: '<div class="karte">' + kopfZeile + b.felder.map(feldHtml).join('') + '</div>' };
+    const ruhig = String(b.name || '').toLowerCase() === 'geld';   // Geld: keine Animation, soll sofort reagieren
+    return { name: b.name, bloecke: bloecke, html: '<div class="karte' + (ruhig ? ' ruhig' : '') + '">' + kopfZeile + b.felder.map(feldHtml).join('') + '</div>' };
   });
 
   /* Mac: Karten in Spalten. Links Handlung (Fokus, Struktur, Notiz), Mitte Eingaben, rechts Geld, Bewegung, Schlaf, Körper */
@@ -1153,83 +1160,6 @@ function plusFliegt(d) {
   };
 }
 
-/* ── Nächster bester Schritt: rechnet für jede offene Sache aus, wie viel sie den Tag noch hebt, und zeigt die größte ── */
-const SCHRITT_KAESTCHEN = [['Knieübung', 'Knieübung', 0, 24 * 60], ['Sport', 'Sport', 0, 24 * 60],
-  ['X Handy Frühstück', 'Frühstück ohne Handy', 0, 12 * 60], ['X Handy Schlafen', 'Handy weg fürs Einschlafen', 21 * 60, 24 * 60]];
-function blockLaeuft(h) {
-  const jm = jetztMin();
-  return bloeckeVon(h).some(b => zaehlt(b) && b.gestartet && !b.status && !b.beendet && minVon(b.ende) > jm);
-}
-function schritte() {
-  const h = heute();
-  if (!P || tagIso !== h || h < ZEIT_AB) return [];
-  const basisMin = fokusTagMin(h), basis = tagWertRechnen(h, basisMin);
-  if (basis == null) return [];
-  const jm = jetztMin(), l = [];
-  const gewinn = (ueber, mehr) => { const x = tagWertRechnen(h, basisMin + (mehr || 0), ueber); return x == null ? 0 : x - basis; };
-
-  // Fokus: der nächste Block, sonst einen einplanen. Läuft schon einer, ist das hier nicht nötig
-  if (!blockLaeuft(h)) {
-    const bl = bloeckeVon(h).map((b, i) => ({ b: b, i: i }))
-      .filter(x => zaehlt(x.b) && !x.b.status && !x.b.gestartet && minVon(x.b.ende) > jm)
-      .sort((a, b) => a.b.start.localeCompare(b.b.start));
-    if (bl.length) {
-      const b = bl[0].b, t = titelTeile(b), schon = minVon(b.start) <= jm;
-      l.push({ titel: blockName(b), unter: t.schritt ? 'Erster Schritt: ' + t.schritt : schon ? 'Jetzt dran' : 'Geplant um ' + b.start,
-        wert: gewinn(null, schon ? minVon(b.ende) - jm : b.min), bis: true, knopf: 'Los', play: true, kurz: 'Block starten',
-        aktion: "blockStarten('" + h + "'," + bl[0].i + ")" });
-    } else {
-      const fehlt = fokusZielMin(h) - basisMin;
-      if (fehlt > 0 && jm < 22 * 60) l.push({ titel: 'Fokusblock einplanen', unter: 'Noch ' + dauerText(fehlt) + ' bis zum Ziel',
-        wert: gewinn(null, Math.min(60, fehlt)), bis: true, knopf: 'Planen', kurz: 'Fokus planen', aktion: 'plusOeffnen()' });
-    }
-  }
-  // Kästchen, die den Tag heben (nur wenn das Feld in der App genauso heißt wie in Tage)
-  SCHRITT_KAESTCHEN.forEach(([sp, titel, von, bis]) => {
-    const f = P.felder.find(x => x.spalte === sp && x.typ === 'kaestchen');
-    if (!f || wertVon(sp) === true || jm < von || jm >= bis) return;
-    const g = gewinn({ [sp]: true });
-    if (g > 0.005) l.push({ titel: titel, unter: 'Antippen, wenn erledigt', wert: g, knopf: 'Erledigt', aktion: "setzen('f" + P.felder.indexOf(f) + "',true)" });
-  });
-  // Check in im laufenden Fenster
-  const ci = checkinOffen();
-  if (ci) {
-    const c = CHECKIN.find(([, von, bis]) => jm >= von && jm < bis);
-    const sp = CHECKIN_FELDER.find(x => !checkinFenster((zelle(x) || {}).eintraege || []).some(y => y.name === c[0] && y.wert != null));
-    l.push({ titel: c[0] + ' Check in', unter: ci + ' von 3 noch offen', wert: null, prio: 0.15, knopf: 'Hin', kurz: 'Check in', aktion: "schrittHin('" + sp + "')" });
-  }
-  // Abends: Vb
-  if (P.felder.some(x => x.spalte === 'Vb') && wertVon('Vb') == null && jm >= 19 * 60) {
-    l.push({ titel: 'Vb eintragen', unter: 'War der Tag es wert?', wert: gewinn({ Vb: 'si' }), bis: true, knopf: 'Hin', kurz: 'Vb', aktion: "schrittHin('Vb')" });
-  }
-  l.forEach(x => { x.rang = x.wert != null ? x.wert : x.prio; });
-  return l.filter(x => x.wert == null || x.wert > 0.005).sort((a, b) => b.rang - a.rang);
-}
-function schrittPlus(x) { return x.wert != null && zuwachsText(x.wert) ? (x.bis ? 'bis ' : '') + zuwachsText(x.wert) : ''; }
-function schrittHtml() {
-  if (!P || tagIso !== heute()) return '<div id="nsKarte"></div>';
-  // Läuft ein Block, lenkt nichts davon ab
-  const l = blockLaeuft(heute()) ? [] : schritte();
-  if (!l.length) {
-    if (heute() < ZEIT_AB) return '<div id="nsKarte"></div>';
-    return '<div id="nsKarte" class="ns-karte ns-leer"><span class="ns-haken">✓</span>' + (blockLaeuft(heute()) ? 'Block läuft. Bleib dran.' : 'Für jetzt ist alles drin.') + '</div>';
-  }
-  const a = l[0];
-  return '<div id="nsKarte" class="ns-karte"><div class="ns-kopf">Nächster bester Schritt</div>' +
-    '<div class="ns-titel">' + esc(a.titel) + '</div><div class="ns-unter">' + esc(a.unter) + '</div>' +
-    '<button class="ns-los" onclick="' + a.aktion + '">' + (a.play ? '<span class="play">▶</span>' : '') + esc(a.knopf) +
-    (schrittPlus(a) ? '<i>· Tag ' + schrittPlus(a) + '</i>' : '') + '</button>' +
-    (l.length > 1 ? '<div class="ns-oder"><span>Oder:</span>' + l.slice(1, 3).map(x => '<button onclick="' + x.aktion + '">' + esc(x.kurz || x.titel) +
-      (x.wert != null && zuwachsText(x.wert) ? ' <b>' + zuwachsText(x.wert) + '</b>' : '') + '</button>').join('') + '</div>' : '') + '</div>';
-}
-function schrittHin(sp) {
-  const f = P.felder.find(x => x.spalte === sp);
-  const el = f && document.querySelector('[data-f="f' + P.felder.indexOf(f) + '"]');
-  if (!el) return;
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  el.classList.remove('leuchten'); void el.offsetWidth; el.classList.add('leuchten');
-}
-
 /* ── Heute: Jetzt, Später, Offen, Erledigt ── */
 const DRAN_KEY = 'zentrale_dran';
 let dranMerk = {};
@@ -1328,8 +1258,6 @@ function heuteNeu() {
   const el = $('heuteBox'), f = P && P.felder.find(x => x.typ === 'bloecke');
   if (el && f) el.innerHTML = heuteHtml(f);
   tagZahlNeu();
-  const ns = $('nsKarte');
-  if (ns) ns.outerHTML = schrittHtml();
 }
 function tagZahlNeu() {
   const el = $('tagZahl'), f = P && P.felder.find(x => x.typ === 'gross'), live = tagLive(tagIso);
@@ -1429,23 +1357,27 @@ function heuteHtml(f) {
 /* Erledigt: eine Liste nach Uhrzeit. Blöcke grün mit Fokuszeit, Tasks goldgelb. Antippen eines Blocks nimmt die Bewertung zurück */
 function erledigtHtml(iso, l) {
   const tf = P.felder.find(x => x.typ === 'tasks');
-  const tasks = tf ? ((zelle(tf.spalte, iso) || {}).tasks || []) : [];
-  const fertig = l.filter(x => x.b.status);
+  const tasks = (tf ? ((zelle(tf.spalte, iso) || {}).tasks || []) : []).slice().sort((a, b) => String(a.zeit).localeCompare(String(b.zeit)));
+  const fertig = l.filter(x => x.b.status).sort((a, b) => a.b.start.localeCompare(b.b.start));
   if (!fertig.length && !tasks.length) return '';
-  const zeilen = fertig.map(x => {
-    const fm = fokusMin(iso, x.b);
-    const zeichen = { gemacht: '✓', teils: '½', nicht: '✕' }[x.b.status] || '✓';
-    return { zeit: x.b.start, html: '<button class="hz-row" onclick="blockSetzen(\'' + iso + '\',' + x.i + ',\'\')">' +
-      '<span class="hz-ic ' + (x.b.status === 'nicht' || !zaehlt(x.b) ? 'grau' : 'gruen') + (x.b.nach ? ' nach' : '') + '">' + zeichen + '</span>' +
-      '<span>' + esc(blockName(x.b)) + (x.b.nach ? ' <small class="leise">nachgetragen</small>' : '') + (!zaehlt(x.b) ? ' <small class="leise">zählt nicht</small>' : '') + '</span><span class="hz-t">' + (fm > 0 ? hm(fm) : '') + '</span>' +
-      '<span class="hz-t">' + esc(x.b.start) + '</span></button>' +
-      (x.b.status === 'gemacht' && x.b.task && !x.b.taskFertig ? '<div class="taskfrage"><span>Task „' + esc(x.b.taskTitel || x.b.titel) + '“ auch fertig?</span>' +
-        '<button onclick="taskFertig(\'' + iso + '\',' + x.i + ')">Ja, abhaken</button></div>' : '') };
-  }).concat(tasks.map(t => ({ zeit: t.zeit, html: '<div class="hz-row"><span class="hz-ic gold">✓</span><span>' + esc(t.titel) + '</span><span></span><span class="hz-t">' + esc(t.zeit) + '</span></div>' })));
-  zeilen.sort((a, b) => String(a.zeit).localeCompare(String(b.zeit)));
   const nb = fertig.length, nt = tasks.length;
   const sum = [nb ? nb + (nb === 1 ? ' Block' : ' Blöcke') : '', nt ? nt + (nt === 1 ? ' Task' : ' Tasks') : ''].filter(Boolean).join(' · ');
-  return '<div class="hz-k2"><span class="h">Erledigt</span><span class="s">' + sum + '</span></div>' + zeilen.map(z => z.html).join('');
+  let html = '<div class="er-kopf"><span class="h">Erledigt</span><span class="s">' + sum + '</span></div>';
+  if (nb) html += '<div class="er-bloecke">' + fertig.map(x => {
+    const b = x.b, fm = fokusMin(iso, b), z = zaehlt(b);
+    const art = b.status === 'nicht' ? 'er-nicht' : !z ? 'er-aus' : b.status === 'teils' ? 'er-halb' : 'er-ganz';
+    const unter = [b.bereich === 'Sonstiges' ? '' : b.bereich, b.status === 'teils' ? 'halb' : b.status === 'nicht' ? 'nicht gemacht' : '',
+      b.nach ? 'nachgetragen' : '', z ? '' : 'zählt nicht'].filter(Boolean).join(' · ');
+    return '<button class="er-block ' + art + (b.nach ? ' er-nach' : '') + '" onclick="blockSetzen(\'' + iso + '\',' + x.i + ',\'\')">' +
+      '<span class="er-zeit">' + esc(b.start) + '</span><span class="er-strich"></span>' +
+      '<span class="er-was"><b>' + esc(titelTeile(b).was || b.bereich) + '</b>' + (unter ? '<small>' + esc(unter) + '</small>' : '') + '</span>' +
+      '<span class="er-min">' + (fm > 0 ? hm(fm) : '–') + '</span></button>' +
+      (b.status === 'gemacht' && b.task && !b.taskFertig ? '<div class="taskfrage"><span>Task „' + esc(b.taskTitel || b.titel) + '“ auch fertig?</span>' +
+        '<button onclick="taskFertig(\'' + iso + '\',' + x.i + ')">Ja, abhaken</button></div>' : '');
+  }).join('') + '</div>';
+  if (nt) html += '<div class="er-tasks">' + tasks.map(t => '<div class="er-task"><span class="er-haken">✓</span><span class="er-tt">' + esc(t.titel) +
+    '</span><span class="er-tz">' + esc(t.zeit) + '</span></div>').join('') + '</div>';
+  return html;
 }
 
 /* ── Für heute: höchstens 5 kleine Tasks, Fälligkeit heute in Google Tasks ── */
@@ -1984,6 +1916,15 @@ function rueckgaengig() {
     liste.splice(a.index, 1);
     eintragLokal(f, liste); zeichnen();
     nacheinander('appEintrag', a.tag, f.spalte, 'weg', a.index);
+  } else if (a.art === 'eintragTausch') {
+    // Ersetzter Check in: neuen Wert raus, alten wieder rein
+    const f = feldVon(a.id);
+    const liste = ((zelle(f.spalte, a.tag) || {}).eintraege || []).slice();
+    liste.splice(a.index, 1);
+    liste.push({ zeit: jetztZeit(), wert: a.alt });
+    eintragLokal(f, liste); zeichnen();
+    nacheinander('appEintrag', a.tag, f.spalte, 'weg', a.index);
+    nacheinander('appEintrag', a.tag, f.spalte, 'neu', a.alt);
   } else if (a.art === 'startzeit') {
     const b = bloeckeVon(a.iso).find(x => x.key === a.key);
     if (b) b.gestartet = a.alt;
@@ -2068,10 +2009,25 @@ function eintragNeu(id, n) {
   const f = feldVon(id);
   checkinNeu = { spalte: f.spalte, t: Date.now() };
   haptik();
-  const liste = ((zelle(f.spalte) || {}).eintraege || []).concat([{ zeit: jetztZeit(), wert: n }]);
-  merken({ art: 'eintrag', tag: tagIso, id: id, index: liste.length - 1, name: nameVon(f) + ' ' + n });
+  const liste = ((zelle(f.spalte) || {}).eintraege || []).slice();
+  // Check ins: pro Fenster (morgens, mittags, abends) nur ein Wert. Nochmal tippen ersetzt ihn
+  let ersetzt = -1, fenster = null;
+  if (CHECKIN_FELDER.indexOf(f.spalte) !== -1 && tagIso === heute()) {
+    const jm = jetztMin();
+    fenster = CHECKIN.find(([, von, bis]) => jm >= von && jm < bis);
+    if (fenster) for (let i = liste.length - 1; i >= 0; i--) {
+      const m = /^\d{1,2}:\d{2}$/.test(liste[i].zeit) ? minVon(liste[i].zeit) : -1;
+      if (m >= fenster[1] && m < fenster[2]) { ersetzt = i; break; }
+    }
+  }
+  if (ersetzt >= 0 && liste[ersetzt].wert === n) return;
+  const alt = ersetzt >= 0 ? liste.splice(ersetzt, 1)[0] : null;
+  liste.push({ zeit: jetztZeit(), wert: n });
+  merken(alt ? { art: 'eintragTausch', tag: tagIso, id: id, index: liste.length - 1, alt: alt.wert, name: nameVon(f) + ' ' + n }
+             : { art: 'eintrag', tag: tagIso, id: id, index: liste.length - 1, name: nameVon(f) + ' ' + n });
   eintragLokal(f, liste); zeichnen();
-  melden(f.spalte.replace(' 1/10', '') + ' ' + n + ' gespeichert');
+  melden(nameVon(f) + (alt ? ' ' + fenster[0].toLowerCase() + ': ' + n + ' statt ' + komma(alt.wert) : ' ' + n + ' gespeichert'));
+  if (alt) nacheinander('appEintrag', tagIso, f.spalte, 'weg', ersetzt);
   nacheinander('appEintrag', tagIso, f.spalte, 'neu', n);
 }
 function eintragWeg(id, i) {
