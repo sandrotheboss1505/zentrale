@@ -1,7 +1,7 @@
 /* ZENTRALE · Service Worker (aus sw.vorlage.js, Version setzt bauen.py)
  * Die Seite selbst: erst Netz, ohne Netz aus dem Speicher. So kommt jede neue Version sofort,
  * und offline öffnet die App trotzdem. Daten laufen nie über den Service Worker (POST an Apps Script). */
-const CACHE = 'zentrale-202611102241';
+const CACHE = 'zentrale-202611102202';
 const HUELLE = ['./', 'index.html', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {

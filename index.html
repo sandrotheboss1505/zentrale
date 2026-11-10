@@ -392,7 +392,7 @@
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611102241';
+const PWA_VERSION = '202611102202';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -406,10 +406,11 @@ function schluesselFragen(falsch) {
   const d = document.createElement('div');
   d.id = 'schluessel';
   d.innerHTML = '<div class="sk-innen"><b>Zentrale</b><p>' + (falsch ? 'Der Schlüssel stimmt nicht.' : 'Einmal den Schlüssel eingeben.') +
-    '</p><input type="password" autocomplete="off" placeholder="Schlüssel"><button>Los</button></div>';
+    '</p><input type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Schlüssel"><button>Los</button></div>';
   d.querySelector('button').onclick = () => {
-    const k = d.querySelector('input').value.trim();
-    if (!/^[0-9a-f]{32}$/.test(k)) { d.querySelector('p').textContent = 'Das sieht nicht wie der Schlüssel aus.'; return; }
+    // Großbuchstaben, Leerzeichen und Umbrüche vom Einsetzen nicht übel nehmen
+    const roh = d.querySelector('input').value, k = roh.toLowerCase().replace(/[^0-9a-f]/g, '');
+    if (k.length !== 32) { d.querySelector('p').textContent = 'Eingesetzt sind ' + k.length + ' passende Zeichen, der Schlüssel hat 32 (Zahlen und a bis f).'; return; }
     try { localStorage.setItem(SCHLUESSEL_SPEICHER, k); } catch (e) { /* egal */ }
     location.reload();
   };
@@ -421,7 +422,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load', () => navigato
 <style>
   #schluessel { position: fixed; inset: 0; z-index: 99; background: var(--bg); display: grid; place-items: center; padding: 24px; }
   #schluessel .sk-innen { width: 100%; max-width: 320px; display: grid; gap: 12px; text-align: center; }
-  #schluessel b { font: italic 800 34px/1 Inter, -apple-system, sans-serif; color: #073763; }
+  #schluessel b { font: italic 800 34px/1 Inter, -apple-system, sans-serif; color: var(--akzent); }
   #schluessel input { height: 46px; border-radius: 12px; border: 1px solid var(--linie); padding: 0 14px; font-size: 16px; background: var(--karte); color: var(--text); }
   #schluessel button { height: 46px; border-radius: 12px; background: #073763; color: #fff; font-weight: 600; }
 </style>
