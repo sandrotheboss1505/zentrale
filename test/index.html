@@ -52,7 +52,7 @@
   .tageszahl { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 18px; padding: 10px 0 22px; }
   .neben { display: flex; flex-direction: column; gap: 10px; justify-self: start; }
   .neben.links { justify-self: end; text-align: right; }
-  .neben small { display: block; font-size: 11px; color: var(--leise); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
+  .neben small { display: block; white-space: nowrap; font-size: 11px; color: var(--leise); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
   .neben b { display: inline-block; font-size: 15px; font-variant-numeric: tabular-nums; padding: 3px 10px; border-radius: 8px; background: var(--chip); white-space: nowrap; }
   .tageszahl .zahl.pop { animation: hzpop .5s ease-out; }
   .tageszahl .zahl { width: 96px; height: 96px; border-radius: 48px; display: grid; place-items: center;
@@ -373,7 +373,7 @@
   .ringe-leg { display: flex; gap: 10px; font-size: 11px; color: var(--leise); font-variant-numeric: tabular-nums; white-space: nowrap; }
   .ringe-leg span { display: inline-flex; align-items: center; gap: 4px; }
   .ringe-leg i { width: 7px; height: 7px; border-radius: 4px; display: inline-block; }
-  .ns-karte { background: var(--karte); border-radius: 18px; box-shadow: var(--schatten), inset 0 0 0 2px #8B7FE0; padding: 13px 16px; margin-bottom: 12px; animation: ciein .35s ease-out; }
+  .ns-karte { background: var(--karte); border-radius: 18px; box-shadow: var(--schatten); border: 2px solid #8B7FE0; padding: 11px 14px; margin-bottom: 12px; animation: ciein .35s ease-out; }
   .ns-kopf { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #5B50C8; }
   .ns-titel { font-size: 17px; font-weight: 600; margin-top: 4px; }
   .ns-unter { font-size: 13px; color: var(--leise); margin-top: 2px; }
@@ -384,7 +384,7 @@
   .ns-oder { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 9px; font-size: 12px; color: var(--leise); }
   .ns-oder button { padding: 5px 11px; border-radius: 999px; background: var(--chip); color: var(--text); font-size: 12px; }
   .ns-oder b { color: var(--gruen); font-weight: 600; }
-  .ns-karte.ns-leer { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--leise); box-shadow: var(--schatten); }
+  .ns-karte.ns-leer { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--leise); border: 0; padding: 13px 16px; }
   .ns-haken { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 10px; background: #1D9E75; color: #fff; font-size: 12px; }
   @media (prefers-color-scheme: dark) { .ns-kopf { color: #B4ACF0; } .ns-los { background: #6E63D6; } }
   .leuchten { animation: leuchten 1.6s ease-out; border-radius: 12px; }
@@ -418,7 +418,7 @@
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611102216';
+const PWA_VERSION = '202611102321';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -1208,7 +1208,8 @@ function schritte() {
 function schrittPlus(x) { return x.wert != null && zuwachsText(x.wert) ? (x.bis ? 'bis ' : '') + zuwachsText(x.wert) : ''; }
 function schrittHtml() {
   if (!P || tagIso !== heute()) return '<div id="nsKarte"></div>';
-  const l = schritte();
+  // Läuft ein Block, lenkt nichts davon ab
+  const l = blockLaeuft(heute()) ? [] : schritte();
   if (!l.length) {
     if (heute() < ZEIT_AB) return '<div id="nsKarte"></div>';
     return '<div id="nsKarte" class="ns-karte ns-leer"><span class="ns-haken">✓</span>' + (blockLaeuft(heute()) ? 'Block läuft. Bleib dran.' : 'Für jetzt ist alles drin.') + '</div>';
