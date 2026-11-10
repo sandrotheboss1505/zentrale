@@ -357,6 +357,11 @@
   .leiste-legende { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px; color: var(--leise); margin-top: 4px; }
   .leiste-legende i { display: inline-block; width: 10px; height: 8px; border-radius: 2px; margin-right: 4px; vertical-align: 0; }
   .wahl.raster.vier { grid-template-columns: repeat(4, 1fr); }
+  .wahl .dauerfrei.blau { background: var(--akzent-hell); color: var(--akzent); }
+  .wahl .dauerfrei.blau.an { box-shadow: inset 0 0 0 2px var(--akzent); }
+  .wahl.wann button.an, .wahl.wann .tagwahl.an { background: var(--gruen); color: var(--karte); }
+  .wahl.wann .dauerfrei { background: var(--gruen-hell); color: var(--gruen); }
+  .wahl.wann .dauerfrei.an { box-shadow: inset 0 0 0 2px var(--gruen); }
   .tagwahl { position: relative; display: flex; align-items: center; justify-content: center; min-height: 36px; padding: 2px 4px; border-radius: 12px;
     background: var(--chip); font-weight: 600; font-size: 12.5px; line-height: 1.1; text-align: center; overflow: hidden; }
   .tagwahl.an { background: var(--akzent); color: #fff; }
@@ -473,7 +478,7 @@
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611110006';
+const PWA_VERSION = '202611110024';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -1441,10 +1446,23 @@ function tasksVorratSetzen(d) {
   tasksVorrat = { tasks: d.tasks.filter(t => !t.temp), listen: d.listen || [] };
   try { localStorage.setItem(TASKS_SPEICHER, JSON.stringify(tasksVorrat)); } catch (e) { /* egal */ }
 }
+/* Alles, was Tasks in Google ändert, läuft nacheinander. So kommt nichts durcheinander, und du musst nicht warten:
+   neue Tasks haben erst eine vorläufige Nummer, die Warteschlange setzt die echte ein, sobald Google sie kennt */
+let taskKette = Promise.resolve();
+const taskEcht = {};
+function taskRef(r) { return typeof r === 'string' && taskEcht[r] ? taskEcht[r] : r; }
+function taskReihe(fn, args, nachher) {
+  const p = taskKette.then(() => {
+    const echt = args.map(a => Array.isArray(a) ? a.map(taskRef).filter(r => !/^neu\d+$/.test(r)) : taskRef(a));
+    return server(fn, ...echt);
+  }).then(d => { if (nachher) nachher(d); return d; });
+  taskKette = p.catch(() => {});
+  return p;
+}
 function tasksVorladen(erzwingen) {
   if (!erzwingen && Date.now() - tasksVorratZeit < 120000) return Promise.resolve(tasksVorrat);
   tasksVorratZeit = Date.now();
-  return server('appTasksWahl').then(d => { tasksVorratSetzen(d); return tasksVorrat; }).catch(() => tasksVorrat);
+  return taskKette.then(() => server('appTasksWahl', !!erzwingen)).then(d => { tasksVorratSetzen(d); return tasksVorrat; }).catch(() => tasksVorrat);
 }
 function heuteLaden(erzwingen) {
   if (!erzwingen && Date.now() - heuteGeladen < 120000) return;
@@ -1555,7 +1573,7 @@ function heuteWahlZeichnen() {
     (hwahl.tasks === null || !twListe() ? '' : '<div class="tw-neu"><input type="text" id="twNeu" placeholder="Neuer Task" enterkeyhint="done" onkeydown="twNeuTaste(event)">' +
       '<button class="tw-liste" onclick="twListeWechseln()" aria-label="Liste wechseln">' + esc(twListe().titel) + '</button></div>') +
     liste + '</div>' +
-    '<button class="planknopf" onclick="heuteWahlFertig()"' + (hwahl.sendet || hwahl.laeuft ? ' disabled' : '') + '>' + (hwahl.laeuft ? 'Speichert …' : 'Übernehmen') + '</button></div>';
+    '<button class="planknopf" onclick="heuteWahlFertig()"' + (hwahl.sendet ? ' disabled' : '') + '>Übernehmen</button></div>';
   const ni = $('twNeu');
   if (ni) { ni.value = neuText; if (neuFokus) ni.focus(); }
   const ei = $('twEdit');
@@ -1566,7 +1584,7 @@ function heuteWahlZu() {
   hwahl = null; planSchliessen(); heuteNeu();
 }
 function heuteWahlFertig() {
-  if (!hwahl || hwahl.sendet || !hwahl.tasks || hwahl.laeuft) return;
+  if (!hwahl || hwahl.sendet || !hwahl.tasks) return;
   const h = heute(), aend = [];
   Object.keys(hwahl.an).forEach(tag => {
     const an = hwahl.an[tag], alt = hwahl.vorher[tag];
@@ -1583,7 +1601,7 @@ function heuteWahlFertig() {
   if (!aend.length) return;
   merken({ art: 'heutewahl', tag: tagIso, aend: aend, vorher: vorher, name: 'Tasks vorgemerkt' });
   if (aend.some(x => x.t !== h)) melden('Für morgen vorgemerkt');
-  aend.forEach(x => server('appHeuteSetzen', x.dazu, x.weg, x.t)
+  aend.forEach(x => taskReihe('appHeuteSetzen', [x.dazu, x.weg, x.t])
     .then(l => { if (x.t === h) { heuteTasks = l || heuteTasks; heuteNeu(); } })
     .catch(e => melden(e.message || String(e))));
 }
@@ -1617,9 +1635,10 @@ function twNeu() {
   if (an && an.size < HEUTE_MAX) an.add(temp);
   hwahl.laeuft++;
   heuteWahlZeichnen();
-  server('appTaskNeu', l.id, titel).then(d => {
+  taskReihe('appTaskNeu', [l.id, titel], d => { taskEcht[temp] = d.ref; }).then(d => {
+    [heuteTasks, tasksVorrat && tasksVorrat.tasks].forEach(li => (li || []).forEach(x => { if (x.ref === temp) { x.ref = d.ref; delete x.temp; } }));
     if (hwahl) {
-      hwahl.laeuft--;
+      hwahl.laeuft = Math.max(0, hwahl.laeuft - 1);
       const x = hwahl.tasks.find(y => y.ref === temp);
       if (x) { x.ref = d.ref; delete x.temp; }
       Object.keys(hwahl.an).forEach(k => { const s = hwahl.an[k]; if (s && s.has(temp)) { s.delete(temp); s.add(d.ref); } });
@@ -1627,7 +1646,7 @@ function twNeu() {
     }
     merken({ art: 'taskneu', tag: tagIso, ref: d.ref, name: 'Neuer Task: ' + titel });
   }).catch(e => {
-    if (hwahl) { hwahl.laeuft--; twLokalWeg(new Set([temp])); heuteWahlZeichnen(); }
+    if (hwahl) { hwahl.laeuft = Math.max(0, hwahl.laeuft - 1); twLokalWeg(new Set([temp])); heuteWahlZeichnen(); }
     melden(e.message || String(e));
   });
 }
@@ -1655,7 +1674,10 @@ function twEditFertig(ok) {
     const alt = t.titel;
     taskTitelLokal(ref, neu);
     merken({ art: 'taskname', tag: tagIso, ref: ref, alt: alt, neu: neu, name: 'Umbenannt: ' + neu });
-    server('appTaskUmbenennen', ref, neu).catch(e => { taskTitelLokal(ref, alt); melden(e.message || String(e)); });
+    if (hwahl) hwahl.laeuft++;
+    taskReihe('appTaskUmbenennen', [ref, neu])
+      .then(() => { if (hwahl) hwahl.laeuft = Math.max(0, hwahl.laeuft - 1); })
+      .catch(e => { if (hwahl) hwahl.laeuft = Math.max(0, hwahl.laeuft - 1); taskTitelLokal(ref, alt); melden(e.message || String(e)); });
   }
   heuteWahlZeichnen();
 }
@@ -1690,11 +1712,11 @@ function twWeg(i) {
   hwahl.laeuft++;
   heuteWahlZeichnen();
   melden('Gelöscht: ' + t.titel);
-  server('appTaskLoeschen', t.ref).then(alt => {
-    if (hwahl) { hwahl.laeuft--; heuteWahlZeichnen(); }
+  taskReihe('appTaskLoeschen', [t.ref]).then(alt => {
+    if (hwahl) { hwahl.laeuft = Math.max(0, hwahl.laeuft - 1); heuteWahlZeichnen(); }
     merken({ art: 'taskweg', tag: tagIso, liste: t.ref.split('/')[0], alt: alt, name: 'Gelöscht: ' + t.titel });
   }).catch(e => {
-    if (hwahl) { hwahl.laeuft--; hwahl.tasks.splice(Math.min(i, hwahl.tasks.length), 0, ...weg); heuteWahlZeichnen(); }
+    if (hwahl) { hwahl.laeuft = Math.max(0, hwahl.laeuft - 1); hwahl.tasks.splice(Math.min(i, hwahl.tasks.length), 0, ...weg); heuteWahlZeichnen(); }
     heuteTasks = (heuteTasks || []).concat(warHeute);
     melden(e.message || String(e));
   });
@@ -1755,11 +1777,11 @@ function planOeffnen(nach) {
   planTimerAn();
   if (tasksVorrat && tasksVorrat.tasks) plan.tasks = tasksVorrat.tasks.slice();
   planZeichnen();
-  server('appPlanDaten').then(d => {
+  server('appPlanDaten', true).then(d => {
     if (!plan) return;
     plan.tasks = d.tasks || [];
     plan.bereiche = d.bereiche || plan.bereiche;
-    planZeichnen();
+    wasNeu();
   }).catch(e => { if (!plan) return; plan.tasks = []; plan.fehler = e.message || String(e); planZeichnen(); });
 }
 function planSchliessen() {
@@ -1788,8 +1810,7 @@ function planTask(i) {
 function planText(k, v) {
   if (!plan) return;
   plan[k] = v;
-  const b = $('planOk');
-  if (b) b.disabled = !planBereit();
+  knopfNeu();
 }
 function planBereit() {
   if (!plan || plan.sendet) return false;
@@ -1801,8 +1822,27 @@ function planDauerFrei(txt) {
   const m = String(txt || '').match(/^(\d{1,2}):(\d{2})/);
   if (!m) return;
   const min = Number(m[1]) * 60 + Number(m[2]);
-  if (min >= 5) planSetzen('min', min);
+  if (min < 5 || !plan) return;
+  plan.min = min;
+  if (!plan.nach) slotHolen();
+  planWeich();
 }
+/* Nach einer Uhrzeit oder Dauer vom Rad: nur Markierungen, Leiste und Knopf anpassen, die Felder bleiben stehen */
+function planWeich() {
+  if (!plan || plan.fertig) return;
+  document.querySelectorAll('#planen [data-min]').forEach(b => b.classList.toggle('an', Number(b.dataset.min) === plan.min));
+  const df = $('dauerFrei'), sf = $('startFrei');
+  if (df) { df.classList.toggle('an', plan.dauern.indexOf(plan.min) === -1); if (document.activeElement !== df) df.value = zwei(Math.floor(plan.min / 60)) + ':' + zwei(plan.min % 60); }
+  if (sf) { sf.classList.toggle('an', !!plan.start); if (document.activeElement !== sf) sf.value = plan.start; }
+  leisteNeu();
+  knopfNeu();
+}
+function knopfText() {
+  const anzahl = plan.belegt && plan.belegt.tag === plan.tag ? plan.belegt.liste.filter(x => x.art === 'block').length : bloeckeVon(plan.tag).length;
+  return (plan.sendet ? 'Lege an …' : plan.nach ? 'Nachtragen' : anzahl >= 3 ? 'Trotzdem anlegen' : 'Block anlegen') +
+    (!plan.sendet && neuBonus() ? '<span class="bonus">' + neuBonus() + '</span>' : '');
+}
+function knopfNeu() { const k = $('planOk'); if (!k || !plan) return; k.disabled = !planBereit(); k.innerHTML = knopfText(); }
 /* Nächster freier Platz für Dauer und Tag. Der Server schickt dazu die belegten Zeiten des Tages direkt aus dem Kalender.
    Solange das Fenster offen ist, alle 30 Sekunden neu, ohne dass das Fenster neu gezeichnet wird */
 let planTakt = null;
@@ -1826,6 +1866,16 @@ function leisteNeu() {
   const box = $('leisteBox');
   if (box) box.innerHTML = leisteHtml() + '<div class="slotinfo">' + slotText() + '</div>'; else planZeichnen();
 }
+/* Neue Tasks vom Server: nur die Was Karte, damit offene Eingaben und Räder bleiben */
+function wasNeu() {
+  if (!plan || plan.fertig) return;
+  const box = $('planWasBox');
+  if (!box || plan.quelle !== 'task' || radOffen($('planen'))) { if (!box) planZeichnen(); else if (plan.quelle === 'task') plan.spaeter = true; return; }
+  const z = document.createElement('div');
+  z.innerHTML = planHtmlTeil();
+  const neu = z.querySelector('#planWasBox');
+  if (neu) box.innerHTML = neu.innerHTML;
+}
 function planTagFrei(v) {
   if (!plan || !/^\d{4}-\d{2}-\d{2}$/.test(String(v || '')) || v < heute()) return;
   planSetzen('tag', v);
@@ -1834,7 +1884,7 @@ function planStart(txt) {
   if (!plan) return;
   plan.start = /^\d{1,2}:\d{2}/.test(String(txt || '')) ? String(txt).slice(0, 5) : '';
   if (!plan.start && !plan.nach) slotHolen();
-  planZeichnen();
+  planWeich();
 }
 function slotText() {
   if (!plan) return '';
@@ -1910,12 +1960,7 @@ function leisteTippen(ev) {
   haptik();
   planStart(zwei(Math.floor(m / 60)) + ':' + zwei(m % 60));
 }
-function planZeichnen() {
-  if (!plan || plan.fertig) return;
-  const h = heute(), m = tagPlus(h, 1);
-  const chip = (an, txt, fn) => '<button class="' + (an ? 'an' : '') + '" onclick="' + fn + '">' + txt + '</button>';
-  const anzahl = plan.belegt && plan.belegt.tag === plan.tag ? plan.belegt.liste.filter(x => x.art === 'block').length : bloeckeVon(plan.tag).length;
-  const anders = !plan.nach && plan.tag !== h && plan.tag !== m;
+function planWasListe(chip) {
   let was = '';
   if (plan.quelle === 'task') {
     if (plan.tasks === null) was = '<div class="hinweis">Lädt deine Tasks …</div>';
@@ -1934,30 +1979,43 @@ function planZeichnen() {
     was = '<div class="wahl">' + plan.bereiche.map(b => chip(plan.bereich === b, esc(b), "planSetzen('bereich','" + b + "')")).join('') + '</div>' +
       '<input type="text" placeholder="Was machst du?" value="' + esc(plan.titel) + '" oninput="planText(\'titel\', this.value)">';
   }
-  $('planen').innerHTML = '<div class="planinnen">' +
+  return was;
+}
+function planZeichnen() {
+  if (!plan || plan.fertig) return;
+  if (radOffen($('planen'))) { plan.spaeter = true; return; }
+  plan.spaeter = false;
+  $('planen').innerHTML = planHtmlTeil();
+}
+function planHtmlTeil() {
+  const h = heute(), m = tagPlus(h, 1);
+  const chip = (an, txt, fn) => '<button class="' + (an ? 'an' : '') + '" onclick="' + fn + '">' + txt + '</button>';
+  const anzahl = plan.belegt && plan.belegt.tag === plan.tag ? plan.belegt.liste.filter(x => x.art === 'block').length : bloeckeVon(plan.tag).length;
+  const anders = !plan.nach && plan.tag !== h && plan.tag !== m;
+  const was = planWasListe(chip);
+  return '<div class="planinnen">' +
     '<div class="plankopf"><b>' + (plan.nach ? 'Block nachtragen' : 'Block planen') + '</b><button class="rund" onclick="planSchliessen()" aria-label="Schließen">✕</button></div>' +
     neuTabs(plan.nach ? 'nach' : 'block') +
     '<div class="karte"><div class="bereich">Wie lange</div><div class="wahl raster">' +
-      plan.dauern.map(d => chip(plan.min === d, dauerKurz(d), 'planSetzen(\'min\',' + d + ')')).join('') +
-      '<input type="time" class="dauerfrei' + (plan.dauern.indexOf(plan.min) === -1 ? ' an' : '') + '" step="300" value="' + zwei(Math.floor(plan.min / 60)) + ':' + zwei(plan.min % 60) +
+      plan.dauern.map(d => '<button data-min="' + d + '" class="' + (plan.min === d ? 'an' : '') + '" onclick="planSetzen(\'min\',' + d + ')">' + dauerKurz(d) + '</button>').join('') +
+      '<input type="time" id="dauerFrei" class="dauerfrei blau' + (plan.dauern.indexOf(plan.min) === -1 ? ' an' : '') + '" step="300" value="' + zwei(Math.floor(plan.min / 60)) + ':' + zwei(plan.min % 60) +
       '" onchange="planDauerFrei(this.value)" aria-label="Eigene Dauer"></div>' +
-    '<div class="bereich" style="margin-top:14px">Wann</div><div class="wahl raster' + (plan.nach ? '' : ' vier') + '">' +
+    '<div class="bereich" style="margin-top:14px">Wann</div><div class="wahl wann raster' + (plan.nach ? '' : ' vier') + '">' +
       chip(plan.tag === h, 'Heute', "planSetzen('tag','" + h + "')") +
       (plan.nach ? chip(plan.tag === tagPlus(h, -1), 'Gestern', "planSetzen('tag','" + tagPlus(h, -1) + "')") : chip(plan.tag === m, 'Morgen', "planSetzen('tag','" + m + "')") +
         '<label class="tagwahl' + (anders ? ' an' : '') + '"><span>' + (anders ? esc(label(plan.tag)) : 'Anderer Tag') + '</span>' +
         '<input type="date" min="' + h + '" value="' + (anders ? plan.tag : '') + '" onchange="planTagFrei(this.value)" aria-label="Anderer Tag"></label>') +
-      '<input type="time" class="dauerfrei' + (plan.start ? ' an' : '') + '" step="300" value="' + esc(plan.start) + '" onchange="planStart(this.value)" aria-label="Eigene Startzeit"></div>' +
+      '<input type="time" id="startFrei" class="dauerfrei' + (plan.start ? ' an' : '') + '" step="300" value="' + esc(plan.start) + '" onchange="planStart(this.value)" aria-label="Eigene Startzeit"></div>' +
     '<div id="leisteBox">' + leisteHtml() + '<div class="slotinfo">' + slotText() + '</div></div></div>' +
-    '<div class="karte"><div class="bereich">Was</div><div class="wahl raster zwei">' +
+    '<div class="karte"><div class="bereich">Was</div><div id="planWasBox"><div class="wahl raster zwei">' +
       '<button class="q-task' + (plan.quelle === 'task' ? ' an' : '') + '" onclick="planSetzen(\'quelle\',\'task\')">Aus Tasks</button>' +
       '<button class="q-frei' + (plan.quelle === 'frei' ? ' an' : '') + '" onclick="planSetzen(\'quelle\',\'frei\')">Ohne Task</button>' +
-    '</div><div class="planwas">' + was + '</div></div>' +
+    '</div><div class="planwas">' + was + '</div></div></div>' +
     '<div class="karte"><div class="bereich">Erster Schritt</div>' +
       '<input type="text" placeholder="Was tust du in den ersten 5 Minuten?" value="' + esc(plan.schritt) + '" oninput="planText(\'schritt\', this.value)"></div>' +
     (anzahl >= 3 && !plan.nach ? '<div class="warnung">An dem Tag stehen schon ' + anzahl + ' Blöcke. Mehr als drei sind meist zu viel.</div>' : '') +
     '<button class="planknopf" id="planOk" onclick="planAnlegen()"' + (planBereit() ? '' : ' disabled') + '>' +
-      (plan.sendet ? 'Lege an …' : plan.nach ? 'Nachtragen' : anzahl >= 3 ? 'Trotzdem anlegen' : 'Block anlegen') +
-      (!plan.sendet && neuBonus() ? '<span class="bonus">' + neuBonus() + '</span>' : '') + '</button></div>';
+      knopfText() + '</button></div>';
 }
 function planAnlegen() {
   if (!planBereit()) return;
@@ -2293,6 +2351,41 @@ setInterval(() => {
   if (a && (a.tagName === 'TEXTAREA' || a.type === 'text' || a.type === 'time')) return;
   heuteNeu();
 }, 30000);
+
+/* Räder (Uhrzeit, Datum): iOS meldet jede Drehung schon als change. Zeichnet die App dann neu, schließt das Rad, bevor du Fertig tippst.
+   Deshalb zählt ein Wert erst, wenn das Rad zu ist (Fertig, daneben tippen, am Mac Enter oder wegklicken). Gilt für alle Räder der App */
+const RAD = 'input[type=time], input[type=date]';
+let radDurch = null;
+function radOffen(box) { const a = document.activeElement; return !!(a && a.matches && a.matches(RAD) && (!box || box.contains(a))); }
+// Uhrzeitfelder melden beim Wechsel zwischen Stunde und Minute selbst Fokus rein und raus. Gezählt wird nur das erste Rein und das echte Raus
+document.addEventListener('focusin', e => {
+  const el = e.target;
+  if (el.matches && el.matches(RAD) && !el._offen) { el._offen = true; el._gemeldet = el.value; }
+}, true);
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (!el.matches || !el.matches(RAD) || radDurch === el) return;
+  if (document.activeElement === el || el.value === el._gemeldet) { e.stopImmediatePropagation(); e.stopPropagation(); return; }
+  el._gemeldet = el.value;
+}, true);
+document.addEventListener('focusout', e => {
+  const el = e.target;
+  if (!el.matches || !el.matches(RAD)) return;
+  setTimeout(() => {
+    if (document.activeElement === el) return;   // nur zwischen Stunde und Minute gewechselt
+    el._offen = false;
+    if (el.isConnected && el.value !== el._gemeldet) {
+      el._gemeldet = el.value;
+      radDurch = el;
+      try { el.dispatchEvent(new Event('change', { bubbles: true })); } finally { radDurch = null; }
+    }
+    // Was während des offenen Rads warten musste, jetzt nachholen
+    if (radOffen()) return;
+    if (plan && plan.spaeter) planZeichnen();
+    else if (spaeterZeichnen && !plan && !hwahl) zeichnen();
+  }, 0);
+}, true);
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches && e.target.matches(RAD)) { e.preventDefault(); e.target.blur(); } }, true);
 
 (function start() {
   tagIso = starttag();
