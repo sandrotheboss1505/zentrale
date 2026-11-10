@@ -1,0 +1,2010 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<title>Zentrale</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Zentrale">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#073763">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@1,800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F4F3EF; --karte: #FFFFFF; --text: #232321; --leise: #77756F; --linie: #E6E4DE;
+    --akzent: #1155CC; --chip: #F1EFEA; --schatten: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #151514; --karte: #1F1F1D; --text: #EDEBE6; --leise: #9C9A93; --linie: #2E2E2B;
+            --akzent: #7BA4F0; --chip: #2A2A27; --schatten: none; }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.35 -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif; }
+  body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
+
+  .logo { background: #073763; padding: calc(16px + env(safe-area-inset-top)) 16px 16px; text-align: center; }
+  .logo span { font: italic 800 34px/1 Inter, -apple-system, sans-serif; color: #FFFFFF; letter-spacing: .01em; }
+  header { position: sticky; top: 0; z-index: 5; background: var(--bg);
+    padding: 10px 16px; display: flex; align-items: center; gap: 8px; }
+  .titel { flex: 1; text-align: center; }
+  .titel b { display: block; font-size: 17px; }
+  .titel span { font-size: 12px; color: var(--leise); }
+  .rund { width: 38px; height: 38px; border-radius: 19px; background: var(--karte); box-shadow: var(--schatten);
+    display: grid; place-items: center; font-size: 18px; position: relative; }
+  .rund:disabled { opacity: .3; }
+  .rund.dreht svg { animation: drehen 1s linear infinite; }
+  @keyframes drehen { to { transform: rotate(360deg); } }
+  #neu.sync::after { content: ""; position: absolute; top: 4px; right: 4px; width: 7px; height: 7px;
+    border-radius: 4px; background: var(--akzent); }
+
+  main { padding: 4px 16px 16px; max-width: 560px; margin: 0 auto; }
+  .karte { background: var(--karte); border-radius: 18px; box-shadow: var(--schatten); padding: 14px 16px; margin-bottom: 12px; }
+  .bereich { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600;
+    letter-spacing: .04em; text-transform: uppercase; color: var(--leise); margin-bottom: 6px; }
+  .punkt { width: 8px; height: 8px; border-radius: 4px; }
+
+  .tageszahl { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 18px; padding: 10px 0 22px; }
+  .neben { display: flex; flex-direction: column; gap: 10px; justify-self: start; }
+  .neben.links { justify-self: end; text-align: right; }
+  .neben small { display: block; font-size: 11px; color: var(--leise); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
+  .neben b { display: inline-block; font-size: 15px; font-variant-numeric: tabular-nums; padding: 3px 10px; border-radius: 8px; background: var(--chip); white-space: nowrap; }
+  .tageszahl .zahl.pop { animation: hzpop .5s ease-out; }
+  .tageszahl .zahl { width: 96px; height: 96px; border-radius: 48px; display: grid; place-items: center;
+    font-size: 34px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+
+  .feld { padding: 10px 0; border-top: 1px solid var(--linie); }
+  .bereich + .feld { border-top: 0; }
+  .zeile { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 28px; }
+  .name { font-size: 15px; }
+  .name small { color: var(--leise); font-size: 12px; margin-left: 6px; }
+  .pille { padding: 4px 10px; border-radius: 10px; font-weight: 600; font-variant-numeric: tabular-nums;
+    min-width: 44px; text-align: center; background: var(--chip); }
+  .leer { color: var(--leise); font-weight: 400; }
+
+  .skala { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin-top: 8px; }
+  .skala button { height: 36px; border-radius: 10px; background: var(--chip); font-weight: 600; font-variant-numeric: tabular-nums;
+    transition: transform .08s; }
+  .skala button:active { transform: scale(.92); }
+  .skala.wahl { grid-template-columns: repeat(3, 1fr); }
+  .eintraege { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .eintraege button { font-size: 13px; padding: 4px 8px; border-radius: 9px; background: var(--chip);
+    font-variant-numeric: tabular-nums; color: var(--text); }
+  .eintraege button i { font-style: normal; color: var(--leise); margin-left: 4px; }
+
+  .zaehler { display: flex; align-items: center; gap: 6px; }
+  .zaehler button { width: 34px; height: 34px; border-radius: 17px; background: var(--chip); font-size: 20px; line-height: 1; }
+  .zaehler .pille { min-width: 40px; }
+
+  .schalter { width: 50px; height: 30px; border-radius: 15px; background: var(--linie); position: relative; transition: background .15s; }
+  .schalter::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 12px;
+    background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .15s; }
+  .schalter.an::after { transform: translateX(20px); }
+
+  input[type=time], input[type=text], textarea {
+    font: inherit; color: var(--text); background: var(--chip); border: 0; border-radius: 10px; padding: 7px 10px; }
+  input[type=time] { min-width: 96px; text-align: center; }
+  input[type=text] { width: 140px; text-align: right; }
+  textarea { width: 100%; min-height: 84px; margin-top: 8px; resize: vertical; }
+  .loeschen { font-size: 13px; color: var(--leise); margin-left: 6px; }
+  .jetzt { padding: 8px 16px; border-radius: 12px; font-weight: 600; color: #fff; }
+  .unter { font-size: 12px; color: var(--leise); text-align: right; margin-top: 4px; }
+  .zuletzt { color: #D5A6BD; font-weight: 600; }
+  .ci-offen { margin-left: auto; font-size: 11px; font-weight: 600; color: #B0577F; text-transform: none; letter-spacing: 0; }
+  .ci-status { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 6px; font-size: 12px; font-weight: 600; }
+  .ci-status.offen { color: #B0577F; }
+  .ci-status.drin { color: var(--leise); font-weight: 500; }
+  .ci-punkt { width: 8px; height: 8px; border-radius: 4px; background: #D5A6BD; animation: ciatmen 1.6s ease-in-out infinite; }
+  @keyframes ciatmen { 0%, 100% { transform: scale(.8); opacity: .6; } 50% { transform: scale(1.3); opacity: 1; } }
+  .ci-haken { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 8px; background: #D5A6BD; color: #fff; font-size: 10px; }
+  .ci-status.frisch .ci-haken { animation: cihaken .5s cubic-bezier(.3, 1.6, .5, 1); }
+  .ci-status.frisch { animation: ciein .5s ease-out; }
+  @keyframes cihaken { 0% { transform: scale(0) rotate(-40deg); } 70% { transform: scale(1.35) rotate(8deg); } 100% { transform: scale(1) rotate(0); } }
+  @keyframes ciein { 0% { opacity: 0; transform: translateY(4px); } 100% { opacity: 1; transform: none; } }
+  /* Jedes Antippen federt kurz nach, auch wenn die Ansicht dabei neu gezeichnet wird */
+  .tipp { animation: tipp .32s cubic-bezier(.3, 1.5, .5, 1); }
+  @keyframes tipp { 0% { transform: scale(.88); } 60% { transform: scale(1.06); } 100% { transform: scale(1); } }
+  .jetztwahl { display: flex; align-items: center; gap: 6px; }
+  .jetztwahl .jetzt { padding: 7px 14px; }
+  .nicht { font-size: 12px; color: var(--leise); text-decoration: underline; margin-top: 6px; }
+
+  .termin { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid var(--linie); }
+  .termin:first-child { border-top: 0; }
+  .termin .zeit { width: 44px; font-variant-numeric: tabular-nums; color: var(--leise); font-size: 14px; }
+  .termin .was { flex: 1; min-width: 0; }
+  .termin .was div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .termin .was small { color: var(--leise); font-size: 12px; }
+  .haken { width: 30px; height: 30px; border-radius: 15px; border: 2px solid var(--linie); display: grid; place-items: center; flex: none; }
+  .haken svg { opacity: 0; }
+  .haken.an svg { opacity: 1; }
+  .terminliste { margin-top: 6px; }
+  .hinweis { font-size: 13px; color: var(--leise); padding: 6px 0 2px; }
+
+  .tag-zeile { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--linie); width: 100%; text-align: left; }
+  .tag-zeile:first-child { border-top: 0; }
+  .tag-zeile .datum { width: 86px; font-weight: 600; white-space: nowrap; flex: none; }
+  .tag-zeile .mini { flex: 1; display: flex; flex-wrap: wrap; gap: 4px; }
+  .mini span { font-size: 12px; padding: 2px 7px; border-radius: 7px; background: var(--chip); font-variant-numeric: tabular-nums; }
+
+  nav { position: fixed; left: 0; right: 0; bottom: 0; background: var(--karte); border-top: 1px solid var(--linie);
+    display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 5; }
+  nav button { flex: 1; padding: 12px 0 10px; font-size: 13px; color: var(--leise); }
+  nav button.aktiv { color: var(--akzent); font-weight: 600; }
+
+  #meldung { position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+    background: #2b2b29; color: #fff; padding: 8px 14px; border-radius: 12px; font-size: 13px; opacity: 0;
+    transition: opacity .2s; pointer-events: none; max-width: 90%; text-align: center; z-index: 9; }
+  #meldung.sichtbar { opacity: 1; }
+  .laden { text-align: center; color: var(--leise); padding: 60px 0; }
+  .klappbar { cursor: pointer; }
+  .pfeil { display: inline-block; color: var(--leise); font-size: 11px; margin-left: 6px; transition: transform .15s; }
+  .klappbar.auf .pfeil { transform: rotate(90deg); }
+  .liste { margin-top: 8px; }
+  .posten { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 14px; border-top: 1px solid var(--linie); }
+  .posten:first-child { border-top: 0; }
+  .posten .pzeit { font-size: 12px; color: var(--leise); font-variant-numeric: tabular-nums; width: 38px; flex: none; }
+  .posten .ppunkt { font-size: 10px; width: 14px; text-align: center; flex: none; }
+  .posten .pname { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .posten .pbetrag { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .knopf { display: inline-block; margin-top: 10px; padding: 9px 14px; border-radius: 12px; background: var(--akzent); color: #fff; font-weight: 600; }
+
+  /* Blöcke */
+  .block { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--linie); }
+  .terminliste .block:first-child { border-top: 0; }
+  .block.spaeter { opacity: .55; }
+  .block .zeit { width: 44px; font-variant-numeric: tabular-nums; color: var(--leise); font-size: 14px; flex: none; }
+  .block .was { flex: 1; min-width: 0; }
+  .block .was div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .block .was small { color: var(--leise); font-size: 12px; }
+  .stat { display: flex; gap: 5px; flex: none; }
+  .stat button { width: 34px; height: 34px; border-radius: 17px; background: var(--chip); font-weight: 700; font-size: 15px;
+    color: var(--leise); transition: transform .08s; }
+  .stat button:active { transform: scale(.9); }
+  .stat button.g.an { background: #0B8043; color: #fff; }
+  .stat button.t.an { background: #F6BF26; color: #3A2F00; }
+  .stat button.n.an { background: #616161; color: #fff; }
+  .pkt { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 34px; text-align: right; color: var(--leise); flex: none; white-space: nowrap; }
+  .pkt.plus { color: #0B8043; }
+  .unterkopf { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--leise); margin: 12px 0 0; }
+  @keyframes hops { 0% { transform: scale(1); } 40% { transform: scale(1.5); } 100% { transform: scale(1); } }
+  .hops { animation: hops .4s ease-out; display: inline-block; }
+  /* Heute Karte */
+  .lbl { font-size: 12px; color: var(--leise); margin: 14px 0 6px; }
+  .jetztbox { background: var(--chip); border-radius: 14px; padding: 12px 14px; }
+  .jtitel { font-size: 16px; font-weight: 700; line-height: 1.35; }
+  .jmeta { font-size: 12px; color: var(--leise); margin-top: 3px; }
+  .balken { height: 6px; border-radius: 3px; background: var(--linie); margin: 10px 0 6px; overflow: hidden; }
+  .balken i { display: block; height: 100%; background: var(--akzent); }
+  .jzeit { display: flex; justify-content: space-between; font-size: 13px; color: var(--leise); }
+  .jzeit b { color: var(--text); }
+  .dranbox { border-top: 1px solid var(--linie); margin-top: 10px; padding-top: 10px; font-size: 14px; }
+  .reihe { display: grid; gap: 8px; margin-top: 8px; }
+  .reihe.zwei { grid-template-columns: 1fr 1fr; }
+  .reihe.drei { grid-template-columns: repeat(3, 1fr); }
+  .reihe button { height: 42px; border-radius: 12px; background: var(--karte); font-weight: 600; }
+  .reihe button:active { transform: scale(.96); }
+  .jfuss { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--leise); margin-top: 6px; }
+  .jfuss .nicht { margin-top: 0; }
+  .lob { color: #0B8043; font-weight: 600; }
+  .erl { display: flex; gap: 10px; align-items: baseline; font-size: 14px; padding: 6px 0; }
+  .erl .z { width: 40px; flex: none; color: var(--leise); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .erl .r { margin-left: auto; font-size: 13px; color: #0B8043; font-weight: 600; white-space: nowrap; }
+  .erl .r.leise { color: var(--leise); font-weight: 400; }
+  .erl.task { color: var(--leise); }
+  .aendern { font-size: 11px; color: var(--leise); font-weight: 400; margin-left: 6px; }
+  .ok { color: #0B8043; } .halb { color: #C99A06; } .weg { color: var(--leise); }
+  .trenn { border-top: 1px solid var(--linie); margin-top: 14px; }
+  /* Heute Karte, Variante B */
+  .hkopf { display: flex; align-items: center; gap: 10px; }
+  .hkopf .name { flex: 1; }
+  .plus { width: 34px; height: 34px; border-radius: 17px; background: var(--chip); font-size: 22px; line-height: 1; }
+  .tbar { height: 5px; border-radius: 3px; background: var(--chip); overflow: hidden; margin: 10px 0 3px; }
+  .tbar i { display: block; height: 100%; background: var(--akzent); border-radius: 3px; }
+  .tlegende { display: flex; justify-content: space-between; font-size: 11px; color: var(--leise); }
+  .jetztbox { margin-top: 12px; padding: 11px 13px; }
+  .jtitel { font-size: 15px; }
+  .jvor { font-size: 12px; color: var(--leise); margin-bottom: 2px; }
+  .pillen { display: flex; gap: 6px; align-items: center; margin-top: 10px; }
+  .pillen button { padding: 7px 13px; border-radius: 999px; background: var(--karte); font-size: 13px; font-weight: 600; }
+  .pillen button:active { transform: scale(.95); }
+  .pillen .zahl { margin-left: auto; font-size: 12px; color: var(--leise); }
+  .jmeld { font-size: 13px; margin-top: 8px; }
+  .wahl .dauerfrei { min-width: 0; width: 100px; height: 36px; padding: 0 10px; border-radius: 12px;
+    background: var(--rosa-hell); color: var(--rosa); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .wahl .dauerfrei.an { box-shadow: inset 0 0 0 2px var(--rosa); }
+  /* Heute Karte nach Vorschau */
+  :root { --akzent-hell: #E6F1FB; --gruen: #3B6D11; --gruen-hell: #EAF3DE; --kreis: #B4B2A9;
+    --gold: #8A6A00; --gold-hell: #FBF1D2; --rosa: #A3416F; --rosa-hell: #F8E3ED; --rosa-voll: #C2507F; --rosa-auf: #FFFFFF; }
+  @media (prefers-color-scheme: dark) { :root { --akzent-hell: rgba(123,164,240,.18); --gruen: #97C459; --gruen-hell: rgba(151,196,89,.16); --kreis: #5F5E5A;
+    --gold: #E9C46A; --gold-hell: rgba(233,196,106,.16); --rosa: #E7B3CC; --rosa-hell: rgba(213,166,189,.2); --rosa-voll: #E7B3CC; --rosa-auf: #4B1528; } }
+  #heuteBox { padding: 0; border-top: 0; }
+  .hz-kopf { display: flex; align-items: center; gap: 10px; }
+  .hz-kopf .n { font-size: 15px; font-weight: 500; flex: 1; }
+  .hz-zeit { font-size: 15px; font-weight: 500; padding: 3px 10px; border-radius: 8px; background: var(--rosa-hell); color: var(--rosa); font-variant-numeric: tabular-nums; }
+  .hz-plus { width: 36px; height: 36px; border-radius: 18px; background: var(--rosa-voll); color: var(--rosa-auf); font-size: 26px; font-weight: 600; line-height: 1; display: grid; place-items: center; }
+  .hz-plus:active { transform: scale(.92); }
+  .hz-leg { display: flex; justify-content: space-between; font-size: 12px; color: var(--leise); }
+  .hz-von { font-size: 13px; color: var(--leise); font-variant-numeric: tabular-nums; }
+  .hz-seg { display: flex; gap: 3px; height: 8px; margin: 10px 0 4px; }
+  .hz-seg span { position: relative; min-width: 4px; border-radius: 4px; background: var(--rosa-hell); overflow: hidden; }
+  .hz-seg span.rest { background: var(--chip); }
+  .hz-seg i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--rosa-voll); }
+  .hz-uhr { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; }
+  .hz-uhr b { font-size: 20px; font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .hz-uhr span { font-size: 12px; color: var(--leise); }
+  .hz-knoepfe { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .hz-knoepfe button { height: 40px; border-radius: 10px; background: var(--karte); font-size: 13px; font-weight: 500; transition: transform .08s; }
+  .hz-knoepfe button:active { transform: scale(.94); }
+  .hz-knoepfe .hz-dran { background: var(--gruen-hell); color: var(--gruen); font-weight: 600; }
+  @keyframes hzpuls { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+  .hz-knoepfe .hz-dran.puls { animation: hzpuls 1.4s ease-in-out infinite; }
+  .hz-zeitbox { position: relative; }
+  .hz-zeit.pop { animation: hzpop .4s ease-out; display: inline-block; }
+  @keyframes hzflug { 0% { opacity: 0; transform: translate(-50%, 4px); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -22px); } }
+  .hz-flug { position: absolute; left: 50%; top: -6px; white-space: nowrap; font-size: 12px; font-weight: 600; color: var(--gruen); pointer-events: none; animation: hzflug 1.8s ease-out forwards; }
+  @keyframes hzfeier { 0% { background: var(--rosa-voll); } 100% { background: var(--chip); } }
+  .hz-jetzt.feier { animation: hzfeier 1.4s ease-out; }
+  .hz-jetzt { background: var(--chip); border-radius: 12px; padding: 11px 13px; margin-top: 14px; }
+  .hz-vor { font-size: 12px; color: var(--leise); margin-bottom: 2px; }
+  .hz-titel { font-size: 15px; font-weight: 500; line-height: 1.35; }
+  .hz-bar { height: 6px; border-radius: 3px; background: var(--karte); overflow: hidden; margin: 9px 0 6px; }
+  .hz-bar i { display: block; height: 100%; background: var(--akzent); }
+  .hz-zeile { display: flex; justify-content: space-between; font-size: 12px; color: var(--leise); }
+  .hz-zeile b { font-weight: 500; color: var(--text); }
+  .hz-meta { font-size: 12px; color: var(--leise); margin-top: 3px; }
+  .hz-melde { font-size: 13px; margin-top: 8px; }
+  .hz-melde.lob { color: var(--gruen); font-weight: 500; }
+  @keyframes hzpop { 0% { transform: scale(1); } 40% { transform: scale(1.08); } 100% { transform: scale(1); } }
+  .hz-melde.hops { animation: hzpop .35s ease-out; display: block; transform-origin: left center; }
+.hz-start { display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; height: 52px; margin-top: 12px; border-radius: 12px; background: var(--akzent); color: #fff; font-size: 16px; font-weight: 600; }
+.hz-start .play { font-size: 12px; }
+.hz-start i { font-style: normal; font-weight: 500; opacity: .8; }
+.hz-start:active { transform: scale(.97); }
+  .hz-k2 { display: flex; justify-content: space-between; align-items: baseline; margin: 18px 0 2px; }
+  .hz-k2 .h { font-size: 13px; font-weight: 500; }
+  .hz-k2 .s { font-size: 12px; color: var(--leise); }
+  .hz-row { display: grid; grid-template-columns: 22px 1fr auto 40px; gap: 10px; align-items: center; padding: 7px 0; font-size: 15px; width: 100%; text-align: left; }
+  .hz-next { display: grid; grid-template-columns: 22px 1fr auto 40px; gap: 10px; align-items: center; padding: 7px 0; font-size: 15px; margin-top: 4px; }
+  .hz-row2 { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: center; padding: 7px 0; font-size: 15px; width: 100%; text-align: left; }
+  .hz-t { font-size: 12px; color: var(--leise); font-variant-numeric: tabular-nums; }
+  .hz-ic { width: 22px; height: 22px; border-radius: 11px; display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+  .hz-ic.blau { background: var(--akzent-hell); color: var(--akzent); }
+  .hz-ic.gruen { background: var(--gruen-hell); color: var(--gruen); }
+  .hz-ic.leer { border: 1.5px solid var(--kreis); }
+  .hz-ic.grau { background: var(--chip); color: var(--leise); }
+  .hz-ic.nach { background: transparent; border: 1.5px dashed var(--gruen); }
+  small.leise { color: var(--leise); font-size: 11px; margin-left: 4px; }
+  .hz-seit { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 8px; font-size: 12px; color: var(--leise); }
+  .hz-seit input[type=time] { font-size: 12px; color: var(--leise); background: transparent; border: 0; border-bottom: 1px dashed var(--kreis); padding: 0 2px; width: auto; min-width: 54px; }
+  .hz-ic.gold { background: var(--gold-hell); color: var(--gold); }
+  .hz-row .hz-t, .hz-next .hz-t { text-align: right; }
+  .wahl.raster { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .wahl.raster.zwei { grid-template-columns: 1fr 1fr; }
+  .wahl.raster button, .wahl.raster .dauerfrei { width: 100%; padding-left: 0; padding-right: 0; text-align: center; }
+  .slotinfo { font-size: 13px; color: var(--leise); margin-top: 10px; }
+  .slotinfo b { color: var(--text); font-weight: 600; }
+  .slotinfo .nicht { margin-top: 0; }
+  .hz-klein { font-size: 11px; color: var(--leise); opacity: .75; margin-top: 4px; }
+  .hz-drei { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .hz-drei button { height: 40px; border-radius: 10px; background: var(--karte); font-size: 13px; font-weight: 500; }
+  .hz-opt { display: flex; gap: 12px; align-items: center; padding: 14px; border-radius: 12px; background: var(--karte); margin-top: 10px; width: 100%; text-align: left; }
+  .hz-opt .hz-ic { width: 34px; height: 34px; border-radius: 17px; font-size: 16px; }
+  .hz-opt b { display: block; font-size: 14px; font-weight: 500; }
+  .hz-opt small { font-size: 12px; color: var(--leise); }
+
+  /* Planen */
+  #planen { position: fixed; inset: 0; z-index: 8; background: var(--bg); overflow-y: auto; display: none;
+    padding: calc(14px + env(safe-area-inset-top)) 16px calc(30px + env(safe-area-inset-bottom)); }
+  #planen.offen { display: block; }
+  .planinnen { max-width: 560px; margin: 0 auto; }
+  .plankopf { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .plankopf b { font-size: 19px; }
+  .wahl { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .wahl button { padding: 8px 12px; border-radius: 12px; background: var(--chip); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .wahl button.an { background: var(--akzent); color: #fff; }
+  .planwas { margin-top: 6px; }
+  .taskzeile { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 9px 0; border-top: 1px solid var(--linie); }
+  .unterkopf + .taskzeile { border-top: 0; }
+  .taskzeile.unter { padding-left: 24px; }
+  .taskzeile .kreis { width: 20px; height: 20px; border-radius: 10px; border: 2px solid var(--linie); flex: none; }
+  .taskzeile.an { font-weight: 600; }
+  .taskzeile.an .kreis { background: var(--akzent); border-color: var(--akzent); }
+  #planen input[type=text] { width: 100%; text-align: left; margin-top: 10px; font-size: 16px; }
+  .planknopf { display: block; width: 100%; margin-top: 6px; padding: 14px; border-radius: 14px; background: var(--akzent); color: #fff; font-weight: 700; font-size: 16px; }
+  .planknopf:disabled { opacity: .4; }
+  .warnung { font-size: 13px; color: #C77700; margin: 0 4px 10px; }
+  .taskfrage { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 0 10px 32px; font-size: 13px; color: var(--leise); }
+  .taskfrage button { padding: 6px 10px; border-radius: 10px; background: #0B8043; color: #fff; font-weight: 600; white-space: nowrap; }
+  .knopf.planen { margin-top: 12px; }
+
+  /* Geld Karte: letzte 7 Tage, nach Tag */
+  .tag7 { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--leise); margin: 12px 0 2px; font-variant-numeric: tabular-nums; }
+  .liste .tag7:first-child { margin-top: 4px; }
+  .tag7 + .posten { border-top: 0; }
+  /* Tasks vormerken: neu, umbenennen, löschen */
+  .tw-kopf { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .tw-kopf .bereich { margin: 0; }
+  .tw-kopf button { font-size: 13px; font-weight: 600; color: var(--akzent); }
+  .tw-neu { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+  #planen .tw-neu input[type=text] { flex: 1; width: auto; min-width: 0; margin-top: 0; }
+  .tw-liste { flex: none; max-width: 40%; padding: 8px 12px; border-radius: 10px; background: var(--gold-hell); color: var(--gold); font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tw-zeile { display: grid; grid-template-columns: 22px minmax(0, 1fr) 30px 30px; gap: 10px; align-items: center; padding: 5px 0; font-size: 15px; }
+  .tw-zeile.unter { padding-left: 24px; }
+  .tw-titel { text-align: left; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #planen .tw-zeile input[type=text] { width: 100%; margin-top: 0; padding: 5px 8px; }
+  .tw-knopf { width: 30px; height: 30px; border-radius: 15px; background: var(--chip); display: grid; place-items: center; color: var(--leise); }
+  .tw-frage { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 0 8px 32px; font-size: 13px; color: var(--leise); }
+  .tw-frage button { padding: 6px 12px; border-radius: 10px; background: #B3261E; color: #fff; font-weight: 600; }
+  .tw-temp { opacity: .55; }
+
+  /* ── Mac: breites Layout (Klasse mac ab 760 px mit Maus oder Trackpad, mac3 ab 1100 px). Handy bleibt einspaltig ── */
+  body.mac { padding-bottom: 92px; }
+  body.mac .logo { padding: 14px 16px; }
+  body.mac .logo span { font-size: 28px; }
+  body.mac header { max-width: 1240px; margin: 0 auto; padding: 12px 28px; }
+  body.mac main { max-width: 1240px; padding: 4px 28px 24px; }
+  body.mac.wochenansicht main { max-width: 920px; }
+  body.mac .tageszahl { padding: 4px 0 20px; }
+  .mac-spalten { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+  body.mac3 .mac-spalten { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .mac-spalte { min-width: 0; }
+  body.mac .karte { margin-bottom: 20px; padding: 16px 18px; }
+  body.mac nav { left: 50%; right: auto; bottom: 18px; transform: translateX(-50%); width: 240px; padding: 4px;
+    border: 1px solid var(--linie); border-radius: 999px; box-shadow: 0 6px 24px rgba(0,0,0,.12); }
+  body.mac nav button { padding: 8px 0; border-radius: 999px; }
+  body.mac nav button.aktiv { background: var(--akzent-hell); }
+  body.mac #meldung { bottom: 76px; }
+  body.mac #planen { background: rgba(0,0,0,.4); padding: 48px 20px; }
+  body.mac .planinnen { background: var(--bg); border-radius: 22px; padding: 20px 24px 24px; box-shadow: 0 24px 64px rgba(0,0,0,.3); }
+  body.mac .rund:not(:disabled):hover, body.mac .skala button:hover, body.mac .stat button:hover, body.mac .wahl button:hover,
+  body.mac .zaehler button:hover, body.mac .hz-knoepfe button:hover, body.mac .reihe button:hover, body.mac .hz-drei button:hover,
+  body.mac nav button:not(.aktiv):hover { box-shadow: inset 0 0 0 1.5px var(--kreis); }
+  body.mac .tag-zeile:hover .datum { color: var(--akzent); }
+</style>
+</head>
+<body>
+<label id="haptik" aria-hidden="true" style="position:absolute;left:-9999px;top:0"><input type="checkbox" switch tabindex="-1"></label>
+<div class="logo"><span>ZENTRALE</span></div>
+<header>
+  <button class="rund" id="zurueck" aria-label="Tag zurück">‹</button>
+  <div class="titel"><b id="kopfTitel">Zentrale</b><span id="kopfDatum"></span></div>
+  <button class="rund" id="vor" aria-label="Tag vor">›</button>
+  <button class="rund" id="undo" aria-label="Rückgängig" disabled>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+  </button>
+  <button class="rund" id="neu" aria-label="Aktualisieren">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>
+  </button>
+</header>
+<main id="inhalt"><div class="laden">Lädt …</div></main>
+<nav>
+  <button id="navTag" class="aktiv">Tag</button>
+  <button id="navWoche">Woche</button>
+</nav>
+<div id="meldung"></div>
+<div id="planen"></div>
+
+<script>
+/* ── PWA (aus web/bauen.py) ── */
+const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
+const PWA_VERSION = '202611102241';
+const SCHLUESSEL_SPEICHER = 'zentrale_k';
+(function () {
+  // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
+  const m = location.hash.match(/k=([0-9a-f]{32})/);
+  if (m) { try { localStorage.setItem(SCHLUESSEL_SPEICHER, m[1]); } catch (e) { /* egal */ } history.replaceState(null, '', location.pathname); }
+})();
+function schluessel() { try { return localStorage.getItem(SCHLUESSEL_SPEICHER) || ''; } catch (e) { return ''; } }
+function schluesselFragen(falsch) {
+  if (falsch) { try { localStorage.removeItem(SCHLUESSEL_SPEICHER); } catch (e) { /* egal */ } }
+  if (document.getElementById('schluessel')) return;
+  const d = document.createElement('div');
+  d.id = 'schluessel';
+  d.innerHTML = '<div class="sk-innen"><b>Zentrale</b><p>' + (falsch ? 'Der Schlüssel stimmt nicht.' : 'Einmal den Schlüssel eingeben.') +
+    '</p><input type="password" autocomplete="off" placeholder="Schlüssel"><button>Los</button></div>';
+  d.querySelector('button').onclick = () => {
+    const k = d.querySelector('input').value.trim();
+    if (!/^[0-9a-f]{32}$/.test(k)) { d.querySelector('p').textContent = 'Das sieht nicht wie der Schlüssel aus.'; return; }
+    try { localStorage.setItem(SCHLUESSEL_SPEICHER, k); } catch (e) { /* egal */ }
+    location.reload();
+  };
+  document.body.appendChild(d);
+}
+document.addEventListener('DOMContentLoaded', () => { if (!schluessel()) schluesselFragen(false); });
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+</script>
+<style>
+  #schluessel { position: fixed; inset: 0; z-index: 99; background: var(--bg); display: grid; place-items: center; padding: 24px; }
+  #schluessel .sk-innen { width: 100%; max-width: 320px; display: grid; gap: 12px; text-align: center; }
+  #schluessel b { font: italic 800 34px/1 Inter, -apple-system, sans-serif; color: #073763; }
+  #schluessel input { height: 46px; border-radius: 12px; border: 1px solid var(--linie); padding: 0 14px; font-size: 16px; background: var(--karte); color: var(--text); }
+  #schluessel button { height: 46px; border-radius: 12px; background: #073763; color: #fff; font-weight: 600; }
+</style>
+<script>
+/* ── Einstellungen ── */
+const HEUTE_AB = 5;            // vor 5 Uhr öffnet die App noch den Vortag
+const ABFRAGE_SEKUNDEN = 30;   // so oft wird geschaut, ob sich in der Tabelle etwas geändert hat
+const SPEICHER = 'zentrale_paket_6';
+const START = null;
+
+let P = null;                  // Datenpaket vom Server
+let tagIso = null;             // angezeigter Tag
+let ansicht = 'tag';
+let offen = 0;                 // laufende Speichervorgänge
+let kette = Promise.resolve();
+let spaeterZeichnen = false;
+let abfrageLaeuft = false;
+let geschrieben = 0;           // fertige Speichervorgänge, damit keine alte Abfrage neue Eingaben überschreibt
+let nochmal = false;           // Abfrage nachholen, die kam, während schon eine lief
+const auf = new Set();          // aufgeklappte Listen (Spaltennamen)
+const verlauf = [];             // letzte Eingaben, für Rückgängig
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const zwei = n => String(n).padStart(2, '0');
+const isoVon = d => d.getFullYear() + '-' + zwei(d.getMonth() + 1) + '-' + zwei(d.getDate());
+const komma = x => String(x).replace('.', ',');
+const HAKEN = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const TAGNAMEN = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
+
+function heute() { return isoVon(new Date()); }
+function tagPlus(iso, n) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return isoVon(new Date(y, m - 1, d + n));
+}
+function label(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return TAGNAMEN[new Date(y, m - 1, d).getDay()] + ' ' + zwei(d) + '.' + zwei(m) + '.';
+}
+function jetztZeit() { const d = new Date(); return zwei(d.getHours()) + ':' + zwei(d.getMinutes()); }
+
+/* ── Server: in der alten Web App über google.script.run, in der PWA (ZENTRALE_API aus web/bauen.py) über die Schnittstelle doPost ── */
+function server(fn, ...args) {
+  if (typeof ZENTRALE_API !== 'string') {
+    return new Promise((ok, nein) => {
+      google.script.run.withSuccessHandler(ok).withFailureHandler(nein)[fn](...args);
+    });
+  }
+  // text/plain, damit der Browser keine Vorabfrage schickt (Apps Script kann darauf nicht antworten)
+  return fetch(ZENTRALE_API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ k: schluessel(), fn: fn, args: args }) })
+    .then(r => { if (!r.ok) throw new Error('Server antwortet nicht (' + r.status + ')'); return r.json(); })
+    .then(d => {
+      if (d && d.fehler) { if (/Schlüssel/.test(d.fehler)) schluesselFragen(true); throw new Error(d.fehler); }
+      return d ? d.daten : null;
+    })
+    .catch(e => { throw (navigator.onLine === false ? new Error('Kein Netz. Versuch es gleich nochmal.') : e); });
+}
+function nacheinander(fn, ...args) {
+  offen++;
+  kette = kette.then(() => server(fn, ...args)
+    .then(d => {
+      offen--; geschrieben++;
+      // Der Server bestätigt nur noch. Ist die Warteschlange leer, einmal frisch holen.
+      if (offen === 0) { if (d && d.werte) uebernehmen(d); else abfragen(true); }
+    })
+    .catch(e => { offen--; melden(e.message || String(e)); if (offen === 0) abfragen(true); }));
+  return kette;
+}
+
+/** Fragt, ob sich etwas geändert hat. Nur dann kommt das ganze Paket. */
+function abfragen(erzwingen) {
+  if (offen > 0) return Promise.resolve();
+  if (abfrageLaeuft) { if (erzwingen) nochmal = true; return Promise.resolve(); }
+  abfrageLaeuft = true;
+  $('neu').classList.add('sync');
+  const vorher = geschrieben;
+  const alt = P && !erzwingen && (Date.now() - P.erstellt < 300000) ? P.stand : null;
+  return server('appLaden', alt)
+    .then(d => {
+      if (vorher !== geschrieben) { nochmal = true; return; }   // inzwischen gespeichert: Ergebnis ist alt
+      if (!d.gleich && offen === 0) uebernehmen(d);
+    })
+    .catch(e => { if (!P) $('inhalt').innerHTML = '<div class="karte">Fehler: ' + esc(e.message || e) + '</div>'; })
+    .finally(() => {
+      abfrageLaeuft = false; $('neu').classList.remove('sync');
+      if (nochmal) { nochmal = false; abfragen(true); }
+    });
+}
+
+function uebernehmen(d) {
+  if (!d || !d.werte) return;
+  P = d;
+  try { localStorage.setItem(SPEICHER, JSON.stringify(d)); } catch (e) { /* kein Speicher, egal */ }
+  const a = document.activeElement;
+  if (a && (a.tagName === 'TEXTAREA' || a.type === 'text' || a.type === 'time')) { spaeterZeichnen = true; return; }
+  zeichnen();
+}
+
+/* ── Farben aus Ziele ── */
+function stufe(f, w) {
+  if (f.typ === 'kaestchen') {
+    if (f.gutWenn === 'leer') return w === true ? 1 : 3;
+    return w === true ? 3 : 0;
+  }
+  if (f.typ === 'wahl') return w === 'si' ? 3 : w === 'hmm' ? 2 : w === 'nono' ? 1 : 0;
+  const z = P.ziele[f.ziel];
+  if (!z || typeof w !== 'number') return 0;
+  if (f.bezug) {
+    const b = wertVon(f.bezug);
+    if (typeof b !== 'number') return 0;
+    w = Math.max(0, w - b);
+  }
+  const wrap = x => f.nacht ? x + (x < 0.5 ? 1 : 0) : x;
+  const v = wrap(w);
+  if (v >= wrap(z[0]) && v <= wrap(z[1])) return 3;
+  if (v >= wrap(z[2]) && v <= wrap(z[3])) return 2;
+  return 1;
+}
+/* Farben kommen aus den Farbregeln in Tage (f.toene). Ohne Regeln: Farbe aus dem Tab App, abgestuft. */
+function ton(f, s) {
+  if (!s || !f) return '';
+  const t = f.toene && f.toene[s];
+  if (t) return 'background:' + t.bg + ';' + (t.fg ? 'color:' + t.fg + ';' : '');
+  const a = { 3: 'E0', 2: '80', 1: '26' }[s];
+  return 'background:' + f.farbe + a + ';';
+}
+function voll(f) { return f.toene ? ton(f, 3) : 'background:' + f.farbe + ';'; }
+
+/* ── Hilfen ── */
+function werteVon(iso) { return P.werte[iso || tagIso]; }
+function zelle(spalte, iso) { const t = werteVon(iso); return t ? t[spalte] : null; }
+function wertVon(spalte, iso) { const x = zelle(spalte, iso); return x ? x.wert : null; }
+function anzeigeVon(spalte, iso) { const x = zelle(spalte, iso); return x ? x.anzeige : ''; }
+function zeitText(x) {
+  if (typeof x !== 'number') return '';
+  const min = Math.round(x * 1440) % 1440;
+  return zwei(Math.floor(min / 60)) + ':' + zwei(min % 60);
+}
+function melden(text) {
+  const m = $('meldung'); m.textContent = text; m.classList.add('sichtbar');
+  clearTimeout(melden.t); melden.t = setTimeout(() => m.classList.remove('sichtbar'), 3200);
+}
+function tageListe() {
+  const h = heute();
+  const s = new Set(P.tage); s.add(h);
+  return [...s].filter(t => t <= h).sort();
+}
+
+/* ── Zeichnen ── */
+/* Antippen: Stelle merken. Wird danach neu gezeichnet, bekommt das Element an derselben Stelle die Feder Animation */
+let letzterTipp = null;
+const TIPP_ZIEL = 'button, .schalter, label, input[type=time], .klappbar, .ci-status, .pille';
+document.addEventListener('pointerdown', e => {
+  letzterTipp = { x: e.clientX, y: e.clientY, t: Date.now() };
+  tippAnimation(e.target);
+}, { passive: true });
+function tippAnimation(el) {
+  const z = el && el.closest ? el.closest(TIPP_ZIEL) : null;
+  if (!z) return;
+  z.classList.remove('tipp'); void z.offsetWidth; z.classList.add('tipp');
+  setTimeout(() => z.classList.remove('tipp'), 400);
+}
+function tippNachZeichnen() {
+  if (!letzterTipp || Date.now() - letzterTipp.t > 700) return;
+  const t = letzterTipp;
+  requestAnimationFrame(() => tippAnimation(document.elementFromPoint(t.x, t.y)));
+}
+function zeichnen() {
+  spaeterZeichnen = false;
+  if (!P) return;
+  tippNachZeichnen();
+  $('navTag').classList.toggle('aktiv', ansicht === 'tag');
+  $('navWoche').classList.toggle('aktiv', ansicht === 'woche');
+  document.body.classList.toggle('wochenansicht', ansicht === 'woche');
+  const zeigeNav = ansicht === 'tag';
+  $('zurueck').style.visibility = $('vor').style.visibility = zeigeNav ? 'visible' : 'hidden';
+  if (ansicht === 'woche') return zeichneWoche();
+  zeichneTag();
+}
+
+function zeichneTag() {
+  const h = heute(), liste = tageListe(), i = liste.indexOf(tagIso);
+  $('kopfTitel').textContent = tagIso === h ? 'Heute' : tagIso === tagPlus(h, -1) ? 'Gestern' : label(tagIso);
+  $('kopfDatum').textContent = label(tagIso);
+  $('zurueck').disabled = i <= 0;
+  $('vor').disabled = i === -1 || i >= liste.length - 1;
+
+  if (!werteVon()) {
+    $('inhalt').innerHTML = '<div class="karte"><b>Noch keine Zeile für diesen Tag.</b>' +
+      '<div class="hinweis">Die Zeile entsteht, wenn die Skripte laufen.</div>' +
+      '<button class="knopf" onclick="aktualisieren()">Jetzt aktualisieren</button></div>';
+    return;
+  }
+
+  let html = '';
+  const oben = P.felder.filter(f => f.typ === 'oben');
+  P.felder.filter(f => f.typ === 'gross').forEach(f => {
+    const live = tagLive(tagIso), w = live != null ? live : wertVon(f.spalte), s = stufe(f, w);
+    html += '<div class="tageszahl"><div class="neben links">' + nebenWerte(f, 'l') + '</div><div class="zahl" id="tagZahl" style="' + (ton(f, s) || 'background:var(--chip)') + '">' +
+      (live != null ? live.toFixed(1).replace('.', ',') : esc(anzeigeVon(f.spalte)) || '–') + '</div><div class="neben">' + nebenWerte(f, 'r') +
+      oben.map(o => '<div' + (o.liste ? ' class="klappbar' + (auf.has(o.spalte) ? ' auf' : '') + '" onclick="umklappen(' + P.felder.indexOf(o) + ')"' : '') +
+        '><small>' + esc(o.spalte) + (o.liste ? '<span class="pfeil">▸</span>' : '') + '</small><b style="' + ton(o, stufe(o, wertVon(o.spalte))) + '">' +
+        (esc(anzeigeVon(o.spalte)) || '–') + '</b></div>').join('') + '</div></div>';
+  });
+
+  let listen = '';
+  oben.filter(o => o.liste && auf.has(o.spalte)).forEach(o => {
+    listen += '<div class="karte klappbar auf" onclick="umklappen(' + P.felder.indexOf(o) + ')"><div class="bereich"><span class="punkt" style="background:' +
+      o.farbe + '"></span>' + esc(o.spalte) + '</div>' + listeHtml(o) + '</div>';
+  });
+
+  const bereiche = [];
+  P.felder.filter(f => f.typ !== 'gross' && f.typ !== 'oben').forEach(f => {
+    let b = bereiche.find(x => x.name === f.bereich);
+    if (!b) bereiche.push(b = { name: f.bereich, farbe: f.farbe, felder: [] });
+    b.felder.push(f);
+  });
+  const karten = bereiche.map(b => {
+    const bloecke = b.felder.some(f => f.typ === 'bloecke');
+    const kopfZeile = bloecke ? '' :
+      '<div class="bereich"><span class="punkt" style="background:' + b.farbe + '"></span>' + esc(b.name) +
+      (b.felder.some(f => CHECKIN_FELDER.indexOf(f.spalte) !== -1) && checkinOffen() ? '<span class="ci-offen">' + checkinOffen() + ' offen</span>' : '') + '</div>';
+    return { name: b.name, bloecke: bloecke, html: '<div class="karte">' + kopfZeile + b.felder.map(feldHtml).join('') + '</div>' };
+  });
+
+  /* Mac: Karten in Spalten. Links Handlung (Fokus, Struktur, Notiz), Mitte Eingaben, rechts Geld, Bewegung, Schlaf, Körper */
+  const n = macSpalten();
+  if (n < 2) { $('inhalt').innerHTML = html + listen + karten.map(k => k.html).join(''); return; }
+  const sp = Array.from({ length: n }, () => '');
+  sp[n === 3 ? 1 : 0] += listen;
+  karten.forEach(k => {
+    const name = String(k.name || '').toLowerCase();
+    const i = k.bloecke || MAC_LINKS.includes(name) ? 0 : MAC_RECHTS.includes(name) ? 2 : 1;
+    sp[Math.min(i, n - 1)] += k.html;
+  });
+  $('inhalt').innerHTML = html + '<div class="mac-spalten">' + sp.map(s => '<div class="mac-spalte">' + s + '</div>').join('') + '</div>';
+}
+
+/* Neben der großen Zahl: nur der Schnitt Tag 1/10 der letzten 4 Tage, heute zählt mit. Links bleibt leer, damit die Zahl mittig steht.
+   Ausgaben 7 Tage stehen in der Geld Karte, Schlaf in der Schlaf Karte. */
+function nebenWerte(f, seite) {
+  if (seite === 'l') return '';
+  const tage = [0, -1, -2, -3].map(n => wertVon(f.spalte, tagPlus(tagIso, n))).filter(x => typeof x === 'number');
+  const schnitt = tage.length ? Math.round(tage.reduce((x, y) => x + y, 0) / tage.length * 10) / 10 : null;
+  return '<div><small>Ø 4 Tage</small><b style="' + (schnitt == null ? '' : ton(f, stufe(f, schnitt))) + '">' +
+    (schnitt == null ? '–' : esc(komma(schnitt))) + '</b></div>';
+}
+
+function feldHtml(f) {
+  const w = wertVon(f.spalte), s = stufe(f, w), id = 'f' + P.felder.indexOf(f);
+  const name = esc(f.spalte.replace(' 1/10', ''));
+  const kopf = (r, zusatz) => '<div class="feld"><div class="zeile"><span class="name">' + name + (zusatz || '') + '</span>' + r + '</div>';
+  const pille = txt => '<span class="pille' + (txt ? '' : ' leer') + '" style="' + ton(f, s) + '">' + (txt ? esc(txt) : '–') + '</span>';
+
+  switch (f.typ) {
+    case 'skala': {
+      if (f.mehrfach) return mehrfachHtml(f, id, w, s, kopf, pille);
+      let k = '';
+      for (let n = 1; n <= 10; n++) {
+        const an = w === n;
+        k += '<button onclick="setzen(\'' + id + '\',' + (an ? "''" : n) + ')" style="' + (an ? ton(f, s) || 'background:' + f.farbe : '') + '">' + n + '</button>';
+      }
+      return kopf(pille(typeof w === 'number' ? komma(w) : '')) + '<div class="skala">' + k + '</div></div>';
+    }
+    case 'wahl': {   // drei Knöpfe, in der Tabelle steht das Wort (Vb: nono, hmm, si)
+      let k = '';
+      WAHL.forEach(x => {
+        const an = w === x;
+        k += '<button onclick="setzen(\'' + id + '\',\'' + (an ? '' : x) + '\')" style="' + (an ? ton(f, s) || 'background:' + f.farbe : '') + '">' + x + '</button>';
+      });
+      return kopf(pille(typeof w === 'string' ? w : '')) + '<div class="skala wahl">' + k + '</div></div>';
+    }
+    case 'zahl': {
+      const n = typeof w === 'number' ? w : null;
+      return kopf('<div class="zaehler"><button onclick="setzen(\'' + id + '\',' + (n ? n - 1 : 0) + ')">−</button>' +
+        pille(n == null ? '' : String(n)) +
+        '<button onclick="setzen(\'' + id + '\',' + ((n || 0) + 1) + ')">+</button></div>') + '</div>';
+    }
+    case 'kaestchen':
+      return kopf('<button class="schalter' + (w === true ? ' an' : '') + '" style="' + (w === true ? 'background:' + (f.gutWenn === 'leer' ? '#A8A69F' : f.farbe) : '') +
+        '" onclick="setzen(\'' + id + '\',' + (w === true ? 'false' : 'true') + ')"></button>') + '</div>';
+    case 'uhrzeit':
+      return kopf('<span><input type="time" value="' + zeitText(w) + '" style="' + ton(f, s) + '" onchange="zeitSetzen(\'' + id + '\', this.value)">' +
+        (w != null ? '<button class="loeschen" onclick="setzen(\'' + id + '\',\'\')">✕</button>' : '') + '</span>') + '</div>';
+    case 'jetzt': {
+      if (w === 'nein') {
+        return kopf('<span><span class="pille">nicht genommen</span><button class="loeschen" onclick="setzen(\'' + id + '\',\'\')">✕</button></span>') + '</div>';
+      }
+      if (typeof w !== 'number') {
+        return kopf('<span class="jetztwahl"><input type="time" onchange="zeitSetzen(\'' + id + '\', this.value)">' +
+          '<button class="jetzt" style="' + voll(f) + '" onclick="jetztSetzen(\'' + id + '\')">Jetzt</button></span>') +
+          '<div class="unter"><button class="nicht" onclick="setzen(\'' + id + '\',\'nein\')">Heute nicht genommen</button></div></div>';
+      }
+      const b = f.bezug ? wertVon(f.bezug) : null;
+      const abstand = typeof b === 'number' ? Math.round((w - b) * 1440) : null;
+      const info = abstand == null ? '' : abstand < 0 ? 'vor dem Aufwachen' :
+        (abstand < 60 ? abstand + ' min' : Math.floor(abstand / 60) + ' h ' + zwei(abstand % 60) + ' min') + ' nach ' + (/^aufwach/i.test(f.bezug) ? 'dem Aufwachen' : esc(f.bezug));
+      return kopf('<span><input type="time" value="' + zeitText(w) + '" style="' + ton(f, s) + '" onchange="zeitSetzen(\'' + id + '\', this.value)">' +
+        '<button class="loeschen" onclick="setzen(\'' + id + '\',\'\')">✕</button></span>') +
+        (info ? '<div class="unter">' + info + '</div>' : '') + '</div>';
+    }
+    case 'text':
+      return kopf('<input type="text" value="' + esc(w == null ? '' : w) + '" onblur="textSetzen(\'' + id + '\', this.value)">') + '</div>';
+    case 'notiz':
+      return '<div class="feld"><div class="zeile"><span class="name">' + esc(f.spalte) + '</span></div>' +
+        '<textarea onblur="textSetzen(\'' + id + '\', this.value)" placeholder="Was war heute?">' + esc(w == null ? '' : w) + '</textarea></div>';
+    case 'termine':
+      return kopf(pille(anzeigeVon(f.spalte))) + termineHtml(f) + '</div>';
+    case 'tasks':
+      if (P.felder.some(x => x.typ === 'bloecke')) return '';   // steht oben unter Erledigt
+      return kopf(pille(anzeigeVon(f.spalte))) + tasksHtml(f) + '</div>';
+    case 'bloecke':
+      return '<div class="feld" id="heuteBox">' + heuteHtml(f) + '</div>';
+    default:
+      if (f.liste) {
+        const a = auf.has(f.spalte);
+        return '<div class="feld klappbar' + (a ? ' auf' : '') + '" onclick="umklappen(' + P.felder.indexOf(f) + ')"><div class="zeile"><span class="name">' +
+          name + '<span class="pfeil">▸</span></span>' + pille(anzeigeVon(f.spalte)) + '</div>' + (a ? listeHtml(f) : '') + '</div>' + (f.spalte === 'Ausgaben' ? siebenHtml(f) : '');
+      }
+      return kopf(pille(anzeigeVon(f.spalte))) + '</div>';
+  }
+}
+
+/* Check ins: drei Fenster pro Tag. Unter der Skala steht, welche schon eingetragen sind, das laufende ist markiert */
+const CHECKIN_FELDER = ['Stimmung 1/10', 'Energie 1/10', 'Konzentration 1/10'];
+const CHECKIN = [['Morgens', 0, 12 * 60], ['Mittags', 12 * 60, 17 * 60], ['Abends', 17 * 60, 24 * 60]];
+function checkinFenster(liste) {
+  return CHECKIN.map(([name, von, bis]) => {
+    const drin = liste.filter(e => { const m = /^\d{1,2}:\d{2}$/.test(e.zeit) ? minVon(e.zeit) : -1; return m >= von && m < bis; });
+    return { name: name, von: von, bis: bis, wert: drin.length ? drin[drin.length - 1].wert : null };
+  });
+}
+/* Nur das laufende Fenster: offen pulsiert ein Punkt, eingetragen erscheint ein Haken mit kleinem Sprung */
+let checkinNeu = { spalte: '', t: 0 };
+function checkinHtml(f, liste) {
+  if (tagIso !== heute()) return '';
+  const jm = jetztMin(), c = checkinFenster(liste).find(x => jm >= x.von && jm < x.bis);
+  if (!c) return '';
+  const frisch = checkinNeu.spalte === f.spalte && Date.now() - checkinNeu.t < 1500;
+  return c.wert != null
+    ? '<div class="ci-status drin' + (frisch ? ' frisch' : '') + '"><span class="ci-haken">✓</span>' + c.name + ' drin</div>'
+    : '<div class="ci-status offen"><span class="ci-punkt"></span>' + c.name + ' noch offen</div>';
+}
+/* Kopf Karte: wie viele Check ins im laufenden Fenster noch fehlen */
+function checkinOffen() {
+  if (tagIso !== heute() || !P) return 0;
+  const jm = jetztMin(), c = CHECKIN.find(([, von, bis]) => jm >= von && jm < bis);
+  if (!c) return 0;
+  return CHECKIN_FELDER.filter(sp => {
+    const liste = (zelle(sp) || {}).eintraege || [];
+    return !checkinFenster(liste).some(x => x.name === c[0] && x.wert != null);
+  }).length;
+}
+
+/* Mehrfach: jedes Antippen ist ein neuer Eintrag, oben steht der Schnitt */
+function mehrfachHtml(f, id, w, s, kopf, pille) {
+  const liste = (zelle(f.spalte) || {}).eintraege || [];
+  // Der letzte Eintrag leuchtet in seiner Farbe, darunter steht, wann er war
+  const letzter = liste[liste.length - 1];
+  const lw = letzter ? letzter.wert : null;
+  const ls = letzter ? stufe(f, lw) : 0;
+  let k = '';
+  for (let n = 1; n <= 10; n++) {
+    const an = lw === n;
+    k += '<button onclick="eintragNeu(\'' + id + '\',' + n + ')" style="' + (an ? (ton(f, ls) || voll(f)) + 'box-shadow:inset 0 0 0 2px ' + f.farbe + ';' : '') + '">' + n + '</button>';
+  }
+  const zeit = letzter && /^\d{1,2}:\d{2}$/.test(letzter.zeit) ? letzter.zeit : '';
+  // Rechts steht der Schnitt des Tages, wie in der Tabelle
+  return kopf(pille(typeof w === 'number' ? komma(w) : '')) +
+    '<div class="skala">' + k + '</div>' +
+    (CHECKIN_FELDER.indexOf(f.spalte) !== -1 ? checkinHtml(f, liste)
+      : (zeit ? '<div class="unter"><span class="zuletzt">zuletzt</span> ' + esc(zeit) + '</div>' : '')) + '</div>';
+}
+
+/* Liste aus der Notiz der Zelle, z.B. Abbuchungen oder Konten */
+function listeHtml(f) {
+  const l = (zelle(f.spalte) || {}).liste || [];
+  if (!l.length) return '<div class="hinweis">Keine Einträge.</div>';
+  const mitZeit = l.some(p => p.zeit);
+  return '<div class="liste">' + l.map(p => postenHtml(p, mitZeit)).join('') + '</div>';
+}
+/* Eine Zeile in Ausgaben und Kontostand. Ausgaben haben vorne die Uhrzeit (leer, wenn die Bank keine liefert) */
+function postenHtml(p, mitZeit) {
+  return '<div class="posten">' + (mitZeit ? '<span class="pzeit">' + esc(p.zeit || '') + '</span>' : '') +
+    '<span class="ppunkt">' + esc(p.punkt) + '</span><span class="pname">' + esc(p.name) + '</span><span class="pbetrag">' + esc(p.betrag) + ' €</span></div>';
+}
+/* Geld Karte: Ausgaben der letzten 7 Tage (heute zählt mit). Antippen zeigt die Abbuchungen nach Tag, neuester zuerst */
+const SIEBEN = 'Ausgaben 7 Tage';
+function siebenHtml(f) {
+  const tage = [0, -1, -2, -3, -4, -5, -6].map(n => tagPlus(tagIso, n));
+  const werte = tage.map(iso => wertVon(f.spalte, iso)).filter(x => typeof x === 'number');
+  const geld = x => x.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+  const summe = werte.reduce((x, y) => x + y, 0), schnitt = werte.length ? summe / werte.length : null;
+  const a = auf.has(SIEBEN);
+  let liste = '';
+  if (a) {
+    liste = tage.map(iso => {
+      const w = wertVon(f.spalte, iso), l = (zelle(f.spalte, iso) || {}).liste || [];
+      if (typeof w !== 'number' && !l.length) return '';
+      return '<div class="tag7"><span>' + esc(label(iso)) + '</span><span>' + (typeof w === 'number' ? geld(w) : '') + '</span></div>' +
+        (l.length ? l.map(p => postenHtml(p, l.some(x => x.zeit))).join('') : (w ? '<div class="hinweis">Keine Einzelposten.</div>' : ''));
+    }).join('');
+    liste = '<div class="liste">' + (liste || '<div class="hinweis">Keine Ausgaben.</div>') + '</div>';
+  }
+  return '<div class="feld klappbar' + (a ? ' auf' : '') + '" onclick="siebenKlappen()"><div class="zeile"><span class="name">Letzte 7 Tage<span class="pfeil">▸</span>' +
+    (schnitt == null ? '' : '<small>Ø ' + Math.round(schnitt).toLocaleString('de-DE') + ' € pro Tag</small>') + '</span>' +
+    '<span class="pille' + (werte.length ? '' : ' leer') + '" style="' + (schnitt == null ? '' : ton(f, stufe(f, schnitt))) + '">' + (werte.length ? esc(geld(summe)) : '–') + '</span></div>' + liste + '</div>';
+}
+function siebenKlappen() { if (auf.has(SIEBEN)) auf.delete(SIEBEN); else auf.add(SIEBEN); zeichnen(); }
+function umklappen(i) {
+  const f = P.felder[i];
+  if (!f) return;
+  if (auf.has(f.spalte)) auf.delete(f.spalte); else auf.add(f.spalte);
+  zeichnen();
+}
+
+function termineHtml(f) {
+  const t = P.termine[tagIso] || [];
+  if (!t.length) return '<div class="hinweis">Keine Termine im Kalender.</div>';
+  return '<div class="terminliste">' + t.map(x =>
+    '<div class="termin"><span class="zeit">' + esc(x.zeit) + '</span>' +
+    '<div class="was"><div>' + esc(x.titel) + '</div><small>' + esc(x.kalender) + '</small></div></div>'
+  ).join('') + '</div>';
+}
+
+function tasksHtml(f) {
+  const t = (zelle(f.spalte) || {}).tasks || [];
+  if (!t.length) return '<div class="hinweis">Noch keine Tasks abgehakt.</div>';
+  return '<div class="terminliste">' + t.map(x =>
+    '<div class="termin"><span class="zeit">' + esc(x.zeit) + '</span>' +
+    '<div class="was"><div>' + esc(x.titel) + '</div>' + (x.liste ? '<small>' + esc(x.liste) + '</small>' : '') + '</div></div>'
+  ).join('') + '</div>';
+}
+
+/* ── Blöcke: Fokuspunkte. Gezählt wird das Anfangen. Dieselben Zahlen stehen in Bloecke.gs (BLK.PUNKTE) ── */
+const BLOCK_FAKTOR = { gemacht: 1, teils: 0.5, nicht: 0 };
+const ZAEHLT_NICHT = ['System'];   // wie BLK.ZAEHLT_NICHT: sichtbar, aber nicht in der Fokuszeit
+const NACH_FAKTOR = 0.5;           // nachgetragene Blöcke zählen halb (wie BLK.NACH_FAKTOR)
+const SEIT_MAX = 90;  // Los "seit …": höchstens so viele Minuten zurück (wie BLK.LOS_ZURUECK_MAX)
+function zaehlt(b) { return ZAEHLT_NICHT.indexOf(b.bereich) === -1; }
+const PUNKTE = { ERSTER: 3, WEITERE: 2, MAX_BLOECKE: 3, GANZ: 1, HALB: 0.5, MIN_DAUER: 25, TASK: 0.5, MAX_TASKS: 5 };
+const PUNKTE_ZIEL = 7;   // Ersatz, falls Ziele noch keinen Wert hat
+const PUNKTE_AB = '2026-11-05';   // Tage davor zählten Fokuszeit und werden nicht umgerechnet
+const FOKUS_ZIEL_MIN = 180;        // Ersatz für das Tagesziel, falls Regeln keinen Wert hat (3 h)
+const WAHL = ['nono', 'hmm', 'si'];   // Typ wahl im Tab App (Spalte Vb): nono zählt null, hmm halb, si voll
+const ZEIT_AB = '2026-11-06';      // ab hier zählt Fokuszeit stufenlos im Tageswert, gleiche Grenze wie in Tage!C und Bloecke.gs
+
+/* ── Tageswert in der App nachgebaut, gleiche Rechnung wie die Formel in Tage!C. Damit steigt er live mit der Fokuszeit.
+   Nummern wie in der Formel: Regeln Spalte B = 1. Wer die Formel ändert, zieht hier mit. ── */
+function regelFuer(iso) {
+  let r = null;
+  ((P && P.regeln) || []).forEach(x => { if (x.ab <= iso && (!r || x.ab >= r.ab)) r = x; });
+  return r ? r.w : null;
+}
+function fokusZielMin(iso) {
+  const R = regelFuer(iso), z = R ? Number(R[104]) : 0;
+  return iso >= ZEIT_AB && z > 0 ? Math.round(z * 1440) : FOKUS_ZIEL_MIN;
+}
+function tagWertRechnen(iso, fokusMinuten) {
+  const w = P && P.werte[iso], R = regelFuer(iso);
+  if (!w || !R) return null;
+  const zahl = x => typeof x === 'number' && isFinite(x);
+  const v = name => (w[name] || {}).wert, ja = name => v(name) === true;
+  const gw = k => Number(R[k - 1]) || 0;
+  const D = v('Aufwach'), E = v('Einschlaf'), F = v('Dauer'), G = v('HRV'), H = v('Elvanse');
+  const K = v('Stimmung 1/10'), L = v('Energie 1/10'), M = v('Konzentration 1/10');
+  if (![D, E, F, G, K, L, M].some(zahl)) return null;
+  const wrap = (x, k) => x + (k && x < 0.5 ? 1 : 0);
+  const bew = (x, a, k) => {
+    if (!zahl(x)) return null;
+    const z = [a, a + 1, a + 2, a + 3].map(gw), y = wrap(x, k);
+    if (y >= wrap(z[0], k) && y <= wrap(z[1], k)) return 1;
+    if (y >= wrap(z[2], k) && y <= wrap(z[3], k)) return 0.5;
+    return 0;
+  };
+  const h = heute(), jetzt = jetztMin() / 1440;
+  const offen = iso > h || (iso === h && jetzt < gw(20));
+  const mittag = iso > h || (iso === h && jetzt < 0.5);
+  // Seit 09.11.2026 (Regeln DF bis DK, in älteren Zeilen leer und damit aus): Vb (Worth it), Deckel ab 10 Drinks,
+  // Sport halb, Uhrfehler fallen raus. Einschlaf steht seit 10.11. in der Zeile des Abends (Health.gs), die Dauer der Nacht in der Zeile danach.
+  const gWi = gw(109), dAb = gw(110), dMax = gw(111), sHalb = gw(112), uhrMin = gw(113), abend = gw(114) > 0;
+  const morgen = P.werte[tagPlus(iso, 1)] || {}, wm = name => (morgen[name] || {}).wert;
+  const einN = E, dauN = abend ? wm('Dauer') : F;
+  const fehl = (e, d) => uhrMin > 0 && ((zahl(d) && d < uhrMin) || (zahl(e) && e >= 0.5 && e < 20 / 24));
+  const gestern = P.werte[tagPlus(iso, -1)] || {}, einV = abend ? (gestern.Einschlaf || {}).wert : E;
+  const fAuf = fehl(einV, F), fEin = fehl(einN, dauN);
+  const sAuf = bew(fAuf ? null : D, 21, 0), sEin = bew(fEin ? null : einN, 25, 1), sDau = bew(fAuf ? null : F, 29, 0), sHrv = bew(G, 37, 0);
+  const sElv = bew(zahl(H) && zahl(D) && !fAuf ? Math.max(0, H - D) : null, 41, 0);
+  const wi = v('Vb'), sWi = wi === 'si' ? 1 : wi === 'hmm' ? 0.5 : wi === 'nono' ? 0 : null;
+  const sDri = bew(v('Drinks'), 45, 0), sSti = bew(K, 49, 0), sEne = bew(L, 53, 0), sKon = bew(M, 57, 0);
+  const sAus = bew(v('Ausgaben'), 65, 0), sTer = bew(v('Termine'), 81, 0);
+  const sOtt = ja('Ott') ? 0 : 1;
+  let nSport = 0;
+  for (let k = 0; k <= 6; k++) { const t = P.werte[tagPlus(iso, -k)]; if (t && t.Sport && t.Sport.wert === true) nSport++; }
+  const sSpo = ja('Sport') ? 1 : (nSport >= gw(73) ? 1 : (sHalb > 0 && nSport >= sHalb ? 0.5 : 0));
+  const sHEi = ja('X Handy Schlafen') ? 1 : 0, sHFr = ja('X Handy Frühstück') ? 1 : 0, sKni = ja('Knieübung') ? 1 : 0;
+  const zeitAb = iso >= ZEIT_AB;
+  const X = fokusMinuten != null ? fokusMinuten / 1440 : v('Fokus');
+  const sFok = zeitAb ? (gw(105) > 0 ? Math.min(1, (zahl(X) ? X : 0) / gw(105)) : 0) : bew(X, 105, 0);
+  const n = x => x == null ? 0 : x, da = x => x == null ? 0 : 1;
+  const mSpo = offen && sSpo < 1 ? 0 : 1, mTer = offen && n(sTer) < 1 ? 0 : 1;
+  const mFok = zeitAb ? 1 : (offen && n(sFok) < 1 ? 0 : 1);
+  const mHFr = mittag && sHFr < 1 ? 0 : 1, mKni = mittag && sKni < 1 ? 0 : 1;
+  const zaehler = gw(1) * n(sAuf) + gw(2) * n(sEin) + gw(3) * n(sDau) + gw(4) * sOtt + gw(5) * n(sDri) + gw(6) * sSpo * mSpo +
+    gw(7) * n(sElv) + gw(8) * n(sSti) + gw(9) * n(sEne) + gw(10) * n(sKon) + gw(11) * n(sHrv) + gw(12) * n(sAus) +
+    gw(13) * n(sTer) * mTer + gw(14) * sHEi + gw(15) * sHFr * mHFr + gw(18) * sKni * mKni + gw(16) * n(sFok) * mFok + gWi * n(sWi);
+  const nenner = gw(1) * da(sAuf) + gw(2) * da(sEin) + gw(3) * da(sDau) + gw(4) + gw(5) * da(sDri) + gw(6) * mSpo +
+    gw(7) * da(sElv) + gw(8) * da(sSti) + gw(9) * da(sEne) + gw(10) * da(sKon) + gw(11) * da(sHrv) + gw(12) * da(sAus) +
+    gw(13) * da(sTer) * mTer + gw(14) + gw(15) * mHFr + gw(18) * mKni + gw(16) * da(sFok) * mFok + gWi * da(sWi);
+  if (!nenner) return null;
+  let roh = 1 + 9 * zaehler / nenner;
+  if (ja('Ott')) roh = Math.min(roh, gw(19));
+  const dr = v('Drinks');
+  if (dAb > 0 && zahl(dr) && dr >= dAb) roh = Math.min(roh, dMax);
+  return roh;   // ungerundet, gerundet wird beim Anzeigen
+}
+/* Heute ab ZEIT_AB: Tageswert mit der Fokuszeit von jetzt (statt dem Stand der Tabelle, der bis zu 15 Minuten alt ist) */
+function tagLive(iso) {
+  if (!P || iso !== heute() || iso < ZEIT_AB) return null;
+  const x = tagWertRechnen(iso, fokusTagMin(iso));
+  return x == null ? null : Math.round(x * 10) / 10;
+}
+/* Wie viel mehr Minuten Fokus den Tageswert heute heben: +0,2 oder bei wenig +0,04 */
+function tagZuwachs(iso, mehrMin, basisMin) {
+  const b = basisMin != null ? basisMin : fokusTagMin(iso);
+  const a = tagWertRechnen(iso, b), z = tagWertRechnen(iso, b + mehrMin);
+  if (a == null || z == null) return 0;
+  return z - a;
+}
+function zuwachsText(d) {
+  if (!(d > 0.005)) return '';
+  return '+' + (d >= 0.1 ? (Math.round(d * 10) / 10).toFixed(1) : (Math.round(d * 100) / 100).toFixed(2)).replace('.', ',');
+}
+const LOB_START = ['Läuft. Die Uhr zählt.', 'Angefangen. Das war der schwerste Teil.', 'Drin. Jetzt nur der erste Schritt.', 'Gut. Die Uhr läuft für dich.', 'Angefangen. Der Rest kommt von allein.'];
+/* Gestartet: "Ich fang an" getippt, oder Ganz bzw. Halb bewertet */
+function gestartet(b) { return !!b.gestartet || b.status === 'gemacht' || b.status === 'teils'; }
+function punkteTag(iso) {
+  const l = bloeckeVon(iso);
+  const zaehlt = l.filter(b => b.min >= PUNKTE.MIN_DAUER && gestartet(b)).sort((a, b) => a.start.localeCompare(b.start));
+  const pro = {};
+  let bl = 0;
+  zaehlt.forEach((b, i) => {
+    if (i >= PUNKTE.MAX_BLOECKE) { pro[b.key] = 0; return; }
+    const p = (i === 0 ? PUNKTE.ERSTER : PUNKTE.WEITERE) + (b.status === 'gemacht' ? PUNKTE.GANZ : b.status === 'teils' ? PUNKTE.HALB : 0);
+    pro[b.key] = p; bl += p;
+  });
+  const imBlock = new Set();
+  l.forEach(b => { if (b.task) imBlock.add(b.task); (b.sammel || []).forEach(r => imBlock.add(r)); });
+  const refs = new Set((((P && P.fokTasks) || {})[iso] || []).filter(r => !imBlock.has(r)));
+  const nt = Math.min(PUNKTE.MAX_TASKS, refs.size);
+  return { summe: bl + nt * PUNKTE.TASK, bloecke: bl, tasks: nt, pro: pro };
+}
+/* Summe mit einer Nachkommastelle wie in Tage (7,0), Zuwachs ohne (+3, +0,5) */
+function punkteText(p) { return (Math.round(p * 10) / 10).toFixed(1).replace('.', ','); }
+/* Los Knopf: das Wichtigste in der Karte. Text rechts: was vom Block noch zu holen ist */
+function startKnopf(iso, i, txt, zuwachs) {
+  const b = bloeckeVon(iso)[i];
+  if (b && !zaehlt(b)) zuwachs = '';   // System bringt keinen Tageswert
+  return '<button class="hz-start" onclick="blockStarten(\'' + iso + '\',' + i + ')"><span class="play">▶</span>Los<i>' + esc(txt) +
+    (zuwachs ? ' · Tag ' + esc(zuwachs) : '') + '</i></button>' + seitKnoepfe(iso, i, 'Schon dran seit');
+}
+/* Vergessen, Los zu drücken: dezente Zeile, Antippen öffnet das Uhrzeit Rad. Bis zu 90 Minuten zurück, zählt voll */
+function seitKnoepfe(iso, i, txt) {
+  return '<label class="hz-seit">' + txt + ' <input type="time" onchange="blockSeit(\'' + iso + '\',' + i + ', this.value)"></label>';
+}
+function blockSeit(iso, i, txt) {
+  if (!/^\d{1,2}:\d{2}/.test(String(txt || ''))) return;
+  const zurueck = jetztMin() - minVon(txt);
+  if (zurueck <= 0) return melden('Die Uhrzeit liegt in der Zukunft.');
+  if (zurueck > SEIT_MAX) { melden('Höchstens ' + SEIT_MAX + ' Minuten zurück. Für mehr: Plus, Schon gemacht.'); zeichnen(); return; }
+  blockStarten(iso, i, false, zurueck);
+}
+/* Fokuszeit eines Blocks in Minuten. Mit Los: gemessen vom Antippen bis Fertig, Blockende oder jetzt (auch bei Nicht).
+   Ohne Los wie früher: Ganz voll, Halb halb, Nicht null. Dieselbe Regel steht in Bloecke.gs (blkFokusMin_). */
+function fokusMin(iso, b) {
+  if (b.nach) return Math.round(b.min * NACH_FAKTOR * (BLOCK_FAKTOR[b.status] == null ? 1 : BLOCK_FAKTOR[b.status]));
+  if (b.gestartet) {
+    let e = b.beendet ? minVon(b.beendet) : minVon(b.ende);
+    if (iso === heute() && !b.beendet && !b.status) e = Math.min(e, jetztMin());
+    return Math.max(0, e - minVon(b.gestartet));
+  }
+  return Math.round(b.min * (BLOCK_FAKTOR[b.status] || 0));
+}
+function fokusTagMin(iso) { return bloeckeVon(iso).filter(zaehlt).reduce((n, b) => n + fokusMin(iso, b), 0); }
+/* Balken bis zum Tagesziel: ein Stück pro Block, hell geplant, kräftig Fokuszeit. Was zum Ziel fehlt, bleibt grau */
+function fokusBalken(iso, l) {
+  const teile = l.filter(x => zaehlt(x.b)).sort((a, b) => a.b.start.localeCompare(b.b.start)).map(x => {
+    const fm = fokusMin(iso, x.b), breite = Math.max(x.b.min || 0, fm, 1);
+    return { breite: breite, html: '<span style="flex:' + breite + '"><i style="width:' + Math.min(100, Math.round(fm / breite * 100)) + '%"></i></span>' };
+  });
+  const rest = fokusZielMin(iso) - teile.reduce((n, x) => n + x.breite, 0);
+  return '<div class="hz-seg">' + teile.map(x => x.html).join('') + (rest > 0 ? '<span class="rest" style="flex:' + rest + '"></span>' : '') + '</div>';
+}
+function bloeckeVon(iso) { return (P && P.bloecke && P.bloecke[iso]) || []; }
+function begonnen(iso, b) { const h = heute(); return iso < h || (iso === h && b.start <= jetztZeit()); }
+function dauerText(min) { return min >= 60 ? Math.floor(min / 60) + ':' + zwei(min % 60) + ' h' : min + ' min'; }
+
+function blockHtml(iso, b, i) {
+  const kann = begonnen(iso, b);
+  const knopf = (st, z, k) => '<button class="' + k + (b.status === st ? ' an' : '') +
+    '" onclick="blockTippen(\'' + iso + '\',' + i + ',\'' + st + '\')" aria-label="' + st + '">' + z + '</button>';
+  const fm = b.status || b.gestartet ? fokusMin(iso, b) : null;
+  return '<div class="block' + (kann ? '' : ' spaeter') + '"><span class="zeit">' + esc(b.start) + '</span>' +
+    '<div class="was"><div>' + esc(b.titel || b.bereich) + '</div><small>' + esc(b.bereich) + ' · ' + dauerText(b.min) +
+    (b.geplant ? '' : ' · nachgetragen') + (b.task && b.taskFertig ? ' · Task erledigt' : '') + '</small></div>' +
+    (fm != null ? '<span class="pkt' + (fm > 0 ? ' plus' : '') + '"><span id="pkt-' + iso + '-' + i + '">' + hm(fm) + '</span></span>' : '') +
+    (kann ? '<span class="stat">' + knopf('gemacht', '✓', 'g') + knopf('teils', '½', 't') + knopf('nicht', '✕', 'n') + '</span>'
+          : '<span class="pkt">bis ' + esc(b.ende) + '</span>') + '</div>' +
+    (b.status === 'gemacht' && b.task && !b.taskFertig ? '<div class="taskfrage"><span>Task „' + esc(b.taskTitel || b.titel) + '“ auch fertig?</span>' +
+      '<button onclick="taskFertig(\'' + iso + '\',' + i + ')">Ja, abhaken</button></div>' : '');
+}
+
+/* ── Heute: Jetzt, Später, Offen, Erledigt ── */
+const DRAN_KEY = 'zentrale_dran';
+let dranMerk = {};
+try { dranMerk = JSON.parse(localStorage.getItem(DRAN_KEY) || '{}'); } catch (e) { dranMerk = {}; }
+Object.keys(dranMerk).forEach(k => { if (Date.now() - Number(String(k).split('|')[1] || 0) > 3 * 864e5) delete dranMerk[k]; });
+let dranMeldung = null;
+
+function minVon(hhmm) { const m = String(hhmm).match(/^(\d{1,2}):(\d{2})/); return m ? Number(m[1]) * 60 + Number(m[2]) : 0; }
+function jetztMin() { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
+function hm(min) { return Math.floor(min / 60) + ':' + zwei(min % 60); }
+/* "Szene 12 · Lara bekommt den letzten Satz": vorne was, hinten der erste Schritt aus dem Planen */
+function titelTeile(b) {
+  const t = String(b.titel || ''), i = t.indexOf(' · ');
+  return i < 0 ? { was: t, schritt: '' } : { was: t.slice(0, i), schritt: t.slice(i + 3) };
+}
+function blockName(b) {
+  const w = titelTeile(b).was;
+  if (b.bereich === 'Sonstiges') return w || 'Block';
+  return b.bereich + (w ? ': ' + w : '');
+}
+function dranVon(key) { return dranMerk[key] || { dran: 0, weg: 0, zuletzt: 0, fertig: false }; }
+function dranSpeichern(key, d) {
+  dranMerk[key] = d;
+  try { localStorage.setItem(DRAN_KEY, JSON.stringify(dranMerk)); } catch (e) { /* bleibt im Speicher */ }
+}
+/* Seit wann zählt das nächste Dran: Los, letztes Dran oder Abgedriftet, je nachdem was später war (Minuten am Tag) */
+function dranBasis(b, d) {
+  let basis = minVon(b.gestartet || b.start);
+  if (d.zuletzt) {
+    const z = new Date(d.zuletzt);
+    if (z.toDateString() === new Date().toDateString()) basis = Math.max(basis, z.getHours() * 60 + z.getMinutes());
+  }
+  return basis;
+}
+/* Kurzes Vibrieren: Android über vibrate, iPhone ab iOS 18 über einen versteckten Schalter */
+function haptik() {
+  try { if (navigator.vibrate && navigator.vibrate(15)) return; } catch (e) { /* kein vibrate */ }
+  try { const l = $('haptik'); if (l) l.click(); } catch (e) { /* ohne Haptik */ }
+}
+/* Dran: bestätigt die Zeit seit dem letzten Dran. Die Zahl ist echte Fokuszeit, keine erfundenen Punkte */
+function dranTippen(i, ja) {
+  const b = bloeckeVon(heute())[i];
+  if (!b) return;
+  const d = dranVon(b.key);
+  const plus = Math.max(0, jetztMin() - dranBasis(b, d));
+  const zw = ja && plus > 0 && zaehlt(b) ? zuwachsText(tagZuwachs(heute(), plus, fokusTagMin(heute()) - plus)) : '';
+  merken({ art: 'dran', tag: tagIso, key: b.key, ja: ja, vorher: d.zuletzt || 0, name: ja ? 'Dran' : 'Abgedriftet' });
+  if (ja) d.dran++; else d.weg++;
+  d.zuletzt = Date.now();
+  dranSpeichern(b.key, d);
+  if (ja) haptik();
+  const s = titelTeile(b).schritt;
+  dranMeldung = { key: b.key, ja: ja, t: Date.now(), plus: ja ? plus : 0,
+    text: ja ? (plus > 0 ? 'Stark. +' + dauerText(plus) + ' im Fokus' + (zw ? ' · Tag ' + zw : '') + '.' : 'Stark. Weiter so.')
+             : 'Passiert. ' + (s ? 'Zurück zu: ' + s : 'Kurz durchatmen, dann weiter.') };
+  heuteNeu();
+}
+/* Fertig: Endzeit in den Kalender, danach fragt die Karte, wie es lief */
+function blockFertig(i) {
+  const b = bloeckeVon(heute())[i];
+  if (!b) return;
+  merken({ art: 'frueh', tag: tagIso, key: b.key, name: 'Fertig' });
+  const d = dranVon(b.key); d.fertig = true; dranSpeichern(b.key, d);
+  b.beendet = jetztZeit();
+  haptik();
+  fokusLokal(heute());
+  zeichnen();
+  nacheinander('appBlockBeenden', b.key, true);
+}
+/* Los: ab jetzt läuft die Uhr. Der erste Start des Tages bekommt den großen Moment */
+function blockStarten(iso, i, ohneVerlauf, zurueck) {
+  const b = bloeckeVon(iso)[i];
+  if (!b) return;
+  zurueck = Math.max(0, Math.min(SEIT_MAX, Number(zurueck) || 0));
+  if (b.gestartet) {
+    // Läuft schon: "seit …" setzt den Start nur nach vorne, nie nach hinten
+    if (!zurueck || minVon(b.gestartet) <= jetztMin() - zurueck) return;
+  } else if (gestartet(b)) return;
+  const ms = Date.now() - zurueck * 60000, d = new Date(ms);
+  const neu = zwei(d.getHours()) + ':' + zwei(d.getMinutes());
+  const erster = !b.gestartet && !bloeckeVon(iso).some(x => x.gestartet);
+  if (!ohneVerlauf) merken(b.gestartet ? { art: 'startzeit', tag: tagIso, iso: iso, key: b.key, alt: b.gestartet, name: 'Startzeit' }
+                                       : { art: 'start', tag: tagIso, iso: iso, key: b.key, name: 'Angefangen' });
+  const umgestellt = !!b.gestartet;
+  b.gestartet = neu;
+  haptik();
+  fokusLokal(iso);
+  dranMeldung = { key: b.key, ja: true, t: Date.now(), erster: erster,
+    text: umgestellt ? 'Start auf ' + neu + ' gesetzt.' : zurueck ? 'Läuft seit ' + neu + '. Zählt voll.' :
+      erster ? 'Tag gestartet. Die Uhr läuft.' : LOB_START[Math.floor(Math.random() * LOB_START.length)] };
+  zeichnen();
+  if (zurueck) nacheinander('appBlockStarten', b.key, true, ms); else nacheinander('appBlockStarten', b.key, true);
+}
+function heuteNeu() {
+  tippNachZeichnen();
+  const el = $('heuteBox'), f = P && P.felder.find(x => x.typ === 'bloecke');
+  if (el && f) el.innerHTML = heuteHtml(f);
+  tagZahlNeu();
+}
+function tagZahlNeu() {
+  const el = $('tagZahl'), f = P && P.felder.find(x => x.typ === 'gross'), live = tagLive(tagIso);
+  if (!el || !f || live == null) return;
+  const txt = live.toFixed(1).replace('.', ','), alt = parseFloat(String(el.textContent).replace(',', '.'));
+  if (el.textContent === txt) return;
+  el.textContent = txt;
+  el.setAttribute('style', ton(f, stufe(f, live)) || 'background:var(--chip)');
+  if (live > alt) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+}
+
+function dauerKurz(min) { return min % 60 === 0 && min >= 60 ? (min / 60) + ' h' : dauerText(min); }
+
+function heuteHtml(f) {
+  const h = heute(), iso = tagIso, l = bloeckeVon(iso).map((b, i) => ({ b: b, i: i }));
+  const summe = fokusTagMin(iso), geplant = l.reduce((n, x) => n + (x.b.min || 0), 0);
+  const frisch = iso === h && dranMeldung && dranMeldung.ja && Date.now() - dranMeldung.t < 2500 ? dranMeldung : null;
+  let html = '<div class="hz-kopf"><span class="n">Fokus</span><span class="hz-zeitbox"><span class="hz-zeit' + (frisch ? ' pop' : '') + '">' + hm(summe) + '</span>' +
+    (frisch && frisch.plus > 0 ? '<span class="hz-flug">+' + dauerText(frisch.plus) + '</span>' : '') + '</span><span class="hz-von">von ' + dauerText(fokusZielMin(iso)) + '</span>' +
+    '<button class="hz-plus" onclick="plusOeffnen()" aria-label="Planen">+</button></div>' + fokusBalken(iso, l) +
+    (geplant ? '<div class="hz-leg"><span>Geplant ' + dauerText(geplant) + '</span></div>' : '');
+  if (iso !== h) {
+    const offenA = l.filter(x => !x.b.status);
+    if (offenA.length) html += '<div class="hz-k2"><span class="h">Offen</span></div><div class="terminliste">' + offenA.map(x => blockHtml(iso, x.b, x.i)).join('') + '</div>';
+    return html + erledigtHtml(iso, l);
+  }
+
+  const jm = jetztMin();
+  const offen = l.filter(x => !x.b.status && minVon(x.b.ende) <= jm);
+  const laeuft = l.find(x => !x.b.status && (minVon(x.b.start) <= jm || x.b.gestartet) && jm < minVon(x.b.ende));
+  const kommend = l.filter(x => !x.b.status && minVon(x.b.start) > jm);
+  const jetzt = laeuft || offen[offen.length - 1] || kommend[0] || null;
+  const termin = (P.termine[h] || []).find(x => minVon(x.zeit) > jm && minVon(x.zeit) - jm <= 90);
+
+  if (jetzt) {
+    const b = jetzt.b, i = jetzt.i, t = titelTeile(b), d = dranVon(b.key);
+    const s0 = minVon(b.start), s1 = minVon(b.ende);
+    const fertig = d.fertig || !!b.beendet;
+    const istLauf = jetzt === laeuft && !fertig;
+    const istVorbei = !istLauf && (s1 <= jm || fertig);
+    const terminZeile = termin ? '<div class="hz-meta">Termin ' + esc(termin.zeit) + ' ' + esc(termin.titel) + '</div>' : '';
+    const name = '<div class="hz-titel">' + esc(blockName(b)) + '</div>';
+    const dauerZeile = '<div class="hz-meta">' + dauerText(b.min) + ' · ' + esc(b.start) + ' bis ' + esc(b.ende) + '</div>';
+    const schritt = t.schritt ? '<div class="hz-meta">Erster Schritt: ' + esc(t.schritt) + '</div>' : '';
+    const meld = dranMeldung && dranMeldung.key === b.key && Date.now() - dranMeldung.t < 60000 ? dranMeldung : null;
+    const meldHtml = meld ? '<div class="hz-melde' + (meld.ja ? ' lob hops' : '') + '">' + esc(meld.text) + '</div>' : '';
+    let box, feier = false;
+    if (istLauf && b.gestartet) {
+      const a0 = minVon(b.gestartet), lauf = Math.max(0, jm - a0);
+      const p = Math.min(100, Math.round(lauf / Math.max(1, s1 - a0) * 100));
+      box = '<div class="hz-vor">Läuft seit ' + esc(b.gestartet) + '</div>' + name +
+        '<div class="hz-uhr"><b>' + hm(fokusMin(h, b)) + '</b><span>drin · noch ' + dauerText(Math.max(0, s1 - jm)) + ' bis ' + esc(b.ende) + '</span></div>' +
+        '<div class="hz-bar"><i style="width:' + p + '%"></i></div>' +
+        (lauf < 5 ? schritt : '') + terminZeile + meldHtml +
+        '<div class="hz-knoepfe"><button class="hz-dran' + (jm - dranBasis(b, d) >= 25 ? ' puls' : '') + '" onclick="dranTippen(' + i + ',true)">Dran</button>' +
+        '<button onclick="dranTippen(' + i + ',false)">Abgedriftet</button><button onclick="blockFertig(' + i + ')">Fertig</button></div>' +
+        seitKnoepfe(h, i, 'Früher angefangen?');
+      feier = !!(meld && meld.erster && Date.now() - meld.t < 3000);
+    } else if (istLauf) {
+      const seit = jm - s0;
+      box = '<div class="hz-vor">Jetzt' + (seit > 0 ? ' · seit ' + dauerText(seit) : '') + '</div>' + name + dauerZeile + schritt + terminZeile + meldHtml +
+        startKnopf(h, i, 'noch ' + dauerText(Math.max(0, s1 - jm)) + ' drin', zuwachsText(tagZuwachs(h, Math.max(0, s1 - jm))));
+    } else if (istVorbei) {
+      const k = st => 'blockSetzen(\'' + h + '\',' + i + ',\'' + st + '\')';
+      box = '<div class="hz-vor">Vorbei · wie lief es?</div>' + name +
+        '<div class="hz-meta">' + (b.gestartet ? esc(b.gestartet) + ' bis ' + esc(b.beendet || b.ende) + ' · ' + hm(fokusMin(h, b)) + ' drin' : esc(b.start) + ' bis ' + esc(b.ende)) + '</div>' +
+        '<div class="hz-drei"><button onclick="' + k('gemacht') + '">✓ Ganz</button><button onclick="' + k('teils') + '">½ Halb</button><button onclick="' + k('nicht') + '">✕ Nicht</button></div>';
+    } else {
+      const bis = s0 - jm;
+      box = '<div class="hz-vor">Als Nächstes · ' + (bis <= 90 ? 'in ' + dauerText(bis) : 'um ' + esc(b.start)) + '</div>' + name + dauerZeile + schritt + terminZeile +
+        startKnopf(h, i, dauerText(b.min), zuwachsText(tagZuwachs(h, b.min)));
+    }
+    html += '<div class="hz-jetzt' + (feier ? ' feier' : '') + '">' + box + '</div>';
+  }
+
+  kommend.filter(x => x !== jetzt).forEach(x => {
+    html += '<div class="hz-next"><span class="hz-ic grau">◷</span><span>' + esc(blockName(x.b)) + '</span><span class="hz-t">' + dauerKurz(x.b.min) + '</span><span class="hz-t">' + esc(x.b.start) + '</span></div>';
+  });
+
+  const offenRest = offen.filter(x => x !== jetzt);
+  if (offenRest.length) html += '<div class="hz-k2"><span class="h">Offen</span></div><div class="terminliste">' + offenRest.map(x => blockHtml(h, x.b, x.i)).join('') + '</div>';
+  const g = tagPlus(h, -1);
+  const gestern = bloeckeVon(g).map((b, i) => ({ b: b, i: i })).filter(x => !x.b.status);
+  if (gestern.length) html += '<div class="hz-k2"><span class="h">Gestern offen</span></div><div class="terminliste">' + gestern.map(x => blockHtml(g, x.b, x.i)).join('') + '</div>';
+
+  const ht = heuteTasks || [];
+  if (ht.length) html += '<div class="hz-k2"><span class="h">Für heute</span><span class="s">' + ht.length + ' von ' + HEUTE_MAX + '</span></div>' +
+    ht.map((t, i) => '<button class="hz-row2" onclick="heuteAbhaken(' + i + ')"><span class="hz-ic leer"></span><span>' + esc(t.titel) + '</span></button>').join('');
+
+  const erl = erledigtHtml(iso, l);
+  if (!jetzt && !ht.length && !erl) html += '<div class="hz-klein" style="margin-top:12px">Tipp auf Plus, um etwas einzuplanen.</div>';
+  return html + erl;
+}
+
+/* Erledigt: eine Liste nach Uhrzeit. Blöcke grün mit Fokuszeit, Tasks goldgelb. Antippen eines Blocks nimmt die Bewertung zurück */
+function erledigtHtml(iso, l) {
+  const tf = P.felder.find(x => x.typ === 'tasks');
+  const tasks = tf ? ((zelle(tf.spalte, iso) || {}).tasks || []) : [];
+  const fertig = l.filter(x => x.b.status);
+  if (!fertig.length && !tasks.length) return '';
+  const zeilen = fertig.map(x => {
+    const fm = fokusMin(iso, x.b);
+    const zeichen = { gemacht: '✓', teils: '½', nicht: '✕' }[x.b.status] || '✓';
+    return { zeit: x.b.start, html: '<button class="hz-row" onclick="blockSetzen(\'' + iso + '\',' + x.i + ',\'\')">' +
+      '<span class="hz-ic ' + (x.b.status === 'nicht' || !zaehlt(x.b) ? 'grau' : 'gruen') + (x.b.nach ? ' nach' : '') + '">' + zeichen + '</span>' +
+      '<span>' + esc(blockName(x.b)) + (x.b.nach ? ' <small class="leise">nachgetragen</small>' : '') + (!zaehlt(x.b) ? ' <small class="leise">zählt nicht</small>' : '') + '</span><span class="hz-t">' + (fm > 0 ? hm(fm) : '') + '</span>' +
+      '<span class="hz-t">' + esc(x.b.start) + '</span></button>' +
+      (x.b.status === 'gemacht' && x.b.task && !x.b.taskFertig ? '<div class="taskfrage"><span>Task „' + esc(x.b.taskTitel || x.b.titel) + '“ auch fertig?</span>' +
+        '<button onclick="taskFertig(\'' + iso + '\',' + x.i + ')">Ja, abhaken</button></div>' : '') };
+  }).concat(tasks.map(t => ({ zeit: t.zeit, html: '<div class="hz-row"><span class="hz-ic gold">✓</span><span>' + esc(t.titel) + '</span><span></span><span class="hz-t">' + esc(t.zeit) + '</span></div>' })));
+  zeilen.sort((a, b) => String(a.zeit).localeCompare(String(b.zeit)));
+  const nb = fertig.length, nt = tasks.length;
+  const sum = [nb ? nb + (nb === 1 ? ' Block' : ' Blöcke') : '', nt ? nt + (nt === 1 ? ' Task' : ' Tasks') : ''].filter(Boolean).join(' · ');
+  return '<div class="hz-k2"><span class="h">Erledigt</span><span class="s">' + sum + '</span></div>' + zeilen.map(z => z.html).join('');
+}
+
+/* ── Für heute: höchstens 5 kleine Tasks, Fälligkeit heute in Google Tasks ── */
+const HEUTE_MAX = 5;
+let heuteTasks = null, heuteGeladen = 0, hwahl = null;
+/* ── Tasks Vorrat: beim Start im Hintergrund geladen und auf dem Handy gespeichert, das Fenster Tasks vormerken öffnet sofort ── */
+const TASKS_SPEICHER = 'zentrale_tasks_1', TASK_LISTE_SPEICHER = 'zentrale_task_liste';
+const TASK_BEREICHE = ['FW', 'Projekte', 'HFBK', 'Admin', 'Sport', 'System'];
+let tasksVorrat = null, tasksVorratZeit = 0;
+try { const s = localStorage.getItem(TASKS_SPEICHER); if (s) tasksVorrat = JSON.parse(s); } catch (e) { tasksVorrat = null; }
+function tasksVorratSetzen(d) {
+  if (!d || !d.tasks) return;
+  tasksVorrat = { tasks: d.tasks.filter(t => !t.temp), listen: d.listen || [] };
+  try { localStorage.setItem(TASKS_SPEICHER, JSON.stringify(tasksVorrat)); } catch (e) { /* egal */ }
+}
+function tasksVorladen(erzwingen) {
+  if (!erzwingen && Date.now() - tasksVorratZeit < 120000) return Promise.resolve(tasksVorrat);
+  tasksVorratZeit = Date.now();
+  return server('appTasksWahl').then(d => { tasksVorratSetzen(d); return tasksVorrat; }).catch(() => tasksVorrat);
+}
+function heuteLaden(erzwingen) {
+  if (!erzwingen && Date.now() - heuteGeladen < 120000) return;
+  heuteGeladen = Date.now();
+  server('appHeuteTasks').then(l => { heuteTasks = l || []; heuteNeu(); }).catch(() => { /* nicht schlimm */ });
+}
+function heuteAbhaken(i) {
+  const t = (heuteTasks || [])[i];
+  if (!t) return;
+  merken({ art: 'heuteab', tag: tagIso, t: t, i: i, name: 'Abgehakt: ' + t.titel });
+  heuteTasks.splice(i, 1);
+  const tf = P.felder.find(x => x.typ === 'tasks'), w = P.werte[heute()];
+  if (tf && w) {
+    const x = w[tf.spalte] || (w[tf.spalte] = { wert: 0, anzeige: '' });
+    x.tasks = (x.tasks || []).concat([{ zeit: jetztZeit(), titel: t.titel, liste: t.liste }]);
+  }
+  P.fokTasks = P.fokTasks || {};
+  P.fokTasks[heute()] = (P.fokTasks[heute()] || []).concat([t.ref]);
+  fokusLokal(heute());
+  heuteNeu();
+  melden('Erledigt: ' + t.titel);
+  nacheinander('appHeuteAbhaken', t.ref);
+}
+function plusOeffnen() {
+  $('planen').classList.add('offen');
+  document.body.style.overflow = 'hidden';
+  $('planen').innerHTML = '<div class="planinnen"><div class="plankopf"><b>Was willst du?</b><button class="rund" onclick="planSchliessen()" aria-label="Schließen">✕</button></div>' +
+    '<button class="hz-opt" onclick="planOeffnen()"><span class="hz-ic blau">◷</span><span><b>Block planen</b><small>Zeit für etwas Größeres, mit erstem Schritt</small></span></button>' +
+    '<button class="hz-opt" onclick="heuteWahlOeffnen()"><span class="hz-ic gruen">✓</span><span><b>Tasks vormerken</b><small>Heute oder morgen, höchstens ' + HEUTE_MAX + ' pro Tag</small></span></button></div>';
+}
+function heuteWahlOeffnen() {
+  const h = heute(), jetzt = new Set((heuteTasks || []).map(t => t.ref));
+  hwahl = { tag: h, tasks: null, listen: [], sendet: false, an: { [h]: jetzt }, vorher: { [h]: new Set(jetzt) },
+    bearbeiten: false, edit: null, frage: null, laeuft: 0, neuListe: null };
+  try { hwahl.neuListe = localStorage.getItem(TASK_LISTE_SPEICHER); } catch (e) { /* egal */ }
+  if (tasksVorrat && tasksVorrat.tasks) { hwahl.tasks = tasksVorrat.tasks.slice(); hwahl.listen = (tasksVorrat.listen || []).slice(); }
+  heuteWahlZeichnen();
+  tasksVorladen(true).then(d => {
+    if (!hwahl) return;
+    if (!d) { if (hwahl.tasks === null) { hwahl.tasks = []; heuteWahlZeichnen(); } return; }
+    if (hwahl.laeuft || hwahl.edit) return;   // nicht dazwischenfunken, während du änderst
+    hwahl.tasks = d.tasks.slice(); hwahl.listen = (d.listen || []).slice(); heuteWahlZeichnen();
+  });
+}
+/* Heute oder Morgen: für morgen holt der Server, was dort schon fällig ist */
+function heuteWahlTag(tag) {
+  if (!hwahl) return;
+  hwahl.tag = tag;
+  if (!(tag in hwahl.an)) {
+    hwahl.an[tag] = null;
+    server('appTasksFuer', tag).then(l => {
+      if (!hwahl) return;
+      const s = new Set((l || []).map(t => t.ref));
+      hwahl.an[tag] = s; hwahl.vorher[tag] = new Set(s); heuteWahlZeichnen();
+    }).catch(e => { if (hwahl) { hwahl.an[tag] = new Set(); hwahl.vorher[tag] = new Set(); heuteWahlZeichnen(); } melden(e.message || String(e)); });
+  }
+  heuteWahlZeichnen();
+}
+function heuteWahlTippen(i) {
+  if (!hwahl || !hwahl.tasks) return;
+  const t = hwahl.tasks[i], an = hwahl.an[hwahl.tag];
+  if (!t || !an) return;
+  if (an.has(t.ref)) an.delete(t.ref);
+  else if (an.size < HEUTE_MAX) an.add(t.ref);
+  else melden('Höchstens ' + HEUTE_MAX + ' pro Tag');
+  heuteWahlZeichnen();
+}
+function heuteWahlZeichnen() {
+  if (!hwahl) return;
+  const altNeu = $('twNeu'), neuText = altNeu ? altNeu.value : '', neuFokus = !!altNeu && document.activeElement === altNeu;
+  const altEd = $('twEdit'), edText = altEd ? altEd.value : null;
+  const bearb = hwahl.bearbeiten;
+  const h = heute(), m = tagPlus(h, 1), an = hwahl.an[hwahl.tag];
+  let liste;
+  if (hwahl.tasks === null || !an) liste = '<div class="hinweis">Lädt deine Tasks …</div>';
+  else if (!hwahl.tasks.length) liste = '<div class="hinweis">Keine offenen Tasks.</div>';
+  else {
+    let letzte = null;
+    liste = hwahl.tasks.map((t, i) => {
+      const k = t.liste !== letzte ? '<div class="unterkopf">' + esc(t.liste) + '</div>' : '';
+      letzte = t.liste;
+      const ja = an.has(t.ref);
+      const ic = '<span class="hz-ic ' + (ja ? 'gruen' : 'leer') + '">' + (ja ? '✓' : '') + '</span>';
+      const temp = t.temp ? ' tw-temp' : '';
+      if (!bearb) return k + '<button class="hz-row2' + temp + '" onclick="heuteWahlTippen(' + i + ')">' + ic + '<span>' + esc(t.titel) + '</span></button>';
+      const unter = t.unter ? ' unter' : '';
+      if (hwahl.edit === t.ref) return k + '<div class="tw-zeile' + unter + '">' + ic + '<input type="text" id="twEdit" value="' + esc(t.titel) + '" enterkeyhint="done" onkeydown="twTaste(event)" onblur="twEditFertig(true)"><span></span><span></span></div>';
+      let z = k + '<div class="tw-zeile' + unter + temp + '"><button onclick="heuteWahlTippen(' + i + ')">' + ic + '</button>' +
+        '<button class="tw-titel" onclick="twEdit(' + i + ')">' + esc(t.titel) + '</button>' +
+        '<button class="tw-knopf" onclick="twEdit(' + i + ')" aria-label="Umbenennen">' + STIFT + '</button>' +
+        '<button class="tw-knopf" onclick="twWeg(' + i + ')" aria-label="Löschen">' + EIMER + '</button></div>';
+      if (hwahl.frage === t.ref) z += '<div class="tw-frage"><span>Mit ' + twUnterZahl(i) + ' Unteraufgabe' + (twUnterZahl(i) === 1 ? '' : 'n') + ' löschen?</span><button onclick="twWeg(' + i + ')">Löschen</button></div>';
+      return z;
+    }).join('');
+  }
+  const chip = (tag, txt) => '<button class="' + (hwahl.tag === tag ? 'an' : '') + '" onclick="heuteWahlTag(\'' + tag + '\')">' + txt + '</button>';
+  $('planen').innerHTML = '<div class="planinnen"><div class="plankopf"><b>Tasks vormerken</b><button class="rund" onclick="heuteWahlZu()" aria-label="Schließen">✕</button></div>' +
+    '<div class="karte"><div class="bereich">Für wann</div><div class="wahl raster zwei">' + chip(h, 'Heute') + chip(m, 'Morgen') + '</div>' +
+    '<div class="slotinfo">' + (an ? an.size : 0) + ' von ' + HEUTE_MAX + ' für ' + (hwahl.tag === m ? 'morgen' : 'heute') + ' gewählt</div></div>' +
+    '<div class="karte"><div class="tw-kopf"><span class="bereich">Deine Tasks</span>' +
+    (hwahl.tasks && hwahl.tasks.length ? '<button onclick="twBearbeiten()">' + (bearb ? 'Fertig' : 'Bearbeiten') + '</button>' : '') + '</div>' +
+    (hwahl.tasks === null || !twListe() ? '' : '<div class="tw-neu"><input type="text" id="twNeu" placeholder="Neuer Task" enterkeyhint="done" onkeydown="twNeuTaste(event)">' +
+      '<button class="tw-liste" onclick="twListeWechseln()" aria-label="Liste wechseln">' + esc(twListe().titel) + '</button></div>') +
+    liste + '</div>' +
+    '<button class="planknopf" onclick="heuteWahlFertig()"' + (hwahl.sendet || hwahl.laeuft ? ' disabled' : '') + '>' + (hwahl.laeuft ? 'Speichert …' : 'Übernehmen') + '</button></div>';
+  const ni = $('twNeu');
+  if (ni) { ni.value = neuText; if (neuFokus) ni.focus(); }
+  const ei = $('twEdit');
+  if (ei) { if (edText != null) ei.value = edText; ei.focus(); if (edText == null) ei.select(); }
+}
+function heuteWahlZu() {
+  if (hwahl && hwahl.tasks) tasksVorratSetzen({ tasks: hwahl.tasks, listen: hwahl.listen });
+  hwahl = null; planSchliessen(); heuteNeu();
+}
+function heuteWahlFertig() {
+  if (!hwahl || hwahl.sendet || !hwahl.tasks || hwahl.laeuft) return;
+  const h = heute(), aend = [];
+  Object.keys(hwahl.an).forEach(tag => {
+    const an = hwahl.an[tag], alt = hwahl.vorher[tag];
+    if (!an || !alt) return;
+    const dazu = [...an].filter(r => !alt.has(r)), weg = [...alt].filter(r => !an.has(r));
+    if (dazu.length || weg.length) aend.push({ t: tag, dazu: dazu, weg: weg });
+  });
+  const vorher = (heuteTasks || []).slice();
+  if (hwahl.an[h]) heuteTasks = hwahl.tasks.filter(t => hwahl.an[h].has(t.ref)).map(t => ({ ref: t.ref, titel: t.titel, liste: t.liste }));
+  tasksVorratSetzen({ tasks: hwahl.tasks, listen: hwahl.listen });
+  hwahl = null;
+  planSchliessen();
+  heuteNeu();
+  if (!aend.length) return;
+  merken({ art: 'heutewahl', tag: tagIso, aend: aend, vorher: vorher, name: 'Tasks vorgemerkt' });
+  if (aend.some(x => x.t !== h)) melden('Für morgen vorgemerkt');
+  aend.forEach(x => server('appHeuteSetzen', x.dazu, x.weg, x.t)
+    .then(l => { if (x.t === h) { heuteTasks = l || heuteTasks; heuteNeu(); } })
+    .catch(e => melden(e.message || String(e))));
+}
+
+/* ── Tasks bearbeiten, nur im Fenster Tasks vormerken ── */
+const STIFT = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>';
+const EIMER = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/></svg>';
+function twListe() {
+  if (!hwahl || !hwahl.listen || !hwahl.listen.length) return null;
+  return hwahl.listen.find(l => l.id === hwahl.neuListe) || hwahl.listen.find(l => l.titel.toLowerCase() === 'admin') || hwahl.listen[0];
+}
+function twListeMerken(id) { hwahl.neuListe = id; try { localStorage.setItem(TASK_LISTE_SPEICHER, id); } catch (e) { /* egal */ } }
+function twListeWechseln() {
+  const l = twListe();
+  if (!l) return;
+  twListeMerken(hwahl.listen[(hwahl.listen.indexOf(l) + 1) % hwahl.listen.length].id);
+  heuteWahlZeichnen();
+}
+function twNeuTaste(e) { if (e.key === 'Enter') { e.preventDefault(); twNeu(); } }
+/* Neuer Task: oben in seine Liste (wie in Google Tasks) und gleich für den gewählten Tag vorgemerkt */
+function twNeu() {
+  const ein = $('twNeu'), titel = ein ? ein.value.trim() : '', l = twListe();
+  if (!titel || !l || !hwahl || !hwahl.tasks) return;
+  ein.value = '';
+  twListeMerken(l.id);
+  const temp = 'neu' + Date.now();
+  const bereich = TASK_BEREICHE.find(b => b.toLowerCase() === l.titel.toLowerCase()) || 'Sonstiges';
+  const j = hwahl.tasks.findIndex(x => x.liste === l.titel);
+  hwahl.tasks.splice(j >= 0 ? j : hwahl.tasks.length, 0, { ref: temp, titel: titel, liste: l.titel, bereich: bereich, unter: false, temp: true });
+  const an = hwahl.an[hwahl.tag];
+  if (an && an.size < HEUTE_MAX) an.add(temp);
+  hwahl.laeuft++;
+  heuteWahlZeichnen();
+  server('appTaskNeu', l.id, titel).then(d => {
+    if (hwahl) {
+      hwahl.laeuft--;
+      const x = hwahl.tasks.find(y => y.ref === temp);
+      if (x) { x.ref = d.ref; delete x.temp; }
+      Object.keys(hwahl.an).forEach(k => { const s = hwahl.an[k]; if (s && s.has(temp)) { s.delete(temp); s.add(d.ref); } });
+      heuteWahlZeichnen();
+    }
+    merken({ art: 'taskneu', tag: tagIso, ref: d.ref, name: 'Neuer Task: ' + titel });
+  }).catch(e => {
+    if (hwahl) { hwahl.laeuft--; twLokalWeg(new Set([temp])); heuteWahlZeichnen(); }
+    melden(e.message || String(e));
+  });
+}
+function twBearbeiten() {
+  if (!hwahl) return;
+  hwahl.bearbeiten = !hwahl.bearbeiten; hwahl.edit = null; hwahl.frage = null;
+  heuteWahlZeichnen();
+}
+function twEdit(i) {
+  const t = hwahl && hwahl.tasks && hwahl.tasks[i];
+  if (!t || t.temp) return;
+  hwahl.edit = t.ref; hwahl.frage = null;
+  heuteWahlZeichnen();
+}
+function twTaste(e) {
+  if (e.key === 'Enter') { e.preventDefault(); twEditFertig(true); }
+  else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); twEditFertig(false); }
+}
+function twEditFertig(ok) {
+  if (!hwahl || !hwahl.edit) return;
+  const ref = hwahl.edit, ein = $('twEdit'), t = hwahl.tasks.find(x => x.ref === ref);
+  const neu = ein ? ein.value.trim() : '';
+  hwahl.edit = null;
+  if (ok && t && neu && neu !== t.titel) {
+    const alt = t.titel;
+    taskTitelLokal(ref, neu);
+    merken({ art: 'taskname', tag: tagIso, ref: ref, alt: alt, neu: neu, name: 'Umbenannt: ' + neu });
+    server('appTaskUmbenennen', ref, neu).catch(e => { taskTitelLokal(ref, alt); melden(e.message || String(e)); });
+  }
+  heuteWahlZeichnen();
+}
+function taskTitelLokal(ref, titel) {
+  [hwahl && hwahl.tasks, heuteTasks, tasksVorrat && tasksVorrat.tasks].forEach(l => (l || []).forEach(x => { if (x.ref === ref) x.titel = titel; }));
+  if (hwahl) heuteWahlZeichnen(); else heuteNeu();
+}
+function twUnterZahl(i) {
+  let n = 0;
+  while (hwahl.tasks[i + 1 + n] && hwahl.tasks[i + 1 + n].unter) n++;
+  return hwahl.tasks[i].unter ? 0 : n;
+}
+/* Entfernt Tasks überall in der App (Fenster, Für heute, Vorrat) */
+function twLokalWeg(refs) {
+  if (hwahl) {
+    if (hwahl.tasks) hwahl.tasks = hwahl.tasks.filter(x => !refs.has(x.ref));
+    [hwahl.an, hwahl.vorher].forEach(o => Object.keys(o).forEach(k => { if (o[k]) refs.forEach(r => o[k].delete(r)); }));
+  }
+  heuteTasks = (heuteTasks || []).filter(x => !refs.has(x.ref));
+  if (tasksVorrat) tasksVorrat.tasks = tasksVorrat.tasks.filter(x => !refs.has(x.ref));
+}
+/* Löschen: mit Unteraufgaben erst nach Nachfrage. Rückgängig legt alles neu an */
+function twWeg(i) {
+  const t = hwahl && hwahl.tasks && hwahl.tasks[i];
+  if (!t || t.temp) return;
+  const n = twUnterZahl(i);
+  if (n && hwahl.frage !== t.ref) { hwahl.frage = t.ref; hwahl.edit = null; heuteWahlZeichnen(); return; }
+  hwahl.frage = null; hwahl.edit = null;
+  const weg = hwahl.tasks.slice(i, i + 1 + n), refs = new Set(weg.map(x => x.ref));
+  const warHeute = (heuteTasks || []).filter(x => refs.has(x.ref));
+  twLokalWeg(refs);
+  hwahl.laeuft++;
+  heuteWahlZeichnen();
+  melden('Gelöscht: ' + t.titel);
+  server('appTaskLoeschen', t.ref).then(alt => {
+    if (hwahl) { hwahl.laeuft--; heuteWahlZeichnen(); }
+    merken({ art: 'taskweg', tag: tagIso, liste: t.ref.split('/')[0], alt: alt, name: 'Gelöscht: ' + t.titel });
+  }).catch(e => {
+    if (hwahl) { hwahl.laeuft--; hwahl.tasks.splice(Math.min(i, hwahl.tasks.length), 0, ...weg); heuteWahlZeichnen(); }
+    heuteTasks = (heuteTasks || []).concat(warHeute);
+    melden(e.message || String(e));
+  });
+}
+/* Nach Rückgängig: Fenster und Für heute frisch vom Server */
+function twFrisch() {
+  heuteLaden(true);
+  tasksVorladen(true).then(d => {
+    if (hwahl && d && !hwahl.laeuft && !hwahl.edit) { hwahl.tasks = d.tasks.slice(); hwahl.listen = (d.listen || []).slice(); heuteWahlZeichnen(); }
+  });
+}
+
+function blockTippen(iso, i, st) {
+  const b = bloeckeVon(iso)[i];
+  if (!b) return;
+  blockSetzen(iso, i, b.status === st ? '' : st);
+}
+function blockSetzen(iso, i, neu, ohneVerlauf) {
+  const b = bloeckeVon(iso)[i];
+  if (!b) return;
+  if (!ohneVerlauf) merken({ art: 'block', tag: tagIso, iso: iso, i: i, key: b.key, alt: b.status || '', name: b.titel || b.bereich });
+  b.status = neu;
+  fokusLokal(iso);
+  b.punkte = punkteTag(iso).pro[b.key] || 0;
+  zeichnen();
+  if (neu) {
+    const fm = fokusMin(iso, b);
+    melden(neu === 'nicht' ? b.bereich + ': nicht geschafft, kein Abzug' + (fm > 0 ? ' · ' + hm(fm) + ' bleiben' : '')
+      : (neu === 'gemacht' ? 'Ganz' : 'Halb') + ' · ' + b.bereich + (fm > 0 ? ' · ' + hm(fm) : ''));
+    const el = $('pkt-' + iso + '-' + i);
+    if (el) el.classList.add('hops');
+  }
+  nacheinander('appBlockSetzen', b.key, neu);
+}
+function fokusLokal(iso) {
+  const f = P.felder.find(x => x.typ === 'bloecke');
+  const t = P.werte[iso];
+  if (!f || !t || iso < PUNKTE_AB) return;   // alte Tage bleiben, wie sie sind
+  if (iso >= ZEIT_AB) {
+    const m = fokusTagMin(iso);
+    t[f.spalte] = Object.assign({}, t[f.spalte], { wert: m / 1440, anzeige: hm(m) });
+    return;
+  }
+  const s = punkteTag(iso).summe;
+  t[f.spalte] = Object.assign({}, t[f.spalte], { wert: s, anzeige: punkteText(s) });
+}
+
+/* ── Planen: aus Task oder frei, Lücke sucht der Server ── */
+let plan = null;
+function planOeffnen() {
+  const h = heute();
+  plan = { tag: new Date().getHours() >= 17 ? tagPlus(h, 1) : h, min: 45, quelle: 'task', wahl: [],
+    bereich: null, titel: '', schritt: '', tasks: null, bereiche: ['FW', 'Projekte', 'HFBK', 'Admin', 'Sport', 'System', 'Sonstiges'], nach: false,
+    dauern: [30, 45, 60, 90, 120], fehler: '', sendet: false, start: '', slot: null };
+  $('planen').classList.add('offen');
+  document.body.style.overflow = 'hidden';
+  slotHolen();
+  if (tasksVorrat && tasksVorrat.tasks) plan.tasks = tasksVorrat.tasks.slice();
+  planZeichnen();
+  server('appPlanDaten').then(d => {
+    if (!plan) return;
+    plan.tasks = d.tasks || [];
+    plan.bereiche = d.bereiche || plan.bereiche;
+    plan.dauern = d.dauern || plan.dauern;
+    planZeichnen();
+  }).catch(e => { if (!plan) return; plan.tasks = []; plan.fehler = e.message || String(e); planZeichnen(); });
+}
+function planSchliessen() {
+  plan = null;
+  $('planen').classList.remove('offen');
+  $('planen').innerHTML = '';
+  document.body.style.overflow = '';
+}
+function planSetzen(k, v) {
+  if (!plan) return;
+  plan[k] = v;
+  if (k === 'quelle') plan.wahl = [];
+  if (k === 'nach') { plan.tag = heute(); if (!v) plan.start = ''; }
+  if ((k === 'tag' || k === 'min' || k === 'nach') && !plan.nach) slotHolen();
+  planZeichnen();
+}
+function planTask(i) {
+  if (!plan) return;
+  const t = plan.tasks[i];
+  if (!t) return;
+  const j = plan.wahl.indexOf(t);
+  if (j >= 0) plan.wahl.splice(j, 1); else plan.wahl.push(t);
+  planZeichnen();
+}
+function planText(k, v) {
+  if (!plan) return;
+  plan[k] = v;
+  const b = $('planOk');
+  if (b) b.disabled = !planBereit();
+}
+function planBereit() {
+  if (!plan || plan.sendet) return false;
+  if (plan.nach && !plan.start) return false;
+  return plan.quelle === 'task' ? plan.wahl.length > 0 : !!(plan.bereich && (plan.titel.trim() || plan.schritt.trim()));
+}
+/* Eigene Dauer über das Uhrzeit Rad: 1:15 heißt 75 Minuten */
+function planDauerFrei(txt) {
+  const m = String(txt || '').match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return;
+  const min = Number(m[1]) * 60 + Number(m[2]);
+  if (min >= 5) planSetzen('min', min);
+}
+/* Nächster freier Platz für Dauer und Tag, oder eine feste Startzeit über das Rad */
+function slotHolen() {
+  if (!plan) return;
+  const k = plan.tag + '|' + plan.min;
+  plan.slot = { laedt: true, k: k };
+  server('appFreierSlot', plan.tag, plan.min).then(s => {
+    if (!plan || plan.tag + '|' + plan.min !== k) return;
+    plan.slot = s; planZeichnen();
+  }).catch(() => { if (plan && plan.slot && plan.slot.k === k) { plan.slot = null; planZeichnen(); } });
+}
+function planStart(txt) {
+  if (!plan) return;
+  plan.start = /^\d{1,2}:\d{2}/.test(String(txt || '')) ? String(txt).slice(0, 5) : '';
+  if (!plan.start && !plan.nach) slotHolen();
+  planZeichnen();
+}
+function slotText() {
+  if (!plan) return '';
+  const ende = s => { const x = minVon(s) + plan.min; return zwei(Math.floor(x / 60) % 24) + ':' + zwei(x % 60); };
+  if (plan.nach) return plan.start ? 'Von <b>' + esc(plan.start) + '</b> bis ' + ende(plan.start) + ' · ' + (plan.bereich === 'System' ? 'zählt nicht in den Fokus' : 'zählt halb') : 'Wann hast du angefangen? Uhrzeit oben wählen.';
+  if (plan.start) return 'Start <b>' + esc(plan.start) + '</b> bis ' + ende(plan.start) + ' · <button class="nicht" onclick="planStart(\'\')">nächster freier Platz</button>';
+  const s = plan.slot;
+  if (!s || s.laedt) return 'Suche freien Platz …';
+  if (!s.frei) return 'An dem Tag ist nichts mehr frei. Wähl eine Uhrzeit.';
+  return 'Nächster freier Platz <b>' + esc(s.start) + '</b> bis ' + esc(s.ende) + (s.ausserhalb ? ' · außerhalb deiner Fenster' : '');
+}
+function planZeichnen() {
+  if (!plan) return;
+  const h = heute(), m = tagPlus(h, 1);
+  const chip = (an, txt, fn) => '<button class="' + (an ? 'an' : '') + '" onclick="' + fn + '">' + txt + '</button>';
+  const anzahl = bloeckeVon(plan.tag).length;
+  let was = '';
+  if (plan.quelle === 'task') {
+    if (plan.tasks === null) was = '<div class="hinweis">Lädt deine Tasks …</div>';
+    else if (!plan.tasks.length) was = '<div class="hinweis">' + (plan.fehler ? 'Fehler: ' + esc(plan.fehler) : 'Keine offenen Tasks.') + '</div>';
+    else {
+      let letzte = null;
+      was = plan.tasks.map((t, i) => {
+        const kopf = t.liste !== letzte ? '<div class="unterkopf">' + esc(t.liste) + '</div>' : '';
+        letzte = t.liste;
+        return kopf + '<button class="taskzeile' + (plan.wahl.indexOf(t) !== -1 ? ' an' : '') + (t.unter ? ' unter' : '') +
+          '" onclick="planTask(' + i + ')"><span class="kreis"></span><span>' + esc(t.titel) + '</span></button>';
+      }).join('');
+      if (plan.wahl.length > 1) was += '<div class="hinweis">Wird ein Sammelblock: ' + esc(blockName({ bereich: plan.wahl[0].bereich, titel: 'Kleinkram (' + plan.wahl.length + ' Tasks)' })) + '</div>';
+    }
+  } else {
+    was = '<div class="wahl">' + plan.bereiche.map(b => chip(plan.bereich === b, esc(b), "planSetzen('bereich','" + b + "')")).join('') + '</div>' +
+      '<input type="text" placeholder="Was machst du?" value="' + esc(plan.titel) + '" oninput="planText(\'titel\', this.value)">';
+  }
+  $('planen').innerHTML = '<div class="planinnen">' +
+    '<div class="plankopf"><b>' + (plan.nach ? 'Block nachtragen' : 'Block planen') + '</b><button class="rund" onclick="planSchliessen()" aria-label="Schließen">✕</button></div>' +
+    '<div class="wahl raster zwei">' + chip(!plan.nach, 'Planen', "planSetzen('nach',false)") + chip(plan.nach, 'Schon gemacht', "planSetzen('nach',true)") + '</div>' +
+    '<div class="karte"><div class="bereich">Wie lange</div><div class="wahl raster">' +
+      plan.dauern.slice(0, 5).map(d => chip(plan.min === d, dauerKurz(d), 'planSetzen(\'min\',' + d + ')')).join('') +
+      '<input type="time" class="dauerfrei' + (plan.dauern.slice(0, 5).indexOf(plan.min) === -1 ? ' an' : '') + '" step="300" value="' + zwei(Math.floor(plan.min / 60)) + ':' + zwei(plan.min % 60) +
+      '" onchange="planDauerFrei(this.value)" aria-label="Eigene Dauer"></div>' +
+    '<div class="bereich" style="margin-top:14px">Wann</div><div class="wahl raster">' +
+      chip(plan.tag === h, 'Heute', "planSetzen('tag','" + h + "')") +
+      (plan.nach ? chip(plan.tag === tagPlus(h, -1), 'Gestern', "planSetzen('tag','" + tagPlus(h, -1) + "')") : chip(plan.tag === m, 'Morgen', "planSetzen('tag','" + m + "')")) +
+      '<input type="time" class="dauerfrei' + (plan.start ? ' an' : '') + '" step="300" value="' + esc(plan.start) + '" onchange="planStart(this.value)" aria-label="Eigene Startzeit"></div>' +
+    '<div class="slotinfo">' + slotText() + '</div></div>' +
+    '<div class="karte"><div class="bereich">Was</div><div class="wahl raster zwei">' +
+      chip(plan.quelle === 'task', 'Aus Tasks', "planSetzen('quelle','task')") + chip(plan.quelle === 'frei', 'Ohne Task', "planSetzen('quelle','frei')") +
+    '</div><div class="planwas">' + was + '</div></div>' +
+    '<div class="karte"><div class="bereich">Erster Schritt</div>' +
+      '<input type="text" placeholder="Was tust du in den ersten 5 Minuten?" value="' + esc(plan.schritt) + '" oninput="planText(\'schritt\', this.value)"></div>' +
+    (anzahl >= 3 && !plan.nach ? '<div class="warnung">An dem Tag stehen schon ' + anzahl + ' Blöcke. Mehr als drei sind meist zu viel.</div>' : '') +
+    '<button class="planknopf" id="planOk" onclick="planAnlegen()"' + (planBereit() ? '' : ' disabled') + '>' +
+      (plan.sendet ? 'Lege an …' : plan.nach ? 'Nachtragen' : anzahl >= 3 ? 'Trotzdem anlegen' : 'Block anlegen') + '</button></div>';
+}
+function planAnlegen() {
+  if (!planBereit()) return;
+  const w = plan.quelle === 'task' ? plan.wahl : [];
+  const t = w.length === 1 ? w[0] : null;
+  const o = w.length > 1
+    ? { tag: plan.tag, min: plan.min, bereich: w[0].bereich, titel: 'Kleinkram (' + w.length + ' Tasks)', schritt: plan.schritt,
+        taskRef: '', taskTitel: w.map(x => x.titel).join(', '), taskRefs: w.map(x => x.ref) }
+    : { tag: plan.tag, min: plan.min, bereich: t ? t.bereich : plan.bereich, titel: t ? t.titel : plan.titel,
+        schritt: plan.schritt, taskRef: t ? t.ref : '', taskTitel: t ? t.titel : '' };
+  o.start = plan.start || '';
+  if (plan.nach) o.nach = true;
+  plan.sendet = true;
+  planZeichnen();
+  server('appBlockPlanen', o).then(d => {
+    planSchliessen();
+    if (d && d.paket) uebernehmen(d.paket); else abfragen(true);
+    if (d && d.key) merken({ art: 'plan', tag: tagIso, key: d.key, name: 'Block geplant' });
+    melden(d && d.meldung ? d.meldung : 'Eingeplant');
+  }).catch(e => {
+    if (plan) { plan.sendet = false; planZeichnen(); }
+    melden(e.message || String(e));
+  });
+}
+function taskFertig(iso, i) {
+  const b = bloeckeVon(iso)[i];
+  if (!b || !b.task) return;
+  merken({ art: 'task', tag: tagIso, key: b.key, name: 'Task abgehakt' });
+  b.taskFertig = true;
+  zeichnen();
+  melden('Task „' + (b.taskTitel || b.titel) + '“ abgehakt');
+  nacheinander('appTaskErledigt', b.key);
+}
+
+function zeichneWoche() {
+  $('kopfTitel').textContent = 'Letzte 14 Tage';
+  $('kopfDatum').textContent = '';
+  const h = heute();
+  const gross = P.felder.find(f => f.typ === 'gross');
+  const mini = P.felder.filter(f => f.uebersicht && f.typ !== 'gross');
+  const zeilen = P.tage.filter(t => t <= h).slice(-14).reverse().map(iso => {
+    const gw = gross ? wertVon(gross.spalte, iso) : null;
+    return '<button class="tag-zeile" onclick="oeffnen(\'' + iso + '\')"><span class="datum">' + esc(label(iso)) + '</span>' +
+      (gross ? '<span class="pille" style="' + ton(gross, stufe(gross, gw)) + '">' + (esc(anzeigeVon(gross.spalte, iso)) || '–') + '</span>' : '') +
+      '<span class="mini">' + mini.map(f => {
+        if (f.typ === 'bloecke' && P.bloecke && P.bloecke[iso]) { const m = fokusTagMin(iso); return m > 0 ? '<span>Fokus ' + hm(m) + '</span>' : ''; }
+        const a = anzeigeVon(f.spalte, iso);
+        if (!a && a !== 0) return '';
+        return '<span style="' + ton(f, stufe(f, wertVon(f.spalte, iso))) + '">' + esc(f.spalte.replace(' 1/10', '')) + ' ' + esc(a) + '</span>';
+      }).join('') + '</span></button>';
+  }).join('');
+  $('inhalt').innerHTML = '<div class="karte">' + (zeilen || '<div class="hinweis">Noch keine Tage.</div>') + '</div>';
+}
+
+/* ── Aktionen ── */
+function feldVon(id) { return P.felder[Number(id.slice(1))]; }
+function lokal(f, wert) {
+  const t = werteVon();
+  const x = t[f.spalte] || (t[f.spalte] = { wert: null, anzeige: '' });
+  x.wert = wert === '' ? null : wert;
+  if (f.typ !== 'notiz' && f.typ !== 'text') x.anzeige = wert === '' ? '' : wert === 'nein' ? 'nein' : (f.typ === 'uhrzeit' || f.typ === 'jetzt' ? zeitText(wert) : komma(wert));
+}
+/* Rückgängig: jede Eingabe merkt sich, wie es vorher war */
+function merken(a) {
+  verlauf.push(a);
+  if (verlauf.length > 30) verlauf.shift();
+  $('undo').disabled = false;
+}
+function rueckgaengig() {
+  const a = verlauf.pop();
+  $('undo').disabled = !verlauf.length;
+  if (!a || !P) return;
+  ansicht = 'tag';
+  tagIso = a.tag;
+  if (a.art === 'feld') {
+    const f = feldVon(a.id);
+    if (f.typ === 'notiz' || f.typ === 'text') {
+      lokal(f, a.alt); zeichnen();
+      nacheinander('appSpeichern', a.tag, f.spalte, a.alt, f.typ);
+    } else {
+      setzen(a.id, a.alt, true);
+    }
+  } else if (a.art === 'block') {
+    const j = a.key ? bloeckeVon(a.iso).findIndex(x => x.key === a.key) : a.i;
+    if (j >= 0) blockSetzen(a.iso, j, a.alt, true);
+  } else if (a.art === 'plan') {
+    Object.keys(P.bloecke || {}).forEach(t => { P.bloecke[t] = P.bloecke[t].filter(x => x.key !== a.key); });
+    zeichnen();
+    nacheinander('appBlockLoeschen', a.key);
+  } else if (a.art === 'task') {
+    Object.keys(P.bloecke || {}).forEach(t => P.bloecke[t].forEach(x => { if (x.key === a.key) x.taskFertig = false; }));
+    zeichnen();
+    nacheinander('appTaskOeffnen', a.key);
+  } else if (a.art === 'eintrag') {
+    const f = feldVon(a.id);
+    const liste = ((zelle(f.spalte) || {}).eintraege || []).slice();
+    liste.splice(a.index, 1);
+    eintragLokal(f, liste); zeichnen();
+    nacheinander('appEintrag', a.tag, f.spalte, 'weg', a.index);
+  } else if (a.art === 'startzeit') {
+    const b = bloeckeVon(a.iso).find(x => x.key === a.key);
+    if (b) b.gestartet = a.alt;
+    fokusLokal(a.iso);
+    zeichnen();
+    const [hh, mm] = String(a.alt).split(':').map(Number), d = new Date();
+    d.setHours(hh, mm, 0, 0);
+    nacheinander('appBlockStarten', a.key, true, d.getTime());
+  } else if (a.art === 'start') {
+    const b = bloeckeVon(a.iso).find(x => x.key === a.key);
+    if (b) b.gestartet = '';
+    fokusLokal(a.iso);
+    if (dranMeldung && dranMeldung.key === a.key) dranMeldung = null;
+    zeichnen();
+    nacheinander('appBlockStarten', a.key, false);
+  } else if (a.art === 'dran' || a.art === 'frueh') {
+    const d = dranVon(a.key);
+    if (a.art === 'frueh') {
+      d.fertig = false;
+      const b = bloeckeVon(heute()).find(x => x.key === a.key);
+      if (b) b.beendet = '';
+      fokusLokal(heute());
+      nacheinander('appBlockBeenden', a.key, false);
+    } else if (a.ja) d.dran = Math.max(0, d.dran - 1); else d.weg = Math.max(0, d.weg - 1);
+    if (a.art === 'dran') d.zuletzt = a.vorher || 0;
+    dranSpeichern(a.key, d);
+    if (dranMeldung && dranMeldung.key === a.key) dranMeldung = null;
+    zeichnen();
+  } else if (a.art === 'heuteab') {
+    heuteTasks = heuteTasks || [];
+    heuteTasks.splice(Math.min(a.i, heuteTasks.length), 0, a.t);
+    const tf = P.felder.find(x => x.typ === 'tasks'), w = P.werte[heute()];
+    const x = tf && w && w[tf.spalte];
+    if (x && x.tasks) { const j = x.tasks.map(y => y.titel).lastIndexOf(a.t.titel); if (j >= 0) x.tasks.splice(j, 1); }
+    const ft = (P.fokTasks || {})[heute()];
+    if (ft) { const k = ft.lastIndexOf(a.t.ref); if (k >= 0) ft.splice(k, 1); }
+    fokusLokal(heute());
+    zeichnen();
+    nacheinander('appHeuteZurueck', a.t.ref);
+  } else if (a.art === 'heutewahl') {
+    heuteTasks = a.vorher;
+    zeichnen();
+    const h = heute();
+    (a.aend || []).forEach(x => server('appHeuteSetzen', x.weg, x.dazu, x.t)
+      .then(l => { if (x.t === h) { heuteTasks = l || heuteTasks; heuteNeu(); } })
+      .catch(e => melden(e.message || String(e))));
+  } else if (a.art === 'taskneu') {
+    twLokalWeg(new Set([a.ref]));
+    if (hwahl) heuteWahlZeichnen();
+    zeichnen();
+    server('appTaskLoeschen', a.ref).then(twFrisch).catch(e => melden(e.message || String(e)));
+  } else if (a.art === 'taskname') {
+    taskTitelLokal(a.ref, a.alt);
+    zeichnen();
+    server('appTaskUmbenennen', a.ref, a.alt).catch(e => melden(e.message || String(e)));
+  } else if (a.art === 'taskweg') {
+    server('appTaskWiederherstellen', a.liste, a.alt).then(twFrisch).catch(e => melden(e.message || String(e)));
+  }
+  melden('Rückgängig: ' + a.name);
+}
+function nameVon(f) { return f.spalte.replace(' 1/10', ''); }
+
+function setzen(id, wert, ohneVerlauf) {
+  const f = feldVon(id);
+  if (f.typ === 'zahl' && wert < 0) wert = 0;
+  if (!ohneVerlauf) {
+    const alt = wertVon(f.spalte);
+    merken({ art: 'feld', tag: tagIso, id: id, alt: alt == null ? '' : alt, name: nameVon(f) });
+  }
+  lokal(f, wert); zeichnen();
+  nacheinander('appSpeichern', tagIso, f.spalte, wert, f.typ);
+}
+function eintragLokal(f, liste) {
+  const t = werteVon();
+  const x = t[f.spalte] || (t[f.spalte] = { wert: null, anzeige: '' });
+  x.eintraege = liste;
+  if (!liste.length) { x.wert = null; x.anzeige = ''; return; }
+  x.wert = Math.round(liste.reduce((s, e) => s + e.wert, 0) / liste.length * 10) / 10;
+  x.anzeige = komma(x.wert);
+}
+function eintragNeu(id, n) {
+  const f = feldVon(id);
+  checkinNeu = { spalte: f.spalte, t: Date.now() };
+  haptik();
+  const liste = ((zelle(f.spalte) || {}).eintraege || []).concat([{ zeit: jetztZeit(), wert: n }]);
+  merken({ art: 'eintrag', tag: tagIso, id: id, index: liste.length - 1, name: nameVon(f) + ' ' + n });
+  eintragLokal(f, liste); zeichnen();
+  melden(f.spalte.replace(' 1/10', '') + ' ' + n + ' gespeichert');
+  nacheinander('appEintrag', tagIso, f.spalte, 'neu', n);
+}
+function eintragWeg(id, i) {
+  const f = feldVon(id);
+  const liste = ((zelle(f.spalte) || {}).eintraege || []).slice();
+  liste.splice(i, 1);
+  eintragLokal(f, liste); zeichnen();
+  nacheinander('appEintrag', tagIso, f.spalte, 'weg', i);
+}
+function jetztSetzen(id) {
+  const d = new Date();
+  setzen(id, d.getHours() / 24 + d.getMinutes() / 1440);
+}
+function zeitSetzen(id, txt) {
+  if (!txt) return setzen(id, '');
+  const [h, m] = txt.split(':').map(Number);
+  setzen(id, h / 24 + m / 1440);
+}
+function textSetzen(id, txt) {
+  const f = feldVon(id);
+  const alt = wertVon(f.spalte);
+  if ((alt == null ? '' : String(alt)) === txt) { if (spaeterZeichnen) zeichnen(); return; }
+  merken({ art: 'feld', tag: tagIso, id: id, alt: alt == null ? '' : String(alt), name: nameVon(f) });
+  lokal(f, txt);
+  nacheinander('appSpeichern', tagIso, f.spalte, txt, f.typ);
+  if (spaeterZeichnen) setTimeout(zeichnen, 0);
+}
+function oeffnen(iso) { ansicht = 'tag'; tagIso = iso; zeichnen(); }
+function blaettern(r) {
+  const liste = tageListe(), i = liste.indexOf(tagIso);
+  if (liste[i + r]) { tagIso = liste[i + r]; zeichnen(); }
+}
+function aktualisieren() {
+  const k = $('neu'); k.classList.add('dreht'); k.disabled = true;
+  melden('Hole Schlaf, Geld und Termine …');
+  server('appAktualisieren').then(d => {
+    uebernehmen(d);
+    melden(d.fehler && d.fehler.length ? 'Fehler: ' + d.fehler.join(' · ') : 'Aktualisiert');
+  }).catch(e => melden(e.message || String(e)))
+    .finally(() => { k.classList.remove('dreht'); k.disabled = false; });
+}
+
+/* ── Mac: breites Layout ab 760 px mit Maus oder Trackpad, drei Spalten ab 1100 px. Handy und iPad ohne Maus bleiben einspaltig ── */
+const MAC_LINKS = ['struktur', 'notiz'];                     // dazu die Fokus Karte
+const MAC_RECHTS = ['geld', 'bewegung', 'schlaf', 'körper', 'koerper'];  // alles andere kommt in die Mitte
+const MAC_2 = matchMedia('(min-width: 760px) and (hover: hover) and (pointer: fine)');
+const MAC_3 = matchMedia('(min-width: 1100px) and (hover: hover) and (pointer: fine)');
+function macSpalten() { return MAC_3.matches ? 3 : MAC_2.matches ? 2 : 1; }
+function macKlasse() {
+  document.body.classList.toggle('mac', MAC_2.matches);
+  document.body.classList.toggle('mac3', MAC_3.matches);
+}
+[MAC_2, MAC_3].forEach(m => m.addEventListener('change', () => { macKlasse(); if (P) zeichnen(); }));
+macKlasse();
+
+/* Mac Tasten: Pfeile links/rechts blättern Tage, Cmd+Z nimmt zurück, Esc schließt das Fenster */
+function macFensterZu() { const x = $('planen').querySelector('.plankopf .rund'); if (x) x.click(); }
+document.addEventListener('keydown', e => {
+  if (!document.body.classList.contains('mac')) return;
+  const fenster = $('planen').classList.contains('offen');
+  if (e.key === 'Escape' && fenster) { macFensterZu(); return; }
+  const a = document.activeElement;
+  if (a && (a.tagName === 'TEXTAREA' || a.tagName === 'INPUT' || a.isContentEditable)) return;
+  if (e.metaKey && !e.shiftKey && e.key.toLowerCase() === 'z') { e.preventDefault(); if (!$('undo').disabled) rueckgaengig(); return; }
+  if (e.metaKey || e.ctrlKey || e.altKey || fenster) return;
+  if (e.key === 'ArrowLeft' && ansicht === 'tag' && !$('zurueck').disabled) blaettern(-1);
+  else if (e.key === 'ArrowRight' && ansicht === 'tag' && !$('vor').disabled) blaettern(1);
+});
+$('planen').addEventListener('click', e => {
+  if (e.target === $('planen') && document.body.classList.contains('mac')) macFensterZu();
+});
+
+$('zurueck').onclick = () => blaettern(-1);
+$('vor').onclick = () => blaettern(1);
+$('neu').onclick = aktualisieren;
+$('undo').onclick = rueckgaengig;
+$('navTag').onclick = () => { ansicht = 'tag'; zeichnen(); };
+$('navWoche').onclick = () => { ansicht = 'woche'; zeichnen(); };
+
+/* ── Ort: Standort beim Öffnen, höchstens einmal pro Stunde ── */
+function ortMelden() {
+  if (!navigator.geolocation) return;
+  let zuletzt = 0;
+  try { zuletzt = Number(localStorage.getItem('zentrale_ort_zeit') || 0); } catch (e) { /* egal */ }
+  if (Date.now() - zuletzt < 3600000) return;
+  navigator.geolocation.getCurrentPosition(pos => {
+    try { localStorage.setItem('zentrale_ort_zeit', String(Date.now())); } catch (e) { /* egal */ }
+    server('appOrt', heute(), pos.coords.latitude, pos.coords.longitude)
+      .then(d => { if (d && d.geaendert) abfragen(true); })
+      .catch(() => { /* Ort ist nicht wichtig genug für eine Fehlermeldung */ });
+  }, () => { /* abgelehnt oder kein Signal */ }, { timeout: 15000, maximumAge: 600000, enableHighAccuracy: false });
+}
+
+/* ── Start ── */
+function starttag() {
+  const h = heute();
+  return new Date().getHours() < HEUTE_AB ? tagPlus(h, -1) : h;
+}
+let zuletztSichtbar = Date.now();
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') { zuletztSichtbar = Date.now(); return; }
+  // Nach längerer Pause wieder beim passenden Tag starten
+  if (Date.now() - zuletztSichtbar > 30 * 60000) { tagIso = starttag(); ansicht = 'tag'; zeichnen(); }
+  abfragen();
+  ortMelden();
+  heuteNeu();
+  heuteLaden(false);
+  tasksVorladen(false);
+});
+setInterval(() => { if (document.visibilityState === 'visible') abfragen(); }, ABFRAGE_SEKUNDEN * 1000);
+/* Zähler im Jetzt Feld: alle 30 Sekunden nur die Heute Karte neu, nicht während du tippst */
+setInterval(() => {
+  if (document.visibilityState !== 'visible' || ansicht !== 'tag' || !P || tagIso !== heute() || plan) return;
+  const a = document.activeElement;
+  if (a && (a.tagName === 'TEXTAREA' || a.type === 'text' || a.type === 'time')) return;
+  heuteNeu();
+}, 30000);
+
+(function start() {
+  tagIso = starttag();
+  if (START && START.werte) {
+    uebernehmen(START);
+    abfragen();
+  } else {
+    try { const s = localStorage.getItem(SPEICHER); if (s) P = JSON.parse(s); } catch (e) { P = null; }
+    if (P) zeichnen();
+    abfragen(true);
+  }
+  ortMelden();
+  heuteLaden(true);
+  setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
+})();
+</script>
+</body>
+</html>
