@@ -2,7 +2,7 @@
  * Die Seite selbst: erst Netz, ohne Netz aus dem Speicher. So kommt jede neue Version sofort,
  * und offline öffnet die App trotzdem. Daten laufen nie über den Service Worker (POST an Apps Script). */
 const VORSILBE = 'zentrale-test-';
-const CACHE = VORSILBE + '202611111655';
+const CACHE = VORSILBE + '202611111758';
 const HUELLE = ['./', 'index.html', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
