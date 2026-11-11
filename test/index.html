@@ -449,6 +449,27 @@
   .er-haken { width: 18px; height: 18px; border-radius: 9px; background: var(--gold-hell); color: var(--gold); font-size: 10px; font-weight: 700; display: grid; place-items: center; }
   .er-tt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .er-tz { font-size: 12px; color: var(--leise); font-variant-numeric: tabular-nums; }
+  /* Taskpunkte: Stufe beim Abhaken, Punkte als goldenes Abzeichen, alte Tasks mit +1 */
+  .er-task.mit { grid-template-columns: 18px minmax(0, 1fr) auto auto auto; width: 100%; text-align: left; }
+  .er-pkt { min-width: 28px; padding: 2px 7px; border-radius: 9px; font-size: 12px; font-weight: 700; text-align: center; font-variant-numeric: tabular-nums;
+    background: var(--gold-hell); color: var(--gold); }
+  .er-pkt.s2 { background: var(--gold); color: var(--karte); }
+  .er-pkt.s4 { background: var(--gold); color: var(--karte); box-shadow: 0 0 0 3px var(--gold-hell); }
+  .er-pkt.neu { animation: pktpop .6s cubic-bezier(.2, .9, .3, 1.4); }
+  .er-pkt.neu.s4 { animation: pktzaeh 1s cubic-bezier(.2, .9, .3, 1.3); }
+  @keyframes pktpop { 0% { transform: scale(.6); } 50% { transform: scale(1.35); } 100% { transform: scale(1); } }
+  @keyframes pktzaeh { 0% { transform: scale(.5) rotate(-14deg); } 35% { transform: scale(1.8) rotate(6deg); box-shadow: 0 0 0 12px var(--gold-hell); }
+    70% { transform: scale(.92) rotate(-2deg); } 100% { transform: scale(1) rotate(0); } }
+  .er-alt { font-size: 10px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .04em; }
+  .stufen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 2px 0 10px 28px; animation: ciein .25s ease-out; }
+  .stufen button { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 8px 4px; border-radius: 12px; background: var(--chip); font-size: 13px; font-weight: 600; }
+  .stufen button b { font-size: 11px; color: var(--gold); }
+  .stufen button.an { background: var(--gold); color: var(--karte); animation: tipp .3s ease-out; }
+  .stufen button.an b { color: var(--karte); }
+  .stufen-frage { padding: 0 0 4px 28px; font-size: 12px; color: var(--leise); }
+  .alt-pill { flex: none; justify-self: end; margin-left: auto; padding: 1px 7px; border-radius: 8px; font-size: 11px; font-weight: 700; background: var(--gold-hell); color: var(--gold); }
+  .alt-pill.sehr { background: var(--gold); color: var(--karte); }
+  .hz-row2.mit-alt { grid-template-columns: 22px 1fr auto; }
   .flug-plus { position: fixed; z-index: 50; pointer-events: none; font-size: 15px; font-weight: 700; color: #fff; background: #1D9E75;
     padding: 3px 10px; border-radius: 999px; font-variant-numeric: tabular-nums; box-shadow: 0 2px 10px rgba(0,0,0,.18); }
 </style>
@@ -478,7 +499,7 @@
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611102322';
+const PWA_VERSION = '202611111744';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -942,7 +963,8 @@ function tasksHtml(f) {
   if (!t.length) return '<div class="hinweis">Noch keine Tasks abgehakt.</div>';
   return '<div class="terminliste">' + t.map(x =>
     '<div class="termin"><span class="zeit">' + esc(x.zeit) + '</span>' +
-    '<div class="was"><div>' + esc(x.titel) + '</div>' + (x.liste ? '<small>' + esc(x.liste) + '</small>' : '') + '</div></div>'
+    '<div class="was"><div>' + esc(x.titel) + '</div>' + (x.liste ? '<small>' + esc(x.liste) + '</small>' : '') + '</div>' +
+    (x.stufe ? '<span class="er-pkt s' + x.stufe + '">+' + taskPunkte(x) + '</span>' : '') + '</div>'
   ).join('') + '</div>';
 }
 
@@ -958,6 +980,12 @@ const PUNKTE_AB = '2026-11-05';   // Tage davor zählten Fokuszeit und werden ni
 const FOKUS_ZIEL_MIN = 180;        // Ersatz für das Tagesziel, falls Regeln keinen Wert hat (3 h)
 const WAHL = ['nono', 'hmm', 'si'];   // Typ wahl im Tab App (Spalte Vb): nono zählt null, hmm halb, si voll
 const ZEIT_AB = '2026-11-06';      // ab hier zählt Fokuszeit stufenlos im Tageswert, gleiche Grenze wie in Tage!C und Bloecke.gs
+/* Taskpunkte seit 11.11.2026, gleiche Zahlen wie TSK in Tasks.gs: Stufe beim Abhaken, +1 wenn der Task eine Woche offen war */
+const TASK_PUNKTE_AB = '2026-11-11';
+const STUFEN = [[1, 'leicht'], [2, 'mittel'], [4, 'zäh']];
+const ALT_TAGE = 7;
+function taskPunkte(t) { return (t.stufe || 1) + (t.bonus || 0); }
+function altPill(t) { return t && t.alt >= ALT_TAGE ? '<span class="alt-pill' + (t.alt >= 3 * ALT_TAGE ? ' sehr' : '') + '">+1</span>' : ''; }
 
 /* ── Tageswert in der App nachgebaut, gleiche Rechnung wie die Formel in Tage!C. Damit steigt er live mit der Fokuszeit.
    Nummern wie in der Formel: Regeln Spalte B = 1. Wer die Formel ändert, zieht hier mit. ── */
@@ -1012,17 +1040,21 @@ function tagWertRechnen(iso, fokusMinuten, ueber, aus) {
   const X = fokusMinuten != null ? fokusMinuten / 1440 : v('Fokus');
   const sFok = zeitAb ? (gw(105) > 0 ? Math.min(1, (zahl(X) ? X : 0) / gw(105)) : 0) : bew(X, 105, 0);
   const n = x => x == null ? 0 : x, da = x => x == null ? 0 : 1;
+  // Seit 11.11.2026 (Regeln DL, DM): Tasks als Punkte, stufenlos bis "Tasks voll ab". Am laufenden Tag bis "Tag offen bis" nur als Plus
+  const gTsk = gw(115), tVoll = gw(116), tp = v('Tasks');
+  const sTsk = gTsk > 0 && tVoll > 0 ? Math.min(1, (zahl(tp) ? tp : 0) / tVoll) : null;
+  const nTsk = sTsk == null ? 0 : gTsk * (offen ? sTsk : 1);
   const mSpo = offen && sSpo < 1 ? 0 : 1, mTer = offen && n(sTer) < 1 ? 0 : 1;
   const mFok = zeitAb ? 1 : (offen && n(sFok) < 1 ? 0 : 1);
   const mHFr = mittag && sHFr < 1 ? 0 : 1, mKni = mittag && sKni < 1 ? 0 : 1;
   const zaehler = gw(1) * n(sAuf) + gw(2) * n(sEin) + gw(3) * n(sDau) + gw(4) * sOtt + gw(5) * n(sDri) + gw(6) * sSpo * mSpo +
     gw(7) * n(sElv) + gw(8) * n(sSti) + gw(9) * n(sEne) + gw(10) * n(sKon) + gw(11) * n(sHrv) + gw(12) * n(sAus) +
-    gw(13) * n(sTer) * mTer + gw(14) * sHEi + gw(15) * sHFr * mHFr + gw(18) * sKni * mKni + gw(16) * n(sFok) * mFok + gWi * n(sWi);
+    gw(13) * n(sTer) * mTer + gw(14) * sHEi + gw(15) * sHFr * mHFr + gw(18) * sKni * mKni + gw(16) * n(sFok) * mFok + gWi * n(sWi) + gTsk * n(sTsk);
   const nenner = gw(1) * da(sAuf) + gw(2) * da(sEin) + gw(3) * da(sDau) + gw(4) + gw(5) * da(sDri) + gw(6) * mSpo +
     gw(7) * da(sElv) + gw(8) * da(sSti) + gw(9) * da(sEne) + gw(10) * da(sKon) + gw(11) * da(sHrv) + gw(12) * da(sAus) +
-    gw(13) * da(sTer) * mTer + gw(14) + gw(15) * mHFr + gw(18) * mKni + gw(16) * da(sFok) * mFok + gWi * da(sWi);
+    gw(13) * da(sTer) * mTer + gw(14) + gw(15) * mHFr + gw(18) * mKni + gw(16) * da(sFok) * mFok + gWi * da(sWi) + nTsk;
   if (aus) {   // Ringe: was jeder Bereich schon bringt, von allem, was er bringen kann
-    aus.fokus = [gw(16) * n(sFok) * mFok, gw(16)];
+    aus.fokus = [gw(16) * n(sFok) * mFok + gTsk * n(sTsk), gw(16) + (sTsk == null ? 0 : gTsk)];
     aus.koerper = [gw(1) * n(sAuf) + gw(2) * n(sEin) + gw(3) * n(sDau) + gw(4) * sOtt + gw(5) * n(sDri) + gw(6) * sSpo * mSpo +
       gw(7) * n(sElv) + gw(11) * n(sHrv) + gw(18) * sKni * mKni, gw(1) + gw(2) + gw(3) + gw(4) + gw(5) + gw(6) + gw(7) + gw(11) + gw(18)];
     aus.kopf = [gw(8) * n(sSti) + gw(9) * n(sEne) + gw(10) * n(sKon) + gw(14) * sHEi + gw(15) * sHFr * mHFr + gWi * n(sWi),
@@ -1400,7 +1432,7 @@ function heuteHtml(f) {
 
   const ht = heuteTasks || [];
   if (ht.length) html += '<div class="hz-k2"><span class="h">Für heute</span><span class="s">' + ht.length + ' von ' + HEUTE_MAX + '</span></div>' +
-    ht.map((t, i) => '<button class="hz-row2" onclick="heuteAbhaken(' + i + ')"><span class="hz-ic leer"></span><span>' + esc(t.titel) + '</span></button>').join('');
+    ht.map((t, i) => '<button class="hz-row2' + (altPill(t) ? ' mit-alt' : '') + '" onclick="heuteAbhaken(' + i + ')"><span class="hz-ic leer"></span><span>' + esc(t.titel) + '</span>' + altPill(t) + '</button>').join('');
 
   const erl = erledigtHtml(iso, l);
   if (!jetzt && !ht.length && !erl) html += '<div class="hz-klein" style="margin-top:12px">Tipp auf Plus, um etwas einzuplanen.</div>';
@@ -1414,7 +1446,9 @@ function erledigtHtml(iso, l) {
   const fertig = l.filter(x => x.b.status).sort((a, b) => a.b.start.localeCompare(b.b.start));
   if (!fertig.length && !tasks.length) return '';
   const nb = fertig.length, nt = tasks.length;
-  const sum = [nb ? nb + (nb === 1 ? ' Block' : ' Blöcke') : '', nt ? nt + (nt === 1 ? ' Task' : ' Tasks') : ''].filter(Boolean).join(' · ');
+  const pkt = iso >= TASK_PUNKTE_AB, tsum = tasks.reduce((x, t) => x + taskPunkte(t), 0);
+  const sum = [nb ? nb + (nb === 1 ? ' Block' : ' Blöcke') : '', nt ? nt + (nt === 1 ? ' Task' : ' Tasks') : '',
+    pkt && nt ? tsum + (tsum === 1 ? ' Punkt' : ' Punkte') : ''].filter(Boolean).join(' · ');
   let html = '<div class="er-kopf"><span class="h">Erledigt</span><span class="s">' + sum + '</span></div>';
   if (nb) html += '<div class="er-bloecke">' + fertig.map(x => {
     const b = x.b, fm = fokusMin(iso, b), z = zaehlt(b);
@@ -1428,9 +1462,57 @@ function erledigtHtml(iso, l) {
       (b.status === 'gemacht' && b.task && !b.taskFertig ? '<div class="taskfrage"><span>Task „' + esc(b.taskTitel || b.titel) + '“ auch fertig?</span>' +
         '<button onclick="taskFertig(\'' + iso + '\',' + x.i + ')">Ja, abhaken</button></div>' : '');
   }).join('') + '</div>';
-  if (nt) html += '<div class="er-tasks">' + tasks.map(t => '<div class="er-task"><span class="er-haken">✓</span><span class="er-tt">' + esc(t.titel) +
+  erTasks[iso] = tasks;
+  if (nt && !pkt) html += '<div class="er-tasks">' + tasks.map(t => '<div class="er-task"><span class="er-haken">✓</span><span class="er-tt">' + esc(t.titel) +
     '</span><span class="er-tz">' + esc(t.zeit) + '</span></div>').join('') + '</div>';
+  if (nt && pkt) html += '<div class="er-tasks">' + tasks.map((t, j) => {
+    const neu = stufeNeu && stufeNeu.ref === t.ref && Date.now() - stufeNeu.t < 2000;
+    const zeile = '<span class="er-haken">✓</span><span class="er-tt">' + esc(t.titel) + '</span>' +
+      '<span class="er-alt">' + (t.bonus ? 'alt' : '') + '</span>' +
+      '<span class="er-pkt s' + (t.stufe || 1) + (neu ? ' neu' : '') + '">+' + taskPunkte(t) + '</span>' +
+      '<span class="er-tz">' + esc(t.zeit) + '</span>';
+    if (!t.ref) return '<div class="er-task mit">' + zeile + '</div>';
+    let r = '<button class="er-task mit" onclick="stufeAuf(\'' + iso + '\',' + j + ')">' + zeile + '</button>';
+    if (stufeOffen === t.ref) r += '<div class="stufen-frage">Wie zäh war das?' + (t.bonus ? ' Lag lange rum, gibt +1 dazu.' : '') + '</div>' +
+      '<div class="stufen">' + STUFEN.map(([st, nm]) => '<button class="' + ((t.stufe || 1) === st ? 'an' : '') + '" onclick="stufeSetzen(\'' + iso + '\',' + j + ',' + st + ')">' +
+      '<span>' + nm + '</span><b>+' + st + '</b></button>').join('') + '</div>';
+    return r;
+  }).join('') + '</div>';
   return html;
+}
+
+/* Stufe eines abgehakten Tasks: antippen öffnet leicht, mittel, zäh. Der Tageswert zieht sofort mit, der Server rechnet nach */
+const erTasks = {};
+let stufeOffen = null, stufeNeu = null;
+function tasksWertLokal(iso) {
+  const tf = P.felder.find(x => x.typ === 'tasks'), w = P.werte[iso];
+  if (!tf || !w || iso < TASK_PUNKTE_AB) return;
+  const x = w[tf.spalte] || (w[tf.spalte] = { wert: 0, anzeige: '' });
+  x.wert = (x.tasks || []).reduce((a, t) => a + taskPunkte(t), 0);
+  x.anzeige = String(x.wert);
+}
+function stufeAuf(iso, j) {
+  const t = (erTasks[iso] || [])[j];
+  if (!t || !t.ref) return;
+  stufeOffen = stufeOffen === t.ref ? null : t.ref;
+  haptik();
+  zeichnen();
+}
+function stufeSetzen(iso, j, st) {
+  const t = (erTasks[iso] || [])[j];
+  if (!t || !t.ref) return;
+  const alt = t.stufe || 1;
+  stufeOffen = null;
+  if (alt === st) { zeichnen(); return; }
+  merken({ art: 'stufe', tag: tagIso, iso: iso, ref: t.ref, alt: alt, name: 'Stufe: ' + t.titel });
+  t.stufe = st;
+  tasksWertLokal(iso);
+  stufeNeu = { ref: t.ref, t: Date.now() };
+  haptik();
+  if (st === 4) { setTimeout(haptik, 140); setTimeout(haptik, 280); }
+  zeichnen();
+  if (st === 4) melden('Zäh. Genau die zählen.');
+  nacheinander('appTaskStufe', t.ref, st);
 }
 
 /* ── Für heute: höchstens 5 kleine Tasks, Fälligkeit heute in Google Tasks ── */
@@ -1477,7 +1559,9 @@ function heuteAbhaken(i) {
   const tf = P.felder.find(x => x.typ === 'tasks'), w = P.werte[heute()];
   if (tf && w) {
     const x = w[tf.spalte] || (w[tf.spalte] = { wert: 0, anzeige: '' });
-    x.tasks = (x.tasks || []).concat([{ zeit: jetztZeit(), titel: t.titel, liste: t.liste }]);
+    x.tasks = (x.tasks || []).concat([{ zeit: jetztZeit(), titel: t.titel, liste: t.liste, ref: t.ref, stufe: 1, bonus: t.alt >= ALT_TAGE ? 1 : 0 }]);
+    tasksWertLokal(heute());
+    stufeOffen = t.ref;
   }
   P.fokTasks = P.fokTasks || {};
   P.fokTasks[heute()] = (P.fokTasks[heute()] || []).concat([t.ref]);
@@ -1553,7 +1637,7 @@ function heuteWahlZeichnen() {
       const ja = an.has(t.ref);
       const ic = '<span class="hz-ic ' + (ja ? 'gruen' : 'leer') + '">' + (ja ? '✓' : '') + '</span>';
       const temp = t.temp ? ' tw-temp' : '';
-      if (!bearb) return k + '<button class="hz-row2' + temp + '" onclick="heuteWahlTippen(' + i + ')">' + ic + '<span>' + esc(t.titel) + '</span></button>';
+      if (!bearb) return k + '<button class="hz-row2' + temp + (altPill(t) ? ' mit-alt' : '') + '" onclick="heuteWahlTippen(' + i + ')">' + ic + '<span>' + esc(t.titel) + '</span>' + altPill(t) + '</button>';
       const unter = t.unter ? ' unter' : '';
       if (hwahl.edit === t.ref) return k + '<div class="tw-zeile' + unter + '">' + ic + '<input type="text" id="twEdit" value="' + esc(t.titel) + '" enterkeyhint="done" onkeydown="twTaste(event)" onblur="twEditFertig(true)"><span></span><span></span></div>';
       let z = k + '<div class="tw-zeile' + unter + temp + '"><button onclick="heuteWahlTippen(' + i + ')">' + ic + '</button>' +
@@ -1971,7 +2055,7 @@ function planWasListe(chip) {
         const kopf = t.liste !== letzte ? '<div class="unterkopf">' + esc(t.liste) + '</div>' : '';
         letzte = t.liste;
         return kopf + '<button class="taskzeile' + (plan.wahl.indexOf(t) !== -1 ? ' an' : '') + (t.unter ? ' unter' : '') +
-          '" onclick="planTask(' + i + ')"><span class="kreis"></span><span>' + esc(t.titel) + '</span></button>';
+          '" onclick="planTask(' + i + ')"><span class="kreis"></span><span>' + esc(t.titel) + '</span>' + altPill(t) + '</button>';
       }).join('');
       if (plan.wahl.length > 1) was += '<div class="hinweis">Wird ein Sammelblock: ' + esc(blockName({ bereich: plan.wahl[0].bereich, titel: 'Kleinkram (' + plan.wahl.length + ' Tasks)' })) + '</div>';
     }
@@ -2052,6 +2136,13 @@ function taskFertig(iso, i) {
   if (!b || !b.task) return;
   merken({ art: 'task', tag: tagIso, key: b.key, name: 'Task abgehakt' });
   b.taskFertig = true;
+  const tf = P.felder.find(x => x.typ === 'tasks'), w = P.werte[heute()];
+  if (tf && w && b.task && heute() >= TASK_PUNKTE_AB) {
+    const x = w[tf.spalte] || (w[tf.spalte] = { wert: 0, anzeige: '' });
+    x.tasks = (x.tasks || []).concat([{ zeit: jetztZeit(), titel: b.taskTitel || b.titel, liste: '', ref: b.task, stufe: 1, bonus: 0 }]);
+    tasksWertLokal(heute());
+    stufeOffen = b.task;
+  }
   zeichnen();
   melden('Task „' + (b.taskTitel || b.titel) + '“ abgehakt');
   nacheinander('appTaskErledigt', b.key);
@@ -2113,9 +2204,20 @@ function rueckgaengig() {
     zeichnen();
     nacheinander('appBlockLoeschen', a.key);
   } else if (a.art === 'task') {
-    Object.keys(P.bloecke || {}).forEach(t => P.bloecke[t].forEach(x => { if (x.key === a.key) x.taskFertig = false; }));
+    let ref = '';
+    Object.keys(P.bloecke || {}).forEach(t => P.bloecke[t].forEach(x => { if (x.key === a.key) { x.taskFertig = false; ref = x.task || ref; } }));
+    const tf = P.felder.find(x => x.typ === 'tasks'), xt = tf && P.werte[heute()] && P.werte[heute()][tf.spalte];
+    if (ref && xt && xt.tasks) { const j = xt.tasks.map(y => y.ref).lastIndexOf(ref); if (j >= 0) xt.tasks.splice(j, 1); tasksWertLokal(heute()); }
+    if (stufeOffen === ref) stufeOffen = null;
     zeichnen();
     nacheinander('appTaskOeffnen', a.key);
+  } else if (a.art === 'stufe') {
+    const tf = P.felder.find(x => x.typ === 'tasks'), xt = tf && P.werte[a.iso] && P.werte[a.iso][tf.spalte];
+    const t = xt && (xt.tasks || []).find(y => y.ref === a.ref);
+    if (t) t.stufe = a.alt;
+    tasksWertLokal(a.iso);
+    zeichnen();
+    nacheinander('appTaskStufe', a.ref, a.alt);
   } else if (a.art === 'eintrag') {
     const f = feldVon(a.id);
     const liste = ((zelle(f.spalte) || {}).eintraege || []).slice();
@@ -2165,6 +2267,8 @@ function rueckgaengig() {
     const tf = P.felder.find(x => x.typ === 'tasks'), w = P.werte[heute()];
     const x = tf && w && w[tf.spalte];
     if (x && x.tasks) { const j = x.tasks.map(y => y.titel).lastIndexOf(a.t.titel); if (j >= 0) x.tasks.splice(j, 1); }
+    tasksWertLokal(heute());
+    if (stufeOffen === a.t.ref) stufeOffen = null;
     const ft = (P.fokTasks || {})[heute()];
     if (ft) { const k = ft.lastIndexOf(a.t.ref); if (k >= 0) ft.splice(k, 1); }
     fokusLokal(heute());
