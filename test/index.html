@@ -145,6 +145,8 @@
   .pfeil { display: inline-block; color: var(--leise); font-size: 11px; margin-left: 6px; transition: transform .15s; }
   .klappbar.auf .pfeil { transform: rotate(90deg); }
   .liste { margin-top: 8px; }
+  .mac-balken { display: flex; gap: 2px; height: 6px; margin-top: 8px; border-radius: 3px; overflow: hidden; }
+  .mac-balken span { min-width: 3px; }
   .posten { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 14px; border-top: 1px solid var(--linie); }
   .posten:first-child { border-top: 0; }
   .posten .pzeit { font-size: 12px; color: var(--leise); font-variant-numeric: tabular-nums; width: 38px; flex: none; }
@@ -499,7 +501,7 @@
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611111744';
+const PWA_VERSION = '202611111655';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -846,6 +848,11 @@ function feldHtml(f) {
       return kopf(pille(anzeigeVon(f.spalte))) + tasksHtml(f) + '</div>';
     case 'bloecke':
       return '<div class="feld" id="heuteBox">' + heuteHtml(f) + '</div>';
+    case 'mac': {   // Zeit am Mac aus ActivityWatch, Antippen zeigt die Bereiche
+      const l = (zelle(f.spalte) || {}).mac || [], a = auf.has(f.spalte), anz = anzeigeVon(f.spalte);
+      return '<div class="feld klappbar' + (a ? ' auf' : '') + '" onclick="umklappen(' + P.felder.indexOf(f) + ')"><div class="zeile"><span class="name">' +
+        name + '<span class="pfeil">▸</span></span>' + pille(anz) + '</div>' + macBalken(l) + (a ? macListe(l, anz) : '') + '</div>';
+    }
     default:
       if (f.liste) {
         const a = auf.has(f.spalte);
@@ -856,6 +863,21 @@ function feldHtml(f) {
   }
 }
 
+/* Mac: ein Balken aus den Bereichen, darunter beim Aufklappen die Liste. Farben fest pro Bereich */
+const MAC_FARBEN = { FW: '#C2507F', Projekte: '#A391D9', HFBK: '#75A5AF', Admin: '#EF9E26', Sport: '#6AA77A', System: '#8C8C8C',
+  Claude: '#D97757', Ablenkung: '#B3261E', Sonstiges: '#CFCBC2' };
+function macFarbe(b) { return MAC_FARBEN[b] || '#CFCBC2'; }
+function macBalken(l) {
+  const summe = l.reduce((n, x) => n + x.min, 0);
+  if (!summe) return '';
+  return '<div class="mac-balken">' + l.map(x => '<span style="flex:' + x.min + ';background:' + macFarbe(x.bereich) + '"></span>').join('') + '</div>';
+}
+function macListe(l, anz) {
+  if (anz === 'aus') return '<div class="hinweis">ActivityWatch liefert gerade keine Fensterdaten. Am Mac unter Datenschutz, Bedienungshilfen wieder erlauben.</div>';
+  if (!l.length) return '<div class="hinweis">Noch keine Zeit am Mac.</div>';
+  return '<div class="liste">' + l.map(x => '<div class="posten"><span class="ppunkt" style="color:' + macFarbe(x.bereich) + '">●</span><span class="pname">' +
+    esc(x.bereich) + '</span><span class="pbetrag">' + hm(x.min) + '</span></div>').join('') + '</div>';
+}
 /* Check ins: drei Fenster pro Tag. Unter der Skala steht, welche schon eingetragen sind, das laufende ist markiert */
 const CHECKIN_FELDER = ['Stimmung 1/10', 'Energie 1/10', 'Konzentration 1/10'];
 const CHECKIN = [['Morgens', 0, 12 * 60], ['Mittags', 12 * 60, 17 * 60], ['Abends', 17 * 60, 24 * 60]];
