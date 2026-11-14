@@ -494,14 +494,584 @@
 <nav>
   <button id="navTag" class="aktiv">Tag</button>
   <button id="navWoche">Woche</button>
+  <button id="navChief">Chief</button>
 </nav>
 <div id="meldung"></div>
 <div id="planen"></div>
+<style>
+  /* ── Chief of Staff: Kästchen. Eine Form, vier Zustände: gefüllt geschafft, leer offen, gestrichelt Reserve, hinter der Fahne passt nicht ── */
+  .kr { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
+  .kq { display: inline-block; flex: none; position: relative; overflow: hidden; box-sizing: border-box; width: 14px; height: 14px;
+    border-radius: 4px; border: 1.5px solid var(--kf, var(--leise)); }
+  .kq.an { background: var(--kf, var(--leise)); }
+  .kq i { position: absolute; left: 0; right: 0; bottom: 0; background: var(--kf, var(--leise)); transition: height .6s ease-out; }
+  .kq.re { border: 1.5px dashed var(--leise); }
+  .kq.ue { border: 2px solid var(--rosa); }
+  .kq.gr { opacity: .45; }
+  .kq.aus { border-color: var(--gold); background: var(--gold-hell); }
+  .kr.gross .kq { width: 18px; height: 18px; border-radius: 5px; }
+  .kr .kmehr { font-size: 11px; color: var(--leise); margin-left: 2px; }
+
+  /* Reihe unter der Tageszahl */
+  .cos-reihe { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 22px; margin-top: 2px; font-size: 12px;
+    color: var(--leise); font-variant-numeric: tabular-nums; }
+  .cos-reihe.reif { cursor: pointer; }
+  .cos-reihe.reif .kq.neu { animation: cospuls 1.1s ease-in-out infinite; }
+  .cos-reihe .kq.landet { animation: cosland .5s ease-out; }
+  @keyframes cospuls { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.28); } }
+  @keyframes cosland { 0% { transform: scale(.4); } 55% { transform: scale(1.5); } 100% { transform: scale(1); } }
+
+  /* Block läuft: das große Kästchen */
+  .cos-lauf { display: flex; align-items: center; gap: 14px; margin-top: 10px; }
+  .cos-box { position: relative; flex: none; width: 92px; height: 92px; box-sizing: border-box; border-radius: 22px; overflow: hidden;
+    border: 3px solid var(--kf, var(--akzent)); background: var(--karte); }
+  .cos-box i { position: absolute; left: 0; right: 0; bottom: 0; background: var(--kf, var(--akzent)); transition: height .8s ease-out; }
+  .cos-box.voll { animation: cosatmen 1.1s ease-in-out infinite; }
+  @keyframes cosatmen { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  .cos-lauf-r { flex: 1; min-width: 0; }
+  .cos-lauf-t { font-size: 19px; font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .cos-lauf-r .kr { margin-top: 7px; }
+  .hz-knoepfe .hz-dran.reif { background: var(--gold); color: var(--karte); font-weight: 700; }
+  .hz-knoepfe button:disabled { opacity: .45; }
+  .cos-schritt-fertig { width: 100%; height: 40px; margin-top: 8px; border-radius: 10px; background: var(--karte); font-size: 13px; font-weight: 600; color: var(--gruen); }
+  .cos-flug { position: fixed; z-index: 50; pointer-events: none; width: 26px; height: 26px; border-radius: 7px; }
+
+  /* Als Nächstes aus dem Chief */
+  .cos-vor { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; color: var(--leise); }
+  .cos-vor .punkt { flex: none; }
+  .cos-vor span.n { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cos-tausch { font-size: 13px; font-weight: 600; color: var(--akzent); padding: 6px 2px 6px 10px; margin: -6px 0; }
+  .cos-gross { font-size: 21px; font-weight: 800; line-height: 1.15; margin: 4px 0 8px; }
+  .cos-masse { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--leise); }
+  .cos-danach { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 4px 0; text-align: left; font-size: 15px; border-top: 1px solid var(--linie); }
+  .cos-dl { margin-top: 10px; }
+  .cos-danach .t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Seite Chief */
+  .cos-hinweis { display: flex; align-items: center; gap: 12px; background: var(--rosa-hell); color: var(--rosa); box-shadow: none; font-weight: 600; }
+  .cos-hinweis span { flex: 1; }
+  .cos-hinweis button { flex: none; height: 40px; padding: 0 14px; border-radius: 12px; background: var(--rosa); color: var(--karte); font-weight: 700; font-size: 14px; }
+  .cos-bahn { display: block; width: 100%; text-align: left; padding: 14px 0; border-top: 1px solid var(--linie); }
+  .cos-bahn:first-child { border-top: 0; }
+  .cos-bahn-k { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+  .cos-bahn-k b { flex: 1; min-width: 0; font-size: 16px; font-weight: 700; }
+  .cos-bahn-k .s { font-size: 12px; color: var(--leise); white-space: nowrap; }
+  .cos-bahn-k .s.eng { color: var(--rosa); font-weight: 700; }
+  .cos-fahne { display: inline-flex; align-items: center; gap: 3px; margin: 0 4px; font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; }
+  .cos-ueber { display: inline-flex; gap: 3px; padding: 4px 5px; border-radius: 6px; background: var(--rosa-hell); }
+  .cos-zeile { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 48px; text-align: left; border-top: 1px solid var(--linie); }
+  .cos-zeile:first-child { border-top: 0; }
+  .cos-zeile .t { flex: 1; }
+  .cos-zeile .s { font-size: 13px; color: var(--leise); }
+  .cos-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 0 12px; }
+  .cos-chips span { padding: 5px 10px; border-radius: 10px; background: var(--chip); font-size: 13px; }
+  .cos-runde { display: flex; align-items: center; justify-content: center; height: 50px; margin-bottom: 12px; border-radius: 16px; border: 1.5px solid var(--akzent);
+    color: var(--akzent); font-weight: 700; text-decoration: none; background: var(--karte); }
+  .cos-legende { font-size: 11px; color: var(--leise); padding: 4px 0 2px; line-height: 1.5; }
+  .cos-zwei { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  body.mac .cos-bahn.an { background: var(--chip); border-radius: 14px; border-top-color: transparent; margin: 0 -10px; padding: 14px 10px; width: calc(100% + 20px); }
+  body.mac .cos-bahn.an + .cos-bahn { border-top-color: transparent; }
+
+  /* Projekt mit Schritten */
+  .cos-zurueck { font-size: 14px; font-weight: 600; color: var(--akzent); padding: 4px 0 10px; }
+  .cos-dk { display: flex; align-items: center; gap: 8px; }
+  .cos-dk b { font-size: 19px; font-weight: 800; line-height: 1.2; }
+  .cos-ab { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--leise); margin: 16px 0 2px; }
+  .cos-schritt { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 0; border-top: 1px solid var(--linie); }
+  .cos-schritt .was { flex: 1; min-width: 0; }
+  .cos-schritt .was small { display: block; font-size: 12px; color: var(--leise); }
+  .cos-schritt.fertig .was { color: var(--leise); }
+  .cos-schritt .kr { flex: none; max-width: 88px; justify-content: flex-end; }
+  .cos-haken { flex: none; position: relative; width: 28px; height: 28px; border-radius: 14px; box-sizing: border-box; border: 2px solid var(--kf, var(--kreis)); display: grid; place-items: center; }
+  .cos-haken::before { content: ""; position: absolute; inset: -9px; }
+  .cos-haken svg { display: none; }
+  .cos-haken.an { background: var(--gruen); border-color: var(--gruen); }
+  .cos-haken.an svg { display: block; width: 13px; height: 13px; }
+  .cos-haken.neu { animation: cosland .45s ease-out; }
+  .cos-los { flex: none; width: 34px; height: 34px; border-radius: 17px; background: var(--akzent-hell); color: var(--akzent); font-size: 12px; display: grid; place-items: center; }
+  .cos-pille { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 8px; background: var(--akzent-hell); color: var(--akzent); margin-left: 4px; vertical-align: 1px; white-space: nowrap; }
+  body.mac nav { width: 320px; }
+  @media (prefers-reduced-motion: reduce) { .cos-box.voll, .cos-reihe.reif .kq.neu, .cos-reihe .kq.landet, .cos-haken.neu { animation: none; } }
+</style>
+<script>
+/* ── Chief of Staff: Projekte, Schritte, Kästchen. Daten aus appChief (Tabs Projekte und Schritte), Zeit aus den Blöcken ──
+   Ein Kästchen sind 30 Minuten Fokuszeit. Die Kästchen des Tages sind die Fokuszeit des Tages durch 30, also genau das,
+   was im Tageswert schon zählt. Hier ändert sich keine Gewichtung. */
+const COS_SPEICHER = 'zentrale_chief_1', COS_KQ = 'zentrale_kq_1', COS_MIN = 30, COS_SITZUNG = 3;
+const COS_CLAUDE = 'https://claude.ai/project/01a17340-0436-7789-9c22-8fa8b14c4299';
+const COS_FARBEN = { FW: '#C2507F', Projekte: '#A391D9', HFBK: '#75A5AF', Admin: '#EF9E26', Sport: '#6AA77A', System: '#8C8C8C' };
+const COS_FAHNE = voll => '<svg width="12" height="15" viewBox="0 0 13 16" aria-hidden="true"><path d="M2 1.5v13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+  '<path d="M3 2h8.5L9 5l2.5 3H3z" ' + (voll ? 'fill="currentColor"' : 'fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"') + '/></svg>';
+const COS_HAKEN = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+let C = null;                 // Chief Paket vom Server
+let cosGeladen = 0, cosLaedt = false, cosFehlt = false;
+let cosProjekt = null;        // offenes Projekt (Name) auf der Chief Seite
+let cosWahl = null;           // per Tauschen gewählter Schritt
+let cosStartet = null;        // Schlüssel des Blocks, der gerade beim Server angelegt wird
+let cosAuf = { park: false, fertig: false };
+let cosNeuHaken = null;       // gerade abgehakt, für die Animation
+const cosKeys = {};           // Block Schlüssel → Schritt ID, bis der Server es kennt
+try { C = JSON.parse(localStorage.getItem(COS_SPEICHER) || 'null'); } catch (e) { C = null; }
+
+function cosFarbe(bereich) { return COS_FARBEN[bereich] || '#9A968C'; }
+function cosUhr(min) { return zwei(Math.floor(min / 60)) + ':' + zwei(min % 60); }
+function cosTageBis(von, bis) {
+  const a = von.split('-').map(Number), b = bis.split('-').map(Number);
+  return Math.round((Date.UTC(b[0], b[1] - 1, b[2]) - Date.UTC(a[0], a[1] - 1, a[2])) / 864e5);
+}
+function cosDatum(iso) { const t = iso.split('-'); return t[2] + '.' + t[1] + '.'; }
+function cosKw() {
+  const d = new Date(), t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7));
+  return Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7);
+}
+
+/* ── Laden ── */
+function cosLaden(erzwingen) {
+  if (cosLaedt || typeof server !== 'function') return;
+  if (!erzwingen && (cosFehlt ? Date.now() - cosGeladen < 300000 : C && Date.now() - cosGeladen < 60000)) return;
+  cosLaedt = true;
+  server('appChief').then(d => {
+    cosGeladen = Date.now(); cosFehlt = false;
+    if (!d || !d.projekte) return;
+    C = d;
+    Object.keys(cosKeys).forEach(k => { if (C.schritte.some(s => s.bl && s.bl[k] != null)) delete cosKeys[k]; });
+    try { localStorage.setItem(COS_SPEICHER, JSON.stringify(d)); } catch (e) { /* kein Speicher, egal */ }
+    cosNeuZeichnen();
+  }).catch(e => {
+    cosGeladen = Date.now();
+    if (/Unbekannte Funktion/.test(String(e && e.message))) { cosFehlt = true; if (ansicht === 'chief') zeichnen(); }
+  }).finally(() => { cosLaedt = false; });
+}
+function cosNeuZeichnen() {
+  if (!P) return;
+  const a = document.activeElement;
+  if (a && (a.tagName === 'TEXTAREA' || a.type === 'text' || a.type === 'time')) { spaeterZeichnen = true; return; }
+  if (typeof plan !== 'undefined' && plan) return;
+  zeichnen();
+}
+/* Wie nacheinander, gibt aber die Antwort zurück */
+function cosNach(fn, ...args) {
+  offen++;
+  let erg = null;
+  kette = kette.then(() => server(fn, ...args)
+    .then(d => { erg = d; offen--; geschrieben++; })
+    .catch(e => { offen--; erg = null; melden(e.message || String(e)); }));
+  return kette.then(() => erg);
+}
+
+/* ── Rechnen ── */
+function cosAlleBloecke() {
+  const out = [];
+  Object.keys((P && P.bloecke) || {}).forEach(iso => P.bloecke[iso].forEach(b => out.push({ iso: iso, b: b })));
+  return out;
+}
+function cosSchrittVon(b) {
+  if (!C || !b) return null;
+  const id = b.schritt || cosKeys[b.key];
+  return C.schritte.find(s => id ? s.id === id : (s.bl && s.bl[b.key] != null)) || null;
+}
+/* Minuten eines Schritts: live aus den Blöcken im Paket, sonst der Stand vom Server */
+function cosMin(s, alle) {
+  alle = alle || cosAlleBloecke();
+  const gesehen = {};
+  let m = 0;
+  Object.keys(s.bl || {}).forEach(k => {
+    const x = alle.find(y => y.b.key === k);
+    gesehen[k] = true;
+    m += x ? fokusMin(x.iso, x.b) : (Number(s.bl[k]) || 0);
+  });
+  alle.forEach(x => { if (!gesehen[x.b.key] && (x.b.schritt === s.id || cosKeys[x.b.key] === s.id)) m += fokusMin(x.iso, x.b); });
+  return m;
+}
+/* Kästchen eines Projekts: geschafft, offen, Reserve übrig */
+function cosZahlen(name, alle) {
+  alle = alle || cosAlleBloecke();
+  const p = C.projekte.find(x => x.name === name);
+  let geschafft = 0, offen = 0, plan = 0;
+  C.schritte.filter(s => s.projekt === name).forEach(s => {
+    const sp = Math.floor(cosMin(s, alle) / COS_MIN);
+    geschafft += sp; plan += s.k;
+    if (s.status !== 'fertig') offen += Math.max(0, s.k - sp);
+  });
+  return { geschafft: geschafft, offen: offen, reserve: Math.max(0, plan + (p ? p.reserve : 0) - geschafft - offen) };
+}
+/* Was passt nicht mehr vor die Deadline: nach Deadline sortiert, Kapazität pro Woche auf Tage verteilt */
+function cosUeber(alle) {
+  const out = {};
+  if (!C) return out;
+  const h = heute(), proTag = (Number(C.kapazitaet) || 16) / 7;
+  let bedarf = 0, vergeben = 0;
+  C.projekte.filter(p => p.status === 'aktiv' && p.deadline).map(p => ({ p: p, z: cosZahlen(p.name, alle) }))
+    .sort((a, b) => a.p.deadline.localeCompare(b.p.deadline)).forEach(x => {
+      const platz = Math.floor(proTag * Math.max(0, cosTageBis(h, x.p.deadline) + 1));
+      bedarf += x.z.offen;
+      const u = Math.max(0, Math.min(x.z.offen, bedarf - platz - vergeben));
+      vergeben += u; out[x.p.name] = u;
+    });
+  return out;
+}
+/* Reihenfolge der nächsten Schritte. Vor dem ersten Kästchen des Tages zählt der Rang, danach zuerst, was nicht mehr passt */
+function cosKandidaten() {
+  if (!C || !P) return [];
+  const alle = cosAlleBloecke(), ueber = cosUeber(alle);
+  const liste = [];
+  C.projekte.filter(p => p.status === 'aktiv').forEach((p, rang) => {
+    const s = C.schritte.find(x => x.projekt === p.name && x.status !== 'fertig');
+    if (s) liste.push({ p: p, s: s, rang: rang, ueber: ueber[p.name] || 0, min: cosMin(s, alle) });
+  });
+  if (fokusTagMin(heute()) >= COS_MIN) liste.sort((a, b) => (b.ueber > 0) - (a.ueber > 0) ||
+    (a.ueber > 0 && b.ueber > 0 ? a.p.deadline.localeCompare(b.p.deadline) : 0) || a.rang - b.rang);
+  if (cosWahl) { const i = liste.findIndex(x => x.s.id === cosWahl); if (i > 0) liste.unshift(liste.splice(i, 1)[0]); else if (i < 0) cosWahl = null; }
+  return liste;
+}
+function cosSitzung(s, min) { return Math.min(COS_SITZUNG, Math.max(1, Math.ceil(s.k - min / COS_MIN))) * COS_MIN; }
+
+/* ── Kästchen zeichnen ── */
+function cosKq(farbe, klasse, teil) {
+  return '<span class="kq' + (klasse ? ' ' + klasse : '') + '" style="--kf:' + farbe + '">' + (teil != null ? '<i style="height:' + Math.round(teil * 100) + '%"></i>' : '') + '</span>';
+}
+function cosViele(n, farbe, klasse, max) {
+  n = Math.max(0, Math.round(n)); max = max || 60;
+  let h = '';
+  for (let i = 0; i < Math.min(n, max); i++) h += cosKq(farbe, klasse);
+  return h + (n > max ? '<span class="kmehr">+' + (n - max) + '</span>' : '');
+}
+/* Kästchen eines Schritts: Schätzung, gefüllt was drin ist, darüber hinaus aus der Reserve */
+function cosSchrittKq(s, farbe, min) {
+  const voll = Math.floor(min / COS_MIN), teil = (min % COS_MIN) / COS_MIN, fertig = s.status === 'fertig';
+  let h = cosViele(Math.min(voll, s.k), farbe, 'an', 12);
+  if (!fertig) {
+    if (voll < s.k) { h += teil > 0 ? cosKq(farbe, s.status === 'grob' ? 'gr' : '', teil) : cosKq(farbe, s.status === 'grob' ? 'gr' : ''); h += cosViele(s.k - voll - 1, farbe, s.status === 'grob' ? 'gr' : '', 12); }
+  }
+  if (voll > s.k) h += cosViele(voll - s.k, farbe, 'aus', 6);
+  return h;
+}
+
+/* ── Kästchen des Tages: Fokuszeit durch 30. Reihe unter der Tageszahl ── */
+function cosTag(iso) {
+  const l = bloeckeVon(iso).filter(zaehlt).slice().sort((a, b) => a.start.localeCompare(b.start));
+  const farben = [];
+  let rest = 0, summe = 0, letzte = null;
+  l.forEach(b => {
+    let m = fokusMin(iso, b);
+    if (m <= 0) return;
+    summe += m; letzte = cosFarbe(b.bereich); m += rest;
+    while (m >= COS_MIN) { farben.push(letzte); m -= COS_MIN; }
+    rest = m;
+  });
+  return { farben: farben, rest: rest, summe: summe, letzte: letzte };
+}
+function cosGesammelt(iso) {
+  try { return Number((JSON.parse(localStorage.getItem(COS_KQ) || '{}'))[iso]) || 0; } catch (e) { return 0; }
+}
+function cosGesammeltSetzen(iso, n) {
+  try { const o = {}; o[iso] = n; localStorage.setItem(COS_KQ, JSON.stringify(o)); } catch (e) { /* bleibt ohne */ }
+}
+let cosLandet = 0;   // Zeitpunkt des letzten Einsammelns, für die Lande Animation
+function cosReiheInnen(iso) {
+  const t = cosTag(iso), h = heute(), n = t.farben.length;
+  const reif = iso === h ? Math.max(0, n - cosGesammelt(iso)) : 0;
+  const landet = Date.now() - cosLandet < 900;
+  let k = t.farben.map((f, i) => cosKq(f, 'an' + (i >= n - reif ? ' neu' : '') + (landet && i === n - 1 ? ' landet' : ''))).join('');
+  const laeuft = iso === h && bloeckeVon(h).some(b => b.gestartet && !b.beendet && !b.status && jetztMin() < minVon(b.ende));
+  if (iso === h && (t.rest > 0 || laeuft)) k += cosKq(t.letzte || 'var(--leise)', '', t.rest / COS_MIN);
+  if (!k) return iso === h ? { html: cosKq('var(--leise)', '') + '<span>Heute noch kein Kästchen</span>', reif: 0 } : { html: '', reif: 0 };
+  const plus = iso === h && n ? zuwachsText(tagZuwachs(iso, n * COS_MIN, 0)) : '';
+  return { html: '<span class="kr">' + k + '</span><span>' + (reif ? reif + (reif === 1 ? ' Kästchen einsammeln' : ' Kästchen einsammeln')
+    : n + ' Kästchen' + (plus ? ' · Tag ' + plus : '')) + '</span>', reif: reif };
+}
+function cosReiheHtml(iso) {
+  if (!P || !P.bloecke) return '';
+  const r = cosReiheInnen(iso);
+  return '<div class="cos-reihe' + (r.reif ? ' reif' : '') + '" id="cosReihe"' + (r.reif ? ' onclick="cosSammeln()"' : '') + '>' + r.html + '</div>';
+}
+function cosReiheNeu() {
+  const el = $('cosReihe');
+  if (!el || !P) return;
+  const r = cosReiheInnen(tagIso);
+  el.innerHTML = r.html;
+  el.classList.toggle('reif', !!r.reif);
+  el.onclick = r.reif ? cosSammeln : null;
+}
+/* Einsammeln: volle Kästchen des Tages, die noch nicht eingesammelt sind. Gibt die Zahl zurück */
+function cosEinsammeln() {
+  const h = heute(), n = cosTag(h).farben.length, neu = n - cosGesammelt(h);
+  if (neu <= 0) return 0;
+  cosGesammeltSetzen(h, n);
+  cosLandet = Date.now();
+  return neu;
+}
+function cosSammelText(neu) {
+  const h = heute(), zw = zuwachsText(tagZuwachs(h, neu * COS_MIN, Math.max(0, fokusTagMin(h) - neu * COS_MIN)));
+  return (neu === 1 ? 'Kästchen voll.' : neu + ' Kästchen.') + (zw ? ' Tag ' + zw + '.' : '');
+}
+/* Antippen der Reihe, wenn kein Block mehr läuft */
+function cosSammeln() {
+  const neu = cosEinsammeln();
+  if (!neu) return;
+  haptik();
+  melden(cosSammelText(neu));
+  cosReiheNeu();
+  cosFliegen($('cosReihe'), null);
+}
+/* Ein Kästchen fliegt vom großen Kästchen in die Reihe unter der Tageszahl */
+function cosFliegen(von, farbe) {
+  const reihe = $('cosReihe');
+  if (!von || !reihe || !reihe.animate) return;
+  const ziel = reihe.querySelector('.kq.landet') || reihe;
+  const a = von.getBoundingClientRect(), b = ziel.getBoundingClientRect();
+  if (von === reihe || !a.width) return;
+  const el = document.createElement('div');
+  el.className = 'cos-flug';
+  el.style.background = farbe || 'var(--akzent)';
+  el.style.left = (a.left + a.width / 2 - 13) + 'px'; el.style.top = (a.top + a.height / 2 - 13) + 'px';
+  document.body.appendChild(el);
+  const dx = b.left + b.width / 2 - (a.left + a.width / 2), dy = b.top + b.height / 2 - (a.top + a.height / 2);
+  const an = el.animate([
+    { transform: 'scale(1.6)', opacity: .95 },
+    { transform: 'translate(' + (dx * .5) + 'px,' + (dy * .5 - 30) + 'px) scale(1.2)', opacity: 1, offset: .5 },
+    { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(.5)', opacity: .9 }
+  ], { duration: 700, easing: 'cubic-bezier(.4,0,.6,1)' });
+  an.onfinish = () => el.remove();
+}
+/* Hängt in dranTippen: Dran sammelt volle Kästchen ein. Gibt den Text fürs Lob zurück oder nichts */
+let cosFlugFarbe = null;
+function cosBeiDran(b) {
+  const neu = cosEinsammeln();
+  if (!neu) return '';
+  cosFlugFarbe = cosFarbe(b.bereich);
+  return cosSammelText(neu);
+}
+function cosNachDran() {
+  if (!cosFlugFarbe) return;
+  const f = cosFlugFarbe; cosFlugFarbe = null;
+  cosReiheNeu();
+  requestAnimationFrame(() => cosFliegen($('cosBox'), f));
+}
+
+/* ── Block läuft: großes Kästchen statt Balken. Gilt für jeden Block, der in den Fokus zählt ── */
+function cosLaufHtml(h, b, i, d, jm) {
+  if (!zaehlt(b)) return null;
+  const t = cosTag(h), n = t.farben.length, ges = cosGesammelt(h);
+  const reif = Math.max(0, n - ges);                                                   // alles, was heute noch nicht eingesammelt ist
+  const vorher = Math.floor(Math.max(0, t.summe - fokusMin(h, b)) / COS_MIN);
+  const reifHier = Math.max(0, n - Math.max(ges, vorher));                             // davon in diesem Block voll geworden
+  const farbe = cosFarbe(b.bereich), teil = reifHier ? 1 : t.rest / COS_MIN;
+  const s = cosSchrittVon(b), lokal = !!b.lokal;
+  const noch = COS_MIN - (t.rest % COS_MIN);
+  const hier = Math.floor(fokusMin(h, b) / COS_MIN);
+  const zw = reif ? zuwachsText(tagZuwachs(h, reif * COS_MIN, Math.max(0, fokusTagMin(h) - reif * COS_MIN))) : '';
+  const oben = '<div class="cos-lauf"><div class="cos-box' + (reifHier ? ' voll' : '') + '" id="cosBox" style="--kf:' + farbe + '"><i style="height:' + Math.round(teil * 100) + '%"></i></div>' +
+    '<div class="cos-lauf-r"><div class="cos-lauf-t">' + (reifHier ? (reifHier === 1 ? 'Kästchen voll' : reifHier + ' Kästchen voll') : 'Noch ' + noch + ' min') + '</div>' +
+    '<div class="hz-meta">' + hm(fokusMin(h, b)) + ' drin · bis ' + esc(b.ende) + '</div>' +
+    '<div class="kr gross">' + cosViele(hier, farbe, 'an', 8) + (reifHier ? '' : cosKq(farbe, '', t.rest / COS_MIN)) + '</div>' +
+    (s && s.fertigWenn ? '<div class="hz-meta">Fertig, wenn ' + esc(s.fertigWenn.replace(/^fertig,?\s*wenn\s*/i, '')) + '</div>' : '') + '</div></div>';
+  const fertigRuf = s ? 'cosFertig(' + i + ')' : 'blockFertig(' + i + ')';
+  const knoepfe = lokal
+    ? '<div class="hz-knoepfe"><button class="hz-dran" disabled>Dran</button><button disabled>Abgedriftet</button><button disabled>Fertig</button></div><div class="hz-seit">Wird im Kalender angelegt …</div>'
+    : '<div class="hz-knoepfe"><button class="hz-dran' + (reif ? ' reif puls' : (jm - dranBasis(b, d) >= 25 ? ' puls' : '')) + '" onclick="dranTippen(' + i + ',true)">Dran' + (reif && zw ? ' · ' + zw : '') + '</button>' +
+      '<button onclick="dranTippen(' + i + ',false)">Abgedriftet</button><button onclick="' + fertigRuf + '">Fertig</button></div>' +
+      (s ? '<button class="cos-schritt-fertig" onclick="cosSchrittFertig(' + i + ')">✓ Schritt fertig</button>' : '') +
+      seitKnoepfe(h, i, 'Früher angefangen?');
+  return { oben: oben, knoepfe: knoepfe };
+}
+/* Fertig an einem Block, der zu einem Schritt gehört: Block beenden und als gemacht werten, der Schritt bleibt offen */
+function cosFertig(i) {
+  const h = heute(), b = bloeckeVon(h)[i];
+  if (!b) return;
+  blockFertig(i);
+  const j = bloeckeVon(h).findIndex(x => x.key === b.key);
+  if (j >= 0) blockSetzen(h, j, 'gemacht', true);
+}
+function cosSchrittFertig(i) {
+  const b = bloeckeVon(heute())[i], s = cosSchrittVon(b);
+  if (!b) return;
+  cosFertig(i);
+  if (s) cosHakenSetzen(s.id, 'fertig');
+}
+
+/* ── Als Nächstes: wenn kein Block läuft und keiner auf Bewertung wartet ── */
+function cosNaechstesHtml(jetzt, laeuft, kommend, jm) {
+  if (!C || cosStartet || laeuft) return '';
+  if (jetzt && kommend.indexOf(jetzt) === -1) return '';                       // ein vergangener Block will erst bewertet werden
+  if (jetzt && minVon(jetzt.b.start) - jm <= 30) return '';                    // geplanter Block steht gleich an
+  const l = cosKandidaten();
+  if (!l.length) return '';
+  const x = l[0], h = heute(), farbe = cosFarbe(x.p.bereich), min = cosSitzung(x.s, x.min);
+  const zw = ZAEHLT_NICHT.indexOf(x.p.bereich) === -1 ? zuwachsText(tagZuwachs(h, min)) : '';
+  let html = '<div class="hz-jetzt"><div class="cos-vor"><span class="punkt" style="background:' + farbe + '"></span><span class="n">' + esc(x.p.name) +
+    (x.s.abschnitt ? ' · ' + esc(x.s.abschnitt) : '') + '</span>' + (l.length > 1 ? '<button class="cos-tausch" onclick="cosTauschen()">Tauschen</button>' : '') + '</div>' +
+    '<div class="cos-gross">' + esc(x.s.titel) + '</div>' +
+    '<div class="cos-masse"><span class="kr gross">' + cosSchrittKq(x.s, farbe, x.min) + '</span><span>' + dauerText(min) + (x.s.status === 'grob' ? ' · noch grob' : '') + '</span></div>' +
+    (x.p.wofuer ? '<div class="hz-meta">' + esc(x.p.wofuer) + '</div>' : '') +
+    '<button class="hz-start" onclick="cosStart(\'' + x.s.id + '\')"><span class="play">▶</span>Los<i>' + dauerText(min) + (zw ? ' · Tag ' + zw : '') + '</i></button>';
+  const danach = l.slice(1, 3).map(y => {
+    const f = cosFarbe(y.p.bereich);
+    return '<button class="cos-danach" onclick="cosWaehlen(\'' + y.s.id + '\')"><span class="punkt" style="background:' + f + '"></span><span class="t">' + esc(y.s.titel) +
+      '</span><span class="kr">' + cosSchrittKq(y.s, f, y.min) + '</span></button>';
+  }).join('');
+  return html + (danach ? '<div class="cos-dl">' + danach + '</div>' : '') + '</div>';
+}
+function cosTauschen() { const l = cosKandidaten(); if (l.length > 1) { cosWahl = l[1].s.id; haptik(); heuteNeu(); } }
+function cosWaehlen(id) { cosWahl = id; haptik(); if (ansicht === 'tag') heuteNeu(); else zeichnen(); }
+
+/* Los an einem Schritt: sofort als laufender Block anzeigen, der Server legt ihn im Kalender an */
+function cosStart(id) {
+  if (cosStartet || !C || !P) return;
+  const s = C.schritte.find(x => x.id === id);
+  if (!s) return;
+  const h = heute(), jm = jetztMin();
+  if (bloeckeVon(h).some(b => b.gestartet && !b.beendet && !b.status && jm < minVon(b.ende))) { melden('Es läuft schon ein Block.'); return; }
+  const p = C.projekte.find(x => x.name === s.projekt);
+  const min = cosSitzung(s, cosMin(s));
+  const key = 'lokal|' + Date.now();
+  const erster = !bloeckeVon(h).some(x => x.gestartet);
+  const b = { key: key, start: cosUhr(jm), ende: cosUhr(Math.min(jm + min, 23 * 60 + 59)), bereich: p && COS_FARBEN[p.bereich] ? p.bereich : 'Sonstiges',
+    titel: s.titel, min: min, status: '', geplant: false, punkte: 0, taskTitel: '', taskFertig: false, task: '', gestartet: cosUhr(jm), sammel: [],
+    beendet: '', nach: false, lokal: true, schritt: s.id };
+  if (!P.bloecke) P.bloecke = {};
+  P.bloecke[h] = (P.bloecke[h] || []).concat([b]).sort((x, y) => x.start.localeCompare(y.start));
+  cosStartet = key; cosWahl = null; ansicht = 'tag'; tagIso = h;
+  haptik();
+  fokusLokal(h);
+  dranMeldung = { key: key, ja: true, t: Date.now(), erster: erster, text: erster ? 'Tag gestartet. Das Kästchen füllt sich.' : 'Läuft. Das Kästchen füllt sich.' };
+  zeichnen();
+  cosNach('appChiefStart', id).then(d => {
+    cosStartet = null;
+    if (d && d.key) {
+      cosKeys[d.key] = id;
+      if (dranMerk[key]) { dranMerk[d.key] = dranMerk[key]; delete dranMerk[key]; }
+      if (dranMeldung && dranMeldung.key === key) dranMeldung.key = d.key;
+      (P.bloecke[h] || []).forEach(x => { if (x.key === key) { x.key = d.key; x.lokal = false; } });
+      merken({ art: 'plan', tag: h, key: d.key, name: 'Block gestartet' });
+    } else if (P.bloecke[h]) {
+      P.bloecke[h] = P.bloecke[h].filter(x => x.key !== key);
+      fokusLokal(h);
+    }
+    zeichnen();
+    cosLaden(true);
+    if (offen === 0) abfragen(true);
+  });
+}
+
+/* Schritt abhaken oder wieder öffnen */
+function cosHaken(id) {
+  const s = C && C.schritte.find(x => x.id === id);
+  if (!s || s.status === 'grob') return;
+  cosHakenSetzen(id, s.status === 'fertig' ? 'offen' : 'fertig');
+}
+function cosHakenSetzen(id, neu, ohneVerlauf) {
+  const s = C && C.schritte.find(x => x.id === id);
+  if (!s) return;
+  if (!ohneVerlauf) merken({ art: 'cosHaken', tag: tagIso, id: id, alt: s.status, name: s.titel });
+  s.status = neu;
+  if (neu === 'fertig') { cosNeuHaken = { id: id, t: Date.now() }; haptik(); if (cosWahl === id) cosWahl = null; }
+  try { localStorage.setItem(COS_SPEICHER, JSON.stringify(C)); } catch (e) { /* egal */ }
+  zeichnen();
+  if (!ohneVerlauf && neu === 'fertig') {
+    const rest = C.schritte.filter(x => x.projekt === s.projekt && x.status !== 'fertig').length;
+    melden(rest ? 'Schritt fertig. Noch ' + rest + (rest === 1 ? ' Schritt' : ' Schritte') + ' in ' + s.projekt + '.' : s.projekt + ': alle Schritte fertig.');
+  }
+  cosNach('appChiefHaken', id, neu === 'fertig').then(() => { cosGeladen = 0; });
+}
+
+/* ── Seite Chief ── */
+function cosBahnHtml(p, i, alle, ueber, an) {
+  const z = cosZahlen(p.name, alle), u = ueber[p.name] || 0, farbe = cosFarbe(p.bereich);
+  const gesamt = z.geschafft + z.offen;
+  const stand = u ? u + ' passen nicht' : !gesamt ? 'noch keine Schritte' : z.offen === 0 ? 'alles geschafft'
+    : z.geschafft * 2 >= gesamt ? 'Noch ' + z.offen : z.geschafft + ' von ' + gesamt;
+  const fahne = p.deadline ? '<span class="cos-fahne">' + COS_FAHNE(p.art === 'extern') + cosDatum(p.deadline) + '</span>' : '';
+  return '<button class="cos-bahn' + (an ? ' an' : '') + '" onclick="cosOeffnen(' + i + ')"><div class="cos-bahn-k"><span class="punkt" style="background:' + farbe + '"></span><b>' +
+    esc(p.name) + '</b><span class="s' + (u ? ' eng' : '') + '">' + stand + '</span></div><div class="kr">' +
+    cosViele(z.geschafft, farbe, 'an') + cosViele(z.offen - u, farbe, '') + (u ? '' : cosViele(z.reserve, farbe, 're', 30)) + fahne +
+    (u ? '<span class="cos-ueber">' + cosViele(u, farbe, 'ue', 30) + '</span>' : '') + '</div></button>';
+}
+function cosProjektHtml(p, mitZurueck) {
+  const alle = cosAlleBloecke(), farbe = cosFarbe(p.bereich), z = cosZahlen(p.name, alle);
+  const schritte = C.schritte.filter(s => s.projekt === p.name);
+  const naechster = (cosKandidaten()[0] || {}).s;
+  let html = '<div class="karte">' + (mitZurueck ? '<button class="cos-zurueck" onclick="cosOeffnen(-1)">‹ Alle Projekte</button>' : '') +
+    '<div class="cos-dk"><span class="punkt" style="background:' + farbe + '"></span><b>' + esc(p.name) + '</b></div>' +
+    (p.wofuer ? '<div class="hz-meta">' + esc(p.wofuer) + '</div>' : '') +
+    '<div class="hz-meta">' + esc(p.bereich || 'Sonstiges') + (p.deadline ? ' · ' + (p.art === 'extern' ? 'Deadline ' : 'Zieltermin ') + cosDatum(p.deadline) : ' · ohne Termin') + '</div>';
+  let ab = null;
+  schritte.forEach(s => {
+    const titel = s.abschnitt || (s.status === 'grob' ? 'Später, noch grob' : '');
+    if (titel !== ab) { ab = titel; if (titel) html += '<div class="cos-ab">' + esc(titel) + '</div>'; }
+    const min = cosMin(s, alle), fertig = s.status === 'fertig';
+    const neu = cosNeuHaken && cosNeuHaken.id === s.id && Date.now() - cosNeuHaken.t < 1500;
+    html += '<div class="cos-schritt' + (fertig ? ' fertig' : '') + '">' +
+      (s.status === 'grob' ? '<span class="cos-haken" style="border-style:dashed;--kf:' + farbe + '"></span>'
+        : '<button class="cos-haken' + (fertig ? ' an' : '') + (neu ? ' neu' : '') + '" style="--kf:' + farbe + '" onclick="cosHaken(\'' + s.id + '\')" aria-label="' + (fertig ? 'Wieder öffnen' : 'Abhaken') + '">' + COS_HAKEN + '</button>') +
+      '<div class="was"><div>' + esc(s.titel) + (naechster && naechster.id === s.id ? '<span class="cos-pille">Als Nächstes</span>' : '') + '</div>' +
+      (s.fertigWenn && !fertig ? '<small>Fertig, wenn ' + esc(s.fertigWenn.replace(/^fertig,?\s*wenn\s*/i, '')) + '</small>' : '') + '</div>' +
+      '<div class="kr">' + cosSchrittKq(s, farbe, min) + '</div>' +
+      (fertig || p.status !== 'aktiv' ? '' : '<button class="cos-los" onclick="cosStart(\'' + s.id + '\')" aria-label="Los">▶</button>') + '</div>';
+  });
+  if (!schritte.length) html += '<div class="hinweis">Noch keine Schritte. Die zerlegen wir zusammen.</div>';
+  if (z.reserve) html += '<div class="cos-schritt"><div class="was" style="color:var(--leise)">Reserve</div><div class="kr" style="max-width:180px">' + cosViele(z.reserve, farbe, 're', 30) + '</div></div>';
+  return html + '<a class="cos-runde" style="margin:14px 0 2px" target="_blank" rel="noopener" href="' + COS_CLAUDE + '">Mit Claude zerlegen</a></div>';
+}
+function cosOeffnen(i) {
+  const p = i >= 0 && C ? C.projekte[i] : null;
+  cosProjekt = p ? p.name : null;
+  zeichnen();
+  if (!document.body.classList.contains('mac')) window.scrollTo(0, 0);
+}
+function cosKlappen(was) { cosAuf[was] = !cosAuf[was]; zeichnen(); }
+function zeichneChief() {
+  $('kopfTitel').textContent = 'Chief of Staff';
+  $('kopfDatum').textContent = 'KW ' + cosKw();
+  const box = $('inhalt');
+  if (cosFehlt && !C) { box.innerHTML = '<div class="karte"><b>Der Server kennt den Chief of Staff noch nicht.</b><div class="hinweis">Einmal im Terminal: ./bereitstellen.sh server "Chief of Staff"</div></div>'; return; }
+  if (!C) { box.innerHTML = '<div class="laden">Lädt …</div>'; return; }
+  const runde = '<a class="cos-runde" target="_blank" rel="noopener" href="' + COS_CLAUDE + '">Wochenrunde mit Claude</a>';
+  if (C.fehlt || !C.projekte.length) {
+    box.innerHTML = '<div class="karte"><b>Noch keine Projekte.</b><div class="hinweis">Die legen wir in der Wochenrunde an: Du erzählst, Claude trägt Projekte und Schritte ein.</div></div>' + runde;
+    return;
+  }
+  const alle = cosAlleBloecke(), ueber = cosUeber(alle), mac = macSpalten() >= 2;
+  const aktiv = C.projekte.filter(p => p.status === 'aktiv');
+  let offenP = cosProjekt ? C.projekte.find(p => p.name === cosProjekt) : null;
+  if (!mac && offenP) { box.innerHTML = cosProjektHtml(offenP, true); return; }
+  if (mac && !offenP) offenP = aktiv[0] || null;
+
+  let html = '';
+  const eng = aktiv.filter(p => ueber[p.name]).sort((a, b) => a.deadline.localeCompare(b.deadline))[0];
+  if (eng) html += '<div class="karte cos-hinweis"><span>' + ueber[eng.name] + ' Kästchen von ' + esc(eng.name) + ' passen nicht vor den ' + cosDatum(eng.deadline) +
+    '</span><button onclick="cosOeffnen(' + C.projekte.indexOf(eng) + ')">Ansehen</button></div>';
+  html += '<div class="karte">' + (aktiv.length ? aktiv.map(p => cosBahnHtml(p, C.projekte.indexOf(p), alle, ueber, mac && offenP === p)).join('')
+    : '<div class="hinweis">Kein aktives Projekt.</div>') +
+    '<div class="cos-legende">Gefüllt ist geschafft, leer ist offen, gestrichelt ist Reserve. Was hinter der Fahne steht, passt nicht mehr davor.</div></div>';
+  const park = C.projekte.filter(p => p.status === 'parkplatz'), fertig = C.projekte.filter(p => p.status === 'fertig');
+  const liste = (l) => '<div class="cos-chips">' + l.map(p => '<span>' + esc(p.name) + '</span>').join('') + '</div>';
+  html += '<div class="karte" style="padding-top:2px;padding-bottom:2px">' +
+    '<button class="cos-zeile" onclick="cosKlappen(\'park\')"><span class="t">Parkplatz</span><span class="s">' + park.length + (park.length === 1 ? ' Projekt' : ' Projekte') + '</span></button>' +
+    (cosAuf.park && park.length ? liste(park) : '') +
+    '<button class="cos-zeile" onclick="cosKlappen(\'fertig\')"><span class="t">Fertig</span><span class="s">' + (fertig.length ? fertig.length + (fertig.length === 1 ? ' Projekt' : ' Projekte') : 'Regal für Abgeschlossenes') + '</span></button>' +
+    (cosAuf.fertig && fertig.length ? liste(fertig) : '') + '</div>' + runde;
+  box.innerHTML = mac ? '<div class="cos-zwei"><div>' + html + '</div><div>' + (offenP ? cosProjektHtml(offenP, false) : '') + '</div></div>' : html;
+}
+
+/* ── Einhängen ── */
+(function () {
+  const k = document.getElementById('navChief');   // $ gibt es erst im Hauptscript
+  if (k) k.onclick = () => { ansicht = 'chief'; cosProjekt = null; zeichnen(); cosLaden(false); window.scrollTo(0, 0); };
+  window.addEventListener('load', () => cosLaden(true));
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') cosLaden(false); });
+  /* Chief Seite: laufende Kästchen alle 30 Sekunden nachziehen */
+  setInterval(() => { if (document.visibilityState === 'visible' && typeof ansicht !== 'undefined' && ansicht === 'chief' && P) zeichnen(); }, 30000);
+})();
+</script>
+
 
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611111758';
+const PWA_VERSION = '202611141950';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -706,10 +1276,13 @@ function zeichnen() {
   tippNachZeichnen();
   $('navTag').classList.toggle('aktiv', ansicht === 'tag');
   $('navWoche').classList.toggle('aktiv', ansicht === 'woche');
+  if ($('navChief')) $('navChief').classList.toggle('aktiv', ansicht === 'chief');
   document.body.classList.toggle('wochenansicht', ansicht === 'woche');
+  document.body.classList.toggle('chiefansicht', ansicht === 'chief');
   const zeigeNav = ansicht === 'tag';
   $('zurueck').style.visibility = $('vor').style.visibility = zeigeNav ? 'visible' : 'hidden';
   if (ansicht === 'woche') return zeichneWoche();
+  if (ansicht === 'chief' && typeof zeichneChief === 'function') return zeichneChief();
   zeichneTag();
 }
 
@@ -732,7 +1305,7 @@ function zeichneTag() {
   P.felder.filter(f => f.typ === 'gross').forEach(f => {
     const live = tagLive(tagIso), w = live != null ? live : wertVon(f.spalte), s = stufe(f, w);
     html += '<div class="tageszahl"><div class="neben links">' + nebenWerte(f, 'l') + '</div><div class="ringe"><div class="ringe-kreis" id="tagRinge">' + ringeSvg(tagIso) + '<div class="zahl" id="tagZahl" style="' + (ton(f, s) || 'background:var(--chip)') + '">' +
-      (live != null ? live.toFixed(1).replace('.', ',') : esc(anzeigeVon(f.spalte)) || '–') + '</div></div>' + ringeLegende() + '</div><div class="neben">' + nebenWerte(f, 'r') +
+      (live != null ? live.toFixed(1).replace('.', ',') : esc(anzeigeVon(f.spalte)) || '–') + '</div></div>' + ringeLegende() + (typeof cosReiheHtml === 'function' ? cosReiheHtml(tagIso) : '') + '</div><div class="neben">' + nebenWerte(f, 'r') +
       oben.map(o => '<div' + (o.liste ? ' class="klappbar' + (auf.has(o.spalte) ? ' auf' : '') + '" onclick="umklappen(' + P.felder.indexOf(o) + ')"' : '') +
         '><small>' + esc(o.spalte) + (o.liste ? '<span class="pfeil">▸</span>' : '') + '</small><b style="' + ton(o, stufe(o, wertVon(o.spalte))) + '">' +
         (esc(anzeigeVon(o.spalte)) || '–') + '</b></div>').join('') + '</div></div>';
@@ -1319,10 +1892,12 @@ function dranTippen(i, ja) {
   dranSpeichern(b.key, d);
   if (ja) haptik();
   const s = titelTeile(b).schritt;
-  dranMeldung = { key: b.key, ja: ja, t: Date.now(), plus: ja ? plus : 0,
-    text: ja ? (plus > 0 ? 'Stark. +' + dauerText(plus) + ' im Fokus' + (zw ? ' · Tag ' + zw : '') + '.' : 'Stark. Weiter so.')
+  const kq = ja && typeof cosBeiDran === 'function' ? cosBeiDran(b) : '';   // volle Kästchen einsammeln (ChiefSeite)
+  dranMeldung = { key: b.key, ja: ja, t: Date.now(), plus: ja && !kq ? plus : 0,
+    text: ja ? (kq || (plus > 0 ? 'Stark. +' + dauerText(plus) + ' im Fokus' + (zw ? ' · Tag ' + zw : '') + '.' : 'Stark. Weiter so.'))
              : 'Passiert. ' + (s ? 'Zurück zu: ' + s : 'Kurz durchatmen, dann weiter.') };
   heuteNeu();
+  if (kq && typeof cosNachDran === 'function') cosNachDran();
 }
 /* Fertig: Endzeit in den Kalender, danach fragt die Karte, wie es lief */
 function blockFertig(i) {
@@ -1369,6 +1944,7 @@ function heuteNeu() {
 function tagZahlNeu() {
   const el = $('tagZahl'), f = P && P.felder.find(x => x.typ === 'gross'), live = tagLive(tagIso);
   ringeNeu();
+  if (typeof cosReiheNeu === 'function') cosReiheNeu();
   if (!el || !f || live == null) return;
   zahlVergleich(live);
   const txt = live.toFixed(1).replace('.', ','), alt = parseFloat(String(el.textContent).replace(',', '.'));
@@ -1398,8 +1974,11 @@ function heuteHtml(f) {
   const offen = l.filter(x => !x.b.status && minVon(x.b.ende) <= jm);
   const laeuft = l.find(x => !x.b.status && (minVon(x.b.start) <= jm || x.b.gestartet) && jm < minVon(x.b.ende));
   const kommend = l.filter(x => !x.b.status && minVon(x.b.start) > jm);
-  const jetzt = laeuft || offen[offen.length - 1] || kommend[0] || null;
+  let jetzt = laeuft || offen[offen.length - 1] || kommend[0] || null;
   const termin = (P.termine[h] || []).find(x => minVon(x.zeit) > jm && minVon(x.zeit) - jm <= 90);
+  // Chief of Staff: läuft nichts und steht nichts direkt an, kommt der nächste Schritt aus den Projekten (ChiefSeite)
+  const cosN = typeof cosNaechstesHtml === 'function' ? cosNaechstesHtml(jetzt, laeuft, kommend, jm) : '';
+  if (cosN) { html += cosN; jetzt = null; }
 
   if (jetzt) {
     const b = jetzt.b, i = jetzt.i, t = titelTeile(b), d = dranVon(b.key);
@@ -1417,13 +1996,14 @@ function heuteHtml(f) {
     if (istLauf && b.gestartet) {
       const a0 = minVon(b.gestartet), lauf = Math.max(0, jm - a0);
       const p = Math.min(100, Math.round(lauf / Math.max(1, s1 - a0) * 100));
+      const kb = typeof cosLaufHtml === 'function' ? cosLaufHtml(h, b, i, d, jm) : null;   // großes Kästchen statt Balken (ChiefSeite)
       box = '<div class="hz-vor">Läuft seit ' + esc(b.gestartet) + '</div>' + name +
-        '<div class="hz-uhr"><b>' + hm(fokusMin(h, b)) + '</b><span>drin · noch ' + dauerText(Math.max(0, s1 - jm)) + ' bis ' + esc(b.ende) + '</span></div>' +
-        '<div class="hz-bar"><i style="width:' + p + '%"></i></div>' +
+        (kb ? kb.oben : '<div class="hz-uhr"><b>' + hm(fokusMin(h, b)) + '</b><span>drin · noch ' + dauerText(Math.max(0, s1 - jm)) + ' bis ' + esc(b.ende) + '</span></div>' +
+        '<div class="hz-bar"><i style="width:' + p + '%"></i></div>') +
         (lauf < 5 ? schritt : '') + terminZeile + meldHtml +
-        '<div class="hz-knoepfe"><button class="hz-dran' + (jm - dranBasis(b, d) >= 25 ? ' puls' : '') + '" onclick="dranTippen(' + i + ',true)">Dran</button>' +
+        (kb ? kb.knoepfe : '<div class="hz-knoepfe"><button class="hz-dran' + (jm - dranBasis(b, d) >= 25 ? ' puls' : '') + '" onclick="dranTippen(' + i + ',true)">Dran</button>' +
         '<button onclick="dranTippen(' + i + ',false)">Abgedriftet</button><button onclick="blockFertig(' + i + ')">Fertig</button></div>' +
-        seitKnoepfe(h, i, 'Früher angefangen?');
+        seitKnoepfe(h, i, 'Früher angefangen?'));
       feier = !!(meld && meld.erster && Date.now() - meld.t < 3000);
     } else if (istLauf) {
       const seit = jm - s0;
@@ -1457,7 +2037,7 @@ function heuteHtml(f) {
     ht.map((t, i) => '<button class="hz-row2' + (altPill(t) ? ' mit-alt' : '') + '" onclick="heuteAbhaken(' + i + ')"><span class="hz-ic leer"></span><span>' + esc(t.titel) + '</span>' + altPill(t) + '</button>').join('');
 
   const erl = erledigtHtml(iso, l);
-  if (!jetzt && !ht.length && !erl) html += '<div class="hz-klein" style="margin-top:12px">Tipp auf Plus, um etwas einzuplanen.</div>';
+  if (!jetzt && !cosN && !ht.length && !erl) html += '<div class="hz-klein" style="margin-top:12px">Tipp auf Plus, um etwas einzuplanen.</div>';
   return html + erl;
 }
 
@@ -2208,6 +2788,7 @@ function rueckgaengig() {
   const a = verlauf.pop();
   $('undo').disabled = !verlauf.length;
   if (!a || !P) return;
+  if (a.art === 'cosHaken') { if (typeof cosHakenSetzen === 'function') cosHakenSetzen(a.id, a.alt, true); melden('Rückgängig: ' + a.name); return; }
   ansicht = 'tag';
   tagIso = a.tag;
   if (a.art === 'feld') {
@@ -2395,6 +2976,7 @@ function blaettern(r) {
 function aktualisieren() {
   const k = $('neu'); k.classList.add('dreht'); k.disabled = true;
   melden('Hole Schlaf, Geld und Termine …');
+  if (typeof cosLaden === 'function') cosLaden(true);
   server('appAktualisieren').then(d => {
     uebernehmen(d);
     melden(d.fehler && d.fehler.length ? 'Fehler: ' + d.fehler.join(' · ') : 'Aktualisiert');

@@ -34,6 +34,10 @@ ersetze('<base target="_top">\n', '''<title>Zentrale</title>
 <link rel="apple-touch-icon" href="icon-180.png">
 ''')
 
+# Chief of Staff: eigene Datei ChiefSeite.html, hier fest in die Seite gesetzt (in der alten Web App macht das Apps Script)
+ersetze("<?!= HtmlService.createHtmlOutputFromFile('ChiefSeite').getContent() ?>",
+        io.open(os.path.join(HIER, '..', 'ChiefSeite.html'), encoding='utf-8').read())
+
 # Startdaten kommen in der PWA aus dem Handyspeicher, nicht vom Server
 ersetze('const START = <?!= start ?>;', 'const START = null;')
 
