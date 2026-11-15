@@ -778,6 +778,22 @@
   .cos-vn button.ueber i { opacity: .45; }
   .cos-vn button.empf i::after { content: ""; position: absolute; left: 50%; bottom: -7px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--leise); }
   .cos-vn-t { font-size: 12.5px; color: var(--leise); }
+  .cos-pl { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--linie); }
+  .cos-vn-k + .cos-pl { border-top: 0; }
+  .cos-pl.null .cos-pl-t b { color: var(--leise); font-weight: 500; }
+  .cos-pl-t { flex: 1; min-width: 0; }
+  .cos-pl-t b { display: block; font-size: 15px; font-weight: 600; }
+  .cos-pl-t small { display: block; font-size: 12px; color: var(--leise); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cos-st { display: flex; align-items: center; gap: 2px; flex: none; }
+  .cos-st b { min-width: 22px; text-align: center; font-size: 16px; font-variant-numeric: tabular-nums; }
+  .cos-st button { width: 32px; height: 32px; border-radius: 50%; background: var(--akzent-hell); color: var(--akzent); font-size: 18px; line-height: 1; padding: 0; }
+  .cos-st button:disabled { opacity: .35; }
+  .cos-vn-karte .cos-vn-k, .cos-vn-tag .cos-vn-k { margin-bottom: 4px; }
+  .cos-vn-tag .cos-vn-t { margin-top: 6px; }
+  .cos-passt { width: 100%; margin-top: 10px; padding: 11px; border-radius: 12px; background: var(--akzent); color: #fff; font-weight: 700; font-size: 15px; }
+  .cos-uhr { display: inline-flex; gap: 4px; align-items: center; }
+  .cos-uhr-ok { font-weight: 700; color: var(--akzent); }
+  .cos-uhr-in { font: inherit; font-size: 13px; padding: 4px 8px; border-radius: 10px; border: 1px solid var(--linie); background: none; color: inherit; }
   @media (prefers-reduced-motion: reduce) { .cos-fb i::after { transition: none; } .cos-fb i.laeuft::after, .cos-fb.voll i::after, .cos-fb i.pop, .cos-fb-funken span { animation: none; } }
   /* ── Tag (V4): Zeitleiste, Kästchen des Tages, Heute mit Uhrzeiten, Tasks, Leiste am Mac ── */
   .cos-zl { position: relative; height: 26px; margin-top: 12px; border-radius: 8px; background: var(--chip); overflow: hidden; }
@@ -1371,7 +1387,7 @@ function cosNaechstesHtml(jetzt, laeuft, kommend, jm) {
   const x = l[0], h = heute(), farbe = cosFarbe(x.p.bereich);
   let min = cosSitzung(x.s, x.min);
   if (cosTagAn()) {   // nicht mehr als vom Schritt übrig und heute noch frei ist
-    const tp = cosTagPlan(true), rest = tp.n - tp.belegtK;
+    const tp = cosTagPlan(true), rest = x.fest ? tp.n - tp.belegtK : (tp.offenP[x.p.name] || 0);
     min = Math.min(min, Math.max(1, tp.restK(x.s)) * COS_MIN);
     if (rest > 0) min = Math.min(min, rest * COS_MIN);
   }
@@ -2384,9 +2400,13 @@ function cosGrund(p, ueber) {
   return 'Rang ' + (C.projekte.filter(x => x.status === 'aktiv').indexOf(p) + 1);
 }
 /* Der Plan für heute: Erledigtes, Laufendes, Eingeplantes, ohne Uhrzeit, Als Nächstes und Vorschläge bis zu n Kästchen */
-function cosTagPlan(ohneJetzt) {
+/* V62 Plan pro Projekt für einen Tag: pt|Datum = { ProjektID: Kästchen }. Fehlt er, gilt der Vorschlag */
+function cosPlanLesen(iso) { const v = cosMerk('pt|' + iso); return v && typeof v === 'object' && !Array.isArray(v) ? v : null; }
+function cosTagPlan(ohneJetzt, ohnePlan) {
   const h = heute(), jm = jetztMin(), alle = cosAlleBloecke(), empf = cosEmpfehlung(), ueber = cosUeber(alle);
-  const wahl = Number(cosMerk('n|' + h)) || 0, n = wahl || empf.n;
+  const planP = ohnePlan ? null : cosPlanLesen(h);
+  const wahl = Number(cosMerk('n|' + h)) || 0;
+  let n = planP ? Object.keys(planP).reduce((a, id) => a + (cosPid(id) && cosPid(id).status === 'aktiv' ? Math.max(0, Number(planP[id]) || 0) : 0), 0) : wahl || empf.n;
   const bl = cosHeuteBloecke(), geschafft = cosTag(h).farben.length;
   const laeuft = bl.filter(x => !x.b.status && x.b.gestartet && !x.b.beendet && jm < minVon(x.b.ende));
   const kommend = bl.filter(x => !x.b.status && !x.b.gestartet && minVon(x.b.ende) > jm);
@@ -2412,7 +2432,24 @@ function cosTagPlan(ohneJetzt) {
   let belegtK = geschafft + kommend.reduce((a, x) => a + x.k, 0) + ohneZeit.reduce((a, x) => a + x.k, 0) + (jetzt ? jetzt.k : 0) +
     laeuft.reduce((a, x) => a + Math.max(0, Math.ceil((minVon(x.b.ende) - jm) / COS_MIN - 0.01)), 0);
   const vorschlaege = [];
-  let frei = n - belegtK;
+  // V62: was jedes Projekt heute schon hat (geschafft, läuft, eingeplant, fest, Als Nächstes)
+  const projK = {}, dazuP = (name, k) => { if (name && k > 0) projK[name] = (projK[name] || 0) + k; }, minP = {};
+  bl.forEach(x => { if (x.s && laeuft.indexOf(x) < 0) minP[x.s.projekt] = (minP[x.s.projekt] || 0) + fokusMin(h, x.b); });
+  laeuft.forEach(x => { if (x.s) minP[x.s.projekt] = (minP[x.s.projekt] || 0) + fokusMin(h, x.b) + Math.max(0, minVon(x.b.ende) - jm); });
+  Object.keys(minP).forEach(name => dazuP(name, Math.floor(minP[name] / COS_MIN + 0.01)));
+  kommend.forEach(x => dazuP(x.s ? x.s.projekt : '', x.k));
+  ohneZeit.forEach(o => dazuP(o.p.name, o.k));
+  if (jetzt) dazuP(jetzt.p.name, jetzt.k);
+  const offenP = {};
+  if (planP) aktiv.forEach(p => { const r = (Number(planP[p.id]) || 0) - (projK[p.name] || 0); if (r > 0) offenP[p.name] = r; });
+  let frei = planP ? 0 : n - belegtK;
+  if (planP) aktiv.forEach(p => {   // V62: genau so viele wie vorgenommen, Schritt für Schritt im Projekt
+    let r = offenP[p.name] || 0;
+    C.schritte.filter(s => s.projekt === p.name && cosOffen(s) && (!s.wann || s.wann < h)).forEach(s => {
+      let rest = restK(s) - (schonDa[s.id] || 0);
+      while (r > 0 && rest > 0) { const k = Math.min(COS_SITZUNG, r, rest); vorschlaege.push({ p: p, s: s, k: k, grund: cosGrund(p, ueber) }); r -= k; rest -= k; }
+    });
+  });
   if (frei > 0 && aktiv.length) {
     const rot = p => (ueber[p.name] || 0) > 0, idx = p => aktiv.indexOf(p);
     const ext = aktiv.filter(p => rot(p) && p.art === 'extern').sort((a, b) => a.deadline.localeCompare(b.deadline));
@@ -2437,21 +2474,23 @@ function cosTagPlan(ohneJetzt) {
       if (x.rest <= 0) q.shift();
     }
   }
-  return { n: n, wahl: wahl, empf: empf, geschafft: geschafft, laeuft: laeuft, kommend: kommend, ohneZeit: ohneZeit, jetzt: jetzt, vorschlaege: vorschlaege, belegtK: belegtK, restK: restK };
+  return { n: n, wahl: wahl, empf: empf, geschafft: geschafft, laeuft: laeuft, kommend: kommend, ohneZeit: ohneZeit, jetzt: jetzt, vorschlaege: vorschlaege, belegtK: belegtK, restK: restK,
+    planP: planP, projK: projK, offenP: offenP };
 }
 /* Kandidaten für Als Nächstes: ohne Schritte, die heute schon ganz eingeplant sind */
 function cosKandidatenJetzt() {
   const l = cosKandidaten();
   if (!cosTagAn()) return l;
   const tp = cosTagPlan(true);
-  return l.filter(x => tp.restK(x.s) > 0);
+  if (!tp.planP) return [];   // V62: erst vornehmen, dann gibt es Als Nächstes
+  return l.filter(x => tp.restK(x.s) > 0 && (x.fest || (tp.offenP[x.p.name] || 0) > 0));
 }
 
 /* ── Heute: Kästchen wählen, Eingeplantes, ohne Uhrzeit, Vorschläge ── */
 function cosHeuteHtml(jetztX) {
   if (!cosTagAn()) return '';
+  if (!cosPlanLesen(heute())) return '<div class="cos-heute cos-vn-tag">' + cosVornehmenInnen(true) + '</div>';   // V62: erst vornehmen
   const plan = cosTagPlan();
-  // V59: wie viele Kästchen, steht jetzt im Chief (cosVornehmenKarte). Hier nur, was ansteht
   let html = '<div class="cos-heute"><div class="cos-heute-k"><span class="cos-ab">Heute</span></div>';
   const zeilen = [];
   plan.kommend.filter(x => !jetztX || !jetztX.b || x.b.key !== jetztX.b.key).forEach(x => zeilen.push(cosZeileBlock(x)));
@@ -2479,6 +2518,8 @@ function cosZeileSchritt(o, art) {
     '<button class="cos-hz-knopf" onclick="cosWannAufZu(\'' + id + '\')" aria-expanded="' + offen + '">Wann?</button></div>';
   if (offen) {
     h += '<div class="cos-chips">' + cosStarts(o.k * COS_MIN, null, 4).map(x => '<button onclick="cosWannWahl(\'' + o.s.id + '\',' + o.k + ',' + x.s + ',' + (x.jetzt ? 1 : 0) + ')">' + esc(x.label) + '</button>').join('') +
+      '<span class="cos-uhr"><input type="time" id="cosUhrIn" class="cos-uhr-in" step="300" aria-label="Eigene Uhrzeit" onkeydown="if(event.key===\'Enter\')this.nextSibling.click()">' +
+      '<button class="cos-uhr-ok" onclick="cosWannUhr(\'' + o.s.id + '\',' + o.k + ',$(\'cosUhrIn\').value)">OK</button></span>' +
       (art === 'vorschlag' ? '<button class="grau" onclick="cosHeuteOhne(\'' + o.s.id + '\')">Ohne Uhrzeit</button>' : '') +
       '<button class="grau" onclick="cosSitzungSchritt(\'' + o.s.id + '\',' + o.k + ')">Mehr</button></div>';
   }
@@ -2494,7 +2535,7 @@ function cosBalkenHtml() {
   if (!cosTagAn()) return '';
   cosBelegtLaden(false);   // Termine des Tages für Wann? (hat früher die Zeitleiste geladen)
   const h = heute(), jm = jetztMin(), summe = fokusTagMin(h);
-  const n = Number(cosMerk('n|' + h)) || cosEmpfehlung().n;
+  const pl = cosPlanLesen(h), n = pl ? cosTagPlan(true).n : Number(cosMerk('n|' + h)) || cosEmpfehlung().n;   // V62: Summe des Plans
   const laeuft = bloeckeVon(h).some(b => zaehlt(b) && b.gestartet && !b.beendet && !b.status && jm < minVon(b.ende));
   const p = [];
   for (let i = 0; i < COS_FB_N; i++) p.push(Math.max(0, Math.min(1, (summe - i * COS_MIN) / COS_MIN)));
@@ -2530,30 +2571,64 @@ function cosFbAnimieren() {
   setTimeout(() => melden('Voller Fokus.' + (t != null ? ' Tag ' + komma(t) : '')), 900);
 }
 
-/* ── V59 Heute vornehmen (Chief): Kästchen antippen, darunter kurz, wofür ── */
+/* ── V62 Heute vornehmen: pro Projekt Kästchen, Vorschlag vom Chief, ein Tipp auf Passt. Im Chief immer, im Fokus bis bestätigt ── */
+function cosPlanVorschlag() {
+  const tp = cosTagPlan(true, true), out = {};
+  C.projekte.filter(p => p.status === 'aktiv').forEach(p => {
+    out[p.id] = (tp.projK[p.name] || 0) + tp.vorschlaege.filter(v => v.p.id === p.id).reduce((a, v) => a + v.k, 0);
+  });
+  return out;
+}
+function cosPlanAktuell() {
+  const pl = cosPlanLesen(heute()), v = pl ? null : cosPlanVorschlag(), out = {};
+  C.projekte.filter(p => p.status === 'aktiv').forEach(p => { out[p.id] = Math.max(0, Number((pl || v)[p.id]) || 0); });
+  return out;
+}
+function cosPlanSetzen(pid, d) {
+  const pl = cosPlanAktuell();
+  pl[pid] = Math.max(0, Math.min(8, (pl[pid] || 0) + d));
+  haptik(); cosWannAuf = null;
+  cosMerkSetzen('pt|' + heute(), pl);
+  if (ansicht === 'tag') heuteNeu(); else zeichnen();
+}
+function cosPlanPasst() {
+  const pl = cosPlanAktuell();
+  haptik(); cosWannAuf = null;
+  cosMerkSetzen('pt|' + heute(), pl);
+  const teile = C.projekte.filter(p => pl[p.id] > 0).map(p => cosKurz(p.name, 14) + ' ' + pl[p.id]);
+  melden(teile.length ? 'Heute: ' + teile.join(' · ') : 'Heute ohne Kästchen.');
+  if (ansicht === 'tag') heuteNeu(); else zeichnen();
+}
+function cosVornehmenInnen(imTag) {
+  const pl = cosPlanAktuell(), da = !!cosPlanLesen(heute()), g = cosTag(heute()).farben.length;
+  const aktiv = C.projekte.filter(p => p.status === 'aktiv'), summe = aktiv.reduce((a, p) => a + pl[p.id], 0), minP = {};
+  cosHeuteBloecke().forEach(x => { if (x.s) minP[x.s.projekt] = (minP[x.s.projekt] || 0) + fokusMin(heute(), x.b); });
+  const zeilen = aktiv.map(p => {
+    const s = C.schritte.find(x => x.projekt === p.name && cosOffen(x)), k = pl[p.id], gp = Math.floor((minP[p.name] || 0) / COS_MIN + 0.01);
+    const unter = (gp ? gp + ' geschafft · ' : '') + (s ? cosKurz(s.titel, 30) : 'nichts offen') + (p.deadline ? ' · bis ' + cosWt(p.deadline) + ' ' + cosDatum(p.deadline) : '');
+    return '<div class="cos-pl' + (k ? '' : ' null') + '"><span class="punkt" style="background:' + cosFarbe(p.bereich) + '"></span><span class="cos-pl-t"><b>' + esc(cosKurz(p.name, 24)) + '</b><small>' + esc(unter) + '</small></span>' +
+      '<span class="cos-st"><button onclick="cosPlanSetzen(\'' + p.id + '\',-1)" aria-label="Weniger ' + esc(p.name) + '"' + (k ? '' : ' disabled') + '>−</button><b>' + k + '</b>' +
+      '<button onclick="cosPlanSetzen(\'' + p.id + '\',1)" aria-label="Mehr ' + esc(p.name) + '"' + (k >= 8 ? ' disabled' : '') + '>+</button></span></div>';
+  }).join('');
+  const text = summe > COS_FB_N ? 'Mehr als ' + COS_FB_N + ', voller Fokus ist schon bei ' + COS_FB_N + '.' : (g ? g + ' geschafft · ' : '') + (da ? 'Übernommen ✓' : 'Vorschlag nach Rang und Fristen');
+  return '<div class="cos-vn-k"><span class="cos-ab">Heute vornehmen</span><b>' + summe + '</b></div>' + (zeilen || '<div class="cos-tipp">Kein aktives Projekt.</div>') +
+    '<div class="cos-vn-t">' + esc(text) + '</div>' + (da ? '' : '<button class="cos-passt" onclick="cosPlanPasst()">Passt</button>');
+}
 function cosVornehmenKarte() {
   if (!cosTagAn()) return '';
-  const plan = cosTagPlan(), n = plan.n, g = plan.geschafft;
-  const proj = {};
-  const dazu = (name, k) => { if (name && k > 0) proj[name] = (proj[name] || 0) + k; };
-  plan.kommend.forEach(x => dazu(x.s ? x.s.projekt : '', x.k));
-  plan.laeuft.forEach(x => dazu(x.s ? x.s.projekt : '', 1));
-  plan.ohneZeit.forEach(o => dazu(o.p.name, o.k));
-  if (plan.jetzt) dazu(plan.jetzt.p.name, plan.jetzt.k);
-  plan.vorschlaege.forEach(v => dazu(v.p.name, v.k));
-  const teile = Object.keys(proj).map(name => cosKurz(name, 16) + ' ' + proj[name]);
-  if (g) teile.unshift(g + ' geschafft');
-  const knoepfe = [1, 2, 3, 4, 5, 6, 7, 8].map(i => '<button class="' + [i <= g ? 'g' : i <= n ? 'an' : '', i > COS_FB_N ? 'ueber' : '', i === plan.empf.n ? 'empf' : ''].filter(Boolean).join(' ') +
-    '" onclick="cosWahlSetzen(' + i + ')" aria-pressed="' + (i === n) + '" aria-label="' + i + ' Kästchen' + (i === plan.empf.n ? ', empfohlen' : '') + (i === COS_FB_N ? ', voller Fokus' : '') + '"><i></i></button>').join('');
-  return '<div class="karte cos-vn-karte"><div class="cos-vn-k"><span class="cos-ab">Heute vornehmen</span><b>' + n + '</b></div>' +
-    '<div class="cos-vn" role="group" aria-label="Wie viele Kästchen heute">' + knoepfe + '</div>' +
-    '<div class="cos-vn-t">' + esc(teile.join(' · ') || (plan.empf.n + ' empfohlen')) + '</div></div>';
+  return '<div class="karte cos-vn-karte">' + cosVornehmenInnen(false) + '</div>';
 }
 function cosWannAufZu(id) { cosWannAuf = cosWannAuf === id ? null : id; haptik(); heuteNeu(); }
 function cosWannWahl(sid, k, start, jetzt) {
   cosWannAuf = null;
   if (jetzt) { cosStart(sid, k); return; }
   cosEinplanen([{ id: sid, start: cosUhr(start), k: k }]);
+}
+function cosWannUhr(sid, k, v) {   // V62: eigene Uhrzeit für Kästchen im Tag
+  if (!/^\d{1,2}:\d{2}/.test(String(v || ''))) { melden('Erst eine Uhrzeit wählen.'); return; }
+  if (minVon(v) < jetztMin() - 5) { melden('Die Zeit ist schon vorbei.'); return; }
+  cosWannAuf = null; haptik();
+  cosEinplanen([{ id: sid, start: cosUhr(minVon(v)), k: k }]);
 }
 function cosHeuteOhne(sid) { cosWannAuf = null; cosWannSetzen(sid, heute()); }
 function cosAlleEinplanen() {
@@ -3096,7 +3171,7 @@ function cosRundeFertig() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611151409';
+const PWA_VERSION = '202611152336';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -4275,10 +4350,10 @@ function heuteHtml(f) {
   }
 
   const jm = jetztMin();
-  const offen = l.filter(x => !x.b.status && minVon(x.b.ende) <= jm);
-  const laeuft = l.find(x => !x.b.status && (minVon(x.b.start) <= jm || x.b.gestartet) && jm < minVon(x.b.ende));
+  const laeuft = l.find(x => !x.b.status && !x.b.beendet && !dranVon(x.b.key).fertig && (minVon(x.b.start) <= jm || x.b.gestartet) && jm < minVon(x.b.ende));
   const kommend = l.filter(x => !x.b.status && minVon(x.b.start) > jm);
-  let jetzt = laeuft || offen[offen.length - 1] || kommend[0] || null;
+  // V61: keine Frage mehr nach vergangenen Blöcken ("Vorbei, wie lief es?"). Angefangen zählt mit echter Zeit, sonst zählt der Block nicht
+  let jetzt = laeuft || kommend[0] || null;
   const termin = (P.termine[h] || []).find(x => minVon(x.zeit) > jm && minVon(x.zeit) - jm <= 90);
   // Chief of Staff: läuft nichts und steht nichts direkt an, kommt der nächste Schritt aus den Projekten (ChiefSeite)
   const cosN = typeof cosNaechstesHtml === 'function' ? cosNaechstesHtml(jetzt, laeuft, kommend, jm) : '';
@@ -4289,7 +4364,6 @@ function heuteHtml(f) {
     const s0 = minVon(b.start), s1 = minVon(b.ende);
     const fertig = d.fertig || !!b.beendet;
     const istLauf = jetzt === laeuft && !fertig;
-    const istVorbei = !istLauf && (s1 <= jm || fertig);
     const terminZeile = termin ? '<div class="hz-meta">Termin ' + esc(termin.zeit) + ' ' + esc(termin.titel) + '</div>' : '';
     const name = '<div class="hz-titel">' + esc(blockName(b)) + '</div>';
     const dauerZeile = '<div class="hz-meta">' + dauerText(b.min) + ' · ' + esc(b.start) + ' bis ' + esc(b.ende) + '</div>';
@@ -4313,11 +4387,6 @@ function heuteHtml(f) {
       const seit = jm - s0;
       box = '<div class="hz-vor">Jetzt' + (seit > 0 ? ' · seit ' + dauerText(seit) : '') + '</div>' + name + dauerZeile + schritt + terminZeile + meldHtml +
         startKnopf(h, i, 'noch ' + dauerText(Math.max(0, s1 - jm)) + ' drin', zuwachsText(tagZuwachs(h, Math.max(0, s1 - jm))));
-    } else if (istVorbei) {
-      const k = st => 'blockSetzen(\'' + h + '\',' + i + ',\'' + st + '\')';
-      box = '<div class="hz-vor">Vorbei · wie lief es?</div>' + name +
-        '<div class="hz-meta">' + (b.gestartet ? esc(b.gestartet) + ' bis ' + esc(b.beendet || b.ende) + ' · ' + hm(fokusMin(h, b)) + ' drin' : esc(b.start) + ' bis ' + esc(b.ende)) + '</div>' +
-        '<div class="hz-drei"><button onclick="' + k('gemacht') + '">✓ Ganz</button><button onclick="' + k('teils') + '">½ Halb</button><button onclick="' + k('nicht') + '">✕ Nicht</button></div>';
     } else {
       const bis = s0 - jm;
       box = '<div class="hz-vor">Als Nächstes · ' + (bis <= 90 ? 'in ' + dauerText(bis) : 'um ' + esc(b.start)) + '</div>' + name + dauerZeile + schritt + terminZeile +
@@ -4332,11 +4401,6 @@ function heuteHtml(f) {
     html += '<div class="hz-next"><span class="hz-ic grau">◷</span><span>' + esc(blockName(x.b)) + '</span><span class="hz-t">' + dauerKurz(x.b.min) + '</span><span class="hz-t">' + esc(x.b.start) + '</span></div>';
   });
 
-  const offenRest = offen.filter(x => x !== jetzt);
-  if (offenRest.length) html += '<div class="hz-k2"><span class="h">Offen</span></div><div class="terminliste">' + offenRest.map(x => blockHtml(h, x.b, x.i)).join('') + '</div>';
-  const g = tagPlus(h, -1);
-  const gestern = bloeckeVon(g).map((b, i) => ({ b: b, i: i })).filter(x => !x.b.status);
-  if (gestern.length) html += '<div class="hz-k2"><span class="h">Gestern offen</span></div><div class="terminliste">' + gestern.map(x => blockHtml(g, x.b, x.i)).join('') + '</div>';
 
   const ht = heuteTasks || [];
   if (ht.length && !cosT) html += '<div class="hz-k2"><span class="h">Für heute</span><span class="s">' + ht.length + ' von ' + HEUTE_MAX + '</span></div>' +
@@ -4351,7 +4415,8 @@ function heuteHtml(f) {
 function erledigtHtml(iso, l) {
   const tf = P.felder.find(x => x.typ === 'tasks');
   const tasks = (tf ? ((zelle(tf.spalte, iso) || {}).tasks || []) : []).slice().sort((a, b) => String(a.zeit).localeCompare(String(b.zeit)));
-  const fertig = l.filter(x => x.b.status).sort((a, b) => a.b.start.localeCompare(b.b.start));
+  const vorbei = x => x.b.gestartet && (x.b.beendet || iso < heute() || minVon(x.b.ende) <= jetztMin());   // V61: angefangen zählt, auch ohne Bewertung
+  const fertig = l.filter(x => x.b.status || vorbei(x)).sort((a, b) => a.b.start.localeCompare(b.b.start));
   if (!fertig.length && !tasks.length) return '';
   const nb = fertig.length, nt = tasks.length;
   const pkt = iso >= TASK_PUNKTE_AB, tsum = tasks.reduce((x, t) => x + taskPunkte(t), 0);
@@ -5422,7 +5487,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 14:09</div>
+<div id="testband">TEST 23:36</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
