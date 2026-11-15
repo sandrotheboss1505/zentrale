@@ -4,9 +4,9 @@ ZENTRALE · PWA bauen
 Macht aus ../AppSeite.html (der alten Web App) die Seite web/index.html für GitHub Pages.
 Eine Quelle für beide: Änderungen immer in AppSeite.html, danach bauen (macht bereitstellen.sh).
 Aufruf: python3 web/bauen.py        (Live Seite web/index.html)
-        python3 web/bauen.py test   (Testseite web/test/, ändert nichts an Live)
+        python3 web/bauen.py test   (Testseite web/test/ mit Spieldaten, spricht nie mit Google)
 """
-import io, os, re, sys, time
+import io, json, os, re, sys, time
 
 HIER = os.path.dirname(os.path.abspath(__file__))
 API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec'
@@ -80,13 +80,22 @@ if ('serviceWorker' in navigator) window.addEventListener('load', () => navigato
   #schluessel button { height: 46px; border-radius: 12px; background: #073763; color: #fff; font-weight: 600; }
 </style>
 <script>
-/* ── Einstellungen ── */''' % (API, VERSION))
+/* ── Einstellungen ── */''' % ('spielwelt' if TEST else API, VERSION))
 
 if '<?' in s:
     sys.exit('bauen.py: Es steht noch Apps Script Vorlagen Code in der Seite.')
 
 if TEST:
-    # Testseite: eigener Name, eigenes Icon, rotes TEST Band. Daten und Schlüssel sind dieselben wie live
+    # Testseite: eigener Name, eigenes Icon, rotes TEST Band. Daten aus der Spielwelt im Browser (tests/testseite.js), nie von Google
+    T = os.path.join(HIER, '..', 'tests')
+    lies = lambda *p: io.open(os.path.join(*p), encoding='utf-8').read()
+    welt = lies(T, 'testseite.js')
+    for marke, teil in (('__MOCK__', lies(T, 'mock.js')), ('__SPIELDATEN__', lies(T, 'spieldaten.js'))):
+        if '</script' in teil:
+            sys.exit('bauen.py: </script in ' + marke)
+        welt = welt.replace(marke, teil)
+    welt = welt.replace('__CHIEF__', json.dumps(lies(HIER, '..', 'Chief.js'), ensure_ascii=False).replace('</', '<\\/'))
+    ersetze('<script>\n/* ── Einstellungen ── */', '<script>\n' + welt + '</script>\n<script>\n/* ── Einstellungen ── */')
     ersetze('<title>Zentrale</title>', '<title>Zentrale Test</title>')
     ersetze('<meta name="apple-mobile-web-app-title" content="Zentrale">', '<meta name="apple-mobile-web-app-title" content="Test">')
     ersetze('</body>', '''<div id="testband">TEST</div>
