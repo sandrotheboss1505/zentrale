@@ -68,7 +68,7 @@
   .leer { color: var(--leise); font-weight: 400; }
 
   .skala { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin-top: 8px; }
-  .skala button { height: 36px; border-radius: 10px; background: var(--chip); font-weight: 600; font-variant-numeric: tabular-nums;
+  .skala button { height: 36px; border-radius: 10px; background: var(--chip); font-weight: 700; font-variant-numeric: tabular-nums;
     transition: transform .08s; }
   .skala button:active { transform: scale(.92); }
   .skala.wahl { grid-template-columns: repeat(3, 1fr); }
@@ -420,12 +420,17 @@
   body.mac .zaehler button:hover, body.mac .hz-knoepfe button:hover, body.mac .reihe button:hover, body.mac .hz-drei button:hover,
   body.mac nav button:not(.aktiv):hover { box-shadow: inset 0 0 0 1.5px var(--kreis); }
   body.mac .tag-zeile:hover .datum { color: var(--akzent); }
+  #inhalt.wechsel > *, #inhalt.wechsel .mac-spalte > *, #inhalt.wechsel .cos-drei > div > *, #inhalt.wechsel .cos-zwei > div > * { animation: neuein .38s cubic-bezier(.2, .8, .2, 1) both; }
+  #inhalt.wechsel > :nth-child(2), #inhalt.wechsel .mac-spalte > :nth-child(2), #inhalt.wechsel .cos-drei > div > :nth-child(2), #inhalt.wechsel .cos-zwei > div > :nth-child(2) { animation-delay: .05s; }
+  #inhalt.wechsel > :nth-child(3), #inhalt.wechsel .mac-spalte > :nth-child(3), #inhalt.wechsel .cos-drei > div > :nth-child(3), #inhalt.wechsel .cos-zwei > div > :nth-child(3) { animation-delay: .1s; }
+  #inhalt.wechsel > :nth-child(n+4), #inhalt.wechsel .mac-spalte > :nth-child(n+4), #inhalt.wechsel .cos-drei > div > :nth-child(n+4), #inhalt.wechsel .cos-zwei > div > :nth-child(n+4) { animation-delay: .15s; }
+  @media (prefers-reduced-motion: reduce) { #inhalt.wechsel * { animation: none !important; } }
   .ringe { display: flex; flex-direction: column; align-items: center; gap: 6px; }
   .ringe-kreis { position: relative; display: grid; place-items: center; }
   .ringe-kreis.mit, .ringe-kreis:has(svg) { width: 168px; height: 168px; }
   .ringe-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .ringe-svg .ring { transition: stroke-dasharray .9s cubic-bezier(.2, .8, .2, 1), opacity .25s; }
-  .ringe-leg { display: flex; gap: 10px; font-size: 11px; color: var(--leise); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ringe-leg { display: flex; gap: 10px; font-size: 11px; font-weight: 600; color: var(--leise); font-variant-numeric: tabular-nums; white-space: nowrap; }
   .ringe-leg span { display: inline-flex; align-items: center; gap: 4px; }
   .ringe-leg i { width: 7px; height: 7px; border-radius: 4px; display: inline-block; }
   .er-kopf { display: flex; justify-content: space-between; align-items: baseline; margin: 20px 0 8px; }
@@ -786,6 +791,16 @@
   .cos-vg-t b { display: block; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cos-vg-t small { display: block; font-size: 12px; color: var(--leise); }
   .cos-vg-plus { flex: none; font-size: 13px; font-weight: 700; color: var(--akzent); }
+  .cos-streif { flex: none; align-self: stretch; width: 4px; min-height: 28px; border-radius: 2px; background: var(--pf, var(--leise)); }
+  .cos-pl.null .cos-streif { opacity: .35; }
+  .cos-hz[style*="--pf"] { box-shadow: inset 3px 0 0 var(--pf); padding-left: 10px; border-radius: 2px; }
+  .cos-pl.pop .cos-st b, .cos-vn-k b.pop { animation: cosfeder .45s cubic-bezier(.3, 1.6, .5, 1); display: inline-block; }
+  @keyframes cosfeder { 0% { transform: scale(1); } 35% { transform: scale(1.45); color: var(--akzent); } 100% { transform: scale(1); } }
+  .cos-vn-tag { transition: max-height .28s ease, opacity .22s ease, transform .28s ease; overflow: hidden; }
+  .cos-vn-tag.zu { max-height: 0 !important; opacity: 0; transform: scale(.97); }
+  .cos-hz.rein, .cos-nx.rein { animation: cosrein .42s cubic-bezier(.2, .8, .2, 1) both; }
+  .cos-heute .cos-hz.rein:nth-child(3) { animation-delay: .06s; } .cos-heute .cos-hz.rein:nth-child(4) { animation-delay: .12s; } .cos-heute .cos-hz.rein:nth-child(n+5) { animation-delay: .18s; }
+  @media (prefers-reduced-motion: reduce) { .cos-pl.pop .cos-st b, .cos-vn-k b.pop, .cos-hz.rein, .cos-nx.rein { animation: none; } .cos-vn-tag { transition: none; } }
   .cos-pl { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--linie); }
   .cos-vn-k + .cos-pl { border-top: 0; }
   .cos-pl.null .cos-pl-t b { color: var(--leise); font-weight: 500; }
@@ -1407,7 +1422,7 @@ function cosNaechstesHtml(jetzt, laeuft, kommend, jm) {
   cosNaechsterJetzt = { id: x.s.id, k: min / COS_MIN };
   const zw = ZAEHLT_NICHT.indexOf(x.p.bereich) === -1 ? zuwachsText(tagZuwachs(h, min)) : '';
   if (cosTagAn()) {   // V59: eine Zeile mit rundem Los. Antippen der Zeile öffnet Wann?
-    return '<div class="cos-nx" id="cosNx"><button class="cos-nx-in" onclick="cosSitzungSchritt(\'' + x.s.id + '\',' + (min / COS_MIN) + ')"><span class="punkt" style="background:' + farbe + '"></span>' +
+    return '<div class="cos-nx' + cosReinKl() + '" id="cosNx" style="--pf:' + farbe + '"><button class="cos-nx-in" onclick="cosSitzungSchritt(\'' + x.s.id + '\',' + (min / COS_MIN) + ')"><span class="cos-streif"></span>' +
       '<span class="cos-nx-t"><b>' + esc(x.s.titel) + '</b><small>' + esc(cosKurz(x.p.name, 24)) + ' · ' + dauerText(min) + (zw ? ' · Tag ' + zw : '') + '</small></span></button>' +
       '<button class="cos-nx-los" onclick="cosStart(\'' + x.s.id + '\',' + (min / COS_MIN) + ')" aria-label="Los: ' + esc(x.s.titel) + ', ' + dauerText(min) + '">▶</button></div>';
   }
@@ -2505,18 +2520,19 @@ function cosHeuteHtml(jetztX) {
   else if (!zeilen.length) return '';   // V59: ohne Zeilen keine leere Überschrift
   return html + '</div>';
 }
+function cosReinKl() { return Date.now() - cosReinT < 900 ? ' rein' : ''; }
 function cosZeileBlock(x) {
   const b = x.b, s = x.s, p = s && cosNachName(s.projekt), farbe = cosFarbe(p ? p.bereich : b.bereich);
   const titel = s ? s.titel : (titelTeile(b).was || b.bereich), unter = s && p ? p.name : (b.bereich === 'Sonstiges' ? 'aus dem Kalender' : b.bereich + ' · aus dem Kalender');
   const ziehen = document.body.classList.contains('mac') && !b.lokal ? ' draggable="true" ondragstart="cosDragZeile(event,\'b\',\'' + b.key + '\',' + x.k + ')"' : '';
-  return '<div class="cos-hz"' + ziehen + '><button class="cos-hz-in" onclick="cosSitzungOeffnen(\'' + b.key + '\')"><span class="cos-hz-zeit">' + esc(b.start) + '</span>' +
+  return '<div class="cos-hz' + cosReinKl() + '" style="--pf:' + farbe + '"' + ziehen + '><button class="cos-hz-in" onclick="cosSitzungOeffnen(\'' + b.key + '\')"><span class="cos-hz-zeit">' + esc(b.start) + '</span>' +
     '<span class="cos-hz-was"><b>' + esc(titel) + '</b><small>' + esc(unter) + (b.lokal ? ' · wird angelegt …' : '') + '</small></span><span class="kr">' + cosViele(x.k, farbe, '', 6) + '</span></button>' +
     (!s && zaehlt(b) && !b.lokal ? '<button class="cos-hz-knopf leise" onclick="cosSitzungOeffnen(\'' + b.key + '\')">Zuordnen</button>' : '') + '</div>';
 }
 function cosZeileSchritt(o, art) {
   const farbe = cosFarbe(o.p.bereich), id = art + ':' + o.s.id, offen = cosWannAuf === id;
   const ziehen = document.body.classList.contains('mac') ? ' draggable="true" ondragstart="cosDragZeile(event,\'s\',\'' + o.s.id + '\',' + o.k + ')"' : '';
-  let h = '<div class="cos-hz' + (art === 'vorschlag' ? ' vor' : '') + '"' + ziehen + '><div class="cos-hz-in"><span class="cos-hz-zeit leise">' + (art === 'heute' ? 'heute' : 'Vorschlag') + '</span>' +
+  let h = '<div class="cos-hz' + (art === 'vorschlag' ? ' vor' : '') + cosReinKl() + '" style="--pf:' + farbe + '"' + ziehen + '><div class="cos-hz-in"><span class="cos-hz-zeit leise">' + (art === 'heute' ? 'heute' : 'Vorschlag') + '</span>' +
     '<span class="cos-hz-was"><b>' + esc(o.s.titel) + '</b><small>' + esc(o.p.name) + (o.grund ? ' · ' + esc(o.grund) : '') + '</small></span><span class="kr">' + cosViele(o.k, farbe, '', 6) + '</span></div>' +
     '<button class="cos-hz-knopf" onclick="cosWannAufZu(\'' + id + '\')" aria-expanded="' + offen + '">Wann?</button></div>';
   if (offen) {
@@ -2589,32 +2605,44 @@ function cosPlanAktuell() {
 }
 function cosPlanSetzen(pid, d) {
   const pl = cosPlanAktuell();
-  pl[pid] = Math.max(0, Math.min(8, (pl[pid] || 0) + d));
+  const vor = pl[pid] || 0;
+  pl[pid] = Math.max(0, Math.min(8, vor + d));
+  if (pl[pid] === vor) return;
+  cosPlanPop = { pid: pid, t: Date.now() };
   haptik(); cosWannAuf = null;
   cosMerkSetzen('pt|' + heute(), pl);
   if (ansicht === 'tag') heuteNeu(); else zeichnen();
 }
 function cosPlanPasst() {
+  const karte = document.querySelector('.cos-vn-tag'), ruhig = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (karte && !ruhig && !karte.classList.contains('zu')) { haptik(); karte.style.maxHeight = karte.offsetHeight + 'px'; void karte.offsetHeight; karte.classList.add('zu'); setTimeout(cosPlanPasstJetzt, 280); return; }
+  cosPlanPasstJetzt();
+}
+function cosPlanPasstJetzt() {
   const pl = cosPlanAktuell();
+  cosReinT = Date.now();
   haptik(); cosWannAuf = null;
   cosMerkSetzen('pt|' + heute(), pl);
   const teile = C.projekte.filter(p => pl[p.id] > 0).map(p => cosKurz(p.name, 14) + ' ' + pl[p.id]);
   melden(teile.length ? 'Heute: ' + teile.join(' · ') : 'Heute ohne Kästchen.');
   if (ansicht === 'tag') heuteNeu(); else zeichnen();
 }
+let cosPlanPop = null, cosReinT = 0;   // V67: zuletzt geändertes Projekt (federt), Zeit des Passt (Zeilen gleiten herein)
 function cosVornehmenInnen(imTag) {
+  const pop = cosPlanPop && Date.now() - cosPlanPop.t < 700 ? cosPlanPop : null;
+  if (!pop) cosPlanPop = null;
   const pl = cosPlanAktuell(), da = !!cosPlanLesen(heute()), g = cosTag(heute()).farben.length;
   const aktiv = C.projekte.filter(p => p.status === 'aktiv'), summe = aktiv.reduce((a, p) => a + pl[p.id], 0), minP = {};
   cosHeuteBloecke().forEach(x => { if (x.s) minP[x.s.projekt] = (minP[x.s.projekt] || 0) + fokusMin(heute(), x.b); });
   const zeilen = aktiv.map(p => {
     const s = C.schritte.find(x => x.projekt === p.name && cosOffen(x)), k = pl[p.id], gp = Math.floor((minP[p.name] || 0) / COS_MIN + 0.01);
     const unter = (gp ? gp + ' geschafft · ' : '') + (s ? cosKurz(s.titel, 30) : 'nichts offen') + (p.deadline ? ' · bis ' + cosWt(p.deadline) + ' ' + cosDatum(p.deadline) : '');
-    return '<div class="cos-pl' + (k ? '' : ' null') + '"><span class="punkt" style="background:' + cosFarbe(p.bereich) + '"></span><span class="cos-pl-t"><b>' + esc(cosKurz(p.name, 24)) + '</b><small>' + esc(unter) + '</small></span>' +
+    return '<div class="cos-pl' + (k ? '' : ' null') + (pop && pop.pid === p.id ? ' pop' : '') + '" style="--pf:' + cosFarbe(p.bereich) + '"><span class="cos-streif"></span><span class="cos-pl-t"><b>' + esc(cosKurz(p.name, 24)) + '</b><small>' + esc(unter) + '</small></span>' +
       '<span class="cos-st"><button onclick="cosPlanSetzen(\'' + p.id + '\',-1)" aria-label="Weniger ' + esc(p.name) + '"' + (k ? '' : ' disabled') + '>−</button><b>' + k + '</b>' +
       '<button onclick="cosPlanSetzen(\'' + p.id + '\',1)" aria-label="Mehr ' + esc(p.name) + '"' + (k >= 8 ? ' disabled' : '') + '>+</button></span></div>';
   }).join('');
   const text = summe > COS_FB_N ? 'Mehr als ' + COS_FB_N + ', voller Fokus ist schon bei ' + COS_FB_N + '.' : (g ? g + ' geschafft · ' : '') + (da ? 'Übernommen ✓' : 'Vorschlag nach Rang und Fristen');
-  return '<div class="cos-vn-k"><span class="cos-ab">Heute vornehmen</span><b>' + summe + '</b></div>' + (zeilen || '<div class="cos-tipp">Kein aktives Projekt.</div>') +
+  return '<div class="cos-vn-k"><span class="cos-ab">Heute vornehmen</span><b' + (pop ? ' class="pop"' : '') + '>' + summe + '</b></div>' + (zeilen || '<div class="cos-tipp">Kein aktives Projekt.</div>') +
     '<div class="cos-vn-t">' + esc(text) + '</div>' + (da ? '' : '<button class="cos-passt" onclick="cosPlanPasst()">Passt</button>');
 }
 function cosVornehmenKarte() {
@@ -3205,7 +3233,7 @@ function cosRundeFertig() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611152359';
+const PWA_VERSION = '202611160011';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -3520,6 +3548,7 @@ const START = null;
 let P = null;                  // Datenpaket vom Server
 let tagIso = null;             // angezeigter Tag
 let ansicht = 'tag';
+let letzteAnsicht = null, wechselT = 0;   // V67: Wechsel der Ansicht animieren
 let offen = 0;                 // laufende Speichervorgänge
 let kette = Promise.resolve();
 let spaeterZeichnen = false;
@@ -3686,9 +3715,19 @@ function zeichnen() {
   document.body.classList.toggle('chiefansicht', ansicht === 'chief');
   const zeigeNav = ansicht === 'tag';
   $('zurueck').style.visibility = $('vor').style.visibility = zeigeNav ? 'visible' : 'hidden';
-  if (ansicht === 'woche') return zeichneWoche();
-  if (ansicht === 'chief' && typeof zeichneChief === 'function') return zeichneChief();
-  zeichneTag();
+  const neuAns = ansicht !== letzteAnsicht;
+  letzteAnsicht = ansicht;
+  if (ansicht === 'woche') zeichneWoche();
+  else if (ansicht === 'chief' && typeof zeichneChief === 'function') zeichneChief();
+  else zeichneTag();
+  if (neuAns) wechselAnim();
+}
+/* V67: beim Wechsel der Ansicht blenden die Karten kurz nacheinander ein */
+function wechselAnim() {
+  const el = $('inhalt');
+  if (!el) return;
+  el.classList.remove('wechsel'); void el.offsetWidth; el.classList.add('wechsel');
+  clearTimeout(wechselT); wechselT = setTimeout(() => el.classList.remove('wechsel'), 800);
 }
 
 function zeichneTag() {
@@ -3780,7 +3819,7 @@ function feldHtml(f) {
       let k = '';
       for (let n = 1; n <= 10; n++) {
         const an = w === n;
-        k += '<button onclick="setzen(\'' + id + '\',' + (an ? "''" : n) + ')" style="' + (an ? ton(f, s) || 'background:' + f.farbe : '') + '">' + n + '</button>';
+        k += '<button onclick="setzen(\'' + id + '\',' + (an ? "''" : n) + ')" style="' + (an ? (ton(f, s) || 'background:' + f.farbe + ';') + ';box-shadow:inset 0 0 0 2px ' + f.farbe + ';transform:scale(1.06)' : skalaTon(f, n)) + '">' + n + '</button>';
       }
       return kopf(pille(typeof w === 'number' ? komma(w) : '')) + '<div class="skala">' + k + '</div></div>';
     }
@@ -3788,7 +3827,7 @@ function feldHtml(f) {
       let k = '';
       WAHL.forEach(x => {
         const an = w === x;
-        k += '<button onclick="setzen(\'' + id + '\',\'' + (an ? '' : x) + '\')" style="' + (an ? ton(f, s) || 'background:' + f.farbe : '') + '">' + x + '</button>';
+        k += '<button onclick="setzen(\'' + id + '\',\'' + (an ? '' : x) + '\')" style="' + (an ? ton(f, s) || 'background:' + f.farbe : skalaTon(f, 3 + WAHL.indexOf(x) * 3)) + '">' + x + '</button>';
       });
       return kopf(pille(typeof w === 'string' ? w : '')) + '<div class="skala wahl">' + k + '</div></div>';
     }
@@ -3895,6 +3934,8 @@ function checkinOffen() {
 }
 
 /* Mehrfach: jedes Antippen ist ein neuer Eintrag, oben steht der Schnitt */
+/* V67: Skala 1 bis 10 in der Farbe des Bereichs, nach oben kräftiger */
+function skalaTon(f, n) { return f && f.farbe ? 'background:color-mix(in srgb, ' + f.farbe + ' ' + (5 + n * 2.3).toFixed(0) + '%, var(--chip));' : ''; }
 function mehrfachHtml(f, id, w, s, kopf, pille) {
   const liste = (zelle(f.spalte) || {}).eintraege || [];
   // Der letzte Eintrag leuchtet in seiner Farbe, darunter steht, wann er war
@@ -3904,7 +3945,7 @@ function mehrfachHtml(f, id, w, s, kopf, pille) {
   let k = '';
   for (let n = 1; n <= 10; n++) {
     const an = lw === n;
-    k += '<button onclick="eintragNeu(\'' + id + '\',' + n + ')" style="' + (an ? (ton(f, ls) || voll(f)) + 'box-shadow:inset 0 0 0 2px ' + f.farbe + ';' : '') + '">' + n + '</button>';
+    k += '<button onclick="eintragNeu(\'' + id + '\',' + n + ')" style="' + (an ? (ton(f, ls) || voll(f)) + 'box-shadow:inset 0 0 0 2px ' + f.farbe + ';' : skalaTon(f, n)) + '">' + n + '</button>';
   }
   const zeit = letzter && /^\d{1,2}:\d{2}$/.test(letzter.zeit) ? letzter.zeit : '';
   // Rechts steht der Schnitt des Tages, wie in der Tabelle
@@ -4171,7 +4212,7 @@ function blockHtml(iso, b, i) {
 }
 
 /* ── Ringe um die Tageszahl: Fokus, Körper, Kopf. Voll heißt: alles geholt, was der Bereich heute bringen kann ── */
-const RINGE = [['fokus', 'Fokus', '#8B7FE0'], ['koerper', 'Körper', '#1D9E75'], ['kopf', 'Kopf', '#D4537E']];
+const RINGE = [['fokus', 'Fokus', '#6F5CE6'], ['koerper', 'Körper', '#0C9A6C'], ['kopf', 'Kopf', '#E0447A']];   // V67 kräftiger
 const RING_R = [78, 67, 56];
 let ringStand = { iso: null, teile: null, alt: null };   // zuletzt gezeigt, damit die Ringe vom alten Stand aus wachsen
 function ringTeile(iso) {
@@ -4185,8 +4226,8 @@ function ringeSvg(iso) {
   if (!t) { ringStand = { iso: iso, teile: null, alt: null }; return ''; }
   const alt = ringStand.iso === iso && ringStand.teile ? ringStand.teile : t.map(() => 0);
   ringStand = { iso: iso, teile: t, alt: alt };
-  return '<svg class="ringe-svg" viewBox="0 0 168 168" aria-hidden="true"><g transform="rotate(-90 84 84)" fill="none" stroke-width="8" stroke-linecap="round">' +
-    RINGE.map((r, i) => '<circle cx="84" cy="84" r="' + RING_R[i] + '" stroke="' + r[2] + '" opacity=".16"/>' +
+  return '<svg class="ringe-svg" viewBox="0 0 168 168" aria-hidden="true"><g transform="rotate(-90 84 84)" fill="none" stroke-width="9" stroke-linecap="round">' +
+    RINGE.map((r, i) => '<circle cx="84" cy="84" r="' + RING_R[i] + '" stroke="' + r[2] + '" opacity=".24"/>' +
       '<circle class="ring" data-ring="' + i + '" cx="84" cy="84" r="' + RING_R[i] + '" stroke="' + r[2] + '" stroke-dasharray="' + ringDash(i, alt[i]) + '"' +
       (alt[i] > 0.004 ? '' : ' style="opacity:0"') + '/>').join('') + '</g></svg>';
 }
@@ -5524,7 +5565,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 23:59</div>
+<div id="testband">TEST 00:11</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
