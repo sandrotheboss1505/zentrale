@@ -1348,7 +1348,7 @@ function cosNaechstesHtml(jetzt, laeuft, kommend, jm) {
   cosNaechsterJetzt = { id: x.s.id, k: min / COS_MIN };
   const zw = ZAEHLT_NICHT.indexOf(x.p.bereich) === -1 ? zuwachsText(tagZuwachs(h, min)) : '';
   let html = '<div class="hz-jetzt"><div class="cos-vor"><span class="punkt" style="background:' + farbe + '"></span><span class="n">' + esc(x.p.name) +
-    (x.s.abschnitt ? ' · ' + esc(x.s.abschnitt) : '') + '</span>' + (l.length > 1 ? '<button class="cos-tausch" onclick="cosTauschen()">Tauschen</button>' : '') + '</div>' +
+    (x.s.abschnitt ? ' · ' + esc(x.s.abschnitt) : '') + '</span></div>' +
     '<div class="cos-gross">' + esc(x.s.titel) + '</div>' +
     '<div class="cos-masse"><span class="kr gross">' + cosSchrittKq(x.s, farbe, x.min) + '</span><span>' + dauerText(min) + (x.s.status === 'grob' ? ' · noch grob' : '') +
     (x.fest ? ' · heute fest' : '') + '</span></div>' +
@@ -2340,7 +2340,8 @@ function cosEmpfehlung() {
   const bis = treiber ? cosWt(treiber.deadline) + ' ' + cosDatum(treiber.deadline) : '';
   const text = treiber && dringend >= basis ? treiber.name + ' braucht bis ' + bis + ' ' + dringend + ' pro Tag'
     : treiber && dringend ? 'davon ' + dringend + ' für ' + treiber.name + ' (bis ' + bis + ')' : 'nach deiner Zeit pro Woche';
-  return { n: n, dringend: dringend, treiber: treiber, basis: basis, text: text };
+  const kurz = treiber && dringend ? cosKurz(treiber.name, 22) + ' bis ' + cosWt(treiber.deadline) : '';   // V58: kurz für den Fokus
+  return { n: n, dringend: dringend, treiber: treiber, basis: basis, text: text, kurz: kurz };
 }
 function cosGrund(p, ueber) {
   if (p.deadline && (ueber[p.name] || 0) > 0) return 'Deadline ' + cosWt(p.deadline) + ' ' + cosDatum(p.deadline) + (p.art === 'extern' ? ' extern' : '');
@@ -2439,8 +2440,7 @@ function cosZeitleisteHtml() {
   let skala = '';
   const schritt = bis - von > 12 * 60 ? 240 : 120;
   for (let m = Math.ceil(von / schritt) * schritt; m <= bis; m += schritt) skala += '<span style="left:' + lage(m) + '">' + (m / 60) + '</span>';
-  const leg = termine.length ? '<div class="cos-zl-leg">Gestreift: ' + termine.slice(0, 3).map(t => esc(cosKurz(t.t, 18)) + ' ' + cosUhr(t.s)).join(', ') + (termine.length > 3 ? ' …' : '') + '</div>' : '';
-  return '<div class="cos-zl" role="group" aria-label="Zeitleiste heute">' + inn + '</div><div class="cos-zl-skala">' + skala + '</div>' + leg;
+  return '<div class="cos-zl" role="group" aria-label="Zeitleiste heute">' + inn + '</div><div class="cos-zl-skala">' + skala + '</div>';   // V58: ohne Text „Gestreift“, der Termin steht in der Leiste
 }
 
 /* ── Heute: Kästchen wählen, Eingeplantes, ohne Uhrzeit, Vorschläge ── */
@@ -2451,15 +2451,15 @@ function cosHeuteHtml(jetztX) {
   html += '<div class="cos-wahl" role="group" aria-label="Wie viele Kästchen heute">' + [1, 2, 3, 4, 5, 6, 7, 8].map(i =>
     '<button class="' + (i === plan.n ? 'an' : '') + (i === plan.empf.n ? ' empf' : '') + (i === 6 ? ' ziel' : '') + '" onclick="cosWahlSetzen(' + i + ')" aria-pressed="' + (i === plan.n) + '" aria-label="' + i + ' Kästchen' +
     (i === plan.empf.n ? ', empfohlen' : '') + (i === 6 ? ', voller Fokus' : '') + '">' + i + '</button>').join('') + '</div>';
-  html += '<div class="cos-wahl-t"><b>Empfohlen ' + plan.empf.n + '</b> (Punkt), ' + esc(plan.empf.text) + '. Die 6 ist voller Fokus.</div>';
+  html += '<div class="cos-wahl-t"><b>' + plan.empf.n + ' empfohlen</b>' + (plan.empf.kurz ? ' · ' + esc(plan.empf.kurz) : '') + '</div>';
   const zeilen = [];
   plan.kommend.filter(x => !jetztX || !jetztX.b || x.b.key !== jetztX.b.key).forEach(x => zeilen.push(cosZeileBlock(x)));
   plan.ohneZeit.forEach(o => zeilen.push(cosZeileSchritt(o, 'heute')));
   plan.vorschlaege.forEach(v => zeilen.push(cosZeileSchritt(v, 'vorschlag')));
   html += zeilen.join('');
   if (plan.vorschlaege.length) html += '<button class="cos-alle" onclick="cosAlleEinplanen()">' + (plan.vorschlaege.length === 1 ? 'In freie Zeit legen' : 'Alle in freie Zeit legen') + '</button>';
-  if (!zeilen.length) html += '<div class="cos-tipp" style="padding:8px 0 2px">' + (plan.belegtK >= plan.n ? 'Dein Tag ist voll geplant. Mehr geht über die Zahl oben.' : 'Im Chief ist gerade nichts mehr offen.') + '</div>';
-  return html + cosRundeZeile() + '</div>';
+  if (!zeilen.length && plan.belegtK < plan.n) html += '<div class="cos-tipp" style="padding:8px 0 2px">Im Chief ist nichts mehr offen.</div>';
+  return html + '</div>';
 }
 function cosZeileBlock(x) {
   const b = x.b, s = x.s, p = s && cosNachName(s.projekt), farbe = cosFarbe(p ? p.bereich : b.bereich);
@@ -2802,11 +2802,9 @@ function cosTasksInnen() {
   let html = '<div class="cos-tasks-k"><span class="cos-ab gold">Tasks · unter 30 Minuten</span><button class="cos-link" onclick="heuteWahlOeffnen()">' +
     (ht.length ? ht.length + ' von ' + HEUTE_MAX + ' · wählen' : 'Wählen') + '</button></div>';
   if (!ht.length) return html + '<div class="cos-tipp" style="padding:2px 0 10px">Noch keine Tasks für heute. Wähl bis zu ' + HEUTE_MAX + ' kleine Dinge und gib ihnen eine Uhrzeit.</div>';
-  const offen = ht.filter(t => !zeiten[t.ref]).length;
   html += ht.map((t, i) => ({ t: t, i: i, z: zeiten[t.ref] || '' })).sort((a, b) => (a.z || '99').localeCompare(b.z || '99')).map(x =>
     '<div class="cos-task"><button class="cos-task-h" onclick="heuteAbhaken(' + x.i + ')" aria-label="Abhaken: ' + esc(x.t.titel) + '"><span></span></button><span class="t">' + esc(x.t.titel) + '</span>' +
     (typeof altPill === 'function' ? altPill(x.t) : '') + '<button class="cos-task-z' + (x.z ? ' an' : '') + '" onclick="cosTaskWann(' + x.i + ')">' + (x.z || 'Wann?') + '</button></div>').join('');
-  if (offen) html += '<div class="cos-tipp" style="padding:6px 0 2px">' + (offen === 1 ? 'Ein Task hat' : offen + ' Tasks haben') + ' noch keine Uhrzeit.</div>';
   return html;
 }
 function cosTaskWann(i) {
@@ -3032,7 +3030,7 @@ function cosRundeFertig() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611151253';
+const PWA_VERSION = '202611151348';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -3561,12 +3559,16 @@ function zeichneTag() {
       (b.felder.some(f => CHECKIN_FELDER.indexOf(f.spalte) !== -1) && checkinOffen() ? '<span class="ci-offen">' + checkinOffen() + ' offen</span>' : '') + '</div>';
     const ruhig = String(b.name || '').toLowerCase() === 'geld';   // Geld: keine Animation, soll sofort reagieren
     const tasks = bloecke && typeof cosTasksKarte === 'function' ? cosTasksKarte() : '';   // V4: Tasks als eigene Karte unter dem Fokus
-    return { name: b.name, bloecke: bloecke, html: '<div class="karte' + (ruhig ? ' ruhig' : '') + '">' + kopfZeile + b.felder.map(feldHtml).join('') + '</div>' + tasks };
+    return { name: b.name, bloecke: bloecke, unten: b.felder.some(f => f.typ === 'mac'),
+      html: '<div class="karte' + (ruhig ? ' ruhig' : '') + '">' + kopfZeile + b.felder.map(feldHtml).join('') + '</div>' + tasks };
   });
+  // Bildschirmzeit ganz nach unten (V58)
+  const unten = karten.filter(k => k.unten);
+  karten.splice(0, karten.length, ...karten.filter(k => !k.unten));
 
   /* Mac: Karten in Spalten. Links Handlung (Fokus, Struktur, Notiz), Mitte Eingaben, rechts Geld, Bewegung, Schlaf, Körper */
   const n = macSpalten();
-  if (n < 2) { $('inhalt').innerHTML = html + listen + karten.map(k => k.html).join(''); nachTag(); return; }
+  if (n < 2) { $('inhalt').innerHTML = html + listen + karten.concat(unten).map(k => k.html).join(''); nachTag(); return; }
   const sp = Array.from({ length: n }, () => '');
   sp[n === 3 ? 1 : 0] += listen;
   karten.forEach(k => {
@@ -3574,6 +3576,7 @@ function zeichneTag() {
     const i = k.bloecke || MAC_LINKS.includes(name) ? 0 : MAC_RECHTS.includes(name) ? 2 : 1;
     sp[Math.min(i, n - 1)] += k.html;
   });
+  unten.forEach(k => { sp[n - 1] += k.html; });
   if (typeof cosLeisteKarte === 'function') sp[1] = cosLeisteKarte() + sp[1];
   $('inhalt').innerHTML = html + '<div class="mac-spalten">' + sp.map(s => '<div class="mac-spalte">' + s + '</div>').join('') + '</div>';
   nachTag();
