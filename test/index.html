@@ -791,6 +791,8 @@
   .cos-vg-t b { display: block; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cos-vg-t small { display: block; font-size: 12px; color: var(--leise); }
   .cos-vg-plus { flex: none; font-size: 13px; font-weight: 700; color: var(--akzent); }
+  .cos-nx-wann { flex: none; height: 36px; padding: 0 12px; border-radius: 10px; background: var(--akzent-hell); color: var(--akzent); font-weight: 700; font-size: 13px; margin-right: 6px; }
+  .cos-chips.nx { padding: 8px 0 4px; }
   .cos-streif { flex: none; align-self: stretch; width: 4px; min-height: 28px; border-radius: 2px; background: var(--pf, var(--leise)); }
   .cos-pl.null .cos-streif { opacity: .35; }
   .cos-hz[style*="--pf"] { box-shadow: inset 3px 0 0 var(--pf); padding-left: 10px; border-radius: 2px; }
@@ -1422,9 +1424,12 @@ function cosNaechstesHtml(jetzt, laeuft, kommend, jm) {
   cosNaechsterJetzt = { id: x.s.id, k: min / COS_MIN };
   const zw = ZAEHLT_NICHT.indexOf(x.p.bereich) === -1 ? zuwachsText(tagZuwachs(h, min)) : '';
   if (cosTagAn()) {   // V59: eine Zeile mit rundem Los. Antippen der Zeile öffnet Wann?
-    return '<div class="cos-nx' + cosReinKl() + '" id="cosNx" style="--pf:' + farbe + '"><button class="cos-nx-in" onclick="cosSitzungSchritt(\'' + x.s.id + '\',' + (min / COS_MIN) + ')"><span class="cos-streif"></span>' +
+    const nxId = 'nx:' + x.s.id, nxAuf = cosWannAuf === nxId;   // V68: Wann? direkt hier, wie in den anderen Zeilen
+    return '<div class="cos-nx' + cosReinKl() + '" id="cosNx" style="--pf:' + farbe + '"><button class="cos-nx-in" onclick="cosWannAufZu(\'' + nxId + '\')" aria-expanded="' + nxAuf + '"><span class="cos-streif"></span>' +
       '<span class="cos-nx-t"><b>' + esc(x.s.titel) + '</b><small>' + esc(cosKurz(x.p.name, 24)) + ' · ' + dauerText(min) + (zw ? ' · Tag ' + zw : '') + '</small></span></button>' +
-      '<button class="cos-nx-los" onclick="cosStart(\'' + x.s.id + '\',' + (min / COS_MIN) + ')" aria-label="Los: ' + esc(x.s.titel) + ', ' + dauerText(min) + '">▶</button></div>';
+      '<button class="cos-nx-wann" onclick="cosWannAufZu(\'' + nxId + '\')" aria-expanded="' + nxAuf + '">' + (nxAuf ? 'Zu' : 'Wann?') + '</button>' +
+      '<button class="cos-nx-los" onclick="cosStart(\'' + x.s.id + '\',' + (min / COS_MIN) + ')" aria-label="Los: ' + esc(x.s.titel) + ', ' + dauerText(min) + '">▶</button></div>' +
+      (nxAuf ? cosWannChips(x.s.id, min / COS_MIN, false, 'nx') : '');
   }
   let html = '<div class="hz-jetzt"><div class="cos-vor"><span class="punkt" style="background:' + farbe + '"></span><span class="n">' + esc(x.p.name) +
     (x.s.abschnitt ? ' · ' + esc(x.s.abschnitt) : '') + '</span></div>' +
@@ -2520,6 +2525,15 @@ function cosHeuteHtml(jetztX) {
   else if (!zeilen.length) return '';   // V59: ohne Zeilen keine leere Überschrift
   return html + '</div>';
 }
+/* V68: Uhrzeiten für ein Kästchen, überall gleich: Vorschläge, eigene Uhrzeit (vorausgefüllt) mit OK, Mehr */
+function cosWannChips(sid, k, mitOhne, klasse) {
+  const starts = cosStarts(k * COS_MIN, null, 4), erst = starts.find(x => !x.jetzt) || starts[0];
+  return '<div class="cos-chips' + (klasse ? ' ' + klasse : '') + '">' + starts.map(x => '<button onclick="cosWannWahl(\'' + sid + '\',' + k + ',' + x.s + ',' + (x.jetzt ? 1 : 0) + ')">' + esc(x.label) + '</button>').join('') +
+    '<span class="cos-uhr"><input type="time" id="cosUhrIn" class="cos-uhr-in" step="300" value="' + (erst ? cosUhr(erst.s) : '') + '" aria-label="Eigene Uhrzeit" onkeydown="if(event.key===\'Enter\')this.nextSibling.click()">' +
+    '<button class="cos-uhr-ok" onclick="cosWannUhr(\'' + sid + '\',' + k + ',$(\'cosUhrIn\').value)">OK</button></span>' +
+    (mitOhne ? '<button class="grau" onclick="cosHeuteOhne(\'' + sid + '\')">Ohne Uhrzeit</button>' : '') +
+    '<button class="grau" onclick="cosSitzungSchritt(\'' + sid + '\',' + k + ')">Mehr</button></div>';
+}
 function cosReinKl() { return Date.now() - cosReinT < 900 ? ' rein' : ''; }
 function cosZeileBlock(x) {
   const b = x.b, s = x.s, p = s && cosNachName(s.projekt), farbe = cosFarbe(p ? p.bereich : b.bereich);
@@ -2535,13 +2549,7 @@ function cosZeileSchritt(o, art) {
   let h = '<div class="cos-hz' + (art === 'vorschlag' ? ' vor' : '') + cosReinKl() + '" style="--pf:' + farbe + '"' + ziehen + '><div class="cos-hz-in"><span class="cos-hz-zeit leise">' + (art === 'heute' ? 'heute' : 'Vorschlag') + '</span>' +
     '<span class="cos-hz-was"><b>' + esc(o.s.titel) + '</b><small>' + esc(o.p.name) + (o.grund ? ' · ' + esc(o.grund) : '') + '</small></span><span class="kr">' + cosViele(o.k, farbe, '', 6) + '</span></div>' +
     '<button class="cos-hz-knopf" onclick="cosWannAufZu(\'' + id + '\')" aria-expanded="' + offen + '">Wann?</button></div>';
-  if (offen) {
-    h += '<div class="cos-chips">' + cosStarts(o.k * COS_MIN, null, 4).map(x => '<button onclick="cosWannWahl(\'' + o.s.id + '\',' + o.k + ',' + x.s + ',' + (x.jetzt ? 1 : 0) + ')">' + esc(x.label) + '</button>').join('') +
-      '<span class="cos-uhr"><input type="time" id="cosUhrIn" class="cos-uhr-in" step="300" aria-label="Eigene Uhrzeit" onkeydown="if(event.key===\'Enter\')this.nextSibling.click()">' +
-      '<button class="cos-uhr-ok" onclick="cosWannUhr(\'' + o.s.id + '\',' + o.k + ',$(\'cosUhrIn\').value)">OK</button></span>' +
-      (art === 'vorschlag' ? '<button class="grau" onclick="cosHeuteOhne(\'' + o.s.id + '\')">Ohne Uhrzeit</button>' : '') +
-      '<button class="grau" onclick="cosSitzungSchritt(\'' + o.s.id + '\',' + o.k + ')">Mehr</button></div>';
-  }
+  if (offen) h += cosWannChips(o.s.id, o.k, art === 'vorschlag', '');
   return h;
 }
 function cosWahlSetzen(n) { haptik(); cosWannAuf = null; cosMerkSetzen('n|' + heute(), n); if (ansicht === 'tag') heuteNeu(); else zeichnen(); }
@@ -2623,8 +2631,8 @@ function cosPlanPasstJetzt() {
   cosReinT = Date.now();
   haptik(); cosWannAuf = null;
   cosMerkSetzen('pt|' + heute(), pl);
-  const teile = C.projekte.filter(p => pl[p.id] > 0).map(p => cosKurz(p.name, 14) + ' ' + pl[p.id]);
-  melden(teile.length ? 'Heute: ' + teile.join(' · ') : 'Heute ohne Kästchen.');
+  const n = Object.keys(pl).reduce((x, id) => x + (pl[id] || 0), 0);
+  melden(n ? n + (n === 1 ? ' Kästchen' : ' Kästchen') + ' vorgenommen. Los geht’s.' : 'Heute ohne Kästchen.');
   if (ansicht === 'tag') heuteNeu(); else zeichnen();
 }
 let cosPlanPop = null, cosReinT = 0;   // V67: zuletzt geändertes Projekt (federt), Zeit des Passt (Zeilen gleiten herein)
@@ -3233,7 +3241,7 @@ function cosRundeFertig() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611160011';
+const PWA_VERSION = '202611160026';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -3410,7 +3418,7 @@ function paket(m, H, tagPlus, aenderungen) {
     feld('Körper', 'Knieübung', 'kaestchen', '', '#2E9E6A'),
     feld('Körper', 'Drinks', 'zahl', 'Drinks', '#2E9E6A'),
     feld('Körper', 'Ott', 'kaestchen', '', '#2E9E6A', { gutWenn: 'leer' }),
-    feld('Bildschirm', 'Mac', 'mac', '', '#6D6A8A'),
+    feld('Struktur', 'Mac', 'mac', '', '#6D6A8A'),
     feld('Geld', 'Ausgaben', 'zahl', 'Ausgaben', '#3B6D11'),
     feld('Geld', 'Kontostand', 'wert', '', '#3B6D11', { liste: true }),
     feld('Notiz', 'Notiz', 'notiz', '', '#8C8C8C')
@@ -3763,8 +3771,9 @@ function zeichneTag() {
 
   const bereiche = [];
   P.felder.filter(f => f.typ !== 'gross' && f.typ !== 'oben').forEach(f => {
-    let b = bereiche.find(x => x.name === f.bereich);
-    if (!b) bereiche.push(b = { name: f.bereich, farbe: f.farbe, felder: [] });
+    const name = f.typ === 'mac' ? 'Bildschirm' : f.bereich;   // V68: Bildschirmzeit immer als eigene Karte, auch wenn sie in der Tabelle beim Fokus steht
+    let b = bereiche.find(x => x.name === name);
+    if (!b) bereiche.push(b = { name: name, farbe: f.farbe, felder: [] });
     b.felder.push(f);
   });
   const karten = bereiche.map(b => {
@@ -3777,22 +3786,25 @@ function zeichneTag() {
     return { name: b.name, bloecke: bloecke, unten: b.felder.some(f => f.typ === 'mac'),
       html: '<div class="karte' + (ruhig ? ' ruhig' : '') + '">' + kopfZeile + b.felder.map(feldHtml).join('') + '</div>' + tasks };
   });
-  // Bildschirmzeit ganz nach unten (V58)
-  const unten = karten.filter(k => k.unten);
-  karten.splice(0, karten.length, ...karten.filter(k => !k.unten));
-
-  /* Mac: Karten in Spalten. Links Handlung (Fokus, Struktur, Notiz), Mitte Eingaben, rechts Geld, Bewegung, Schlaf, Körper */
+  // V68: Fokus mit Tasks zuerst, Bildschirmzeit ganz unten, sonst wie in der Tabelle
+  const fokus = karten.filter(k => k.bloecke), unten = karten.filter(k => k.unten && !k.bloecke);
+  karten.splice(0, karten.length, ...karten.filter(k => !k.bloecke && !(k.unten && !k.bloecke)));
   const n = macSpalten();
-  if (n < 2) { $('inhalt').innerHTML = html + listen + karten.concat(unten).map(k => k.html).join(''); nachTag(); return; }
-  const sp = Array.from({ length: n }, () => '');
-  sp[n === 3 ? 1 : 0] += listen;
-  karten.forEach(k => {
+  if (n < 2) { $('inhalt').innerHTML = html + listen + fokus.concat(karten, unten).map(k => k.html).join(''); nachTag(); return; }
+  /* Mac (V68): Schlaf, Fokus, Kopf nebeneinander. Kalender des Tages und Bildschirm unten */
+  const sp = Array.from({ length: n }, () => ''), fk = n === 3 ? 1 : 1;
+  const istSchlaf = k => String(k.name || '').toLowerCase() === 'schlaf', istKopf = k => String(k.name || '').toLowerCase() === 'kopf';
+  karten.filter(istSchlaf).forEach(k => { sp[0] += k.html; });
+  fokus.forEach(k => { sp[fk] += k.html; });
+  karten.filter(istKopf).forEach(k => { sp[n === 3 ? 2 : 0] += k.html; });
+  sp[n === 3 ? 2 : 0] += listen;
+  karten.filter(k => !istSchlaf(k) && !istKopf(k)).forEach(k => {
     const name = String(k.name || '').toLowerCase();
-    const i = k.bloecke || MAC_LINKS.includes(name) ? 0 : MAC_RECHTS.includes(name) ? 2 : 1;
-    sp[Math.min(i, n - 1)] += k.html;
+    const i = MAC_RECHTS.includes(name) ? 0 : n === 3 ? 2 : 1;
+    sp[i] += k.html;
   });
+  if (typeof cosLeisteKarte === 'function') sp[fk] += cosLeisteKarte();
   unten.forEach(k => { sp[n - 1] += k.html; });
-  if (typeof cosLeisteKarte === 'function') sp[1] = cosLeisteKarte() + sp[1];
   $('inhalt').innerHTML = html + '<div class="mac-spalten">' + sp.map(s => '<div class="mac-spalte">' + s + '</div>').join('') + '</div>';
   nachTag();
 }
@@ -5565,7 +5577,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 00:11</div>
+<div id="testband">TEST 00:26</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
