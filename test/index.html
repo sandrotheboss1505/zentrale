@@ -778,6 +778,13 @@
   .cos-vn button.ueber i { opacity: .45; }
   .cos-vn button.empf i::after { content: ""; position: absolute; left: 50%; bottom: -7px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--leise); }
   .cos-vn-t { font-size: 12.5px; color: var(--leise); }
+  .cos-vg { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 0; border-top: 1px solid var(--linie); text-align: left; background: none; }
+  .cos-vg-karte .bereich + .cos-vg { border-top: 0; }
+  .cos-vg-zeit { font-size: 13px; color: var(--leise); font-variant-numeric: tabular-nums; flex: none; }
+  .cos-vg-t { flex: 1; min-width: 0; }
+  .cos-vg-t b { display: block; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cos-vg-t small { display: block; font-size: 12px; color: var(--leise); }
+  .cos-vg-plus { flex: none; font-size: 13px; font-weight: 700; color: var(--akzent); }
   .cos-pl { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--linie); }
   .cos-vn-k + .cos-pl { border-top: 0; }
   .cos-pl.null .cos-pl-t b { color: var(--leise); font-weight: 500; }
@@ -2610,6 +2617,40 @@ function cosVornehmenKarte() {
   if (!cosTagAn()) return '';
   return '<div class="karte cos-vn-karte">' + cosVornehmenInnen(false) + '</div>';
 }
+/* ── V64 Vergessen zu starten: geplanter Block ist vorbei, ohne Los. Ein Tipp trägt ihn halb nach, am selben Schritt ── */
+function cosVergessen(iso) {
+  const jm = iso === heute() ? jetztMin() : 24 * 60;
+  return bloeckeVon(iso).filter(b => zaehlt(b) && !b.gestartet && !b.nach && !b.status && !b.lokal && b.min > 0 && minVon(b.ende) <= jm);
+}
+function cosVergessenHtml(iso) {
+  const l = cosVergessen(iso);
+  if (!l.length) return '';
+  return '<div class="karte cos-vg-karte"><div class="bereich">Vergessen zu starten?</div>' + l.map(b => {
+    const s = cosSchrittVon(b), p = s && cosNachName(s.projekt), titel = s ? s.titel : (b.titel || b.bereich);
+    const zw = zuwachsText(tagZuwachs(iso, Math.round(b.min * NACH_FAKTOR)));
+    return '<button class="cos-vg" onclick="cosVergessenNach(\'' + iso + '\',\'' + b.key + '\')"><span class="cos-vg-zeit">' + esc(b.start) + '</span>' +
+      '<span class="cos-vg-t"><b>' + esc(titel) + '</b><small>' + esc(p ? p.name : b.bereich) + ' · ' + dauerText(b.min) + ' · zählt halb</small></span>' +
+      (zw ? '<span class="cos-vg-plus">' + zw + '</span>' : '') + '</button>';
+  }).join('') + '</div>';
+}
+async function cosVergessenNach(iso, key) {
+  const b = bloeckeVon(iso).find(x => x.key === key);
+  if (!b || !plan || plan.sendet) return;
+  const s = cosSchrittVon(b);
+  plan.sendet = true; haptik(); planZeichnen();
+  try {
+    const d = await server('appBlockPlanen', { tag: iso, min: b.min, start: b.start, bereich: b.bereich, titel: s ? s.titel : (b.titel || ''), schritt: '', taskRef: '', taskTitel: '', nach: true });
+    if (s && d && d.key && C && !C.fehlt) await server('appChiefZuordnen', d.key, s.id);
+    await server(C && !C.fehlt ? 'appChiefAusplanen' : 'appBlockLoeschen', key);
+    melden(d && d.meldung ? d.meldung : 'Nachgetragen, zählt halb.');
+    planSchliessen();
+    abfragen(true);
+    if (C) cosLaden(true);
+  } catch (e) {
+    if (plan) { plan.sendet = false; planZeichnen(); }
+    melden(e.message || String(e));
+  }
+}
 function cosWannAufZu(id) { cosWannAuf = cosWannAuf === id ? null : id; haptik(); heuteNeu(); }
 function cosWannWahl(sid, k, start, jetzt) {
   cosWannAuf = null;
@@ -3160,7 +3201,7 @@ function cosRundeFertig() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611152343';
+const PWA_VERSION = '202611152351';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -3269,8 +3310,9 @@ exports.neu = function (H, tagPlus, quelle) {
     console, Date, Math, JSON, Object, String, Number, Array,
     blkPlanen_(o) {
       const e = { id: 'evc' + (++kal.n) + '@google.com', s: uhrMs(o.tag, o.start), min: o.min, titel: o.bereich + ': ' + o.titel, bereich: o.bereich, tags: {}, erinnern: true };
+      if (o.nach === true) { e.tags.zentrale_nach = 'ja'; e.tags.zentrale_status = 'gemacht'; e.erinnern = false; }   // wie Bloecke.js
       kal.events.push(e);
-      return { meldung: 'Eingeplant', key: e.id + '|' + e.s };
+      return { meldung: o.nach === true ? 'Nachgetragen, zählt halb' : 'Eingeplant', key: e.id + '|' + e.s };
     },
     blkEventFinden_(key) {
       const id = String(key).split('|')[0], ms = Number(String(key).split('|')[1]);
@@ -4536,7 +4578,8 @@ function heuteAbhaken(i) {
 function plusOeffnen() { haptik(); if (typeof cosTagAn === 'function' && cosTagAn()) cosEinplanenOeffnen(); else planOeffnen(false); }
 function neuTabs(an) {
   const t = (k, ic, txt) => '<button class="' + (an === k ? 'an' : '') + '" onclick="neuWechsel(\'' + k + '\')"><span class="ic">' + ic + '</span>' + txt + '</button>';
-  return '<div class="neu-tabs">' + t('block', '◷', typeof cosTagAn === 'function' && cosTagAn() ? 'Kästchen' : 'Block') + t('tasks', '✓', 'Tasks') + t('nach', '↺', 'Nachtragen') + '</div>';
+  const cos = typeof cosTagAn === 'function' && cosTagAn();   // V64: mit Chief ohne Tasks (Tasks nur in der Taskkarte)
+  return '<div class="neu-tabs">' + t('block', '◷', cos ? 'Kästchen' : 'Block') + (cos ? '' : t('tasks', '✓', 'Tasks')) + t('nach', '↺', 'Nachtragen') + '</div>';
 }
 function neuWechsel(k) {
   haptik();
@@ -5048,6 +5091,7 @@ function planHtmlTeil() {
   return '<div class="planinnen">' +
     '<div class="plankopf"><b>' + (plan.nach ? 'Block nachtragen' : 'Block planen') + '</b><button class="rund" onclick="planSchliessen()" aria-label="Schließen">✕</button></div>' +
     neuTabs(plan.nach ? 'nach' : 'block') +
+    (plan.nach && typeof cosVergessenHtml === 'function' ? cosVergessenHtml(plan.tag) : '') +   // V64: vergessene Blöcke mit einem Tipp
     '<div class="karte"><div class="bereich">Wie lange</div><div class="wahl raster">' +
       plan.dauern.map(d => '<button data-min="' + d + '" class="' + (plan.min === d ? 'an' : '') + '" onclick="planSetzen(\'min\',' + d + ')">' + dauerKurz(d) + '</button>').join('') +
       '<input type="time" id="dauerFrei" class="dauerfrei blau' + (plan.dauern.indexOf(plan.min) === -1 ? ' an' : '') + '" step="300" value="' + zwei(Math.floor(plan.min / 60)) + ':' + zwei(plan.min % 60) +
@@ -5476,7 +5520,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 23:43</div>
+<div id="testband">TEST 23:51</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
