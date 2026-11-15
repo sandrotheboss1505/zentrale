@@ -508,6 +508,7 @@
   .kq.re { border: 1.5px dashed var(--leise); }
   .kq.ue { border: 2px solid var(--rosa); }
   .kq.gr { opacity: .45; }
+  .kq.frei { border-color: var(--linie); }
   .kq.aus { border-color: var(--gold); background: var(--gold-hell); }
   .kr.gross .kq { width: 18px; height: 18px; border-radius: 5px; }
   .kr .kmehr { font-size: 11px; color: var(--leise); margin-left: 2px; }
@@ -547,71 +548,237 @@
   .cos-dl { margin-top: 10px; }
   .cos-danach .t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  /* Seite Chief */
+  /* Seite Chief: Übersicht */
   .cos-hinweis { display: flex; align-items: center; gap: 12px; background: var(--rosa-hell); color: var(--rosa); box-shadow: none; font-weight: 600; }
+  .cos-hinweis.gold { background: var(--gold-hell); color: var(--gold); }
   .cos-hinweis span { flex: 1; }
   .cos-hinweis button { flex: none; height: 40px; padding: 0 14px; border-radius: 12px; background: var(--rosa); color: var(--karte); font-weight: 700; font-size: 14px; }
-  .cos-bahn { display: block; width: 100%; text-align: left; padding: 14px 0; border-top: 1px solid var(--linie); }
-  .cos-bahn:first-child { border-top: 0; }
-  .cos-bahn-k { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+  .cos-hinweis.gold button { background: var(--gold); }
+  .cos-ab { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--leise); }
+  .cos-kopfzeile { display: flex; align-items: center; gap: 8px; padding: 4px 4px 8px; }
+  .cos-kopfzeile .cos-ab { flex: 1; }
+  .cos-link { font-size: 14px; font-weight: 600; color: var(--akzent); padding: 8px 2px; }
+  .cos-woche-k { display: flex; align-items: baseline; margin-bottom: 10px; }
+  .cos-woche-k .cos-ab { flex: 1; }
+  .cos-woche-k b { font-size: 15px; font-variant-numeric: tabular-nums; }
+  .cos-zeit { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--linie); }
+  .cos-zeit span { flex: 1; font-size: 14px; }
+  .cos-stepper { display: flex; align-items: center; background: var(--chip); border-radius: 12px; padding: 2px; }
+  .cos-stepper button { width: 44px; height: 38px; border-radius: 10px; font-size: 20px; line-height: 1; }
+  .cos-stepper b { min-width: 28px; text-align: center; font-variant-numeric: tabular-nums; }
+  .cos-liste { padding: 2px 12px 2px 2px; }
+  .cos-prow { position: relative; display: flex; align-items: flex-start; gap: 4px; padding: 10px 0; border-top: 1px solid var(--linie); background: var(--karte); }
+  .cos-prow:first-child { border-top: 0; }
+  .cos-prow.an { background: var(--akzent-hell); border-radius: 14px; border-top-color: transparent; }
+  .cos-prow.an + .cos-prow { border-top-color: transparent; }
+  .cos-griff { flex: none; width: 32px; height: 44px; display: grid; place-items: center; touch-action: none; cursor: grab; color: var(--kreis); }
+  .cos-griff svg { width: 11px; height: 17px; }
+  .cos-griff.klein { width: 26px; margin-left: -6px; }
+  .cos-griff.klein svg { width: 9px; height: 15px; }
+  .cos-griff:focus-visible { outline: 2px solid var(--akzent); outline-offset: -2px; border-radius: 8px; }
+  .cos-rang { flex: none; width: 26px; height: 26px; margin-top: 9px; border-radius: 13px; background: var(--chip); font-weight: 700; font-size: 13px; display: grid; place-items: center; font-variant-numeric: tabular-nums; }
+  .cos-rang.eins { background: #073763; color: #fff; }
+  .cos-prow-in { flex: 1; min-width: 0; display: block; text-align: left; padding: 6px 0 4px 6px; }
+  .cos-bahn-k { display: flex; align-items: center; gap: 8px; }
   .cos-bahn-k b { flex: 1; min-width: 0; font-size: 16px; font-weight: 700; }
   .cos-bahn-k .s { font-size: 12px; color: var(--leise); white-space: nowrap; }
   .cos-bahn-k .s.eng { color: var(--rosa); font-weight: 700; }
+  .cos-meta { font-size: 12px; color: var(--leise); margin: 2px 0 8px; }
   .cos-fahne { display: inline-flex; align-items: center; gap: 3px; margin: 0 4px; font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; }
   .cos-ueber { display: inline-flex; gap: 3px; padding: 4px 5px; border-radius: 6px; background: var(--rosa-hell); }
-  .cos-zeile { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 48px; text-align: left; border-top: 1px solid var(--linie); }
+  .cos-unter { font-size: 12px; color: var(--leise); margin: 0 4px 12px; }
+  .cos-unter.eng { color: var(--rosa); }
+  .cos-zeile { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 52px; text-align: left; border-top: 1px solid var(--linie); }
   .cos-zeile:first-child { border-top: 0; }
-  .cos-zeile .t { flex: 1; }
+  .cos-zeile .t { flex: 1; min-width: 0; }
   .cos-zeile .s { font-size: 13px; color: var(--leise); }
-  .cos-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 0 12px; }
-  .cos-chips span { padding: 5px 10px; border-radius: 10px; background: var(--chip); font-size: 13px; }
+  .cos-klein { flex: none; height: 36px; padding: 0 12px; border-radius: 10px; background: var(--chip); font-size: 13px; font-weight: 600; }
   .cos-runde { display: flex; align-items: center; justify-content: center; height: 50px; margin-bottom: 12px; border-radius: 16px; border: 1.5px solid var(--akzent);
     color: var(--akzent); font-weight: 700; text-decoration: none; background: var(--karte); }
   .cos-legende { font-size: 11px; color: var(--leise); padding: 4px 0 2px; line-height: 1.5; }
-  .cos-zwei { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 20px; align-items: start; }
-  body.mac .cos-bahn.an { background: var(--chip); border-radius: 14px; border-top-color: transparent; margin: 0 -10px; padding: 14px 10px; width: calc(100% + 20px); }
-  body.mac .cos-bahn.an + .cos-bahn { border-top-color: transparent; }
 
-  /* Projekt mit Schritten */
-  .cos-zurueck { font-size: 14px; font-weight: 600; color: var(--akzent); padding: 4px 0 10px; }
-  .cos-dk { display: flex; align-items: center; gap: 8px; }
-  .cos-dk b { font-size: 19px; font-weight: 800; line-height: 1.2; }
-  .cos-ab { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--leise); margin: 16px 0 2px; }
-  .cos-schritt { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 0; border-top: 1px solid var(--linie); }
-  .cos-schritt .was { flex: 1; min-width: 0; }
-  .cos-schritt .was small { display: block; font-size: 12px; color: var(--leise); }
-  .cos-schritt.fertig .was { color: var(--leise); }
-  .cos-schritt .kr { flex: none; max-width: 88px; justify-content: flex-end; }
-  .cos-haken { flex: none; position: relative; width: 28px; height: 28px; border-radius: 14px; box-sizing: border-box; border: 2px solid var(--kf, var(--kreis)); display: grid; place-items: center; }
-  .cos-haken::before { content: ""; position: absolute; inset: -9px; }
-  .cos-haken svg { display: none; }
-  .cos-haken.an { background: var(--gruen); border-color: var(--gruen); }
-  .cos-haken.an svg { display: block; width: 13px; height: 13px; }
-  .cos-haken.neu { animation: cosland .45s ease-out; }
-  .cos-los { flex: none; width: 34px; height: 34px; border-radius: 17px; background: var(--akzent-hell); color: var(--akzent); font-size: 12px; display: grid; place-items: center; }
-  .cos-pille { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 8px; background: var(--akzent-hell); color: var(--akzent); margin-left: 4px; vertical-align: 1px; white-space: nowrap; }
+  /* Projekt mit Etappen und Schritten */
+  .cos-pkopf { display: flex; align-items: center; gap: 8px; margin: 2px 0 12px; }
+  .cos-pkopf .t { flex: 1; min-width: 0; }
+  .cos-pkopf .t b { display: block; font-size: 19px; font-weight: 800; line-height: 1.2; }
+  .cos-pkopf .t span { font-size: 12px; color: var(--leise); }
+  .cos-zurueck { flex: none; width: 40px; height: 40px; border-radius: 20px; background: var(--karte); box-shadow: var(--schatten); font-size: 20px; display: grid; place-items: center; }
+  .cos-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
+  .cos-tiles button { text-align: left; background: var(--chip); border-radius: 12px; padding: 8px 10px; }
+  .cos-tiles span { display: block; font-size: 11px; color: var(--leise); }
+  .cos-tiles b { font-size: 17px; font-variant-numeric: tabular-nums; }
+  .cos-wofuer { display: block; width: 100%; text-align: left; margin-top: 12px; font-size: 13px; background: var(--chip); border-radius: 10px; padding: 9px 10px; }
+  .cos-wofuer span { color: var(--leise); }
+  .cos-et { padding: 8px 12px 10px 4px; }
+  .cos-et-kopf { display: flex; align-items: center; padding-left: 10px; min-height: 36px; }
+  .cos-et-kopf .cos-ab { flex: 1; }
+  .cos-mehr { flex: none; width: 44px; height: 36px; display: grid; place-items: center; color: var(--leise); }
+  .cos-et-titel { padding-left: 10px; font-size: 18px; font-weight: 800; line-height: 1.2; margin-bottom: 6px; }
+  .cos-et-titel.leer { font-weight: 600; color: var(--leise); font-size: 15px; }
+  .cos-et-zu { display: flex; align-items: center; gap: 8px; width: 100%; padding: 4px 0 2px 10px; text-align: left; font-size: 13px; color: var(--leise); }
+  .cos-srow { position: relative; display: flex; align-items: center; gap: 4px; min-height: 52px; padding: 4px 0; margin-left: 10px; border-top: 1px solid var(--linie); background: var(--karte); }
+  .cos-srow .was { flex: 1; min-width: 0; text-align: left; padding: 6px 0; }
+  .cos-srow .was .t { font-size: 15px; }
+  .cos-srow .was small { display: block; font-size: 12px; color: var(--leise); margin-top: 1px; }
+  .cos-srow.fertig .was .t { color: var(--leise); }
+  .cos-srow .kr { flex: none; max-width: 92px; justify-content: flex-end; }
+  .cos-srow.frisch { animation: cosrein .5s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes cosrein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .cos-chips2 { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .cos-chip { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 8px; background: var(--akzent-hell); color: var(--akzent); white-space: nowrap; }
+  .cos-chip.gold { background: var(--gold-hell); color: var(--gold); }
+  .cos-chip.rosa { background: var(--rosa-hell); color: var(--rosa); }
+  .cos-haken { flex: none; position: relative; width: 40px; height: 44px; display: grid; place-items: center; }
+  .cos-haken span { width: 24px; height: 24px; border-radius: 12px; box-sizing: border-box; border: 2px solid var(--kf, var(--kreis)); display: grid; place-items: center; }
+  .cos-haken svg { display: none; width: 12px; height: 12px; }
+  .cos-haken.an span { background: var(--gruen); border-color: var(--gruen); }
+  .cos-haken.an svg { display: block; }
+  .cos-haken.grob span { border-style: dashed; border-color: var(--kreis); }
+  .cos-haken.neu span { animation: cosland .45s ease-out; }
+  .cos-los { flex: none; width: 44px; height: 44px; display: grid; place-items: center; }
+  .cos-los span { width: 34px; height: 34px; border-radius: 17px; background: var(--akzent-hell); color: var(--akzent); font-size: 12px; display: grid; place-items: center; }
+  .cos-zerl { flex: none; height: 34px; padding: 0 10px; margin-left: 4px; border-radius: 10px; border: 1.5px solid var(--akzent); color: var(--akzent); font-size: 13px; font-weight: 700; }
+  .cos-zerl-gross { display: flex; align-items: center; justify-content: center; gap: 8px; width: calc(100% - 10px); height: 46px; margin: 8px 0 4px 10px; border-radius: 14px; background: #073763; color: #fff; font-weight: 700; }
+  .cos-plus { display: block; width: calc(100% - 10px); margin: 4px 0 0 10px; padding: 10px 0 4px; text-align: left; font-size: 14px; font-weight: 600; color: var(--akzent); border-top: 1px solid var(--linie); }
+  .cos-neu { margin: 4px 0 0 10px; padding-top: 10px; border-top: 1px solid var(--linie); }
+  .cos-neu input[type=text] { width: 100%; text-align: left; font-size: 16px; padding: 11px 12px; border-radius: 12px; box-shadow: inset 0 0 0 2px var(--akzent); background: var(--karte); }
+  .cos-neu-k { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+  .cos-neu-k > span { font-size: 12px; color: var(--leise); }
+  .cos-neu-k .sp { flex: 1; }
+  .cos-zahl { width: 40px; height: 40px; border-radius: 10px; background: var(--chip); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .cos-zahl.an { background: var(--rosa-voll); color: #fff; font-weight: 700; }
+  .cos-neu-ok { height: 40px; padding: 0 14px; border-radius: 10px; background: var(--akzent); color: #fff; font-weight: 700; font-size: 14px; }
+  .cos-paar { display: flex; gap: 8px; margin-bottom: 12px; }
+  .cos-paar > * { flex: 1; height: 50px; border-radius: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+  .cos-paar .gestr { border: 1.5px dashed var(--kreis); font-weight: 600; }
+  .cos-paar .rand { border: 1.5px solid var(--akzent); color: var(--akzent); background: var(--karte); }
+
+  /* Ziehen */
+  .zieht { z-index: 20; box-shadow: 0 10px 30px rgba(0,0,0,.18); border-radius: 14px; border-top-color: transparent !important; transition: none; }
+  .zieht2 { opacity: .5; }
+  .cos-linie { position: fixed; z-index: 21; height: 3px; border-radius: 2px; background: var(--akzent); pointer-events: none; }
+
+  /* Woche am Mac */
+  .cos-tag { display: flex; align-items: flex-start; gap: 10px; padding: 9px 8px; margin: 0 -8px; border-radius: 12px; border: 1.5px solid transparent; }
+  .cos-tag + .cos-tag { border-top-color: var(--linie); border-radius: 0; }
+  .cos-tag.ueber { border: 1.5px dashed var(--akzent); background: var(--akzent-hell); border-radius: 12px; }
+  .cos-tag > b { width: 58px; flex: none; font-size: 13px; }
+  .cos-tag > div { flex: 1; min-width: 0; }
+  .cos-tag-t { font-size: 12px; color: var(--leise); margin-top: 3px; }
+  .cos-tag-t b { color: var(--text); font-weight: 600; }
+  .cos-zwei { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 20px; align-items: start; }
+  .cos-drei { display: grid; grid-template-columns: minmax(250px, .85fr) minmax(0, 1.6fr) minmax(250px, .9fr); gap: 20px; align-items: start; }
   body.mac nav { width: 320px; }
-  @media (prefers-reduced-motion: reduce) { .cos-box.voll, .cos-reihe.reif .kq.neu, .cos-reihe .kq.landet, .cos-haken.neu { animation: none; } }
+
+  /* Blätter: von unten am Handy, mittig am Mac */
+  .cos-blatt { position: fixed; inset: 0; z-index: 40; display: none; }
+  .cos-blatt.offen { display: block; }
+  .cos-blatt-hg { position: absolute; inset: 0; background: rgba(20,20,18,.42); }
+  .cos-blatt-in { position: absolute; left: 0; right: 0; bottom: 0; max-height: calc(100% - 36px); overflow-y: auto; overscroll-behavior: contain; background: var(--karte);
+    border-radius: 22px 22px 0 0; padding: 8px 16px calc(20px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 14px; }
+  .cos-blatt.neu .cos-blatt-hg { animation: coshg .2s ease-out; }
+  .cos-blatt.neu .cos-blatt-in { animation: cosrauf .28s cubic-bezier(.2,.8,.2,1); }
+  @keyframes coshg { from { opacity: 0; } }
+  @keyframes cosrauf { from { transform: translateY(40%); opacity: .4; } }
+  body.mac .cos-blatt-in { left: 50%; right: auto; top: 50%; bottom: auto; width: 500px; max-height: 88vh; border-radius: 22px; transform: translate(-50%, -50%); box-shadow: 0 24px 64px rgba(0,0,0,.3); }
+  body.mac .cos-blatt.neu .cos-blatt-in { animation: cosmitte .2s ease-out; }
+  @keyframes cosmitte { from { opacity: 0; transform: translate(-50%, -46%); } }
+  .cos-griffleiste { width: 36px; height: 5px; border-radius: 3px; background: var(--linie); margin: 0 auto -4px; flex: none; }
+  body.mac .cos-griffleiste { display: none; }
+  .cos-bk { display: flex; align-items: center; flex: none; }
+  .cos-bk b { flex: 1; text-align: center; font-size: 17px; }
+  .cos-bk button { width: 92px; height: 44px; font-weight: 600; color: var(--akzent); text-align: left; }
+  .cos-bk button.an { text-align: right; font-weight: 700; }
+  .cos-bk span { width: 92px; }
+  .cos-feld label, .cos-feld .l { display: block; font-size: 12px; color: var(--leise); margin-bottom: 6px; }
+  .cos-feld .l { display: flex; align-items: baseline; }
+  .cos-feld .l span { flex: 1; }
+  .cos-feld .l em { font-style: normal; font-size: 13px; color: var(--text); font-variant-numeric: tabular-nums; }
+  .cos-blatt input[type=text], .cos-blatt input[type=date], .cos-blatt textarea, .cos-blatt select {
+    width: 100%; text-align: left; font: inherit; font-size: 16px; color: var(--text); background: var(--chip); border: 0; border-radius: 12px; padding: 12px; margin: 0; min-height: 46px; }
+  .cos-blatt textarea { min-height: 70px; resize: none; }
+  .cos-blatt select { appearance: none; -webkit-appearance: none; }
+  .cos-blatt input[type=date] { width: auto; min-width: 150px; }
+  .cos-tipp { font-size: 12px; color: var(--leise); margin-top: 4px; }
+  .cos-picker { display: flex; flex-wrap: wrap; }
+  .cos-picker button { width: 36px; height: 44px; display: grid; place-items: center; }
+  .cos-picker button span { width: 28px; height: 28px; border-radius: 6px; box-sizing: border-box; border: 1.5px solid var(--linie); }
+  .cos-picker button.wahl span { border: 2px solid var(--kf); }
+  .cos-picker button.an span { background: var(--kf); border: 2px solid var(--kf); }
+  .cos-picker button.lang span { background: var(--gold-hell); }
+  .cos-picker.re button.wahl span { border: 2px dashed var(--leise); }
+  .cos-picker.klein button { width: 29px; height: 40px; }
+  .cos-picker.klein button span { width: 23px; height: 23px; border-radius: 5px; }
+  .cos-seg { display: grid; grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; gap: 3px; background: var(--chip); border-radius: 12px; padding: 3px; }
+  .cos-seg button { height: 40px; border-radius: 10px; font-size: 14px; }
+  .cos-seg button.an { background: var(--karte); font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+  .cos-dl-zeile { display: flex; gap: 8px; align-items: center; }
+  .cos-dl-zeile .cos-seg { flex: 1; }
+  .cos-bereiche { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cos-bereiche button { height: 40px; padding: 0 12px; border-radius: 12px; box-shadow: inset 0 0 0 1.5px var(--linie); display: flex; align-items: center; gap: 6px; }
+  .cos-bereiche button.an { box-shadow: inset 0 0 0 2px var(--kf); background: var(--chip); font-weight: 700; }
+  .cos-rangzeile { display: flex; align-items: center; gap: 8px; }
+  .cos-rangzeile span { flex: 1; }
+  .cos-rangzeile button { height: 40px; padding: 0 14px; border-radius: 10px; background: var(--chip); font-weight: 600; }
+  .cos-rangzeile button:disabled { opacity: .35; }
+  .cos-auswahl { display: flex; align-items: center; width: 100%; min-height: 48px; text-align: left; border-top: 1px solid var(--linie); border-bottom: 1px solid var(--linie); }
+  .cos-info { background: var(--gold-hell); color: var(--gold); border-radius: 12px; padding: 10px 12px; font-size: 13px; }
+  .cos-info.rosa { background: var(--rosa-hell); color: var(--rosa); }
+  .cos-info .knoepfe { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .cos-info .knoepfe button { height: 36px; padding: 0 12px; border-radius: 10px; background: var(--karte); color: var(--text); font-weight: 600; font-size: 13px; }
+  .cos-aktionen { display: flex; gap: 8px; }
+  .cos-aktionen button { flex: 1; height: 48px; border-radius: 14px; background: var(--chip); font-weight: 600; }
+  .cos-aktionen button.blau { background: #073763; color: #fff; font-weight: 700; }
+  .cos-aktionen button.rot { background: var(--rosa-hell); color: var(--rosa); font-weight: 700; }
+  .cos-weg { height: 44px; color: var(--rosa); font-weight: 600; }
+  .cos-teil { padding: 10px 0 4px; border-top: 1px solid var(--linie); }
+  .cos-teil:first-child { border-top: 0; }
+  .cos-teil-k { display: flex; align-items: center; gap: 8px; }
+  .cos-teil-k .nr { flex: none; width: 24px; height: 24px; border-radius: 12px; background: var(--chip); font-size: 13px; font-weight: 700; display: grid; place-items: center; }
+  .cos-teil-k input[type=text] { flex: 1; min-width: 0; width: auto; }
+  .cos-teil-k button { flex: none; width: 40px; height: 44px; display: grid; place-items: center; color: var(--leise); font-size: 18px; }
+  .cos-teil-u { display: flex; flex-wrap: wrap; align-items: center; margin: 2px 0 0 28px; font-size: 12px; color: var(--leise); }
+  .cos-bilanz { background: var(--chip); border-radius: 14px; padding: 12px 14px; }
+  .cos-bilanz b { display: block; margin-top: 8px; }
+  .cos-bilanz span { font-size: 13px; color: var(--leise); }
+  .cos-uebernehmen { position: sticky; bottom: calc(-20px - env(safe-area-inset-bottom)); margin: 0 -16px calc(-20px - env(safe-area-inset-bottom)); padding: 10px 16px calc(16px + env(safe-area-inset-bottom)); background: var(--karte); border-top: 1px solid var(--linie); }
+  .cos-uebernehmen button { width: 100%; height: 52px; border-radius: 16px; background: #073763; color: #fff; font-weight: 700; font-size: 16px; }
+  .cos-uebernehmen button:disabled { opacity: .4; }
+  @media (prefers-color-scheme: dark) { .cos-rang.eins, .cos-zerl-gross, .cos-aktionen button.blau, .cos-uebernehmen button { background: #2F5AA8; } }
+  @media (prefers-reduced-motion: reduce) { .cos-box.voll, .cos-reihe.reif .kq.neu, .cos-reihe .kq.landet, .cos-haken.neu span, .cos-srow.frisch,
+    .cos-blatt.neu .cos-blatt-in, .cos-blatt.neu .cos-blatt-hg { animation: none; } }
 </style>
+<div id="cosBlatt" class="cos-blatt"></div>
 <script>
-/* ── Chief of Staff: Projekte, Schritte, Kästchen. Daten aus appChief (Tabs Projekte und Schritte), Zeit aus den Blöcken ──
+/* ── Chief of Staff: Projekte, Etappen, Schritte, Kästchen. Daten aus appChief (Tabs Projekte und Schritte), Zeit aus den Blöcken ──
    Ein Kästchen sind 30 Minuten Fokuszeit. Die Kästchen des Tages sind die Fokuszeit des Tages durch 30, also genau das,
-   was im Tageswert schon zählt. Hier ändert sich keine Gewichtung. */
-const COS_SPEICHER = 'zentrale_chief_1', COS_KQ = 'zentrale_kq_1', COS_MIN = 30, COS_SITZUNG = 3;
+   was im Tageswert schon zählt. Hier ändert sich keine Gewichtung. Ändern geht über appChiefAendern, Rückgängig über merken. */
+const COS_SPEICHER = 'zentrale_chief_2', COS_KQ = 'zentrale_kq_1', COS_MIN = 30, COS_SITZUNG = 3, COS_AKTIV_MAX = 3;
 const COS_CLAUDE = 'https://claude.ai/project/01a17340-0436-7789-9c22-8fa8b14c4299';
 const COS_FARBEN = { FW: '#C2507F', Projekte: '#A391D9', HFBK: '#75A5AF', Admin: '#EF9E26', Sport: '#6AA77A', System: '#8C8C8C' };
+const COS_BEREICHE = ['FW', 'Projekte', 'HFBK', 'Admin', 'Sport', 'System'];
+const COS_WT = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 const COS_FAHNE = voll => '<svg width="12" height="15" viewBox="0 0 13 16" aria-hidden="true"><path d="M2 1.5v13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
   '<path d="M3 2h8.5L9 5l2.5 3H3z" ' + (voll ? 'fill="currentColor"' : 'fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"') + '/></svg>';
 const COS_HAKEN = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const COS_GRIFF = '<svg viewBox="0 0 12 18" aria-hidden="true"><g fill="currentColor"><circle cx="3" cy="3" r="1.6"/><circle cx="9" cy="3" r="1.6"/><circle cx="3" cy="9" r="1.6"/><circle cx="9" cy="9" r="1.6"/><circle cx="3" cy="15" r="1.6"/><circle cx="9" cy="15" r="1.6"/></g></svg>';
+const COS_PUNKTE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>';
 
 let C = null;                 // Chief Paket vom Server
 let cosGeladen = 0, cosLaedt = false, cosFehlt = false;
-let cosProjekt = null;        // offenes Projekt (Name) auf der Chief Seite
+let cosProjekt = null;        // offenes Projekt (ID)
 let cosWahl = null;           // per Tauschen gewählter Schritt
 let cosStartet = null;        // Schlüssel des Blocks, der gerade beim Server angelegt wird
-let cosAuf = { park: false, fertig: false };
+let cosAuf = { fertig: false, geparkt: false };
 let cosNeuHaken = null;       // gerade abgehakt, für die Animation
 const cosKeys = {};           // Block Schlüssel → Schritt ID, bis der Server es kennt
+let cosAusstehend = 0, cosAenderung = 0;   // Änderungen unterwegs zum Server, Zeitpunkt der letzten
+let cosBlatt = null;          // offenes Blatt (Schritt, Projekt, Etappe, Zerlegen)
+let cosNeuZeile = null;       // hier wird gerade ein neuer Schritt getippt: { pid, etappe }
+const cosEntwurf = { t: '', k: 1 };
+const cosFrisch = {};         // gerade entstandene Schritte, für die Einblendung
+const cosZu = {};             // auf und zu geklappte fertige Etappen
+let cosZieh = null;           // laufendes Ziehen
 try { C = JSON.parse(localStorage.getItem(COS_SPEICHER) || 'null'); } catch (e) { C = null; }
 
 function cosFarbe(bereich) { return COS_FARBEN[bereich] || '#9A968C'; }
@@ -621,34 +788,54 @@ function cosTageBis(von, bis) {
   return Math.round((Date.UTC(b[0], b[1] - 1, b[2]) - Date.UTC(a[0], a[1] - 1, a[2])) / 864e5);
 }
 function cosDatum(iso) { const t = iso.split('-'); return t[2] + '.' + t[1] + '.'; }
+function cosWt(iso) { const t = iso.split('-').map(Number); return COS_WT[new Date(Date.UTC(t[0], t[1] - 1, t[2])).getUTCDay()]; }
+function cosTagName(iso) {
+  const h = heute();
+  return iso === h ? 'Heute' : iso === tagPlus(h, 1) ? 'Morgen' : cosWt(iso) + ' ' + cosDatum(iso);
+}
 function cosKw() {
   const d = new Date(), t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7));
   return Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7);
 }
+function cosId(v) { return v + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function cosKopie(x) { return JSON.parse(JSON.stringify(x)); }
+function cosPid(id) { return (C && C.projekte.find(p => p.id === id)) || null; }
+function cosListe(p) { return C.schritte.filter(s => s.projekt === p.name); }
+function cosOffen(s) { return s.status === 'offen' || s.status === 'grob'; }
+function cosServerAlt() { return !!(C && C.projekte.some(p => !p.id)); }
+function cosNachName(name) { return (C && C.projekte.find(p => p.name === name)) || null; }
 
 /* ── Laden ── */
 function cosLaden(erzwingen) {
   if (cosLaedt || typeof server !== 'function') return;
   if (!erzwingen && (cosFehlt ? Date.now() - cosGeladen < 300000 : C && Date.now() - cosGeladen < 60000)) return;
   cosLaedt = true;
+  const ab = Date.now();
   server('appChief').then(d => {
     cosGeladen = Date.now(); cosFehlt = false;
     if (!d || !d.projekte) return;
-    C = d;
-    Object.keys(cosKeys).forEach(k => { if (C.schritte.some(s => s.bl && s.bl[k] != null)) delete cosKeys[k]; });
-    try { localStorage.setItem(COS_SPEICHER, JSON.stringify(d)); } catch (e) { /* kein Speicher, egal */ }
-    cosNeuZeichnen();
+    if (cosAusstehend > 0 || ab < cosAenderung) return;   // eine Änderung ist unterwegs, deren Antwort bringt den neuen Stand
+    cosUebernehmen(d);
   }).catch(e => {
     cosGeladen = Date.now();
     if (/Unbekannte Funktion/.test(String(e && e.message))) { cosFehlt = true; if (ansicht === 'chief') zeichnen(); }
   }).finally(() => { cosLaedt = false; });
 }
+function cosUebernehmen(d) {
+  C = d;
+  Object.keys(cosKeys).forEach(k => { if (C.schritte.some(s => s.bl && s.bl[k] != null)) delete cosKeys[k]; });
+  if (cosProjekt && !cosPid(cosProjekt)) cosProjekt = null;
+  cosSpeichern();
+  cosNeuZeichnen();
+}
+function cosSpeichern() { try { localStorage.setItem(COS_SPEICHER, JSON.stringify(C)); } catch (e) { /* kein Speicher, egal */ } }
 function cosNeuZeichnen() {
   if (!P) return;
   const a = document.activeElement;
-  if (a && (a.tagName === 'TEXTAREA' || a.type === 'text' || a.type === 'time')) { spaeterZeichnen = true; return; }
+  if (a && (a.tagName === 'TEXTAREA' || a.type === 'text' || a.type === 'time' || a.type === 'date')) { spaeterZeichnen = true; return; }
   if (typeof plan !== 'undefined' && plan) return;
+  if (cosZieh) return;
   zeichnen();
 }
 /* Wie nacheinander, gibt aber die Antwort zurück */
@@ -659,6 +846,112 @@ function cosNach(fn, ...args) {
     .then(d => { erg = d; offen--; geschrieben++; })
     .catch(e => { offen--; erg = null; melden(e.message || String(e)); }));
   return kette.then(() => erg);
+}
+
+/* ── Ändern: erst hier, dann beim Server. Jede Änderung merkt sich, wie sie zurückgeht ── */
+function cosAnwenden(ops) {
+  ops.forEach(o => {
+    if (o.op === 'projekt') {
+      const q = o.p;
+      let p = C.projekte.find(x => x.id === q.id);
+      if (q.status === 'weg') {
+        if (p) { const name = p.name; C.projekte = C.projekte.filter(x => x !== p); C.schritte = C.schritte.filter(s => s.projekt !== name); }
+        return;
+      }
+      if (!p) { p = { id: q.id, name: '', bereich: '', status: 'aktiv', deadline: '', art: 'ziel', wofuer: '', reserve: 0 }; C.projekte.push(p); }
+      if (q.name && q.name !== p.name) {
+        const alt = p.name;
+        C.schritte.forEach(s => { if (s.projekt === alt) s.projekt = q.name; });
+        p.name = q.name;
+      }
+      ['bereich', 'status', 'deadline', 'art', 'wofuer', 'reserve'].forEach(k => { if (q[k] !== undefined) p[k] = q[k]; });
+      if (!p.deadline) p.art = 'ziel';
+    } else if (o.op === 'reihe') {
+      const r = {};
+      o.ids.forEach((id, i) => { r[id] = i; });
+      C.projekte = C.projekte.filter(p => r[p.id] != null).sort((a, b) => r[a.id] - r[b.id]).concat(C.projekte.filter(p => r[p.id] == null));
+    } else if (o.op === 'schritte') {
+      const p = cosPid(o.pid);
+      if (!p) return;
+      const bisher = {}, ids = {};
+      C.schritte.forEach(s => { bisher[s.id] = s; });
+      o.liste.forEach(x => { ids[x.id] = true; });
+      const neu = o.liste.map(x => {
+        const alt = bisher[x.id];
+        return Object.assign({}, x, { projekt: p.name, min: alt ? alt.min : (x.min || 0), bl: alt ? alt.bl : (x.bl || {}) });
+      });
+      let stelle = C.schritte.findIndex(s => s.projekt === p.name);
+      const rest = C.schritte.filter((s, i) => {
+        const raus = s.projekt === p.name || ids[s.id];
+        if (raus && i < stelle) stelle--;
+        return !raus;
+      });
+      if (stelle < 0 || stelle > rest.length) stelle = rest.length;
+      C.schritte = rest.slice(0, stelle).concat(neu, rest.slice(stelle));
+    } else if (o.op === 'kapazitaet') C.kapazitaet = o.n;
+  });
+}
+function cosAendern(ops, zurueck, name) {
+  if (!C) return;
+  if (cosServerAlt()) { melden('Der Server ist noch alt. Einmal ./bereitstellen.sh server'); return; }
+  cosAnwenden(ops);
+  if (zurueck) merken({ art: 'cosAend', tag: tagIso, ops: zurueck, name: name || 'Änderung' });
+  cosSpeichern();
+  cosAenderung = Date.now();
+  zeichnen();
+  cosSenden(ops);
+}
+function cosSenden(ops) {
+  cosAusstehend++;
+  cosNach('appChiefAendern', ops).then(d => {
+    cosAusstehend--;
+    if (cosAusstehend > 0) return;
+    if (d && d.projekte) cosUebernehmen(d);
+    else cosLaden(true);   // ging schief: Stand vom Server holen
+  });
+}
+/* Rückgängig (aus rueckgaengig in AppSeite) */
+function cosRueck(a) {
+  if (a.art === 'cosHaken') { cosHakenSetzen(a.id, a.alt, true); melden('Rückgängig: ' + a.name); return; }
+  if (a.art === 'cosAend') { cosAendern(a.ops, null); melden('Rückgängig: ' + a.name); }
+}
+/* Schritte eines Projekts in die Form fürs Ändern; Etappen bleiben zusammen, Geparktes steht hinten */
+function cosPaket(s) {
+  return { id: s.id, abschnitt: s.abschnitt || '', titel: s.titel, k: s.k, fertigWenn: s.fertigWenn || '', status: s.status,
+    weiterBei: s.weiterBei || '', wann: s.wann || '', verschoben: s.verschoben || 0, min: s.min || 0, bl: Object.assign({}, s.bl || {}) };
+}
+function cosOrdnen(liste) {
+  const reihen = [], idx = {}, park = [];
+  liste.forEach(s => {
+    if (s.status === 'park') { park.push(s); return; }
+    const n = s.abschnitt || '';
+    if (idx[n] == null) { idx[n] = reihen.length; reihen.push([]); }
+    reihen[idx[n]].push(s);
+  });
+  return [].concat(...reihen, park);
+}
+function cosSchritteAendern(p, neu, name) {
+  const alt = cosListe(p).map(cosPaket);
+  cosAendern([{ op: 'schritte', pid: p.id, liste: cosOrdnen(neu).map(cosPaket) }], [{ op: 'schritte', pid: p.id, liste: alt }], name);
+}
+function cosProjektAendern(neu, name) {
+  const p = cosPid(neu.id);
+  const zurueck = p ? [{ op: 'projekt', p: cosKopie(p) }] : [{ op: 'projekt', p: { id: neu.id, status: 'weg' } }];
+  if (p && neu.status === 'weg') zurueck.push({ op: 'schritte', pid: p.id, liste: cosListe(p).map(cosPaket) });
+  cosAendern([{ op: 'projekt', p: neu }], zurueck, name);
+}
+function cosReiheSetzen(aktivNeu, name) {
+  const alt = C.projekte.map(p => p.id);
+  let j = 0;
+  const neu = C.projekte.map(p => (p.status === 'aktiv' ? aktivNeu[j++] : p.id));
+  if (neu.join() === alt.join()) return;
+  cosAendern([{ op: 'reihe', ids: neu }], [{ op: 'reihe', ids: alt }], name || 'Rang geändert');
+}
+function cosKapazitaet(d) {
+  const alt = Number(C.kapazitaet) || 16, n = Math.max(1, Math.min(60, alt + d));
+  if (n === alt) return;
+  haptik();
+  cosAendern([{ op: 'kapazitaet', n: n }], [{ op: 'kapazitaet', n: alt }], 'Zeit pro Woche');
 }
 
 /* ── Rechnen ── */
@@ -685,14 +978,16 @@ function cosMin(s, alle) {
   alle.forEach(x => { if (!gesehen[x.b.key] && (x.b.schritt === s.id || cosKeys[x.b.key] === s.id)) m += fokusMin(x.iso, x.b); });
   return m;
 }
-/* Kästchen eines Projekts: geschafft, offen, Reserve übrig */
+/* Kästchen eines Projekts: geschafft, offen, Reserve übrig. Geparktes zählt nicht zum Plan */
 function cosZahlen(name, alle) {
   alle = alle || cosAlleBloecke();
-  const p = C.projekte.find(x => x.name === name);
+  const p = cosNachName(name);
   let geschafft = 0, offen = 0, plan = 0;
   C.schritte.filter(s => s.projekt === name).forEach(s => {
     const sp = Math.floor(cosMin(s, alle) / COS_MIN);
-    geschafft += sp; plan += s.k;
+    geschafft += sp;
+    if (s.status === 'park') return;
+    plan += s.k;
     if (s.status !== 'fertig') offen += Math.max(0, s.k - sp);
   });
   return { geschafft: geschafft, offen: offen, reserve: Math.max(0, plan + (p ? p.reserve : 0) - geschafft - offen) };
@@ -712,21 +1007,47 @@ function cosUeber(alle) {
     });
   return out;
 }
-/* Reihenfolge der nächsten Schritte. Vor dem ersten Kästchen des Tages zählt der Rang, danach zuerst, was nicht mehr passt */
+/* Reihenfolge der nächsten Schritte. Fest für heute zuerst. Sonst vor dem ersten Kästchen des Tages der Rang,
+   danach zuerst, was nicht mehr passt. Schritte mit einem späteren festen Tag warten */
 function cosKandidaten() {
   if (!C || !P) return [];
-  const alle = cosAlleBloecke(), ueber = cosUeber(alle);
-  const liste = [];
-  C.projekte.filter(p => p.status === 'aktiv').forEach((p, rang) => {
-    const s = C.schritte.find(x => x.projekt === p.name && x.status !== 'fertig');
+  const alle = cosAlleBloecke(), ueber = cosUeber(alle), h = heute();
+  const aktiv = C.projekte.filter(p => p.status === 'aktiv');
+  const fest = [], liste = [], drin = {};
+  aktiv.forEach((p, rang) => C.schritte.forEach(s => {
+    if (s.projekt === p.name && s.wann === h && cosOffen(s)) { fest.push({ p: p, s: s, rang: rang, ueber: ueber[p.name] || 0, min: cosMin(s, alle), fest: true }); drin[s.id] = true; }
+  }));
+  aktiv.forEach((p, rang) => {
+    const s = C.schritte.find(x => x.projekt === p.name && cosOffen(x) && !drin[x.id] && !(x.wann && x.wann > h));
     if (s) liste.push({ p: p, s: s, rang: rang, ueber: ueber[p.name] || 0, min: cosMin(s, alle) });
   });
-  if (fokusTagMin(heute()) >= COS_MIN) liste.sort((a, b) => (b.ueber > 0) - (a.ueber > 0) ||
-    (a.ueber > 0 && b.ueber > 0 ? a.p.deadline.localeCompare(b.p.deadline) : 0) || a.rang - b.rang);
-  if (cosWahl) { const i = liste.findIndex(x => x.s.id === cosWahl); if (i > 0) liste.unshift(liste.splice(i, 1)[0]); else if (i < 0) cosWahl = null; }
-  return liste;
+  const vorErstem = fokusTagMin(h) < COS_MIN;
+  const rot = x => x.ueber > 0 && (!vorErstem || x.p.art === 'extern');
+  liste.sort((a, b) => (rot(b) - rot(a)) || (rot(a) && rot(b) ? a.p.deadline.localeCompare(b.p.deadline) : 0) || a.rang - b.rang);
+  const alleK = fest.concat(liste);
+  if (cosWahl) { const i = alleK.findIndex(x => x.s.id === cosWahl); if (i > 0) alleK.unshift(alleK.splice(i, 1)[0]); else if (i < 0) cosWahl = null; }
+  return alleK;
 }
 function cosSitzung(s, min) { return Math.min(COS_SITZUNG, Math.max(1, Math.ceil(s.k - min / COS_MIN))) * COS_MIN; }
+/* Etappen eines Projekts: Schritte mit derselben Etappe, in der Reihenfolge ihres ersten Auftretens. Geparktes extra */
+function cosEtappen(liste) {
+  const gruppen = [], idx = {};
+  liste.forEach(s => {
+    if (s.status === 'park') return;
+    const n = s.abschnitt || '';
+    if (idx[n] == null) { idx[n] = gruppen.length; gruppen.push({ name: n, schritte: [] }); }
+    gruppen[idx[n]].schritte.push(s);
+  });
+  let laeuft = false;
+  gruppen.forEach(g => {
+    const offen = g.schritte.filter(cosOffen);
+    g.fertig = !offen.length;
+    g.grob = offen.length > 0 && offen.every(s => s.status === 'grob');
+    g.zustand = g.fertig ? 'fertig' : g.grob ? 'grob geschätzt' : laeuft ? 'wartet' : 'läuft';
+    if (!g.fertig && !g.grob) laeuft = true;
+  });
+  return gruppen;
+}
 
 /* ── Kästchen zeichnen ── */
 function cosKq(farbe, klasse, teil) {
@@ -779,7 +1100,7 @@ function cosReiheInnen(iso) {
   if (iso === h && (t.rest > 0 || laeuft)) k += cosKq(t.letzte || 'var(--leise)', '', t.rest / COS_MIN);
   if (!k) return iso === h ? { html: cosKq('var(--leise)', '') + '<span>Heute noch kein Kästchen</span>', reif: 0 } : { html: '', reif: 0 };
   const plus = iso === h && n ? zuwachsText(tagZuwachs(iso, n * COS_MIN, 0)) : '';
-  return { html: '<span class="kr">' + k + '</span><span>' + (reif ? reif + (reif === 1 ? ' Kästchen einsammeln' : ' Kästchen einsammeln')
+  return { html: '<span class="kr">' + k + '</span><span>' + (reif ? reif + ' Kästchen einsammeln'
     : n + ' Kästchen' + (plus ? ' · Tag ' + plus : '')) + '</span>', reif: reif };
 }
 function cosReiheHtml(iso) {
@@ -867,7 +1188,8 @@ function cosLaufHtml(h, b, i, d, jm) {
     '<div class="cos-lauf-r"><div class="cos-lauf-t">' + (reifHier ? (reifHier === 1 ? 'Kästchen voll' : reifHier + ' Kästchen voll') : 'Noch ' + noch + ' min') + '</div>' +
     '<div class="hz-meta">' + hm(fokusMin(h, b)) + ' drin · bis ' + esc(b.ende) + '</div>' +
     '<div class="kr gross">' + cosViele(hier, farbe, 'an', 8) + (reifHier ? '' : cosKq(farbe, '', t.rest / COS_MIN)) + '</div>' +
-    (s && s.fertigWenn ? '<div class="hz-meta">Fertig, wenn ' + esc(s.fertigWenn.replace(/^fertig,?\s*wenn\s*/i, '')) + '</div>' : '') + '</div></div>';
+    (s && s.fertigWenn ? '<div class="hz-meta">Fertig, wenn ' + esc(s.fertigWenn.replace(/^fertig,?\s*wenn\s*/i, '')) + '</div>' : '') +
+    (s && s.weiterBei ? '<div class="hz-meta">Weiter bei: ' + esc(s.weiterBei) + '</div>' : '') + '</div></div>';
   const fertigRuf = s ? 'cosFertig(' + i + ')' : 'blockFertig(' + i + ')';
   const knoepfe = lokal
     ? '<div class="hz-knoepfe"><button class="hz-dran" disabled>Dran</button><button disabled>Abgedriftet</button><button disabled>Fertig</button></div><div class="hz-seit">Wird im Kalender angelegt …</div>'
@@ -904,8 +1226,9 @@ function cosNaechstesHtml(jetzt, laeuft, kommend, jm) {
   let html = '<div class="hz-jetzt"><div class="cos-vor"><span class="punkt" style="background:' + farbe + '"></span><span class="n">' + esc(x.p.name) +
     (x.s.abschnitt ? ' · ' + esc(x.s.abschnitt) : '') + '</span>' + (l.length > 1 ? '<button class="cos-tausch" onclick="cosTauschen()">Tauschen</button>' : '') + '</div>' +
     '<div class="cos-gross">' + esc(x.s.titel) + '</div>' +
-    '<div class="cos-masse"><span class="kr gross">' + cosSchrittKq(x.s, farbe, x.min) + '</span><span>' + dauerText(min) + (x.s.status === 'grob' ? ' · noch grob' : '') + '</span></div>' +
-    (x.p.wofuer ? '<div class="hz-meta">' + esc(x.p.wofuer) + '</div>' : '') +
+    '<div class="cos-masse"><span class="kr gross">' + cosSchrittKq(x.s, farbe, x.min) + '</span><span>' + dauerText(min) + (x.s.status === 'grob' ? ' · noch grob' : '') +
+    (x.fest ? ' · heute fest' : '') + '</span></div>' +
+    (x.s.weiterBei ? '<div class="hz-meta">Weiter bei: ' + esc(x.s.weiterBei) + '</div>' : x.p.wofuer ? '<div class="hz-meta">' + esc(x.p.wofuer) + '</div>' : '') +
     '<button class="hz-start" onclick="cosStart(\'' + x.s.id + '\')"><span class="play">▶</span>Los<i>' + dauerText(min) + (zw ? ' · Tag ' + zw : '') + '</i></button>';
   const danach = l.slice(1, 3).map(y => {
     const f = cosFarbe(y.p.bereich);
@@ -924,7 +1247,7 @@ function cosStart(id) {
   if (!s) return;
   const h = heute(), jm = jetztMin();
   if (bloeckeVon(h).some(b => b.gestartet && !b.beendet && !b.status && jm < minVon(b.ende))) { melden('Es läuft schon ein Block.'); return; }
-  const p = C.projekte.find(x => x.name === s.projekt);
+  const p = cosNachName(s.projekt);
   const min = cosSitzung(s, cosMin(s));
   const key = 'lokal|' + Date.now();
   const erster = !bloeckeVon(h).some(x => x.gestartet);
@@ -938,6 +1261,7 @@ function cosStart(id) {
   fokusLokal(h);
   dranMeldung = { key: key, ja: true, t: Date.now(), erster: erster, text: erster ? 'Tag gestartet. Das Kästchen füllt sich.' : 'Läuft. Das Kästchen füllt sich.' };
   zeichnen();
+  window.scrollTo(0, 0);
   cosNach('appChiefStart', id).then(d => {
     cosStartet = null;
     if (d && d.key) {
@@ -959,7 +1283,7 @@ function cosStart(id) {
 /* Schritt abhaken oder wieder öffnen */
 function cosHaken(id) {
   const s = C && C.schritte.find(x => x.id === id);
-  if (!s || s.status === 'grob') return;
+  if (!s || s.status === 'grob' || s.status === 'park') return;
   cosHakenSetzen(id, s.status === 'fertig' ? 'offen' : 'fertig');
 }
 function cosHakenSetzen(id, neu, ohneVerlauf) {
@@ -968,102 +1292,853 @@ function cosHakenSetzen(id, neu, ohneVerlauf) {
   if (!ohneVerlauf) merken({ art: 'cosHaken', tag: tagIso, id: id, alt: s.status, name: s.titel });
   s.status = neu;
   if (neu === 'fertig') { cosNeuHaken = { id: id, t: Date.now() }; haptik(); if (cosWahl === id) cosWahl = null; }
-  try { localStorage.setItem(COS_SPEICHER, JSON.stringify(C)); } catch (e) { /* egal */ }
+  cosSpeichern();
+  cosAenderung = Date.now();
   zeichnen();
   if (!ohneVerlauf && neu === 'fertig') {
-    const rest = C.schritte.filter(x => x.projekt === s.projekt && x.status !== 'fertig').length;
+    const rest = C.schritte.filter(x => x.projekt === s.projekt && cosOffen(x)).length;
     melden(rest ? 'Schritt fertig. Noch ' + rest + (rest === 1 ? ' Schritt' : ' Schritte') + ' in ' + s.projekt + '.' : s.projekt + ': alle Schritte fertig.');
   }
-  cosNach('appChiefHaken', id, neu === 'fertig').then(() => { cosGeladen = 0; });
+  cosAusstehend++;
+  cosNach('appChiefHaken', id, neu === 'fertig').then(() => { cosAusstehend--; cosGeladen = 0; });
 }
 
-/* ── Seite Chief ── */
-function cosBahnHtml(p, i, alle, ueber, an) {
-  const z = cosZahlen(p.name, alle), u = ueber[p.name] || 0, farbe = cosFarbe(p.bereich);
+/* ── Seite Chief: Übersicht ── */
+function cosWocheJetzt() {
+  const h = heute(), t = h.split('-').map(Number), wt = (new Date(Date.UTC(t[0], t[1] - 1, t[2])).getUTCDay() + 6) % 7;
+  let farben = [];
+  for (let i = 0; i <= wt; i++) farben = farben.concat(cosTag(tagPlus(h, i - wt)).farben);
+  return farben;
+}
+function cosWocheKarte() {
+  const kap = Number(C.kapazitaet) || 16, f = cosWocheJetzt();
+  const k = f.map(x => cosKq(x, 'an')).join('') + cosViele(Math.max(0, kap - f.length), 'var(--leise)', 'frei', 40);
+  return '<div class="karte"><div class="cos-woche-k"><span class="cos-ab">Diese Woche · KW ' + cosKw() + '</span><b>' + f.length + ' von ' + kap + '</b></div>' +
+    '<div class="kr">' + k + '</div><div class="cos-zeit"><span>Zeit pro Woche</span><div class="cos-stepper">' +
+    '<button onclick="cosKapazitaet(-1)" aria-label="Ein Kästchen weniger pro Woche">−</button><b>' + kap + '</b>' +
+    '<button onclick="cosKapazitaet(1)" aria-label="Ein Kästchen mehr pro Woche">+</button></div></div></div>';
+}
+function cosStand(p, z, u) {
   const gesamt = z.geschafft + z.offen;
-  const stand = u ? u + ' passen nicht' : !gesamt ? 'noch keine Schritte' : z.offen === 0 ? 'alles geschafft'
+  return u ? u + ' passen nicht' : !gesamt ? 'noch keine Schritte' : z.offen === 0 ? 'alles geschafft'
     : z.geschafft * 2 >= gesamt ? 'Noch ' + z.offen : z.geschafft + ' von ' + gesamt;
+}
+function cosBahnKq(p, z, u, farbe) {
   const fahne = p.deadline ? '<span class="cos-fahne">' + COS_FAHNE(p.art === 'extern') + cosDatum(p.deadline) + '</span>' : '';
-  return '<button class="cos-bahn' + (an ? ' an' : '') + '" onclick="cosOeffnen(' + i + ')"><div class="cos-bahn-k"><span class="punkt" style="background:' + farbe + '"></span><b>' +
-    esc(p.name) + '</b><span class="s' + (u ? ' eng' : '') + '">' + stand + '</span></div><div class="kr">' +
-    cosViele(z.geschafft, farbe, 'an') + cosViele(z.offen - u, farbe, '') + (u ? '' : cosViele(z.reserve, farbe, 're', 30)) + fahne +
-    (u ? '<span class="cos-ueber">' + cosViele(u, farbe, 'ue', 30) + '</span>' : '') + '</div></button>';
+  return cosViele(z.geschafft, farbe, 'an') + cosViele(z.offen - u, farbe, '') + (u ? '' : cosViele(z.reserve, farbe, 're', 30)) + fahne +
+    (u ? '<span class="cos-ueber">' + cosViele(u, farbe, 'ue', 30) + '</span>' : '');
 }
-function cosProjektHtml(p, mitZurueck) {
-  const alle = cosAlleBloecke(), farbe = cosFarbe(p.bereich), z = cosZahlen(p.name, alle);
-  const schritte = C.schritte.filter(s => s.projekt === p.name);
-  const naechster = (cosKandidaten()[0] || {}).s;
-  let html = '<div class="karte">' + (mitZurueck ? '<button class="cos-zurueck" onclick="cosOeffnen(-1)">‹ Alle Projekte</button>' : '') +
-    '<div class="cos-dk"><span class="punkt" style="background:' + farbe + '"></span><b>' + esc(p.name) + '</b></div>' +
-    (p.wofuer ? '<div class="hz-meta">' + esc(p.wofuer) + '</div>' : '') +
-    '<div class="hz-meta">' + esc(p.bereich || 'Sonstiges') + (p.deadline ? ' · ' + (p.art === 'extern' ? 'Deadline ' : 'Zieltermin ') + cosDatum(p.deadline) : ' · ohne Termin') + '</div>';
-  let ab = null;
-  schritte.forEach(s => {
-    const titel = s.abschnitt || (s.status === 'grob' ? 'Später, noch grob' : '');
-    if (titel !== ab) { ab = titel; if (titel) html += '<div class="cos-ab">' + esc(titel) + '</div>'; }
-    const min = cosMin(s, alle), fertig = s.status === 'fertig';
-    const neu = cosNeuHaken && cosNeuHaken.id === s.id && Date.now() - cosNeuHaken.t < 1500;
-    html += '<div class="cos-schritt' + (fertig ? ' fertig' : '') + '">' +
-      (s.status === 'grob' ? '<span class="cos-haken" style="border-style:dashed;--kf:' + farbe + '"></span>'
-        : '<button class="cos-haken' + (fertig ? ' an' : '') + (neu ? ' neu' : '') + '" style="--kf:' + farbe + '" onclick="cosHaken(\'' + s.id + '\')" aria-label="' + (fertig ? 'Wieder öffnen' : 'Abhaken') + '">' + COS_HAKEN + '</button>') +
-      '<div class="was"><div>' + esc(s.titel) + (naechster && naechster.id === s.id ? '<span class="cos-pille">Als Nächstes</span>' : '') + '</div>' +
-      (s.fertigWenn && !fertig ? '<small>Fertig, wenn ' + esc(s.fertigWenn.replace(/^fertig,?\s*wenn\s*/i, '')) + '</small>' : '') + '</div>' +
-      '<div class="kr">' + cosSchrittKq(s, farbe, min) + '</div>' +
-      (fertig || p.status !== 'aktiv' ? '' : '<button class="cos-los" onclick="cosStart(\'' + s.id + '\')" aria-label="Los">▶</button>') + '</div>';
+function cosEtappeMeta(p) {
+  const g = cosEtappen(cosListe(p));
+  if (!g.length) return 'noch keine Schritte';
+  const i = g.findIndex(x => !x.fertig);
+  if (i < 0) return g.length === 1 ? '1 Etappe, fertig' : g.length + ' Etappen, alle fertig';
+  const offen = g[i].schritte.filter(cosOffen).length;
+  return (g.length > 1 ? 'Etappe ' + (i + 1) + ' von ' + g.length : g[i].name ? esc(g[i].name) : offen + (offen === 1 ? ' Schritt offen' : ' Schritte offen')) + (g[i].grob ? ' · noch nicht zerlegt' : '');
+}
+function cosProjektZeile(p, rang, alle, ueber, an) {
+  const z = cosZahlen(p.name, alle), u = ueber[p.name] || 0, farbe = cosFarbe(p.bereich);
+  return '<div class="cos-prow' + (an ? ' an' : '') + '" data-zieh="p" data-id="' + p.id + '">' +
+    '<button class="cos-griff" onpointerdown="cosZiehStart(event)" onkeydown="cosGriffTaste(event)" aria-label="Rang von ' + esc(p.name) + ' ändern. Ziehen oder Pfeiltasten">' + COS_GRIFF + '</button>' +
+    '<span class="cos-rang' + (rang === 1 ? ' eins' : '') + '">' + rang + '</span>' +
+    '<button class="cos-prow-in" onclick="cosOeffnenId(\'' + p.id + '\')"><div class="cos-bahn-k"><span class="punkt" style="background:' + farbe + '"></span><b>' + esc(p.name) +
+    '</b><span class="s' + (u ? ' eng' : '') + '">' + cosStand(p, z, u) + '</span></div><div class="cos-meta">' + cosEtappeMeta(p) + '</div>' +
+    '<div class="kr">' + cosBahnKq(p, z, u, farbe) + '</div></button></div>';
+}
+function cosUebersicht(alle, ueber, mac) {
+  const aktiv = C.projekte.filter(p => p.status === 'aktiv');
+  let html = cosWocheKarte();
+  const eng = aktiv.filter(p => ueber[p.name]).sort((a, b) => a.deadline.localeCompare(b.deadline))[0];
+  if (eng) html += '<div class="karte cos-hinweis"><span>' + ueber[eng.name] + ' Kästchen von ' + esc(eng.name) + ' passen nicht vor den ' + cosDatum(eng.deadline) +
+    '</span><button onclick="cosOeffnenId(\'' + eng.id + '\')">Lösen</button></div>';
+  const namen = {};
+  aktiv.forEach(p => { namen[p.name] = true; });
+  const oft = C.schritte.filter(s => namen[s.projekt] && cosOffen(s) && s.verschoben >= 3).slice(0, 2);
+  oft.forEach(s => {
+    html += '<div class="karte cos-hinweis gold"><span>' + esc(s.titel) + ' wurde ' + s.verschoben + ' mal verschoben.</span><button onclick="cosSchrittOeffnen(\'' + s.id + '\')">Entscheiden</button></div>';
   });
-  if (!schritte.length) html += '<div class="hinweis">Noch keine Schritte. Die zerlegen wir zusammen.</div>';
-  if (z.reserve) html += '<div class="cos-schritt"><div class="was" style="color:var(--leise)">Reserve</div><div class="kr" style="max-width:180px">' + cosViele(z.reserve, farbe, 're', 30) + '</div></div>';
-  return html + '<a class="cos-runde" style="margin:14px 0 2px" target="_blank" rel="noopener" href="' + COS_CLAUDE + '">Mit Claude zerlegen</a></div>';
+  html += '<div class="cos-kopfzeile"><span class="cos-ab">Aktiv · ' + aktiv.length + ' von ' + COS_AKTIV_MAX + '</span><button class="cos-link" onclick="cosProjektNeu()">+ Projekt</button></div>';
+  html += '<div class="karte cos-liste">' + (aktiv.length ? aktiv.map((p, i) => cosProjektZeile(p, i + 1, alle, ueber, mac && cosProjekt === p.id)).join('')
+    : '<div class="hinweis" style="padding:12px">Kein aktives Projekt. Hol eins vom Parkplatz oder leg ein neues an.</div>') + '</div>';
+  html += '<div class="cos-unter' + (aktiv.length > COS_AKTIV_MAX ? ' eng' : '') + '">' + (aktiv.length > COS_AKTIV_MAX
+    ? 'Mehr als drei aktive Projekte verteilen die Kästchen dünn. Eins parken?'
+    : 'Am Griff ziehen ändert den Rang. Rang 1 bekommt den ersten Block des Tages, außer eine externe Deadline wird knapp.') + '</div>';
+  const park = C.projekte.filter(p => p.status === 'parkplatz'), fertig = C.projekte.filter(p => p.status === 'fertig');
+  if (park.length) html += '<div class="karte" style="padding-top:6px;padding-bottom:4px"><div class="cos-ab" style="padding:6px 0">Parkplatz</div>' +
+    park.map(p => '<div class="cos-zeile"><span class="punkt" style="background:' + cosFarbe(p.bereich) + '"></span><button class="t" style="text-align:left;min-height:44px" onclick="cosOeffnenId(\'' + p.id + '\')">' + esc(p.name) +
+      '</button><button class="cos-klein" onclick="cosStatus(\'' + p.id + '\',\'aktiv\')">Aktivieren</button></div>').join('') + '</div>';
+  html += '<div class="karte" style="padding-top:0;padding-bottom:0"><button class="cos-zeile" onclick="cosKlappen(\'fertig\')"><span class="t">Regal</span><span class="s">' +
+    (fertig.length ? fertig.length + (fertig.length === 1 ? ' fertiges Projekt' : ' fertige Projekte') : 'Fertige Projekte') + '</span></button>' +
+    (cosAuf.fertig ? fertig.map(p => '<div class="cos-zeile"><span class="punkt" style="background:' + cosFarbe(p.bereich) + '"></span><button class="t" style="text-align:left;min-height:44px" onclick="cosOeffnenId(\'' + p.id + '\')">' +
+      esc(p.name) + '</button><button class="cos-klein" onclick="cosStatus(\'' + p.id + '\',\'aktiv\')">Zurückholen</button></div>').join('') : '') + '</div>';
+  return html + '<a class="cos-runde" target="_blank" rel="noopener" href="' + COS_CLAUDE + '">Wochenrunde mit Claude</a>';
 }
-function cosOeffnen(i) {
-  const p = i >= 0 && C ? C.projekte[i] : null;
-  cosProjekt = p ? p.name : null;
+function cosStatus(pid, status) {
+  const p = cosPid(pid);
+  if (!p) return;
+  haptik();
+  const neu = Object.assign(cosKopie(p), { status: status });
+  cosProjektAendern(neu, status === 'aktiv' ? p.name + ' aktiv' : p.name + ' geparkt');
+  const n = C.projekte.filter(x => x.status === 'aktiv').length;
+  if (status === 'aktiv') melden(n > COS_AKTIV_MAX ? 'Jetzt ' + n + ' aktiv. Mehr als drei verteilen die Kästchen dünn.' : p.name + ' ist aktiv.');
+}
+
+/* ── Seite Chief: Projekt mit Etappen ── */
+function cosChipsHtml(s) {
+  const h = heute(), c = [];
+  if (s.wann) c.push('<span class="cos-chip">' + (s.wann === h ? 'Heute' : cosTagName(s.wann)) + '</span>');
+  if (s.verschoben) c.push('<span class="cos-chip ' + (s.verschoben >= 3 ? 'rosa' : 'gold') + '">' + s.verschoben + ' mal verschoben</span>');
+  return c.length ? '<div class="cos-chips2">' + c.join('') + '</div>' : '';
+}
+function cosSchrittZeile(p, s, alle, naechster, mac, ohneZerl) {
+  const farbe = cosFarbe(p.bereich), min = cosMin(s, alle), fertig = s.status === 'fertig', grob = s.status === 'grob';
+  const neu = cosNeuHaken && cosNeuHaken.id === s.id && Date.now() - cosNeuHaken.t < 1500;
+  const frisch = cosFrisch[s.id] && Date.now() - cosFrisch[s.id] < 1500;
+  const unter = fertig ? '' : s.fertigWenn ? 'Fertig, wenn ' + esc(s.fertigWenn.replace(/^fertig,?\s*wenn\s*/i, '')) : s.weiterBei ? 'Weiter bei: ' + esc(s.weiterBei) : grob ? 'grob geschätzt' : '';
+  return '<div class="cos-srow' + (fertig ? ' fertig' : '') + (frisch ? ' frisch' : '') + '" data-zieh="s" data-id="' + s.id + '" data-pid="' + p.id + '"' +
+    (mac ? ' draggable="true" ondragstart="cosDragStart(event)" ondragend="cosDragEnde(event)"' : '') + '>' +
+    '<button class="cos-griff klein" onpointerdown="cosZiehStart(event)" onkeydown="cosGriffTaste(event)" aria-label="' + esc(s.titel) + ' verschieben. Ziehen oder Pfeiltasten">' + COS_GRIFF + '</button>' +
+    (grob ? '<span class="cos-haken grob"><span></span></span>'
+      : '<button class="cos-haken' + (fertig ? ' an' : '') + (neu ? ' neu' : '') + '" style="--kf:' + farbe + '" onclick="cosHaken(\'' + s.id + '\')" aria-label="' + (fertig ? 'Wieder öffnen' : 'Abhaken') + '"><span>' + COS_HAKEN + '</span></button>') +
+    '<button class="was" onclick="cosSchrittOeffnen(\'' + s.id + '\')"><div class="t">' + esc(s.titel) + (naechster === s.id ? '<span class="cos-chip" style="margin-left:6px">Als Nächstes</span>' : '') + '</div>' +
+    (unter ? '<small>' + unter + '</small>' : '') + (fertig ? '' : cosChipsHtml(s)) + '</button>' +
+    '<span class="kr">' + cosSchrittKq(s, farbe, min) + '</span>' +
+    (fertig ? '<span style="width:6px"></span>' : grob ? (ohneZerl ? '<span style="width:6px"></span>' : '<button class="cos-zerl" onclick="cosZerlegen(\'' + s.id + '\')">Zerlegen</button>')
+      : p.status === 'aktiv' ? '<button class="cos-los" onclick="cosStart(\'' + s.id + '\')" aria-label="Los: ' + esc(s.titel) + '"><span>▶</span></button>' : '<span style="width:6px"></span>') + '</div>';
+}
+function cosNeuHtml(p, gi, g) {
+  if (cosNeuZeile && cosNeuZeile.pid === p.id && cosNeuZeile.etappe === g.name) {
+    return '<div class="cos-neu"><input type="text" id="cosNeuIn" placeholder="Neuer Schritt" aria-label="Neuer Schritt" enterkeyhint="next" autocomplete="off" value="' + esc(cosEntwurf.t) +
+      '" oninput="cosEntwurf.t=this.value" onkeydown="cosNeuTaste(event)" onblur="cosNeuBlur()"><div class="cos-neu-k"><span>Kästchen</span>' +
+      [1, 2, 3, 4].map(n => '<button class="cos-zahl' + (cosEntwurf.k === n ? ' an' : '') + '" onpointerdown="event.preventDefault()" onclick="cosNeuK(' + n + ')" aria-pressed="' + (cosEntwurf.k === n) + '">' + n + '</button>').join('') +
+      '<span class="sp"></span><button class="cos-neu-ok" onpointerdown="event.preventDefault()" onclick="cosNeuAnlegen()">Dazu</button></div></div>';
+  }
+  return '<button class="cos-plus" onclick="cosNeuStart(\'' + p.id + '\',' + gi + ')">+ Schritt</button>';
+}
+function cosProjektHtml(p, mitZurueck, mac) {
+  const alle = cosAlleBloecke(), farbe = cosFarbe(p.bereich), z = cosZahlen(p.name, alle), ueber = cosUeber(alle), u = ueber[p.name] || 0;
+  const liste = cosListe(p), gruppen = cosEtappen(liste), naechster = ((cosKandidaten()[0] || {}).s || {}).id;
+  const aktiv = C.projekte.filter(x => x.status === 'aktiv'), rang = aktiv.indexOf(p) + 1;
+  let html = '<div class="cos-pkopf">' + (mitZurueck ? '<button class="cos-zurueck" onclick="cosOeffnenId(null)" aria-label="Zurück zu allen Projekten">‹</button>' : '') +
+    '<div class="t"><b>' + esc(p.name) + '</b><span>' + esc(p.bereich || 'ohne Bereich') + ' · ' + (p.status === 'aktiv' ? 'Rang ' + rang : p.status === 'parkplatz' ? 'Parkplatz' : 'fertig') + '</span></div>' +
+    '<button class="cos-link" onclick="cosProjektOeffnen(\'' + p.id + '\')">Bearbeiten</button></div>';
+  if (u) html += '<div class="karte cos-hinweis"><span>' + u + ' Kästchen passen nicht vor den ' + cosDatum(p.deadline) + ' Mehr Zeit, weniger Schritte oder ein späterer Termin.</span>' +
+    '<button onclick="cosProjektOeffnen(\'' + p.id + '\')">Ändern</button></div>';
+  const verbraucht = Math.max(0, p.reserve - z.reserve);
+  html += '<div class="karte"><div class="cos-tiles">' +
+    '<button onclick="cosProjektOeffnen(\'' + p.id + '\')"><span>' + (p.deadline ? (p.art === 'extern' ? 'Deadline · extern' : 'Zieltermin') : 'Termin') + '</span><b>' + (p.deadline ? cosDatum(p.deadline) : 'keiner') + '</b></button>' +
+    '<button onclick="cosProjektOeffnen(\'' + p.id + '\')"><span>Offen</span><b>' + z.offen + '</b></button>' +
+    '<button onclick="cosProjektOeffnen(\'' + p.id + '\')"><span>Reserve</span><b>' + p.reserve + '</b></button></div>' +
+    '<div class="kr gross">' + cosBahnKq(p, z, u, farbe) + '</div>' +
+    '<div class="hz-meta">' + z.geschafft + ' von ' + (z.geschafft + z.offen) + ' geschafft' + (p.reserve ? ' · Reserve ' + (verbraucht ? verbraucht + ' verbraucht' : 'unberührt') : '') + '</div>' +
+    '<button class="cos-wofuer" onclick="cosProjektOeffnen(\'' + p.id + '\')"><span>Wofür:</span> ' + (p.wofuer ? esc(p.wofuer) : 'noch offen') + '</button></div>';
+  gruppen.forEach((g, gi) => {
+    const key = p.id + '|' + g.name, zu = g.fertig && cosZu[key] !== false;
+    html += '<div class="karte cos-et"><div class="cos-et-kopf" data-etappe-kopf="1" data-etappe="' + esc(g.name) + '"' + (zu ? ' data-zu="1"' : '') + '><span class="cos-ab">' +
+      (gruppen.length > 1 || g.name ? 'Etappe ' + (gi + 1) + ' · ' : '') + g.zustand + '</span>' +
+      '<button class="cos-mehr" onclick="cosEtappeOeffnen(\'' + p.id + '\',' + gi + ')" aria-label="Etappe bearbeiten">' + COS_PUNKTE + '</button></div>' +
+      '<div class="cos-et-titel' + (g.name ? '' : ' leer') + '">' + esc(g.name || 'Schritte ohne Etappe') + '</div>';
+    if (zu) {
+      const k = g.schritte.reduce((n, s) => n + Math.floor(cosMin(s, alle) / COS_MIN), 0);
+      html += '<button class="cos-et-zu" onclick="cosEtappeKlappen(\'' + p.id + '\',' + gi + ')"><span class="kr">' + cosViele(k, farbe, 'an', 24) + '</span>' +
+        g.schritte.length + (g.schritte.length === 1 ? ' Schritt' : ' Schritte') + ' · aufklappen</button></div>';
+      return;
+    }
+    const ersterGrob = g.grob ? g.schritte.find(s => s.status === 'grob') : null, gross = ersterGrob && g.schritte.filter(cosOffen).length === 1;
+    g.schritte.forEach(s => { html += cosSchrittZeile(p, s, alle, naechster, mac, gross && s === ersterGrob); });
+    if (gross) html += '<button class="cos-zerl-gross" onclick="cosZerlegen(\'' + ersterGrob.id + '\')">In Schritte zerlegen</button>';
+    html += cosNeuHtml(p, gi, g) + (g.fertig ? '<button class="cos-et-zu" onclick="cosEtappeKlappen(\'' + p.id + '\',' + gi + ')">zuklappen</button>' : '') + '</div>';
+  });
+  if (!gruppen.length) html += '<div class="karte"><b>Noch keine Schritte.</b><div class="hinweis">Leg eine Etappe an und schätz sie grob. Zerlegt wird, wenn sie dran ist.</div></div>';
+  html += '<div class="cos-paar"><button class="gestr" onclick="cosEtappeNeu(\'' + p.id + '\')">+ Etappe</button>' +
+    '<a class="rand" target="_blank" rel="noopener" href="' + COS_CLAUDE + '">In Claude zerlegen</a></div>';
+  const park = liste.filter(s => s.status === 'park');
+  if (park.length) html += '<div class="karte" style="padding-top:0;padding-bottom:0"><button class="cos-zeile" onclick="cosKlappen(\'geparkt\')"><span class="t">Geparkte Schritte</span><span class="s">' + park.length + '</span></button>' +
+    (cosAuf.geparkt ? park.map(s => '<div class="cos-zeile"><button class="t" style="text-align:left;min-height:44px" onclick="cosSchrittOeffnen(\'' + s.id + '\')">' + esc(s.titel) +
+      '</button><button class="cos-klein" onclick="cosSchrittStatus(\'' + s.id + '\',\'offen\')">Zurückholen</button></div>').join('') : '') + '</div>';
+  return html;
+}
+function cosEtappeKlappen(pid, gi) {
+  const p = cosPid(pid), g = p && cosEtappen(cosListe(p))[gi];
+  if (!g) return;
+  const key = pid + '|' + g.name;
+  cosZu[key] = cosZu[key] === false;
+  zeichnen();
+}
+function cosOeffnenId(pid) {
+  cosProjekt = pid && cosPid(pid) ? pid : null;
+  cosNeuZeile = null;
   zeichnen();
   if (!document.body.classList.contains('mac')) window.scrollTo(0, 0);
 }
 function cosKlappen(was) { cosAuf[was] = !cosAuf[was]; zeichnen(); }
+function cosSchrittStatus(sid, status) {
+  const s = C.schritte.find(x => x.id === sid), p = s && cosNachName(s.projekt);
+  if (!p) return;
+  cosSchritteAendern(p, cosListe(p).map(x => (x.id === sid ? Object.assign({}, x, { status: status }) : x)), status === 'park' ? 'Geparkt' : 'Zurückgeholt');
+}
+
+/* Neuer Schritt direkt in der Etappe: tippen, Kästchen antippen, Enter, schon steht die nächste Zeile bereit */
+function cosNeuStart(pid, gi) {
+  const p = cosPid(pid), g = p && cosEtappen(cosListe(p))[gi];
+  if (!g) return;
+  cosNeuZeile = { pid: pid, etappe: g.name };
+  cosEntwurf.t = '';
+  zeichnen();
+  cosNeuFokus();
+}
+function cosNeuFokus() { const el = $('cosNeuIn'); if (el) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) { /* egal */ } } }
+function cosNeuK(n) { cosEntwurf.k = n; haptik(); document.querySelectorAll('.cos-neu .cos-zahl').forEach((b, i) => { b.classList.toggle('an', i + 1 === n); b.setAttribute('aria-pressed', i + 1 === n); }); }
+function cosNeuTaste(e) {
+  if (e.key === 'Enter') { e.preventDefault(); cosNeuAnlegen(); }
+  else if (e.key === 'Escape') { e.preventDefault(); cosNeuZeile = null; cosEntwurf.t = ''; zeichnen(); }
+  else if (/^[1-6]$/.test(e.key) && e.altKey) { e.preventDefault(); cosNeuK(Number(e.key)); }
+}
+function cosNeuBlur() {
+  setTimeout(() => {
+    const a = document.activeElement;
+    if (a && a.id === 'cosNeuIn') return;
+    if (cosNeuZeile && !cosEntwurf.t.trim()) { cosNeuZeile = null; zeichnen(); }
+  }, 200);
+}
+function cosNeuAnlegen() {
+  const z = cosNeuZeile, p = z && cosPid(z.pid), t = cosEntwurf.t.trim();
+  if (!p) return;
+  if (!t) { cosNeuFokus(); return; }
+  const liste = cosListe(p).slice();
+  const neu = { id: cosId('s'), abschnitt: z.etappe, titel: t.slice(0, 160), k: cosEntwurf.k, fertigWenn: '', status: 'offen', weiterBei: '', wann: '', verschoben: 0, min: 0, bl: {} };
+  let i = -1;
+  liste.forEach((s, j) => { if ((s.abschnitt || '') === z.etappe && s.status !== 'park') i = j; });
+  liste.splice(i + 1, 0, neu);
+  cosFrisch[neu.id] = Date.now();
+  cosEntwurf.t = '';
+  haptik();
+  cosSchritteAendern(p, liste, 'Schritt angelegt');
+  cosNeuFokus();
+}
+
+/* ── Woche am Mac: die nächsten sieben Tage. Feste Schritte auf ihrem Tag, der Rest wie der Chief ihn verteilen würde ── */
+function cosWochePlan() {
+  const h = heute(), alle = cosAlleBloecke(), ueber = cosUeber(alle), proTag = (Number(C.kapazitaet) || 16) / 7;
+  const tage = [];
+  for (let i = 0; i < 7; i++) {
+    const cap = Math.floor(proTag * (i + 1) + 1e-9) - Math.floor(proTag * i + 1e-9);
+    tage.push({ iso: tagPlus(h, i), cap: cap, k: 0, items: [], geschafft: 0 });
+  }
+  tage[0].geschafft = cosTag(h).farben.length;
+  tage[0].cap = Math.max(0, tage[0].cap - tage[0].geschafft);
+  const aktiv = C.projekte.filter(p => p.status === 'aktiv');
+  const warte = {};
+  aktiv.forEach(p => {
+    warte[p.id] = [];
+    cosListe(p).forEach(s => {
+      if (!cosOffen(s)) return;
+      const rest = Math.max(0, s.k - Math.floor(cosMin(s, alle) / COS_MIN));
+      if (!rest) return;
+      const t = s.wann && tage.find(x => x.iso === s.wann);
+      if (t) { t.items.push({ p: p, s: s, k: rest, fest: true }); t.k += rest; }
+      else if (!s.wann || s.wann < h) warte[p.id].push({ p: p, s: s, rest: rest });
+    });
+  });
+  // Wie am Tag: externe Deadline auf Rot zuerst, dann Rang 1, dann was nicht mehr passt, dann der Rang
+  const rot = p => (ueber[p.name] || 0) > 0, idx = p => aktiv.indexOf(p);
+  const ext = aktiv.filter(p => rot(p) && p.art === 'extern').sort((a, b) => a.deadline.localeCompare(b.deadline));
+  const sonst = aktiv.filter(p => ext.indexOf(p) < 0);
+  const reihe = ext.concat(sonst.length ? [sonst[0]].concat(sonst.slice(1).sort((a, b) => (rot(b) - rot(a)) || idx(a) - idx(b))) : []);
+  tage.forEach(t => {
+    let frei = t.cap - t.k, ri = 0, leer = 0;
+    while (frei > 0 && reihe.length && leer < reihe.length) {
+      const p = reihe[ri % reihe.length]; ri++;
+      const q = warte[p.id];
+      if (!q.length) { leer++; continue; }
+      leer = 0;
+      const x = q[0], n = Math.min(COS_SITZUNG, frei, x.rest);
+      const da = t.items.find(y => y.s.id === x.s.id);
+      if (da) da.k += n; else t.items.push({ p: p, s: x.s, k: n, fest: false });
+      t.k += n; frei -= n; x.rest -= n;
+      if (!x.rest) q.shift();
+    }
+  });
+  return tage;
+}
+function cosWocheHtml() {
+  const tage = cosWochePlan(), kap = Number(C.kapazitaet) || 16;
+  const summe = tage.reduce((n, t) => n + t.k + t.geschafft, 0);
+  return '<div class="karte"><div class="cos-woche-k"><span class="cos-ab">Nächste 7 Tage</span><b>' + summe + ' von ' + kap + '</b></div>' +
+    tage.map(t => '<div class="cos-tag" data-iso="' + t.iso + '" ondragover="cosTagUeber(event)" ondragleave="cosTagRaus(event)" ondrop="cosTagAblegen(event)"><b>' + cosTagName(t.iso) + '</b><div>' +
+      '<div class="kr">' + (t.geschafft ? cosViele(t.geschafft, 'var(--gruen)', 'an', 12) : '') + t.items.map(x => cosViele(x.k, cosFarbe(x.p.bereich), '', 12)).join('') +
+      (!t.k && !t.geschafft ? '<span class="cos-tag-t" style="margin:0">frei</span>' : '') + '</div>' +
+      (t.items.length ? '<div class="cos-tag-t">' + t.items.map(x => x.fest ? '<b>' + esc(x.s.titel) + '</b>' : esc(x.s.titel)).join(' · ') + '</div>' : '') + '</div></div>').join('') +
+    '<div class="cos-legende" style="margin-top:6px">Der Chief verteilt nach Rang, fett ist fest. Schritt aus der Mitte auf einen Tag ziehen legt ihn fest.</div></div>';
+}
+function cosDragStart(e) {
+  const z = e.currentTarget;
+  if (cosZieh) { e.preventDefault(); return; }
+  e.dataTransfer.setData('text/plain', 'cos:' + z.dataset.id);
+  e.dataTransfer.effectAllowed = 'move';
+  z.classList.add('zieht2');
+}
+function cosDragEnde(e) {
+  e.currentTarget.classList.remove('zieht2');
+  document.querySelectorAll('.cos-tag.ueber').forEach(x => x.classList.remove('ueber'));
+}
+function cosTagUeber(e) { e.preventDefault(); e.currentTarget.classList.add('ueber'); }
+function cosTagRaus(e) { e.currentTarget.classList.remove('ueber'); }
+function cosTagAblegen(e) {
+  e.preventDefault();
+  const el = e.currentTarget, d = e.dataTransfer.getData('text/plain');
+  el.classList.remove('ueber');
+  if (!d || d.indexOf('cos:') !== 0) return;
+  cosWannSetzen(d.slice(4), el.dataset.iso);
+}
+/* Fester Tag. Wer einen Schritt von heute oder früher nach hinten schiebt, verschiebt ihn: das zählt */
+function cosWannNeu(s, wann) {
+  const h = heute(), alt = s.wann || '';
+  const zaehlt = alt && alt <= h && (wann === '' || wann > alt);
+  return { wann: wann, verschoben: (s.verschoben || 0) + (zaehlt ? 1 : 0) };
+}
+function cosWannSetzen(sid, iso) {
+  const s = C.schritte.find(x => x.id === sid), p = s && cosNachName(s.projekt);
+  if (!p || s.wann === iso) return;
+  haptik();
+  cosSchritteAendern(p, cosListe(p).map(x => (x.id === sid ? Object.assign({}, x, cosWannNeu(x, iso)) : x)), 'Tag festgelegt');
+  melden(esc(s.titel) + ': fest auf ' + cosTagName(iso) + '.');
+}
+
+/* ── Seite Chief zeichnen ── */
 function zeichneChief() {
+  if (cosZieh) { spaeterZeichnen = true; return; }   // während gezogen wird, bleibt alles stehen
   $('kopfTitel').textContent = 'Chief of Staff';
   $('kopfDatum').textContent = 'KW ' + cosKw();
   const box = $('inhalt');
   if (cosFehlt && !C) { box.innerHTML = '<div class="karte"><b>Der Server kennt den Chief of Staff noch nicht.</b><div class="hinweis">Einmal im Terminal: ./bereitstellen.sh server "Chief of Staff"</div></div>'; return; }
   if (!C) { box.innerHTML = '<div class="laden">Lädt …</div>'; return; }
   const runde = '<a class="cos-runde" target="_blank" rel="noopener" href="' + COS_CLAUDE + '">Wochenrunde mit Claude</a>';
-  if (C.fehlt || !C.projekte.length) {
-    box.innerHTML = '<div class="karte"><b>Noch keine Projekte.</b><div class="hinweis">Die legen wir in der Wochenrunde an: Du erzählst, Claude trägt Projekte und Schritte ein.</div></div>' + runde;
+  if (C.fehlt) { box.innerHTML = '<div class="karte"><b>Die Tabs Projekte und Schritte fehlen.</b></div>' + runde; return; }
+  const alt = cosServerAlt() ? '<div class="karte cos-hinweis"><span>Der Server ist noch alt, Bearbeiten geht erst danach. Einmal: ./bereitstellen.sh server</span></div>' : '';
+  const alle = cosAlleBloecke(), ueber = cosUeber(alle), spalten = macSpalten();
+  let offenP = cosProjekt ? cosPid(cosProjekt) : null;
+  if (spalten < 2) { box.innerHTML = alt + (offenP ? cosProjektHtml(offenP, true, false) : cosUebersicht(alle, ueber, false)); return; }
+  if (!offenP) { offenP = C.projekte.find(p => p.status === 'aktiv') || C.projekte[0] || null; cosProjekt = offenP ? offenP.id : null; }
+  const links = cosUebersicht(alle, ueber, true), mitte = offenP ? cosProjektHtml(offenP, false, true) : '<div class="karte"><b>Noch kein Projekt.</b></div>', woche = cosWocheHtml();
+  box.innerHTML = alt + (spalten >= 3 ? '<div class="cos-drei"><div>' + links + '</div><div>' + mitte + '</div><div>' + woche + '</div></div>'
+    : '<div class="cos-zwei"><div>' + links + woche + '</div><div>' + mitte + '</div></div>');
+}
+
+/* ── Blätter ── */
+function cosBlattAuf(b) {
+  cosBlatt = b;
+  document.body.style.overflow = 'hidden';
+  cosBlattZeichnen(true);
+}
+function cosBlattZeichnen(neu) {
+  const el = $('cosBlatt');
+  if (!cosBlatt) { el.className = 'cos-blatt'; el.innerHTML = ''; return; }
+  const art = cosBlatt.art;
+  const inhalt = art === 'schritt' ? cosBlattSchritt() : art === 'projekt' ? cosBlattProjekt() : art === 'etappe' ? cosBlattEtappe() : cosBlattZerlegen();
+  const alt = el.querySelector('.cos-blatt-in'), scroll = !neu && alt ? alt.scrollTop : 0;
+  el.className = 'cos-blatt offen' + (neu ? ' neu' : '');
+  el.innerHTML = '<div class="cos-blatt-hg" onclick="' + (art === 'zerlegen' ? 'cosBlattZu()' : 'cosBlattFertig()') + '"></div>' +
+    '<div class="cos-blatt-in" role="dialog" aria-modal="true" aria-label="' + esc(cosBlatt.titel || 'Bearbeiten') + '"><div class="cos-griffleiste"></div>' + inhalt + '</div>';
+  const inn = el.querySelector('.cos-blatt-in');
+  if (inn) inn.scrollTop = scroll;
+  if (neu && cosBlatt.fokus) { const f = $(cosBlatt.fokus); if (f) setTimeout(() => f.focus(), 60); }
+}
+function cosBlattZu() {
+  cosBlatt = null;
+  document.body.style.overflow = '';
+  cosBlattZeichnen();
+  if (spaeterZeichnen) zeichnen();
+}
+function cosBlattFertig() {
+  if (!cosBlatt) return;
+  const art = cosBlatt.art;
+  if (art === 'schritt') cosSchrittSpeichern();
+  else if (art === 'projekt') cosProjektSpeichern();
+  else if (art === 'etappe') cosEtappeSpeichern();
+  else cosBlattZu();
+}
+function cosBk(titel, fertigText) {
+  return '<div class="cos-bk"><button onclick="cosBlattZu()">Abbrechen</button><b>' + titel + '</b>' +
+    (fertigText === null ? '<span></span>' : '<button class="an" onclick="cosBlattFertig()">' + (fertigText || 'Fertig') + '</button>') + '</div>';
+}
+function cosWert(id) { const el = $(id); return el ? el.value : null; }
+function cosPicker(n, wahl, an, farbe, fn, klasse, lang) {
+  let h = '<div class="cos-picker' + (klasse ? ' ' + klasse : '') + '" style="--kf:' + farbe + '">';
+  for (let i = 1; i <= n; i++) {
+    h += '<button class="' + (i <= an ? 'an' : i <= wahl ? 'wahl' : '') + (lang && i <= wahl && i > COS_SITZUNG ? ' lang' : '') + '" onclick="' + fn + '(' + i + ')" aria-label="' + i + ' Kästchen" aria-pressed="' + (i === wahl) + '"><span></span></button>';
+  }
+  return h + '</div>';
+}
+
+/* Schritt bearbeiten */
+function cosSchrittOeffnen(sid) {
+  const s = C && C.schritte.find(x => x.id === sid);
+  if (!s) return;
+  cosNeuZeile = null;
+  cosBlattAuf({ art: 'schritt', titel: 'Schritt', sid: sid, d: cosPaket(s), neueEtappe: false,
+    datum: !!(s.wann && s.wann !== heute() && s.wann !== tagPlus(heute(), 1)) });
+}
+function cosBlattSchritt() {
+  const b = cosBlatt, d = b.d, s = C.schritte.find(x => x.id === b.sid), p = s && cosNachName(s.projekt);
+  if (!s || !p) return cosBk('Schritt', null) + '<div class="hinweis">Den Schritt gibt es nicht mehr.</div>';
+  const h = heute(), morgen = tagPlus(h, 1), farbe = cosFarbe(p.bereich), done = Math.floor(cosMin(s) / COS_MIN);
+  const modus = !d.wann ? 'chief' : d.wann === h && !b.datum ? 'heute' : d.wann === morgen && !b.datum ? 'morgen' : 'datum';
+  const gruppen = cosEtappen(cosListe(p)).map(g => g.name);
+  if (gruppen.indexOf(d.abschnitt) < 0) gruppen.push(d.abschnitt);
+  let html = cosBk('Schritt') +
+    '<div class="cos-feld"><label for="cbTitel">Schritt</label><input type="text" id="cbTitel" value="' + esc(d.titel) + '" oninput="cosBlatt.d.titel=this.value" autocomplete="off"></div>' +
+    '<div class="cos-feld"><div class="l"><span>Kästchen</span><em><b>' + d.k + '</b> · ' + dauerText(d.k * COS_MIN) + (done ? ' · ' + done + ' geschafft' : '') + '</em></div>' +
+    cosPicker(Math.min(12, Math.max(8, d.k + 2)), d.k, Math.min(done, d.k), farbe, 'cosBlattK', '', d.status !== 'grob') +
+    '<div class="cos-tipp">' + (d.k > COS_SITZUNG && d.status !== 'grob' ? 'Mehr als 3 am Stück? Lieber zerlegen.' : d.status === 'grob' ? 'Grob geschätzt. Zerlegt wird, wenn der Schritt dran ist.' : 'Antippen setzt die Zahl. Ein Kästchen sind 30 Minuten.') + '</div></div>' +
+    '<div class="cos-feld"><label for="cbFertig">Fertig, wenn</label><input type="text" id="cbFertig" value="' + esc(d.fertigWenn) + '" placeholder="woran du merkst, dass es fertig ist" oninput="cosBlatt.d.fertigWenn=this.value" autocomplete="off"></div>' +
+    '<div class="cos-feld"><label for="cbWeiter">Weiter bei</label><input type="text" id="cbWeiter" value="' + esc(d.weiterBei) + '" placeholder="wo du das nächste Mal einsteigst" oninput="cosBlatt.d.weiterBei=this.value" autocomplete="off"></div>' +
+    '<div class="cos-feld"><label for="cbEtappe">Etappe</label>' + (b.neueEtappe
+      ? '<input type="text" id="cbEtappeNeu" value="' + esc(d.abschnitt) + '" placeholder="Name der neuen Etappe" oninput="cosBlatt.d.abschnitt=this.value" autocomplete="off">'
+      : '<select id="cbEtappe" onchange="cosBlattEtappeWahl(this.value)">' + gruppen.map(n => '<option value="' + esc(n) + '"' + (n === d.abschnitt ? ' selected' : '') + '>' + esc(n || 'Ohne Etappe') + '</option>').join('') +
+        '<option value="__neu">Neue Etappe …</option></select>') + '</div>';
+  if (d.status !== 'fertig' && d.status !== 'park') html += '<div class="cos-feld"><div class="l"><span>Stand</span></div><div class="cos-seg">' +
+    '<button class="' + (d.status === 'offen' ? 'an' : '') + '" onclick="cosBlattSetzen(\'status\',\'offen\')">Konkret</button>' +
+    '<button class="' + (d.status === 'grob' ? 'an' : '') + '" onclick="cosBlattSetzen(\'status\',\'grob\')">Noch grob</button></div></div>';
+  html += '<div class="cos-feld"><div class="l"><span>Wann</span></div><div class="cos-seg">' +
+    [['chief', 'Chief'], ['heute', 'Heute'], ['morgen', 'Morgen'], ['datum', 'Datum']].map(x => '<button class="' + (modus === x[0] ? 'an' : '') + '" onclick="cosBlattWann(\'' + x[0] + '\')">' + x[1] + '</button>').join('') + '</div>' +
+    (modus === 'datum' ? '<div style="margin-top:8px"><input type="date" id="cbDatum" value="' + esc(d.wann) + '" min="' + h + '" onchange="cosBlatt.d.wann=this.value"></div>' : '') +
+    '<div class="cos-tipp">' + (modus === 'chief' ? 'Der Chief entscheidet, wann der Schritt dran ist.' : 'Fest. Bleibt auf dem Tag, auch wenn der Chief umplant.') + '</div></div>';
+  if (d.verschoben) html += '<div class="cos-info' + (d.verschoben >= 3 ? ' rosa' : '') + '">' + d.verschoben + ' mal verschoben.' +
+    (d.verschoben >= 3 ? ' Zeit für eine Entscheidung: kleiner machen, parken oder streichen.<div class="knoepfe"><button onclick="cosBlattAktion(\'zerlegen\')">Kleiner machen</button>' +
+      '<button onclick="cosBlattAktion(\'park\')">Parken</button><button onclick="cosBlattAktion(\'weg\')">Streichen</button><button onclick="cosBlattSetzen(\'verschoben\',0)">Nochmal versuchen</button></div>'
+      : ' Beim dritten Mal fragt die Zentrale nach.') + '</div>';
+  html += '<div class="cos-aktionen"><button class="blau" onclick="cosBlattAktion(\'zerlegen\')">Zerlegen</button>' +
+    (d.status === 'park' ? '<button onclick="cosBlattAktion(\'zurueck\')">Zurückholen</button>' : '<button onclick="cosBlattAktion(\'park\')">Parken</button>') +
+    '<button class="rot" onclick="cosBlattAktion(\'weg\')">Löschen</button></div>';
+  return html;
+}
+function cosBlattSetzen(k, v) { if (!cosBlatt) return; cosBlattLesen(); cosBlatt.d[k] = v; haptik(); cosBlattZeichnen(); }
+function cosBlattK(n) { cosBlattSetzen('k', n); }
+function cosBlattWann(m) {
+  const b = cosBlatt, h = heute();
+  cosBlattLesen();
+  b.datum = m === 'datum';
+  b.d.wann = m === 'chief' ? '' : m === 'heute' ? h : m === 'morgen' ? tagPlus(h, 1) : (b.d.wann && b.d.wann > tagPlus(h, 1) ? b.d.wann : tagPlus(h, 2));
+  haptik();
+  cosBlattZeichnen();
+}
+function cosBlattEtappeWahl(v) {
+  cosBlattLesen();
+  if (v === '__neu') { cosBlatt.neueEtappe = true; cosBlatt.d.abschnitt = ''; cosBlattZeichnen(); const f = $('cbEtappeNeu'); if (f) f.focus(); return; }
+  cosBlatt.d.abschnitt = v;
+}
+/* Textfelder ins Blatt übernehmen, bevor neu gezeichnet oder gespeichert wird */
+function cosBlattLesen() {
+  const b = cosBlatt;
+  if (!b) return;
+  if (b.art === 'schritt') {
+    [['cbTitel', 'titel'], ['cbFertig', 'fertigWenn'], ['cbWeiter', 'weiterBei'], ['cbEtappeNeu', 'abschnitt'], ['cbDatum', 'wann']].forEach(x => { const v = cosWert(x[0]); if (v !== null) b.d[x[1]] = v; });
+    const e = cosWert('cbEtappe');
+    if (e !== null && e !== '__neu') b.d.abschnitt = e;
+  } else if (b.art === 'projekt') {
+    [['cbName', 'name'], ['cbWofuer', 'wofuer'], ['cbDl', 'deadline']].forEach(x => { const v = cosWert(x[0]); if (v !== null) b.d[x[1]] = v; });
+  } else if (b.art === 'etappe') {
+    const v = cosWert('cbEtName');
+    if (v !== null) b.name = v;
+  } else if (b.art === 'zerlegen') {
+    b.teile.forEach((t, i) => { const v = cosWert('cbT' + i); if (v !== null) t.t = v; });
+  }
+}
+function cosSchrittSpeichern(dannZu) {
+  const b = cosBlatt;
+  cosBlattLesen();
+  const s = C.schritte.find(x => x.id === b.sid), p = s && cosNachName(s.projekt);
+  if (!s || !p) { cosBlattZu(); return; }
+  const d = b.d;
+  d.titel = d.titel.replace(/\s+/g, ' ').trim();
+  d.abschnitt = (d.abschnitt || '').replace(/\s+/g, ' ').trim();
+  if (!d.titel) { melden('Der Schritt braucht einen Titel.'); return; }
+  const alt = cosPaket(s);
+  const wann = cosWannNeu(s, d.wann || '');
+  if (d.verschoben === alt.verschoben) d.verschoben = wann.verschoben;
+  const neu = Object.assign({}, alt, { titel: d.titel, k: d.k, fertigWenn: d.fertigWenn.trim(), weiterBei: d.weiterBei.trim(), abschnitt: d.abschnitt, status: d.status, wann: d.wann || '', verschoben: d.verschoben });
+  if (dannZu !== false) cosBlattZu();
+  if (JSON.stringify(neu) === JSON.stringify(alt)) return;
+  let liste = cosListe(p).slice();
+  const i = liste.findIndex(x => x.id === s.id);
+  if (neu.abschnitt !== alt.abschnitt) {
+    liste.splice(i, 1);
+    let j = -1;
+    liste.forEach((x, k) => { if ((x.abschnitt || '') === neu.abschnitt && x.status !== 'park') j = k; });
+    if (j < 0) liste.push(neu); else liste.splice(j + 1, 0, neu);
+  } else liste[i] = neu;
+  cosSchritteAendern(p, liste, 'Schritt geändert');
+}
+function cosBlattAktion(was) {
+  const b = cosBlatt, s = b && C.schritte.find(x => x.id === b.sid), p = s && cosNachName(s.projekt);
+  if (!p) return;
+  if (was === 'zerlegen') { cosSchrittSpeichern(false); cosZerlegen(b.sid); return; }
+  if (was === 'park' || was === 'zurueck') {
+    cosBlattLesen();
+    b.d.status = was === 'park' ? 'park' : 'offen';
+    cosSchrittSpeichern();
+    melden(was === 'park' ? 'Geparkt. Liegt unten im Projekt.' : 'Zurückgeholt.');
     return;
   }
-  const alle = cosAlleBloecke(), ueber = cosUeber(alle), mac = macSpalten() >= 2;
-  const aktiv = C.projekte.filter(p => p.status === 'aktiv');
-  let offenP = cosProjekt ? C.projekte.find(p => p.name === cosProjekt) : null;
-  if (!mac && offenP) { box.innerHTML = cosProjektHtml(offenP, true); return; }
-  if (mac && !offenP) offenP = aktiv[0] || null;
+  if (was === 'weg') {
+    cosBlattZu();
+    cosSchritteAendern(p, cosListe(p).filter(x => x.id !== s.id), 'Schritt gelöscht');
+    melden('Gelöscht. Oben geht Rückgängig.');
+  }
+}
 
-  let html = '';
-  const eng = aktiv.filter(p => ueber[p.name]).sort((a, b) => a.deadline.localeCompare(b.deadline))[0];
-  if (eng) html += '<div class="karte cos-hinweis"><span>' + ueber[eng.name] + ' Kästchen von ' + esc(eng.name) + ' passen nicht vor den ' + cosDatum(eng.deadline) +
-    '</span><button onclick="cosOeffnen(' + C.projekte.indexOf(eng) + ')">Ansehen</button></div>';
-  html += '<div class="karte">' + (aktiv.length ? aktiv.map(p => cosBahnHtml(p, C.projekte.indexOf(p), alle, ueber, mac && offenP === p)).join('')
-    : '<div class="hinweis">Kein aktives Projekt.</div>') +
-    '<div class="cos-legende">Gefüllt ist geschafft, leer ist offen, gestrichelt ist Reserve. Was hinter der Fahne steht, passt nicht mehr davor.</div></div>';
-  const park = C.projekte.filter(p => p.status === 'parkplatz'), fertig = C.projekte.filter(p => p.status === 'fertig');
-  const liste = (l) => '<div class="cos-chips">' + l.map(p => '<span>' + esc(p.name) + '</span>').join('') + '</div>';
-  html += '<div class="karte" style="padding-top:2px;padding-bottom:2px">' +
-    '<button class="cos-zeile" onclick="cosKlappen(\'park\')"><span class="t">Parkplatz</span><span class="s">' + park.length + (park.length === 1 ? ' Projekt' : ' Projekte') + '</span></button>' +
-    (cosAuf.park && park.length ? liste(park) : '') +
-    '<button class="cos-zeile" onclick="cosKlappen(\'fertig\')"><span class="t">Fertig</span><span class="s">' + (fertig.length ? fertig.length + (fertig.length === 1 ? ' Projekt' : ' Projekte') : 'Regal für Abgeschlossenes') + '</span></button>' +
-    (cosAuf.fertig && fertig.length ? liste(fertig) : '') + '</div>' + runde;
-  box.innerHTML = mac ? '<div class="cos-zwei"><div>' + html + '</div><div>' + (offenP ? cosProjektHtml(offenP, false) : '') + '</div></div>' : html;
+/* Projekt anlegen und bearbeiten */
+function cosProjektNeu() {
+  cosBlattAuf({ art: 'projekt', titel: 'Neues Projekt', neu: true, fokus: 'cbName',
+    d: { id: cosId('p'), name: '', bereich: '', status: 'aktiv', deadline: '', art: 'ziel', wofuer: '', reserve: 0 } });
+}
+function cosProjektOeffnen(pid) {
+  const p = cosPid(pid);
+  if (!p) return;
+  cosNeuZeile = null;
+  cosBlattAuf({ art: 'projekt', titel: 'Projekt', neu: false, d: cosKopie(p), keineDl: !p.deadline });
+}
+function cosBlattProjekt() {
+  const b = cosBlatt, d = b.d, h = heute();
+  const aktiv = C.projekte.filter(p => p.status === 'aktiv'), rang = aktiv.findIndex(p => p.id === d.id) + 1;
+  const offen = b.neu ? 0 : cosZahlen(cosPid(d.id) ? cosPid(d.id).name : d.name).offen;
+  const artModus = !d.deadline ? 'keine' : d.art === 'extern' ? 'extern' : 'ziel';
+  let html = cosBk(b.neu ? 'Neues Projekt' : 'Projekt', b.neu ? 'Anlegen' : 'Fertig') +
+    '<div class="cos-feld"><label for="cbName">Name</label><input type="text" id="cbName" value="' + esc(d.name) + '" placeholder="zum Beispiel FLUCHTWEG Fassung 4" oninput="cosBlatt.d.name=this.value" autocomplete="off"></div>' +
+    '<div class="cos-feld"><div class="l"><span>Bereich</span></div><div class="cos-bereiche">' +
+    COS_BEREICHE.map(x => '<button class="' + (d.bereich === x ? 'an' : '') + '" style="--kf:' + cosFarbe(x) + '" onclick="cosBlattBereich(\'' + x + '\')" aria-pressed="' + (d.bereich === x) + '"><span class="punkt" style="background:' + cosFarbe(x) + '"></span>' + x + '</button>').join('') + '</div></div>' +
+    '<div class="cos-feld"><div class="l"><span>Status</span></div><div class="cos-seg">' +
+    [['aktiv', 'Aktiv'], ['parkplatz', 'Parkplatz'], ['fertig', 'Fertig']].map(x => '<button class="' + (d.status === x[0] ? 'an' : '') + '" onclick="cosBlattSetzen(\'status\',\'' + x[0] + '\')">' + x[1] + '</button>').join('') + '</div></div>';
+  if (!b.neu && d.status === 'aktiv' && rang > 0) html += '<div class="cos-rangzeile"><span>Rang <b>' + rang + '</b> von ' + aktiv.length + '</span>' +
+    '<button onclick="cosRangSchritt(\'' + d.id + '\',-1)"' + (rang <= 1 ? ' disabled' : '') + '>Höher</button><button onclick="cosRangSchritt(\'' + d.id + '\',1)"' + (rang >= aktiv.length ? ' disabled' : '') + '>Tiefer</button></div>';
+  html += '<div class="cos-feld"><label for="cbDl">Deadline</label><div class="cos-dl-zeile">' +
+    (artModus !== 'keine' ? '<input type="date" id="cbDl" value="' + esc(d.deadline) + '" onchange="cosBlatt.d.deadline=this.value">' : '') +
+    '<div class="cos-seg">' + [['extern', 'Extern'], ['ziel', 'Ziel'], ['keine', 'Keine']].map(x => '<button class="' + (artModus === x[0] ? 'an' : '') + '" onclick="cosBlattArt(\'' + x[0] + '\')">' + x[1] + '</button>').join('') + '</div></div>' +
+    '<div class="cos-tipp">Extern ist hart und darf warnen. Ein Ziel setzt du dir selbst.</div></div>' +
+    '<div class="cos-feld"><label for="cbWofuer">Wofür</label><textarea id="cbWofuer" rows="2" placeholder="was am Ende steht und wem es nützt" oninput="cosBlatt.d.wofuer=this.value">' + esc(d.wofuer) + '</textarea></div>' +
+    '<div class="cos-feld"><div class="l"><span>Reserve</span><em><b>' + d.reserve + '</b>' + (d.reserve ? ' · ' + dauerText(d.reserve * COS_MIN) : '') + '</em></div>' +
+    cosPicker(12, d.reserve, 0, 'var(--leise)', 'cosBlattReserve', 're klein') +
+    '<div class="cos-tipp">' + (offen ? 'Faustregel: ein Drittel der offenen Kästchen, hier also ' + Math.max(1, Math.round(offen / 3)) + '.' : 'Puffer für Unerwartetes. Faustregel: ein Drittel der offenen Kästchen.') + '</div></div>';
+  if (!b.neu) html += '<button class="cos-weg" onclick="cosProjektLoeschen(\'' + d.id + '\')">Projekt löschen</button>';
+  return html;
+}
+function cosBlattBereich(x) { cosBlattLesen(); cosBlatt.d.bereich = cosBlatt.d.bereich === x ? '' : x; haptik(); cosBlattZeichnen(); }
+function cosBlattReserve(i) { cosBlattLesen(); cosBlatt.d.reserve = cosBlatt.d.reserve === i ? i - 1 : i; haptik(); cosBlattZeichnen(); }
+function cosBlattArt(m) {
+  const d = cosBlatt.d;
+  cosBlattLesen();
+  if (m === 'keine') { d.deadline = ''; d.art = 'ziel'; }
+  else { d.art = m; if (!d.deadline) d.deadline = tagPlus(heute(), 14); }
+  haptik();
+  cosBlattZeichnen();
+}
+function cosRangSchritt(pid, d) {
+  const aktiv = C.projekte.filter(p => p.status === 'aktiv').map(p => p.id), i = aktiv.indexOf(pid), j = i + d;
+  if (i < 0 || j < 0 || j >= aktiv.length) return;
+  aktiv.splice(j, 0, aktiv.splice(i, 1)[0]);
+  haptik();
+  cosReiheSetzen(aktiv, 'Rang geändert');
+  if (cosBlatt) cosBlattZeichnen();
+}
+function cosProjektSpeichern() {
+  const b = cosBlatt;
+  cosBlattLesen();
+  const d = b.d;
+  d.name = d.name.replace(/\s+/g, ' ').trim();
+  if (!d.name) { melden('Das Projekt braucht einen Namen.'); return; }
+  if (C.projekte.some(p => p.id !== d.id && p.name === d.name)) { melden('Ein Projekt mit dem Namen gibt es schon.'); return; }
+  const neu = { id: d.id, name: d.name, bereich: d.bereich, status: d.status, deadline: d.deadline || '', art: d.deadline ? d.art : 'ziel', wofuer: d.wofuer.trim(), reserve: d.reserve };
+  const p = cosPid(d.id);
+  cosBlattZu();
+  if (p && JSON.stringify(neu) === JSON.stringify({ id: p.id, name: p.name, bereich: p.bereich, status: p.status, deadline: p.deadline, art: p.deadline ? p.art : 'ziel', wofuer: p.wofuer, reserve: p.reserve })) return;
+  cosProjektAendern(neu, b.neu ? 'Projekt angelegt' : 'Projekt geändert');
+  if (b.neu) { cosProjekt = d.id; zeichnen(); melden('Angelegt. Jetzt Etappen oder Schritte dazu.'); }
+}
+function cosProjektLoeschen(pid) {
+  const p = cosPid(pid);
+  if (!p) return;
+  cosBlattZu();
+  cosProjekt = null;
+  cosProjektAendern({ id: pid, status: 'weg' }, p.name + ' gelöscht');
+  melden(p.name + ' gelöscht. Oben geht Rückgängig.');
+}
+
+/* Etappe: umbenennen, verschieben, löschen. Neue Etappe: Name und grobe Schätzung */
+function cosEtappeOeffnen(pid, gi) {
+  const p = cosPid(pid), g = p && cosEtappen(cosListe(p))[gi];
+  if (!g) return;
+  cosNeuZeile = null;
+  cosBlattAuf({ art: 'etappe', titel: 'Etappe', pid: pid, alt: g.name, name: g.name, neu: false });
+}
+function cosEtappeNeu(pid) {
+  cosNeuZeile = null;
+  cosBlattAuf({ art: 'etappe', titel: 'Neue Etappe', pid: pid, alt: null, name: '', neu: true, k: 4, fokus: 'cbEtName' });
+}
+function cosBlattEtappe() {
+  const b = cosBlatt, p = cosPid(b.pid);
+  if (!p) return cosBk('Etappe', null);
+  const gruppen = cosEtappen(cosListe(p)), gi = gruppen.findIndex(g => g.name === b.alt), g = gruppen[gi];
+  let html = cosBk(b.neu ? 'Neue Etappe' : 'Etappe', b.neu ? 'Anlegen' : 'Fertig') +
+    '<div class="cos-feld"><label for="cbEtName">Name</label><input type="text" id="cbEtName" value="' + esc(b.name) + '" placeholder="zum Beispiel Akt 2 überarbeiten" oninput="cosBlatt.name=this.value" autocomplete="off"></div>';
+  if (b.neu) {
+    html += '<div class="cos-feld"><div class="l"><span>Grob geschätzt</span><em><b>' + b.k + '</b> · ' + dauerText(b.k * COS_MIN) + '</em></div>' +
+      cosPicker(12, b.k, 0, cosFarbe(p.bereich), 'cosBlattEtK', 'klein') + '<div class="cos-tipp">Grob reicht. Zerlegt wird, wenn die Etappe dran ist.</div></div>';
+  } else if (g) {
+    const k = g.schritte.reduce((n, s) => n + s.k, 0);
+    html += '<div class="hinweis">' + g.schritte.length + (g.schritte.length === 1 ? ' Schritt' : ' Schritte') + ' · ' + k + ' Kästchen · ' + g.zustand + '</div>' +
+      '<div class="cos-rangzeile"><span>Reihenfolge</span><button onclick="cosEtappeSchieben(-1)"' + (gi <= 0 ? ' disabled' : '') + '>Nach oben</button>' +
+      '<button onclick="cosEtappeSchieben(1)"' + (gi >= gruppen.length - 1 ? ' disabled' : '') + '>Nach unten</button></div>' +
+      '<button class="cos-weg" onclick="cosEtappeLoeschen()">Etappe mit ' + g.schritte.length + (g.schritte.length === 1 ? ' Schritt' : ' Schritten') + ' löschen</button>';
+  }
+  return html;
+}
+function cosBlattEtK(n) { cosBlattLesen(); cosBlatt.k = n; haptik(); cosBlattZeichnen(); }
+function cosEtappeSpeichern() {
+  const b = cosBlatt, p = cosPid(b.pid);
+  cosBlattLesen();
+  const name = (b.name || '').replace(/\s+/g, ' ').trim();
+  if (!p) { cosBlattZu(); return; }
+  if (b.neu) {
+    if (!name) { melden('Die Etappe braucht einen Namen.'); return; }
+    cosBlattZu();
+    const s = { id: cosId('s'), abschnitt: name, titel: name, k: b.k, fertigWenn: '', status: 'grob', weiterBei: '', wann: '', verschoben: 0, min: 0, bl: {} };
+    cosFrisch[s.id] = Date.now();
+    cosSchritteAendern(p, cosListe(p).concat([s]), 'Etappe angelegt');
+    return;
+  }
+  cosBlattZu();
+  if (name === b.alt) return;
+  cosSchritteAendern(p, cosListe(p).map(s => ((s.abschnitt || '') === b.alt ? Object.assign({}, s, { abschnitt: name }) : s)), 'Etappe umbenannt');
+}
+function cosEtappeSchieben(d) {
+  const b = cosBlatt, p = cosPid(b.pid);
+  if (!p) return;
+  const liste = cosListe(p), gruppen = cosEtappen(liste), gi = gruppen.findIndex(g => g.name === b.alt), gj = gi + d;
+  if (gi < 0 || gj < 0 || gj >= gruppen.length) return;
+  gruppen.splice(gj, 0, gruppen.splice(gi, 1)[0]);
+  haptik();
+  cosSchritteAendern(p, [].concat(...gruppen.map(g => g.schritte), liste.filter(s => s.status === 'park')), 'Etappe verschoben');
+  cosBlattZeichnen();
+}
+function cosEtappeLoeschen() {
+  const b = cosBlatt, p = cosPid(b.pid);
+  if (!p) return;
+  cosBlattZu();
+  cosSchritteAendern(p, cosListe(p).filter(s => (s.abschnitt || '') !== b.alt || s.status === 'park'), 'Etappe gelöscht');
+  melden('Etappe gelöscht. Oben geht Rückgängig.');
+}
+
+/* Zerlegen: ein großer Schritt wird zu kleinen. Was nicht verteilt ist, bleibt als grober Rest */
+function cosZerlegen(sid) {
+  const s = C && C.schritte.find(x => x.id === sid);
+  if (!s) return;
+  cosNeuZeile = null;
+  cosBlattAuf({ art: 'zerlegen', titel: 'Zerlegen', sid: sid, teile: [{ t: '', k: Math.min(2, s.k) }], fokus: 'cbT0' });
+}
+function cosBlattZerlegen() {
+  const b = cosBlatt, s = C.schritte.find(x => x.id === b.sid), p = s && cosNachName(s.projekt);
+  if (!s || !p) return cosBk('Zerlegen', null) + '<div class="hinweis">Den Schritt gibt es nicht mehr.</div>';
+  const farbe = cosFarbe(p.bereich), done = Math.floor(cosMin(s) / COS_MIN), orig = s.k;
+  const summe = b.teile.reduce((n, t) => n + t.k, 0), mitText = b.teile.filter(t => t.t.trim()).length;
+  let html = cosBk('Zerlegen', null) +
+    '<div class="cos-bilanz" style="background:var(--chip)"><div class="cos-ab">' + (s.status === 'grob' ? 'Grob geschätzt' : 'Schritt') + ' · ' + esc(p.name) + '</div>' +
+    '<b style="margin-top:4px">' + esc(s.titel) + '</b><span>' + orig + ' Kästchen · ' + dauerText(orig * COS_MIN) + (done ? ' · ' + done + ' schon geschafft' : '') + '</span></div>' +
+    '<div style="font-weight:600;font-size:15px">Was tust du als Erstes? Sichtbar, höchstens 3 Kästchen am Stück.</div><div>';
+  b.teile.forEach((t, i) => {
+    html += '<div class="cos-teil"><div class="cos-teil-k"><span class="nr">' + (i + 1) + '</span><input type="text" id="cbT' + i + '" value="' + esc(t.t) + '" placeholder="' + (i ? 'Nächster Teil' : 'Erster sichtbarer Schritt') +
+      '" aria-label="Teil ' + (i + 1) + '" enterkeyhint="next" autocomplete="off" oninput="cosTeilText(' + i + ',this.value)" onkeydown="cosTeilTaste(event,' + i + ')">' +
+      '<button onclick="cosTeilWeg(' + i + ')" aria-label="Teil ' + (i + 1) + ' entfernen">✕</button></div><div class="cos-teil-u">' +
+      cosPicker(6, t.k, 0, farbe, 'cosTeilK' + i + '_', 'klein', true).replace(/cosTeilK(\d+)_\((\d+)\)/g, 'cosTeilK($1,$2)') +
+      '<span style="margin-left:6px">' + dauerText(t.k * COS_MIN) + '</span>' + (t.k > COS_SITZUNG ? '<span class="cos-chip gold" style="margin-left:8px">länger als eine Sitzung</span>' : '') + '</div></div>';
+  });
+  html += '</div><button class="cos-plus" style="width:100%;margin:0;border-top:0;text-align:center;border:1.5px dashed var(--kreis);border-radius:13px;padding:12px 0" onclick="cosTeilDazu()">+ Teil</button>';
+  const n = Math.min(Math.max(summe, orig), 30);
+  let bil = '';
+  for (let i = 0; i < n; i++) bil += i < Math.min(summe, orig) ? cosKq(farbe, '') : i < orig ? cosKq(farbe, 'gr') : cosKq(farbe, 'aus');
+  const text = summe < orig ? summe + ' von ' + orig + ' verteilt' : summe === orig ? 'Genau ' + orig + ' verteilt' : summe + ' Kästchen, ' + (summe - orig) + ' mehr als geschätzt';
+  const tipp = summe < orig ? (orig - summe) + ' bleiben grob als Rest in der Etappe. Den zerlegst du später.' : summe === orig ? 'Die Schätzung bleibt, wie sie war.'
+    : 'Normal: zerlegt schätzt man ehrlicher. Das Projekt wächst um ' + (summe - orig) + '.';
+  html += '<div class="cos-bilanz"><div class="kr">' + bil + '</div><b>' + text + '</b><span>' + tipp + '</span></div>' +
+    '<div class="cos-uebernehmen"><button id="cbUeber" onclick="cosZerlegenUebernehmen()"' + (mitText ? '' : ' disabled') + '>' + cosZerlegenKnopf(mitText) + '</button></div>';
+  return html;
+}
+function cosZerlegenKnopf(n) { return n === 1 ? 'Übernehmen · 1 Schritt' : n ? 'Übernehmen · ' + n + ' Schritte' : 'Übernehmen'; }
+function cosTeilText(i, v) {
+  cosBlatt.teile[i].t = v;
+  const n = cosBlatt.teile.filter(t => t.t.trim()).length, k = $('cbUeber');
+  if (k) { k.disabled = !n; k.textContent = cosZerlegenKnopf(n); }
+}
+function cosTeilK(i, n) { cosBlattLesen(); cosBlatt.teile[i].k = n; haptik(); cosBlattZeichnen(); }
+function cosTeilWeg(i) { cosBlattLesen(); cosBlatt.teile.splice(i, 1); if (!cosBlatt.teile.length) cosBlatt.teile.push({ t: '', k: 1 }); cosBlattZeichnen(); }
+function cosTeilDazu() {
+  cosBlattLesen();
+  cosBlatt.teile.push({ t: '', k: 1 });
+  cosBlattZeichnen();
+  const f = $('cbT' + (cosBlatt.teile.length - 1));
+  if (f) f.focus();
+}
+function cosTeilTaste(e, i) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  cosBlattLesen();
+  if (i === cosBlatt.teile.length - 1) { if (cosBlatt.teile[i].t.trim()) cosTeilDazu(); }
+  else { const f = $('cbT' + (i + 1)); if (f) f.focus(); }
+}
+function cosZerlegenUebernehmen() {
+  const b = cosBlatt;
+  cosBlattLesen();
+  const s = C.schritte.find(x => x.id === b.sid), p = s && cosNachName(s.projekt);
+  if (!s || !p) { cosBlattZu(); return; }
+  const teile = b.teile.filter(t => t.t.trim());
+  if (!teile.length) return;
+  const summe = teile.reduce((n, t) => n + t.k, 0), etappe = s.abschnitt || s.titel;
+  const neu = teile.map((t, i) => ({ id: cosId('s'), abschnitt: etappe, titel: t.t.replace(/\s+/g, ' ').trim().slice(0, 160), k: t.k, fertigWenn: '', status: 'offen', weiterBei: i ? '' : s.weiterBei || '',
+    wann: i ? '' : s.wann || '', verschoben: 0, min: i ? 0 : s.min || 0, bl: i ? {} : Object.assign({}, s.bl || {}) }));
+  if (summe < s.k) neu.push({ id: cosId('s'), abschnitt: etappe, titel: ('Rest von ' + s.titel).slice(0, 160), k: s.k - summe, fertigWenn: '', status: 'grob', weiterBei: '', wann: '', verschoben: 0, min: 0, bl: {} });
+  const liste = cosListe(p), i = liste.findIndex(x => x.id === s.id);
+  const nl = liste.slice(0, i).concat(neu, liste.slice(i + 1));
+  neu.forEach(x => { cosFrisch[x.id] = Date.now(); });
+  cosBlattZu();
+  haptik();
+  cosProjekt = p.id;
+  if (ansicht !== 'chief') ansicht = 'chief';
+  cosSchritteAendern(p, nl, 'Zerlegt');
+  melden('Zerlegt. ' + teile.length + (teile.length === 1 ? ' Schritt, ' : ' Schritte, ') + summe + ' Kästchen.');
+}
+
+/* ── Ziehen: am Griff ziehen ordnet Projekte (Rang) und Schritte (auch über Etappen hinweg). Pfeiltasten gehen auch ── */
+function cosZiehElemente(art) {
+  return Array.from($('inhalt').querySelectorAll(art === 's' ? '[data-zieh="s"], [data-etappe-kopf]' : '[data-zieh="p"]'));
+}
+function cosZiehStart(e) {
+  if (e.button > 0 || cosZieh) return;
+  const griff = e.currentTarget, zeile = griff.closest('[data-zieh]');
+  if (!zeile) return;
+  e.preventDefault();
+  const art = zeile.dataset.zieh;
+  const linie = document.createElement('div');
+  linie.className = 'cos-linie';
+  linie.style.display = 'none';
+  document.body.appendChild(linie);
+  cosZieh = { art: art, zeile: zeile, elemente: cosZiehElemente(art), y0: e.clientY, sy0: window.scrollY, y: e.clientY, ziel: null, linie: linie, id: e.pointerId };
+  zeile.classList.add('zieht');
+  zeile.draggable = false;
+  try { griff.setPointerCapture(e.pointerId); } catch (x) { /* egal */ }
+  haptik();
+  window.addEventListener('pointermove', cosZiehBewegen);
+  window.addEventListener('pointerup', cosZiehEnde);
+  window.addEventListener('pointercancel', cosZiehAbbruch);
+  requestAnimationFrame(cosZiehRollen);
+}
+function cosZiehRollen() {
+  const z = cosZieh;
+  if (!z) return;
+  const rand = 80, h = window.innerHeight;
+  const v = z.y < rand ? -Math.ceil((rand - z.y) / 6) : z.y > h - rand ? Math.ceil((z.y - h + rand) / 6) : 0;
+  if (v) { window.scrollBy(0, v); cosZiehSetzen(); }
+  requestAnimationFrame(cosZiehRollen);
+}
+function cosZiehBewegen(e) {
+  const z = cosZieh;
+  if (!z) return;
+  z.y = e.clientY;
+  cosZiehSetzen();
+}
+function cosZiehSetzen() {
+  const z = cosZieh;
+  const dy = z.y - z.y0 + (window.scrollY - z.sy0);
+  z.zeile.style.transform = 'translateY(' + dy + 'px)';
+  const andere = z.elemente.filter(x => x !== z.zeile);
+  let i = andere.findIndex(x => { const r = x.getBoundingClientRect(); return z.y < r.top + r.height / 2; });
+  if (i < 0) i = andere.length;
+  if (z.art === 's' && i === 0 && andere[0] && andere[0].hasAttribute('data-etappe-kopf')) i = 1;
+  z.ziel = i;
+  const vor = andere[i - 1], nach = andere[i];
+  const a = vor && vor.getBoundingClientRect(), b = nach && nach.getBoundingClientRect();
+  const y = a && b ? (a.bottom + b.top) / 2 : b ? b.top - 2 : a ? a.bottom + 2 : 0;
+  const r = (nach || vor || z.zeile).getBoundingClientRect();
+  z.linie.style.cssText = 'top:' + Math.round(y - 1) + 'px;left:' + Math.round(r.left) + 'px;width:' + Math.round(r.width) + 'px';
+}
+function cosZiehAufraeumen() {
+  const z = cosZieh;
+  cosZieh = null;
+  window.removeEventListener('pointermove', cosZiehBewegen);
+  window.removeEventListener('pointerup', cosZiehEnde);
+  window.removeEventListener('pointercancel', cosZiehAbbruch);
+  if (!z) return null;
+  z.linie.remove();
+  z.zeile.classList.remove('zieht');
+  z.zeile.style.transform = '';
+  if (z.zeile.hasAttribute('ondragstart')) z.zeile.draggable = true;
+  return z;
+}
+function cosZiehAbbruch() { cosZiehAufraeumen(); if (spaeterZeichnen) zeichnen(); }
+function cosZiehEnde() {
+  const z = cosZiehAufraeumen();
+  if (!z || z.ziel == null) { if (spaeterZeichnen) zeichnen(); return; }
+  cosZiehAblegen(z.art, z.zeile, z.elemente, z.ziel);
+}
+function cosZiehAblegen(art, zeile, elemente, ziel) {
+  const andere = elemente.filter(x => x !== zeile);
+  const neu = andere.slice(0, ziel).concat([zeile], andere.slice(ziel));
+  if (neu.every((x, i) => x === elemente[i])) { zeichnen(); return false; }
+  haptik();
+  if (art === 'p') { cosReiheSetzen(neu.map(x => x.dataset.id), 'Rang geändert'); return true; }
+  const p = cosPid(zeile.dataset.pid);
+  if (!p) return false;
+  const liste = cosListe(p), nachId = {};
+  liste.forEach(s => { nachId[s.id] = s; });
+  let etappe = '';
+  const ordnung = [], drin = {};
+  neu.forEach(x => {
+    if (x.hasAttribute('data-etappe-kopf')) {
+      etappe = x.dataset.etappe || '';
+      if (x.dataset.zu) liste.forEach(s => { if ((s.abschnitt || '') === etappe && s.status !== 'park' && s.id !== zeile.dataset.id && !drin[s.id]) { ordnung.push(s); drin[s.id] = true; } });
+      return;
+    }
+    const s = nachId[x.dataset.id];
+    if (!s || drin[s.id]) return;
+    ordnung.push(x === zeile ? Object.assign({}, s, { abschnitt: etappe }) : s);
+    drin[s.id] = true;
+  });
+  cosSchritteAendern(p, ordnung.concat(liste.filter(s => !drin[s.id])), 'Reihenfolge geändert');
+  return true;
+}
+function cosGriffTaste(e) {
+  if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+  e.preventDefault();
+  const zeile = e.currentTarget.closest('[data-zieh]');
+  if (!zeile) return;
+  const art = zeile.dataset.zieh, id = zeile.dataset.id, elemente = cosZiehElemente(art);
+  const idx = elemente.indexOf(zeile), andere = elemente.filter(x => x !== zeile);
+  let ziel = e.key === 'ArrowUp' ? idx - 1 : idx + 1;
+  if (art === 's' && andere[0] && andere[0].hasAttribute('data-etappe-kopf')) ziel = Math.max(1, ziel);
+  ziel = Math.max(0, Math.min(andere.length, ziel));
+  if (cosZiehAblegen(art, zeile, elemente, ziel)) {
+    const g = $('inhalt').querySelector('[data-id="' + id + '"] .cos-griff');
+    if (g) g.focus();
+  }
 }
 
 /* ── Einhängen ── */
 (function () {
   const k = document.getElementById('navChief');   // $ gibt es erst im Hauptscript
-  if (k) k.onclick = () => { ansicht = 'chief'; cosProjekt = null; zeichnen(); cosLaden(false); window.scrollTo(0, 0); };
+  if (k) k.onclick = () => { ansicht = 'chief'; cosProjekt = null; cosNeuZeile = null; zeichnen(); cosLaden(false); window.scrollTo(0, 0); };
   window.addEventListener('load', () => cosLaden(true));
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') cosLaden(false); });
-  /* Chief Seite: laufende Kästchen alle 30 Sekunden nachziehen */
-  setInterval(() => { if (document.visibilityState === 'visible' && typeof ansicht !== 'undefined' && ansicht === 'chief' && P) zeichnen(); }, 30000);
+  document.addEventListener('keydown', e => {
+    if (!cosBlatt || e.key !== 'Escape') return;
+    e.preventDefault();
+    if (cosBlatt.art === 'zerlegen') cosBlattZu(); else cosBlattFertig();
+  });
+  /* Chief Seite: laufende Kästchen alle 30 Sekunden nachziehen, nicht während getippt oder gezogen wird */
+  setInterval(() => {
+    if (document.visibilityState !== 'visible' || typeof ansicht === 'undefined' || ansicht !== 'chief' || !P || cosZieh) return;
+    const a = document.activeElement;
+    if (a && (a.tagName === 'TEXTAREA' || a.tagName === 'INPUT' || a.tagName === 'SELECT')) return;
+    zeichnen();
+  }, 30000);
 })();
 </script>
 
@@ -1071,7 +2146,7 @@ function zeichneChief() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611141950';
+const PWA_VERSION = '202611150203';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -2788,7 +3863,7 @@ function rueckgaengig() {
   const a = verlauf.pop();
   $('undo').disabled = !verlauf.length;
   if (!a || !P) return;
-  if (a.art === 'cosHaken') { if (typeof cosHakenSetzen === 'function') cosHakenSetzen(a.id, a.alt, true); melden('Rückgängig: ' + a.name); return; }
+  if (String(a.art).indexOf('cos') === 0) { if (typeof cosRueck === 'function') cosRueck(a); return; }   // Chief of Staff (ChiefSeite)
   ansicht = 'tag';
   tagIso = a.tag;
   if (a.art === 'feld') {
