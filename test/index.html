@@ -840,9 +840,11 @@
   .cos-chips button.grau { background: var(--chip); color: var(--text); }
   .cos-alle { width: 100%; height: 44px; margin-top: 6px; border-radius: 12px; border: 1.5px dashed var(--akzent); color: var(--akzent); font-weight: 700; }
   .cos-runde-z { display: block; width: 100%; margin-top: 10px; height: 40px; border-radius: 12px; background: var(--gold-hell); color: var(--gold); font-weight: 700; font-size: 14px; }
-  .cos-runde-karte b { display: block; font-size: 16px; }
-  .cos-runde-karte > span { display: block; font-size: 13px; color: var(--leise); margin-top: 4px; }
-  .cos-runde-karte { box-shadow: inset 0 0 0 2px var(--gold); }
+  .cos-runde-karte { display: flex; gap: 6px; align-items: center; margin: 0 0 12px; font-size: 13px; }
+  .cos-runde-los { flex: 1; display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 10px; background: var(--gold-hell); color: var(--gold); text-align: left; }
+  .cos-runde-los b, .cos-runde-los span { font-size: 13px; white-space: nowrap; }
+  .cos-runde-los { gap: 8px; min-width: 0; }
+  .cos-runde-karte .gestr { padding: 8px 10px; border-radius: 10px; color: var(--leise); font-size: 13px; background: none; border: 0; }
 
   .cos-tasks-k { display: flex; align-items: center; gap: 8px; }
   .cos-tasks-k .cos-ab { flex: 1; }
@@ -1513,7 +1515,7 @@ function cosEtappeMeta(p) {
   return (g.length > 1 ? 'Etappe ' + (i + 1) + ' von ' + g.length : g[i].name ? esc(g[i].name) : offen + (offen === 1 ? ' Schritt offen' : ' Schritte offen')) + (g[i].grob ? ' · noch nicht zerlegt' : '');
 }
 function cosProjektZeile(p, rang, alle, ueber, an) {
-  const z = cosZahlen(p.name, alle), u = ueber[p.name] || 0, farbe = cosFarbe(p.bereich);
+  const z = cosZahlen(p.name, alle), u = 0, farbe = cosFarbe(p.bereich);   // V63: kein Hinweis passt nicht
   return '<div class="cos-prow' + (an ? ' an' : '') + '" data-zieh="p" data-id="' + p.id + '">' +
     '<button class="cos-griff" onpointerdown="cosZiehStart(event)" onkeydown="cosGriffTaste(event)" aria-label="Rang von ' + esc(p.name) + ' ändern. Ziehen oder Pfeiltasten">' + COS_GRIFF + '</button>' +
     '<span class="cos-rang' + (rang === 1 ? ' eins' : '') + '">' + rang + '</span>' +
@@ -1524,15 +1526,7 @@ function cosProjektZeile(p, rang, alle, ueber, an) {
 function cosUebersicht(alle, ueber, mac) {
   const aktiv = C.projekte.filter(p => p.status === 'aktiv');
   let html = cosWocheKarte();
-  const eng = aktiv.filter(p => ueber[p.name]).sort((a, b) => a.deadline.localeCompare(b.deadline))[0];
-  if (eng) html += '<div class="karte cos-hinweis"><span>' + ueber[eng.name] + ' Kästchen von ' + esc(eng.name) + ' passen nicht vor den ' + cosDatum(eng.deadline) +
-    '</span><button onclick="cosOeffnenId(\'' + eng.id + '\')">Lösen</button></div>';
-  const namen = {};
-  aktiv.forEach(p => { namen[p.name] = true; });
-  const oft = C.schritte.filter(s => namen[s.projekt] && cosOffen(s) && s.verschoben >= 3).slice(0, 2);
-  oft.forEach(s => {
-    html += '<div class="karte cos-hinweis gold"><span>' + esc(s.titel) + ' wurde ' + s.verschoben + ' mal verschoben.</span><button onclick="cosSchrittOeffnen(\'' + s.id + '\')">Entscheiden</button></div>';
-  });
+  // V63: keine Karten passt nicht und verschoben mehr
   html += '<div class="cos-kopfzeile"><span class="cos-ab">Aktiv · ' + aktiv.length + ' von ' + COS_AKTIV_MAX + '</span><button class="cos-link" onclick="cosProjektNeu()">+ Projekt</button></div>';
   html += '<div class="karte cos-liste">' + (aktiv.length ? aktiv.map((p, i) => cosProjektZeile(p, i + 1, alle, ueber, mac && cosProjekt === p.id)).join('')
     : '<div class="hinweis" style="padding:12px">Kein aktives Projekt. Hol eins vom Parkplatz oder leg ein neues an.</div>') + '</div>';
@@ -1563,7 +1557,7 @@ function cosStatus(pid, status) {
 function cosChipsHtml(s) {
   const h = heute(), c = [];
   if (s.wann) c.push('<span class="cos-chip">' + (s.wann === h ? 'Heute' : cosTagName(s.wann)) + '</span>');
-  if (s.verschoben) c.push('<span class="cos-chip ' + (s.verschoben >= 3 ? 'rosa' : 'gold') + '">' + s.verschoben + ' mal verschoben</span>');
+  if (false && s.verschoben) c.push('<span class="cos-chip ' + (s.verschoben >= 3 ? 'rosa' : 'gold') + '">' + s.verschoben + ' mal verschoben</span>');
   return c.length ? '<div class="cos-chips2">' + c.join('') + '</div>' : '';
 }
 function cosSchrittZeile(p, s, alle, naechster, mac, ohneZerl) {
@@ -1598,8 +1592,6 @@ function cosProjektHtml(p, mitZurueck, mac) {
   let html = '<div class="cos-pkopf">' + (mitZurueck ? '<button class="cos-zurueck" onclick="cosOeffnenId(null)" aria-label="Zurück zu allen Projekten">‹</button>' : '') +
     '<div class="t"><b>' + esc(p.name) + '</b><span>' + esc(p.bereich || 'ohne Bereich') + ' · ' + (p.status === 'aktiv' ? 'Rang ' + rang : p.status === 'parkplatz' ? 'Parkplatz' : 'fertig') + '</span></div>' +
     '<button class="cos-link" onclick="cosProjektOeffnen(\'' + p.id + '\')">Bearbeiten</button></div>';
-  if (u) html += '<div class="karte cos-hinweis"><span>' + u + ' Kästchen passen nicht vor den ' + cosDatum(p.deadline) + ' Mehr Zeit, weniger Schritte oder ein späterer Termin.</span>' +
-    '<button onclick="cosProjektOeffnen(\'' + p.id + '\')">Ändern</button></div>';
   const verbraucht = Math.max(0, p.reserve - z.reserve);
   html += '<div class="karte"><div class="cos-tiles">' +
     '<button onclick="cosProjektOeffnen(\'' + p.id + '\')"><span>' + (p.deadline ? (p.art === 'extern' ? 'Deadline · extern' : 'Zieltermin') : 'Termin') + '</span><b>' + (p.deadline ? cosDatum(p.deadline) : 'keiner') + '</b></button>' +
@@ -1882,7 +1874,7 @@ function cosBlattSchritt() {
     [['chief', 'Chief'], ['heute', 'Heute'], ['morgen', 'Morgen'], ['datum', 'Datum']].map(x => '<button class="' + (modus === x[0] ? 'an' : '') + '" onclick="cosBlattWann(\'' + x[0] + '\')">' + x[1] + '</button>').join('') + '</div>' +
     (modus === 'datum' ? '<div style="margin-top:8px"><input type="date" id="cbDatum" value="' + esc(d.wann) + '" min="' + h + '" onchange="cosBlatt.d.wann=this.value"></div>' : '') +
     '<div class="cos-tipp">' + (modus === 'chief' ? 'Der Chief entscheidet, wann der Schritt dran ist.' : 'Fest. Bleibt auf dem Tag, auch wenn der Chief umplant.') + '</div></div>';
-  if (d.verschoben) html += '<div class="cos-info' + (d.verschoben >= 3 ? ' rosa' : '') + '">' + d.verschoben + ' mal verschoben.' +
+  if (false && d.verschoben) html += '<div class="cos-info' + (d.verschoben >= 3 ? ' rosa' : '') + '">' + d.verschoben + ' mal verschoben.' +
     (d.verschoben >= 3 ? ' Zeit für eine Entscheidung: kleiner machen, parken oder streichen.<div class="knoepfe"><button onclick="cosBlattAktion(\'zerlegen\')">Kleiner machen</button>' +
       '<button onclick="cosBlattAktion(\'park\')">Parken</button><button onclick="cosBlattAktion(\'weg\')">Streichen</button><button onclick="cosBlattSetzen(\'verschoben\',0)">Nochmal versuchen</button></div>'
       : ' Beim dritten Mal fragt die Zentrale nach.') + '</div>';
@@ -2870,7 +2862,7 @@ function cosEinplanenListe() {
 }
 function cosBlattEinplanen() {
   const b = cosBlatt, frei = b.modus === 'frei';
-  let html = cosBk('Einplanen', null) + '<div class="cos-seg"><button class="an">Kästchen</button><button onclick="cosZuTasks()">Tasks</button><button onclick="cosZuNach()">Nachtragen</button></div>';
+  let html = cosBk('Einplanen', null) + '<div class="cos-seg"><button class="an">Kästchen</button><button onclick="cosZuNach()">Nachtragen</button></div>';
   if (!frei) {
     html += '<input type="text" id="cbSuch" class="cos-such" placeholder="Schritt suchen" aria-label="Schritt suchen" autocomplete="off" value="' + esc(b.such) + '" oninput="cosSuchen(this.value)">';
     const liste = cosEinplanenListe();
@@ -3097,14 +3089,11 @@ function cosRundeFaellig() {
   const key = 'runde|' + d.getFullYear() + '-W' + kw + '-' + art;
   return cosMerk(key) ? null : { art: art, kw: kw, key: key };
 }
-function cosRundeKarte() {
+function cosRundeKarte() {   // V63: eine kleine Zeile statt Karte
   const r = cosRundeFaellig();
   if (!r) return '';
-  return '<div class="karte cos-runde-karte"><b>' + (r.art === 'so' ? 'Wochenrunde' : 'Mittwochsrunde') + ' fällig</b><span>' +
-    (r.art === 'so' ? '30 Minuten mit Claude: Rückblick, Rang und Deadlines, nächste Etappen zerlegen, Woche grob verteilen.'
-      : '10 Minuten: was hat sich geändert, Verschobenes entscheiden, Rest der Woche neu verteilen.') + '</span>' +
-    '<div class="cos-paar" style="margin:10px 0 0"><button class="voll" onclick="cosRundeStart()">Mit Claude starten</button>' +
-    '<button class="gestr" onclick="cosRundeFertig()">Erledigt</button></div></div>';
+  return '<div class="cos-runde-karte"><button class="cos-runde-los" onclick="cosRundeStart()"><b>' + (r.art === 'so' ? 'Wochenrunde' : 'Mittwochsrunde') + ' fällig</b><span>mit Claude ›</span></button>' +
+    '<button class="gestr" onclick="cosRundeFertig()">Erledigt</button></div>';
 }
 function cosRundeZeile() {
   const r = cosRundeFaellig();
@@ -3171,7 +3160,7 @@ function cosRundeFertig() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611152336';
+const PWA_VERSION = '202611152343';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -5487,7 +5476,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 23:36</div>
+<div id="testband">TEST 23:43</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
