@@ -15,16 +15,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@1,800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #F4F3EF; --karte: #FFFFFF; --text: #232321; --leise: #77756F; --linie: #E6E4DE;
+    --bg: #F4F3EF; --karte: #FFFFFF; --text: #232321; --leise: #67655F; --linie: #E6E4DE; --titel: #3A3935;
     --akzent: #1155CC; --chip: #F1EFEA; --schatten: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.04);
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #151514; --karte: #1F1F1D; --text: #EDEBE6; --leise: #9C9A93; --linie: #2E2E2B;
+    :root { --bg: #151514; --karte: #1F1F1D; --text: #EDEBE6; --leise: #ABA9A2; --linie: #2E2E2B; --titel: #D6D3CC;
             --akzent: #7BA4F0; --chip: #2A2A27; --schatten: none; }
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; background: var(--bg); color: var(--text);
-    font: 15px/1.35 -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif; }
+    font: 15px/1.35 -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums; }
   body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
   button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
 
@@ -45,8 +45,8 @@
 
   main { padding: 4px 16px 16px; max-width: 560px; margin: 0 auto; }
   .karte { background: var(--karte); border-radius: 18px; box-shadow: var(--schatten); padding: 14px 16px; margin-bottom: 12px; }
-  .bereich { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600;
-    letter-spacing: .04em; text-transform: uppercase; color: var(--leise); margin-bottom: 6px; }
+  .bereich { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800;
+    letter-spacing: .07em; text-transform: uppercase; color: var(--titel); margin-bottom: 8px; }
   .punkt { width: 8px; height: 8px; border-radius: 4px; }
 
   .tageszahl { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 18px; padding: 10px 0 22px; }
@@ -172,7 +172,7 @@
   .stat button.n.an { background: #616161; color: #fff; }
   .pkt { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 34px; text-align: right; color: var(--leise); flex: none; white-space: nowrap; }
   .pkt.plus { color: #0B8043; }
-  .unterkopf { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--leise); margin: 12px 0 0; }
+  .unterkopf { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--titel); margin: 12px 0 0; }
   @keyframes hops { 0% { transform: scale(1); } 40% { transform: scale(1.5); } 100% { transform: scale(1); } }
   .hops { animation: hops .4s ease-out; display: inline-block; }
   /* Heute Karte */
@@ -226,8 +226,8 @@
     --gold: #E9C46A; --gold-hell: rgba(233,196,106,.16); --rosa: #E7B3CC; --rosa-hell: rgba(213,166,189,.2); --rosa-voll: #E7B3CC; --rosa-auf: #4B1528; } }
   #heuteBox { padding: 0; border-top: 0; }
   .hz-kopf { display: flex; align-items: center; gap: 10px; }
-  .hz-kopf .n { font-size: 15px; font-weight: 500; flex: 1; }
-  .hz-zeit { font-size: 15px; font-weight: 500; padding: 3px 10px; border-radius: 8px; background: var(--rosa-hell); color: var(--rosa); font-variant-numeric: tabular-nums; }
+  .hz-kopf .n { font-size: 16px; font-weight: 700; flex: 1; }
+  .hz-zeit { font-size: 15px; font-weight: 800; padding: 3px 10px; border-radius: 8px; background: var(--rosa-hell); color: var(--rosa); font-variant-numeric: tabular-nums; }
   .hz-plus { width: 36px; height: 36px; border-radius: 18px; background: var(--rosa-voll); color: var(--rosa-auf); font-size: 26px; font-weight: 600; line-height: 1; display: grid; place-items: center; }
   .hz-plus:active { transform: scale(.92); }
   .hz-leg { display: flex; justify-content: space-between; font-size: 12px; color: var(--leise); }
@@ -554,7 +554,7 @@
   .cos-hinweis span { flex: 1; }
   .cos-hinweis button { flex: none; height: 40px; padding: 0 14px; border-radius: 12px; background: var(--rosa); color: var(--karte); font-weight: 700; font-size: 14px; }
   .cos-hinweis.gold button { background: var(--gold); }
-  .cos-ab { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--leise); }
+  .cos-ab { font-size: 12px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--titel, var(--leise)); }
   .cos-kopfzeile { display: flex; align-items: center; gap: 8px; padding: 4px 4px 8px; }
   .cos-kopfzeile .cos-ab { flex: 1; }
   .cos-link { font-size: 14px; font-weight: 600; color: var(--akzent); padding: 8px 2px; }
@@ -770,6 +770,7 @@
   .cos-nx-los:active { transform: scale(.94); }
   .cos-lauf-m { font-size: 12.5px; color: var(--leise); margin-top: 2px; }
   .cos-vn-k { display: flex; justify-content: space-between; align-items: baseline; }
+  .cos-vn-k b { font-size: 20px; font-weight: 800; }
   .cos-vn { display: flex; gap: 2px; margin: 10px 0 6px; flex-wrap: wrap; }
   .cos-vn button { width: 34px; height: 34px; display: grid; place-items: center; background: none; padding: 0; border-radius: 8px; }
   .cos-vn button i { width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid #A391D9; box-sizing: border-box; position: relative; }
@@ -792,7 +793,7 @@
   .cos-pl-t b { display: block; font-size: 15px; font-weight: 600; }
   .cos-pl-t small { display: block; font-size: 12px; color: var(--leise); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cos-st { display: flex; align-items: center; gap: 2px; flex: none; }
-  .cos-st b { min-width: 22px; text-align: center; font-size: 16px; font-variant-numeric: tabular-nums; }
+  .cos-st b { min-width: 22px; text-align: center; font-size: 17px; font-weight: 800; }
   .cos-st button { width: 32px; height: 32px; border-radius: 50%; background: var(--akzent-hell); color: var(--akzent); font-size: 18px; line-height: 1; padding: 0; }
   .cos-st button:disabled { opacity: .35; }
   .cos-vn-karte .cos-vn-k, .cos-vn-tag .cos-vn-k { margin-bottom: 4px; }
@@ -843,7 +844,9 @@
   .cos-hz.vor .kq { opacity: .55; }
   body.mac .cos-hz[draggable=true] { cursor: grab; }
   .cos-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 0 10px 68px; }
-  .cos-chips button { height: 36px; padding: 0 12px; border-radius: 10px; background: var(--akzent); color: #fff; font-weight: 600; font-size: 13px; }
+  .cos-chips button { height: 36px; padding: 0 12px; border-radius: 10px; background: var(--akzent-hell); color: var(--akzent); font-weight: 700; font-size: 13px; transition: transform .1s; }
+  .cos-chips > button:first-child { background: var(--akzent); color: #fff; }
+  .cos-chips button:active { transform: scale(.95); }
   .cos-chips button.grau { background: var(--chip); color: var(--text); }
   .cos-alle { width: 100%; height: 44px; margin-top: 6px; border-radius: 12px; border: 1.5px dashed var(--akzent); color: var(--akzent); font-weight: 700; }
   .cos-runde-z { display: block; width: 100%; margin-top: 10px; height: 40px; border-radius: 12px; background: var(--gold-hell); color: var(--gold); font-weight: 700; font-size: 14px; }
@@ -916,7 +919,7 @@
   .cos-ls-drop { display: none; position: absolute; left: 6px; right: 6px; height: 30px; border-radius: 7px; border: 2px dashed var(--akzent); background: var(--akzent-hell); color: var(--akzent);
     font-size: 12px; font-weight: 700; padding: 5px 8px; z-index: 5; pointer-events: none; }
   .cos-paar .voll { background: #073763; color: #fff; }
-  @media (prefers-color-scheme: dark) { .cos-paar .voll, .cos-primaer, .cos-wahl button.an, .cos-chips button:not(.grau), .cos-zeiten button.an, .cos-andere.an { background: #2F5AA8; } }
+  @media (prefers-color-scheme: dark) { .cos-paar .voll, .cos-primaer, .cos-wahl button.an, .cos-chips > button:first-child, .cos-zeiten button.an, .cos-andere.an { background: #2F5AA8; } }
   @media (prefers-color-scheme: dark) { .cos-rang.eins, .cos-zerl-gross, .cos-aktionen button.blau, .cos-uebernehmen button { background: #2F5AA8; } }
   @media (prefers-reduced-motion: reduce) { .cos-box.voll, .cos-reihe.reif .kq.neu, .cos-reihe .kq.landet, .cos-haken.neu span, .cos-srow.frisch,
     .cos-blatt.neu .cos-blatt-in, .cos-blatt.neu .cos-blatt-hg { animation: none; } }
@@ -3202,7 +3205,7 @@ function cosRundeFertig() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611152356';
+const PWA_VERSION = '202611152359';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -5521,7 +5524,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 23:56</div>
+<div id="testband">TEST 23:59</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
