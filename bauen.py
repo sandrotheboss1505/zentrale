@@ -98,7 +98,8 @@ if TEST:
     ersetze('<script>\n/* ── Einstellungen ── */', '<script>\n' + welt + '</script>\n<script>\n/* ── Einstellungen ── */')
     ersetze('<title>Zentrale</title>', '<title>Zentrale Test</title>')
     ersetze('<meta name="apple-mobile-web-app-title" content="Zentrale">', '<meta name="apple-mobile-web-app-title" content="Test">')
-    ersetze('</body>', '''<div id="testband">TEST</div>
+    # Band zeigt die Uhrzeit des Bauens, damit man sieht, welcher Stand auf der Testseite liegt
+    ersetze('</body>', '''<div id="testband">TEST ''' + time.strftime('%H:%M') + '''</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>''')
