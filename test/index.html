@@ -3032,7 +3032,7 @@ function cosRundeFertig() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611151140';
+const PWA_VERSION = '202611151253';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -3184,26 +3184,76 @@ const isoVon = d => d.getFullYear() + '-' + zwei(d.getMonth() + 1) + '-' + zwei(
 const uhr = m => zwei(Math.floor(m / 60)) + ':' + zwei(m % 60);
 const uhrVon = ms => { const d = new Date(ms); return zwei(d.getHours()) + ':' + zwei(d.getMinutes()); };
 
-function paket(m, H, tagPlus) {
+// aenderungen: was die App gespeichert hat { tag: { spalte: zelle oder null } }, liegt über den erfundenen Werten
+function paket(m, H, tagPlus, aenderungen) {
   const feld = (bereich, spalte, typ, ziel, farbe, extra) => Object.assign({ bereich, spalte, typ, ziel: ziel || '', nacht: false, gutWenn: 'angehakt', uebersicht: false, farbe: farbe || '#8C8C8C', mehrfach: false, bezug: '', liste: false }, extra || {});
+  // Eine Spalte für jede Feldart der App. Namen wie in der Tageswert Rechnung (AppSeite.html, tagWertRechnen), Werte erfunden
   const felder = [
     feld('Kopf', 'Tag 1/10', 'gross', 'Tag', '#1155CC', { uebersicht: true }),
+    feld('Schlaf', 'Dauer', 'oben', 'Dauer', '#3D85C6'),
+    feld('Schlaf', 'HRV', 'oben', 'HRV', '#3D85C6'),
     feld('Struktur', 'Fokus', 'bloecke', 'Fokus', '#C2507F', { uebersicht: true }),
     feld('Struktur', 'Tasks', 'tasks', '', '#B8860B'),
+    feld('Struktur', 'Termine', 'termine', 'Termine', '#B8860B'),
     feld('Kopf', 'Stimmung 1/10', 'skala', 'Stimmung', '#D4537E'),
-    feld('Geld', 'Ausgaben', 'zahl', '', '#3B6D11')
+    feld('Kopf', 'Energie 1/10', 'skala', 'Energie', '#D4537E'),
+    feld('Kopf', 'Konzentration 1/10', 'skala', 'Konzentration', '#D4537E'),
+    feld('Kopf', 'Vb', 'wahl', '', '#D4537E'),
+    feld('Kopf', 'X Handy Frühstück', 'kaestchen', '', '#D4537E'),
+    feld('Schlaf', 'Aufwach', 'uhrzeit', 'Aufwach', '#3D85C6'),
+    feld('Schlaf', 'Elvanse', 'jetzt', 'Elvanse', '#3D85C6', { bezug: 'Aufwach' }),
+    feld('Schlaf', 'Einschlaf', 'uhrzeit', 'Einschlaf', '#3D85C6', { nacht: true }),
+    feld('Schlaf', 'X Handy Schlafen', 'kaestchen', '', '#3D85C6'),
+    feld('Körper', 'Sport', 'kaestchen', '', '#2E9E6A'),
+    feld('Körper', 'Knieübung', 'kaestchen', '', '#2E9E6A'),
+    feld('Körper', 'Drinks', 'zahl', 'Drinks', '#2E9E6A'),
+    feld('Körper', 'Ott', 'kaestchen', '', '#2E9E6A', { gutWenn: 'leer' }),
+    feld('Bildschirm', 'Mac', 'mac', '', '#6D6A8A'),
+    feld('Geld', 'Ausgaben', 'zahl', 'Ausgaben', '#3B6D11'),
+    feld('Geld', 'Kontostand', 'wert', '', '#3B6D11', { liste: true }),
+    feld('Notiz', 'Notiz', 'notiz', '', '#8C8C8C')
   ];
+  const t = (h, mi) => (h * 60 + mi) / 1440;
+  // Gut von, gut bis, halb von, halb bis. Gleiche Grenzen für Regeln (Tageswert) und Ziele (Farben)
+  const grenzen = {
+    Aufwach: [21, t(6, 30), t(8, 0), t(6, 0), t(9, 0)], Einschlaf: [25, t(22, 30), t(0, 30), t(22, 0), t(1, 30)], Dauer: [29, t(7, 0), t(9, 30), t(6, 0), t(10, 30)],
+    HRV: [37, 50, 200, 38, 50], Elvanse: [41, 0, t(0, 45), 0, t(1, 30)], Drinks: [45, 0, 1, 2, 3], Stimmung: [49, 7, 10, 5, 7], Energie: [53, 7, 10, 5, 7],
+    Konzentration: [57, 7, 10, 5, 7], Ausgaben: [65, 0, 30, 30, 60], Termine: [81, 0, 3, 4, 5]
+  };
   const w = new Array(116).fill(0);
   const gw = (k, v) => { w[k - 1] = v; };
   [10, 15, 5, 10, 10, 8, 5, 3, 8, 8, 0, 0, 0, 2.5, 2.5, 30, 0, 3].forEach((v, i) => gw(i + 1, v));
   gw(20, 22 / 24);
-  [21, 25, 29, 37, 41, 45, 49, 53, 57, 65, 81].forEach(a => { gw(a, 0); gw(a + 1, 1e9); gw(a + 2, 0); gw(a + 3, 0); });
+  const ziele = { Tag: [7, 10, 5, 7], Fokus: [0.125, 1, 0.04, 0.125] };
+  Object.keys(grenzen).forEach(n => { const [a, ...g] = grenzen[n]; g.forEach((x, i) => gw(a + i, x)); ziele[n] = g; });
   gw(73, 2); gw(105, 0.125); gw(109, 20); gw(110, 10); gw(111, 7); gw(112, 1); gw(113, 2 / 24); gw(114, 1); gw(115, 10); gw(116, 6);
-  const tage = [-4, -3, -2, -1, 0].map(tagPlus);
+
+  // Werte: eine Woche Verlauf, heute halb ausgefüllt (der Rest zum Ausprobieren)
+  const tage = [-6, -5, -4, -3, -2, -1, 0].map(tagPlus);
+  const zeitText = x => uhr(Math.round(x * 1440) % 1440);
+  const z = (wert, anzeige) => ({ wert, anzeige: anzeige == null ? String(wert).replace('.', ',') : anzeige });
+  const zt = x => z(x, zeitText(x));
+  const mac = (code, film, rest) => ({ wert: (code + film + rest) / 1440, anzeige: uhr(code + film + rest), mac: [{ bereich: 'FW', min: film }, { bereich: 'Claude', min: code }, { bereich: 'Ablenkung', min: rest }] });
   const werte = {};
-  tage.forEach(t => {
-    const z = (wert, anzeige) => ({ wert, anzeige: anzeige == null ? String(wert) : anzeige });
-    werte[t] = { 'Tag 1/10': z(6.2, '6,2'), 'Fokus': z(0.05, '1:17'), 'Tasks': z(0, '0'), 'Stimmung 1/10': z(6), 'Ausgaben': z(20) };
+  tage.forEach((tag, i) => {
+    const k = i % 3, alt = i < 6;
+    const r = {
+      'Tag 1/10': z([6.4, 7.1, 5.8, 6.9, 6.2, 5.9, 6.2][i]), 'Fokus': z(alt ? [0.1, 0.13, 0.06, 0.12, 0.09, 0.08][i] : 0.05, alt ? ['2:24', '3:07', '1:26', '2:53', '2:10', '1:55'][i] : '1:17'),
+      'Tasks': z(alt ? [4, 6, 2, 5, 3, 4][i] : 0), 'Termine': z(alt ? k + 1 : 1),
+      'Stimmung 1/10': z(alt ? 5 + k : 6), 'Aufwach': zt(t(7, 5 + 10 * k)), 'Dauer': zt(t(7, 40 - 25 * k)), 'HRV': z(44 + 4 * k + i),
+      'Ausgaben': z(alt ? [18, 42, 9, 27, 64, 15][i] : 20), 'Mac': mac(40 + 10 * k, 90 + 30 * k, 35),
+      'Kontostand': { wert: 1240 - 30 * i, anzeige: String(1240 - 30 * i), liste: [{ punkt: '●', name: 'Girokonto', betrag: String(1240 - 30 * i) + ',00' }, { punkt: '●', name: 'Tagesgeld', betrag: '800,00' }] }
+    };
+    if (alt) Object.assign(r, {
+      'Energie 1/10': z(4 + k), 'Konzentration 1/10': z(6 + k % 2), 'Vb': z(['si', 'hmm', 'si'][k]), 'X Handy Frühstück': z(k !== 1), 'Elvanse': zt(t(7, 30 + 10 * k)),
+      'Einschlaf': zt(t(23, 10 + 15 * k)), 'X Handy Schlafen': z(k === 0), 'Sport': z(k === 2), 'Knieübung': z(k !== 0), 'Drinks': z(k === 1 ? 2 : 0), 'Ott': z(false),
+      'Notiz': z(i === 5 ? 'Drehtag, lang aber gut.' : '', i === 5 ? 'Drehtag, lang aber gut.' : '')
+    });
+    werte[tag] = r;
+  });
+  Object.keys(aenderungen || {}).forEach(tag => {
+    const r = werte[tag] || (werte[tag] = {});
+    Object.keys(aenderungen[tag]).forEach(sp => { if (aenderungen[tag][sp] == null) delete r[sp]; else r[sp] = aenderungen[tag][sp]; });
   });
   const blk = (key, start, min, bereich, titel, extra) => Object.assign({ key, start: uhr(start), ende: uhr(start + min), bereich, titel, min, status: '', geplant: false, punkte: 0,
     taskTitel: '', taskFertig: false, task: '', gestartet: '', sammel: [], beendet: '', nach: false }, extra || {});
@@ -3217,7 +3267,7 @@ function paket(m, H, tagPlus) {
     bloecke[H].push(blk(e.id + '|' + e.s, a, e.min, e.bereich, String(e.titel).replace(/^[^:]+: /, ''), { geplant: true, gestartet: e.gestartet || '' }));
   });
   bloecke[H].sort((a, b) => a.start.localeCompare(b.start));
-  return { stand: 's' + Date.now() + Math.random(), erstellt: Date.now(), felder, ziele: { Tag: [7, 10, 5, 7], Fokus: [0.125, 1, 0.04, 0.125], Stimmung: [7, 10, 5, 7] }, tage, werte,
+  return { stand: 's' + Date.now() + Math.random(), erstellt: Date.now(), felder, ziele, tage, werte,
     termine: { [H]: [{ key: 'tm1', zeit: '12:00', titel: 'Seminar Theorie', kalender: 'Uni' }] }, bloecke, fokTasks: {}, regeln: [{ ab: tagPlus(-30), w }] };
 }
 
@@ -3225,12 +3275,20 @@ function paket(m, H, tagPlus) {
 // quelle: Text von Chief.js (im Browser), in Node liest mock.js die Datei selbst
 exports.welt = function (H, tagPlus, quelle) {
   const m = mock.neu(H, tagPlus, quelle);
+  const aenderungen = {};
   let tasks = [{ ref: 'L/t1', titel: 'Mail an Produktion', liste: 'Admin', alt: 0 }, { ref: 'L/t2', titel: 'Rechnung Oktober schreiben', liste: 'Admin', alt: 9 }];
   async function antwort(q, extra) {
     extra = extra || {};
     try {
       let d = { ok: true };
-      if (q.fn === 'appLaden') d = paket(m, H, tagPlus);
+      if (q.fn === 'appLaden') d = paket(m, H, tagPlus, aenderungen);
+      else if (q.fn === 'appSpeichern') {   // (tag, spalte, wert, typ), Anzeige wie lokal() in AppSeite.html
+        const [tag, sp, wert, typ] = q.args;
+        const zeit = x => uhr(Math.round(x * 1440) % 1440);
+        const anzeige = typ === 'notiz' || typ === 'text' ? String(wert) : wert === 'nein' ? 'nein' :
+          (typ === 'uhrzeit' || typ === 'jetzt') && typeof wert === 'number' ? zeit(wert) : String(wert).replace('.', ',');
+        (aenderungen[tag] || (aenderungen[tag] = {}))[sp] = wert === '' || wert == null ? null : { wert, anzeige };
+      }
       else if (/^appChief/.test(q.fn)) {
         await new Promise(r => setTimeout(r, 200));
         d = m.ruf(q.fn, q.args || []);
