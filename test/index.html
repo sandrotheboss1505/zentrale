@@ -889,6 +889,12 @@
   .cos-task-h span { width: 22px; height: 22px; border-radius: 11px; box-shadow: inset 0 0 0 2px var(--gold); }
   .cos-task-z { flex: none; height: 34px; min-width: 64px; padding: 0 10px; border-radius: 10px; background: var(--chip); color: var(--leise); font-weight: 600; font-size: 13px; font-variant-numeric: tabular-nums; }
   .cos-task-z.an { background: var(--gold-hell); color: var(--gold); font-weight: 700; }
+  /* V72: Punkte des offenen Tasks, antippen zeigt die Stufe */
+  .cos-task-p { flex: none; height: 34px; padding: 0 2px; display: grid; place-items: center; }
+  .cos-task-p .er-pkt { display: inline-block; min-width: 34px; padding: 4px 8px; font-size: 13px; }
+  .cos-task-p.auf .er-pkt { box-shadow: 0 0 0 2px var(--gold); }
+  .cos-tasks .stufen { padding-left: 46px; }
+  .cos-tasks .stufen-frage { padding-left: 46px; }
 
   .cos-zeiten { display: flex; flex-wrap: wrap; gap: 6px; }
   .cos-zeiten button, .cos-andere { min-height: 42px; padding: 0 12px; border-radius: 12px; background: var(--chip); font-size: 14px; display: inline-flex; align-items: center; gap: 4px; }
@@ -927,6 +933,7 @@
   .cos-ls-t { position: absolute; left: 0; right: 0; border-radius: 6px; padding: 2px 6px; font-size: 11px; color: var(--leise); overflow: hidden;
     background: repeating-linear-gradient(135deg, var(--chip) 0 5px, var(--karte) 5px 10px); box-shadow: inset 0 0 0 1px var(--linie); }
   .cos-ls-t b { font-weight: 600; }
+  .cos-ls-t.flex { background: none; box-shadow: inset 0 0 0 1px var(--linie); opacity: .6; }
   .cos-ls-b { position: absolute; left: 6px; right: 6px; border-radius: 7px; padding: 3px 8px; overflow: hidden; display: flex; align-items: baseline; align-content: flex-start; gap: 0 8px; font-size: 12px; line-height: 1.25; z-index: 1; touch-action: none; }
   .cos-ls-b b { order: 2; flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cos-ls-b .z { order: 1; flex: none; }
@@ -968,6 +975,15 @@
   .cos-tr.termin .cos-tr-zeit { color: var(--leise); font-weight: 600; }
   .cos-tr.termin .cos-tr-strich { background: repeating-linear-gradient(180deg, var(--kreis) 0 3px, transparent 3px 6px); }
   .cos-tr.termin .cos-tr-was b { font-weight: 500; color: var(--leise); }
+  /* V73: Termin antippen, fix oder flexibel. Flexibel gibt die Zeit frei und sieht leiser aus */
+  .cos-tr.termin .cos-tr-in { cursor: pointer; }
+  .cos-tr.termin.flex .cos-tr-strich { background: repeating-linear-gradient(180deg, var(--kreis) 0 2px, transparent 2px 8px); opacity: .6; }
+  .cos-tr.termin.flex .cos-tr-was b { font-weight: 400; }
+  .cos-tr.termin.flex .cos-tr-was small { color: var(--akzent); }
+  .cos-tr.termin .cos-tr-in[aria-expanded=true] .cos-tr-was b { color: var(--text); }
+  .cos-tf { padding: 0 0 12px 77px; animation: ciein .25s ease-out; }
+  .cos-tf .cos-seg button { height: 36px; }
+  .cos-tf .cos-tipp { margin-top: 6px; }
   .cos-tr.vorbei { opacity: .5; }
   /* jetzt dran: leicht hinterlegt, Anfangen atmet */
   .cos-tr.dran { background: var(--chip); border-radius: 16px; border-top-color: transparent; margin: 4px -10px; padding: 4px 10px; }
@@ -2469,7 +2485,7 @@ function cosBelegtLaden(erzwingen) {
   }).catch(() => { /* ohne Termine geht es auch */ }).finally(() => { cosBelegtLaedt = false; });
 }
 function cosTermine() {
-  const h = heute(), out = [], titel = {}, roh = (P && P.termine && P.termine[h]) || [];
+  const h = heute(), out = [], titel = {}, roh = (P && P.termine && P.termine[h]) || [], flex = cosMerk('tf|' + h) || {};
   roh.forEach(t => { titel[minVon(t.zeit)] = t.titel; });
   if (cosBelegt && cosBelegt.iso === h) {
     cosBelegt.liste.forEach(x => {
@@ -2478,14 +2494,17 @@ function cosTermine() {
       out.push({ s: s, e: e > s ? e : 24 * 60, t: titel[s] || 'Termin' });
     });
   } else roh.forEach(t => { if (/^\d{1,2}:\d{2}/.test(t.zeit)) { const s = minVon(t.zeit); out.push({ s: s, e: s + 60, t: t.titel }); } });
+  out.forEach(t => { t.key = cosTerminKey(t); t.flex = !!flex[t.key]; });   // V73: flexibel blockiert keine Zeit
   return out.sort((a, b) => a.s - b.s);
 }
+/* V73: ein Termin an einem Tag, erkannt an Uhrzeit und Titel */
+function cosTerminKey(t) { return cosUhr(t.s) + '|' + String(t.t || '').slice(0, 30); }
 function cosHeuteBloecke() {
   return bloeckeVon(heute()).map((b, i) => ({ b: b, i: i, s: cosSchrittVon(b), k: Math.max(1, Math.round((b.min || COS_MIN) / COS_MIN)) }));
 }
 /* Freie Startzeiten für min Minuten ab jetzt: zwischen Terminen und Blöcken, bis 23 Uhr */
 function cosStarts(min, ohneKey, anzahl, extra) {
-  const jm = jetztMin(), ab = Math.ceil((jm + 1) / 5) * 5, termine = cosTermine();
+  const jm = jetztMin(), ab = Math.ceil((jm + 1) / 5) * 5, termine = cosTermine().filter(t => !t.flex);   // V73: flexible Termine lassen die Zeit frei
   const belegt = termine.map(t => ({ s: t.s, e: t.e })).concat(extra || []);
   bloeckeVon(heute()).forEach(b => {
     if (b.key === ohneKey || b.status === 'nicht') return;
@@ -2679,9 +2698,38 @@ function cosTrBlock(x, jm, dran) {
     '<span class="cos-tr-strich"></span><span class="cos-tr-was"><b>' + esc(cosTrTitel(x)) + '</b><small>' + esc(unter) + '</small></span>' + cosTrKq(x.k, f, 'pl') + '</button>' +
     (!s && zaehlt(b) && !b.lokal ? '<button class="cos-wann zu"' + oeffnen + '>Zuordnen</button>' : '') + '</div>';
 }
+let cosTerminOffen = null;   // V73: aufgeklappter Termin (key)
 function cosTrTermin(t, jm) {
-  return '<div class="cos-tr termin' + (t.e <= jm ? ' vorbei' : '') + '"><span class="cos-tr-zeit">' + cosUhr(t.s) + '</span><span class="cos-tr-strich"></span>' +
-    '<span class="cos-tr-was"><b>' + esc(t.t) + '</b><small>Termin' + (t.e < 24 * 60 ? ' bis ' + cosUhr(t.e) : '') + '</small></span></div>';
+  const bis = t.e < 24 * 60 ? ' bis ' + cosUhr(t.e) : '', vorbei = t.e <= jm, auf = !vorbei && cosTerminOffen === t.key;
+  const innen = '<span class="cos-tr-zeit">' + cosUhr(t.s) + '</span><span class="cos-tr-strich"></span>' +
+    '<span class="cos-tr-was"><b>' + esc(t.t) + '</b><small>' + (t.flex ? 'flexibel · Zeit frei' + bis : 'Termin' + bis) + '</small></span>';
+  if (vorbei) return '<div class="cos-tr termin vorbei' + (t.flex ? ' flex' : '') + '">' + innen + '</div>';
+  let html = '<div class="cos-tr termin' + (t.flex ? ' flex' : '') + '"><button class="cos-tr-in" onclick="cosTerminTippen(' + t.s + ')" aria-expanded="' + auf + '" aria-label="Termin ' + esc(t.t) + ': fix oder flexibel">' + innen + '</button></div>';
+  if (auf) html += '<div class="cos-tf"><div class="cos-seg"><button class="' + (t.flex ? '' : 'an') + '" onclick="cosTerminSetzen(' + t.s + ',false)">Fix</button>' +
+    '<button class="' + (t.flex ? 'an' : '') + '" onclick="cosTerminSetzen(' + t.s + ',true)">Flexibel</button></div>' +
+    '<div class="cos-tipp">' + (t.flex ? 'Die Zeit gilt als frei. Kästchen dürfen dorthin.' : 'Flexibel: Die Zeit gilt als frei, Kästchen dürfen dorthin.') + '</div></div>';
+  return html;
+}
+function cosTerminTippen(s) {
+  const t = cosTermine().find(x => x.s === s);
+  if (!t) return;
+  cosTerminOffen = cosTerminOffen === t.key ? null : t.key;
+  haptik();
+  heuteNeu();
+}
+/* Fix oder flexibel, nur für diesen Termin an diesem Tag. Gespeichert in cos_merk tf|Tag, Rückgängig über den Verlauf */
+function cosTerminSetzen(s, an) {
+  const h = heute(), t = cosTermine().find(x => x.s === s);
+  cosTerminOffen = null;
+  if (!t || t.flex === !!an) { heuteNeu(); return; }
+  const alt = cosMerk('tf|' + h) || null, m = Object.assign({}, alt || {});
+  if (an) m[t.key] = 1; else delete m[t.key];
+  merken({ art: 'cosMerk', tag: tagIso, k: 'tf|' + h, alt: alt ? cosKopie(alt) : null, name: an ? 'Termin flexibel' : 'Termin fix' });
+  cosMerkSetzen('tf|' + h, Object.keys(m).length ? m : null, true);
+  haptik();
+  const frei = Math.max(0, t.e - Math.max(t.s, jetztMin())), k = Math.floor(frei / COS_MIN);
+  melden(an ? (frei >= COS_MIN ? 'Flexibel. ' + hm(frei) + ' frei, Platz für ' + k + ' Kästchen.' : 'Flexibel. Die Zeit ist frei.') : 'Fix. Die Zeit ist wieder belegt.');
+  heuteNeu();
 }
 function cosTrOffen(o, art, j) {
   const f = cosFarbe(o.p.bereich), id = art + ':' + o.s.id, auf = cosWannAuf === id;
@@ -3237,10 +3285,40 @@ function cosTasksInnen() {
     (ht.length ? ht.length + ' von ' + HEUTE_MAX + ' · wählen' : 'Wählen') + '</button></div>';
   const erl = typeof erledigtHtml === 'function' ? erledigtHtml(h, []) : '';   // V69: erledigte Tasks mit Stufe und Punkten
   if (!ht.length) return html + (erl ? '' : '<div class="cos-tipp" style="padding:2px 0 10px">Noch keine Tasks für heute. Wähl bis zu ' + HEUTE_MAX + ' kleine Dinge und gib ihnen eine Uhrzeit.</div>') + erl;
-  html += ht.map((t, i) => ({ t: t, i: i, z: zeiten[t.ref] || '' })).sort((a, b) => (a.z || '99').localeCompare(b.z || '99')).map(x =>
-    '<div class="cos-task"><button class="cos-task-h" onclick="heuteAbhaken(' + x.i + ')" aria-label="Abhaken: ' + esc(x.t.titel) + '"><span></span></button><span class="t">' + esc(x.t.titel) + '</span>' +
-    (typeof altPill === 'function' ? altPill(x.t) : '') + '<button class="cos-task-z' + (x.z ? ' an' : '') + '" onclick="cosTaskWann(' + x.i + ')">' + (x.z || 'Wann?') + '</button></div>').join('');
+  const vorher = typeof stufeVorher === 'function' && stufeVorher();   // V72: Punkte schon vor dem Haken
+  html += ht.map((t, i) => ({ t: t, i: i, z: zeiten[t.ref] || '' })).sort((a, b) => (a.z || '99').localeCompare(b.z || '99')).map(x => {
+    const st = x.t.stufe || 1, auf = vorher && cosStufeOffen === x.t.ref;
+    const pkt = vorher ? '<button class="cos-task-p' + (auf ? ' auf' : '') + '" onclick="cosTaskStufeAuf(' + x.i + ')" aria-label="Stufe: ' + esc(x.t.titel) + '"><span class="er-pkt s' + st +
+      (stufeNeu && stufeNeu.ref === x.t.ref && Date.now() - stufeNeu.t < 2000 ? ' neu' : '') + '">+' + offenPunkte(x.t) + '</span></button>' : (typeof altPill === 'function' ? altPill(x.t) : '');
+    let r = '<div class="cos-task"><button class="cos-task-h" onclick="heuteAbhaken(' + x.i + ')" aria-label="Abhaken: ' + esc(x.t.titel) + '"><span></span></button><span class="t">' + esc(x.t.titel) + '</span>' +
+      pkt + '<button class="cos-task-z' + (x.z ? ' an' : '') + '" onclick="cosTaskWann(' + x.i + ')">' + (x.z || 'Wann?') + '</button></div>';
+    if (auf) r += '<div class="stufen-frage">Wie zäh ist das?' + (x.t.alt >= ALT_TAGE ? ' Liegt lange rum, gibt +1 dazu.' : '') + '</div>' +
+      '<div class="stufen">' + STUFEN.map(([n, nm]) => '<button class="' + (st === n ? 'an' : '') + '" onclick="cosTaskStufe(' + x.i + ',' + n + ')"><span>' + nm + '</span><b>+' + n + '</b></button>').join('') + '</div>';
+    return r;
+  }).join('');
   return html + erl;
+}
+/* V72: Stufe eines offenen Tasks. Antippen der Punkte klappt leicht, mittel, zäh auf, die Wahl gilt sofort */
+function cosTaskStufeAuf(i) {
+  const t = (heuteTasks || [])[i];
+  if (!t) return;
+  cosStufeOffen = cosStufeOffen === t.ref ? null : t.ref;
+  haptik();
+  heuteNeu();
+}
+function cosTaskStufe(i, st) {
+  const t = (heuteTasks || [])[i];
+  if (!t) return;
+  const alt = t.stufe || 1;
+  cosStufeOffen = null;
+  if (alt === st) { heuteNeu(); return; }
+  merken({ art: 'stufevor', tag: tagIso, ref: t.ref, alt: alt, name: 'Stufe: ' + t.titel });
+  taskStufeLokal(t.ref, st);
+  stufeNeu = { ref: t.ref, t: Date.now() };
+  haptik();
+  if (st === 4) { setTimeout(haptik, 140); setTimeout(haptik, 280); melden('Zäh. Genau die zählen.'); }
+  heuteNeu();
+  taskReihe('appTaskStufe', [t.ref, st, true]).catch(e => melden(e.message || String(e)));
 }
 function cosTaskWann(i) {
   const t = (heuteTasks || [])[i];
@@ -3292,7 +3370,7 @@ function cosLeisteInnen() {
   const h = heute(), jm = jetztMin(), r = cosLsBereich(), y = m => Math.round((m - r.von) * COS_PX), tz = cosMerk('tz|' + h) || {};
   let html = '<div class="cos-ls-feld" style="height:' + y(r.bis) + 'px">';
   for (let m = r.von; m < r.bis; m += 60) html += '<div class="cos-ls-std" style="top:' + y(m) + 'px"><span>' + (m / 60) + ':00</span></div>';
-  cosTermine().forEach(t => { html += '<div class="cos-ls-t" style="top:' + y(t.s) + 'px;height:' + Math.max(16, y(t.e) - y(t.s)) + 'px"><b>' + esc(t.t) + '</b></div>'; });
+  cosTermine().forEach(t => { html += '<div class="cos-ls-t' + (t.flex ? ' flex' : '') + '" style="top:' + y(t.s) + 'px;height:' + Math.max(16, y(t.e) - y(t.s)) + 'px"><b>' + esc(t.t) + '</b></div>'; });
   cosHeuteBloecke().forEach(x => {
     const b = x.b, s = x.s, p = s && cosNachName(s.projekt), f = cosFarbe(p ? p.bereich : b.bereich);
     const fertig = !!b.status || !!b.beendet, laeuft = !fertig && !!b.gestartet, plan = !fertig && !laeuft && minVon(b.start) > jm && !b.lokal;
@@ -3462,7 +3540,7 @@ function cosRundeFertig() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611160142';
+const PWA_VERSION = '202611160219';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -3707,7 +3785,16 @@ function paket(m, H, tagPlus, aenderungen) {
 exports.welt = function (H, tagPlus, quelle) {
   const m = mock.neu(H, tagPlus, quelle);
   const aenderungen = {};
-  let tasks = [{ ref: 'L/t1', titel: 'Mail an Produktion', liste: 'Admin', alt: 0 }, { ref: 'L/t2', titel: 'Rechnung Oktober schreiben', liste: 'Admin', alt: 9 }];
+  let tasks = [{ ref: 'L/t1', titel: 'Mail an Produktion', liste: 'Admin', alt: 0, stufe: 1 }, { ref: 'L/t2', titel: 'Rechnung Oktober schreiben', liste: 'Admin', alt: 9, stufe: 2 }];
+  // V71: alle offenen Tasks für das Fenster Tasks vormerken (appTasksWahl), heute fällige stehen zusätzlich in tasks
+  const listen = [{ id: 'L', titel: 'Admin' }, { id: 'P', titel: 'Privat' }];
+  let vorrat = tasks.map(t => Object.assign({}, t)).concat([
+    { ref: 'L/t3', titel: 'Steuerbescheid ablegen', liste: 'Admin', alt: 2, stufe: 1 },
+    { ref: 'P/t4', titel: 'Fahrrad Licht reparieren', liste: 'Privat', alt: 12, stufe: 1 },
+    { ref: 'P/t5', titel: 'Geschenk für Mama', liste: 'Privat', alt: 0, stufe: 1 }]);
+  const flach = () => vorrat.map(t => ({ ref: t.ref, titel: t.titel, liste: t.liste, bereich: t.liste === 'Admin' ? 'Admin' : 'Sonstiges', unter: false, alt: t.alt, stufe: t.stufe }));
+  // V72: der alte Server kennt keine Stufe an offenen Tasks
+  const ohneStufe = l => l.map(t => { const x = Object.assign({}, t); delete x.stufe; return x; });
   async function antwort(q, extra) {
     extra = extra || {};
     try {
@@ -3733,16 +3820,33 @@ exports.welt = function (H, tagPlus, quelle) {
       else if (q.fn === 'appBlockBeenden') { const e = m.kal.events.find(x => x.id + '|' + x.s === q.args[0]); if (e) e.beendet = q.args[1] === false ? '' : '10:31'; }
       else if (q.fn === 'appBlockSetzen') { const e = m.kal.events.find(x => x.id + '|' + x.s === q.args[0]); if (e) e.status = q.args[1] || ''; }
       else if (q.fn === 'appBlockLoeschen') m.kal.events = m.kal.events.filter(x => x.id + '|' + x.s !== q.args[0]);
-      else if (q.fn === 'appHeuteTasks') d = tasks;
+      else if (q.fn === 'appHeuteTasks') d = (extra.alt || extra.altTasks) ? ohneStufe(tasks) : tasks;
+      else if (q.fn === 'appTaskStufe') {   // (ref, stufe, offen): offen merkt sie am Task, abgehakt rechnet die Punkte neu
+        const [ref, st] = q.args;
+        tasks.concat(vorrat).forEach(t => { if (t.ref === ref) t.stufe = st; });
+        const a = aenderungen[H], l = a && a.Tasks && a.Tasks.tasks;
+        if (l) { l.forEach(t => { if (t.ref === ref) t.stufe = st; }); const w = l.reduce((x, y) => x + y.stufe + y.bonus, 0); a.Tasks = { wert: w, anzeige: String(w), tasks: l }; }
+      }
       else if (q.fn === 'appHeuteAbhaken') {   // wie der Server: der Task steht danach in der Spalte Tasks des Tages
         const t = tasks.find(x => x.ref === q.args[0]);
         tasks = tasks.filter(x => x.ref !== q.args[0]);
+        vorrat = vorrat.filter(x => x.ref !== q.args[0]);
         if (t) {
-          const a = aenderungen[H] || (aenderungen[H] = {}), l = ((a.Tasks && a.Tasks.tasks) || []).concat([{ zeit: '10:30', titel: t.titel, liste: t.liste, ref: t.ref, stufe: 1, bonus: t.alt >= 7 ? 1 : 0 }]);
-          a.Tasks = { wert: l.length, anzeige: String(l.length), tasks: l };
+          const a = aenderungen[H] || (aenderungen[H] = {}), l = ((a.Tasks && a.Tasks.tasks) || []).concat([{ zeit: '10:30', titel: t.titel, liste: t.liste, ref: t.ref, stufe: (extra.alt || extra.altTasks) ? 1 : t.stufe || 1, bonus: t.alt >= 7 ? 1 : 0 }]);
+          const w = l.reduce((x, y) => x + y.stufe + y.bonus, 0);
+          a.Tasks = { wert: w, anzeige: String(w), tasks: l };
         }
       }
-      else if (/^appTasks|^appPlanDaten/.test(q.fn)) d = q.fn === 'appPlanDaten' ? { tasks: [], bereiche: [], dauern: [] } : q.fn === 'appTasksWahl' ? { tasks: [], listen: [] } : [];
+      else if (q.fn === 'appHeuteSetzen') {   // (dazu, weg, tag): wie der Server, Antwort ist die Liste für heute
+        const [dazu, weg, tag] = q.args;
+        if (!tag || tag === H) {
+          tasks = tasks.filter(t => (weg || []).indexOf(t.ref) < 0);
+          (dazu || []).forEach(r => { const t = vorrat.find(x => x.ref === r); if (t && !tasks.some(x => x.ref === r) && tasks.length < 5) tasks.push(Object.assign({}, t)); });
+        }
+        d = (extra.alt || extra.altTasks) ? ohneStufe(tasks) : tasks;
+      }
+      else if (q.fn === 'appTasksWahl') d = { tasks: (extra.alt || extra.altTasks) ? ohneStufe(flach()) : flach(), listen };
+      else if (/^appTasks|^appPlanDaten/.test(q.fn)) d = q.fn === 'appPlanDaten' ? { tasks: [], bereiche: [], dauern: [] } : [];
       return { daten: d };
     } catch (e) { return { fehler: e.message }; }
   }
@@ -4276,6 +4380,10 @@ const TASK_PUNKTE_AB = '2026-11-11';
 const STUFEN = [[1, 'leicht'], [2, 'mittel'], [4, 'zäh']];
 const ALT_TAGE = 7;
 function taskPunkte(t) { return (t.stufe || 1) + (t.bonus || 0); }
+/* V72: Stufe schon beim Vormerken. Der neue Server schickt an jedem offenen Task "stufe" mit, der alte nicht (dann wie bisher nach dem Haken) */
+function stufeVorher() { return [heuteTasks, tasksVorrat && tasksVorrat.tasks].some(l => (l || []).some(t => t && t.stufe != null)); }
+function offenPunkte(t) { return (t.stufe || 1) + (t.alt >= ALT_TAGE ? 1 : 0); }
+function tagText(x) { return x.toFixed(1).replace('.', ','); }
 function altPill(t) { return t && t.alt >= ALT_TAGE ? '<span class="alt-pill' + (t.alt >= 3 * ALT_TAGE ? ' sehr' : '') + '">+1</span>' : ''; }
 
 /* ── Tageswert in der App nachgebaut, gleiche Rechnung wie die Formel in Tage!C. Damit steigt er live mit der Fokuszeit.
@@ -4779,6 +4887,7 @@ function erledigtHtml(iso, l) {
 /* Stufe eines abgehakten Tasks: antippen öffnet leicht, mittel, zäh. Der Tageswert zieht sofort mit, der Server rechnet nach */
 const erTasks = {};
 let stufeOffen = null, stufeNeu = null;
+let cosStufeOffen = null;   // V72: in der Karte Tasks aufgeklappte Stufe eines offenen Tasks (ref)
 function tasksWertLokal(iso) {
   const tf = P.felder.find(x => x.typ === 'tasks'), w = P.werte[iso];
   if (!tf || !w || iso < TASK_PUNKTE_AB) return;
@@ -4849,20 +4958,28 @@ function heuteLaden(erzwingen) {
 function heuteAbhaken(i) {
   const t = (heuteTasks || [])[i];
   if (!t) return;
+  const vorher = stufeVorher(), st = vorher && STUFEN.some(x => x[0] === t.stufe) ? t.stufe : 1, tagVor = tagLive(heute());
   merken({ art: 'heuteab', tag: tagIso, t: t, i: i, name: 'Abgehakt: ' + t.titel });
   heuteTasks.splice(i, 1);
+  if (cosStufeOffen === t.ref) cosStufeOffen = null;
   const tf = P.felder.find(x => x.typ === 'tasks'), w = P.werte[heute()];
   if (tf && w) {
     const x = w[tf.spalte] || (w[tf.spalte] = { wert: 0, anzeige: '' });
-    x.tasks = (x.tasks || []).concat([{ zeit: jetztZeit(), titel: t.titel, liste: t.liste, ref: t.ref, stufe: 1, bonus: t.alt >= ALT_TAGE ? 1 : 0 }]);
+    x.tasks = (x.tasks || []).concat([{ zeit: jetztZeit(), titel: t.titel, liste: t.liste, ref: t.ref, stufe: st, bonus: t.alt >= ALT_TAGE ? 1 : 0 }]);
     tasksWertLokal(heute());
-    stufeOffen = t.ref;
+    if (vorher) stufeNeu = { ref: t.ref, t: Date.now() };   // V72: Stufe steht schon, die Punkte springen
+    else stufeOffen = t.ref;                               // alter Server: wie zäh war das?
   }
   P.fokTasks = P.fokTasks || {};
   P.fokTasks[heute()] = (P.fokTasks[heute()] || []).concat([t.ref]);
   fokusLokal(heute());
   heuteNeu();
-  melden('Erledigt: ' + t.titel);
+  if (vorher) {
+    const tagNach = tagLive(heute()), p = offenPunkte(Object.assign({}, t, { stufe: st }));
+    haptik();
+    if (st === 4) { setTimeout(haptik, 140); setTimeout(haptik, 280); }
+    melden((st === 4 ? 'Zäh erledigt. +' : 'Erledigt. +') + p + (tagVor != null && tagNach != null && tagNach > tagVor ? ' · Tag\u00a0' + tagText(tagVor) + '\u00a0→\u00a0' + tagText(tagNach) : ''));
+  } else melden('Erledigt: ' + t.titel);
   nacheinander('appHeuteAbhaken', t.ref);
 }
 /* Plus öffnet direkt Block planen. Oben wechselst du zwischen Block, Nachtragen und Tasks, ohne zweites Fenster */
@@ -4888,8 +5005,10 @@ function neuWechsel(k) {
 function heuteWahlOeffnen() {
   const h = heute(), jetzt = new Set((heuteTasks || []).map(t => t.ref));
   hwahl = { tag: h, tasks: null, listen: [], sendet: false, an: { [h]: jetzt }, vorher: { [h]: new Set(jetzt) },
-    bearbeiten: false, edit: null, frage: null, laeuft: 0, neuListe: null };
+    bearbeiten: false, edit: null, frage: null, laeuft: 0, neuListe: null, stufe: {} };
   try { hwahl.neuListe = localStorage.getItem(TASK_LISTE_SPEICHER); } catch (e) { /* egal */ }
+  $('planen').classList.add('offen');   // V71: aus der Karte Tasks heraus war das Fenster sonst unsichtbar
+  document.body.style.overflow = 'hidden';
   if (tasksVorrat && tasksVorrat.tasks) { hwahl.tasks = tasksVorrat.tasks.slice(); hwahl.listen = (tasksVorrat.listen || []).slice(); }
   heuteWahlZeichnen();
   tasksVorladen(true).then(d => {
@@ -4939,6 +5058,12 @@ function heuteWahlZeichnen() {
       const ja = an.has(t.ref);
       const ic = '<span class="hz-ic ' + (ja ? 'gruen' : 'leer') + '">' + (ja ? '✓' : '') + '</span>';
       const temp = t.temp ? ' tw-temp' : '';
+      if (!bearb && ja && stufeVorher()) {   // V72: gewählt, darunter gleich die Stufe
+        const st = twStufe(t), p = offenPunkte(Object.assign({}, t, { stufe: st }));
+        return k + '<button class="hz-row2 mit-alt' + temp + '" onclick="heuteWahlTippen(' + i + ')">' + ic + '<span>' + esc(t.titel) + '</span>' +
+          '<span class="er-pkt s' + st + '">+' + p + '</span></button>' +
+          '<div class="stufen tw-stufen">' + STUFEN.map(([n, nm]) => '<button class="' + (st === n ? 'an' : '') + '" onclick="twStufeSetzen(' + i + ',' + n + ')"><span>' + nm + '</span><b>+' + n + '</b></button>').join('') + '</div>';
+      }
       if (!bearb) return k + '<button class="hz-row2' + temp + (altPill(t) ? ' mit-alt' : '') + '" onclick="heuteWahlTippen(' + i + ')">' + ic + '<span>' + esc(t.titel) + '</span>' + altPill(t) + '</button>';
       const unter = t.unter ? ' unter' : '';
       if (hwahl.edit === t.ref) return k + '<div class="tw-zeile' + unter + '">' + ic + '<input type="text" id="twEdit" value="' + esc(t.titel) + '" enterkeyhint="done" onkeydown="twTaste(event)" onblur="twEditFertig(true)"><span></span><span></span></div>';
@@ -4951,7 +5076,7 @@ function heuteWahlZeichnen() {
     }).join('');
   }
   const chip = (tag, txt) => '<button class="' + (hwahl.tag === tag ? 'an' : '') + '" onclick="heuteWahlTag(\'' + tag + '\')">' + txt + '</button>';
-  $('planen').innerHTML = '<div class="planinnen"><div class="plankopf"><b>Tasks vormerken</b><button class="rund" onclick="heuteWahlZu()" aria-label="Schließen">✕</button></div>' + neuTabs('tasks') +
+  $('planen').innerHTML = '<div class="planinnen"><div class="plankopf"><b>Tasks vormerken</b><button class="rund" onclick="heuteWahlZu()" aria-label="Schließen">✕</button></div>' + (typeof cosTagAn === 'function' && cosTagAn() ? '' : neuTabs('tasks')) +
     '<div class="karte"><div class="bereich">Für wann</div><div class="wahl raster zwei">' + chip(h, 'Heute') + chip(m, 'Morgen') + '</div>' +
     '<div class="slotinfo">' + (an ? an.size : 0) + ' von ' + HEUTE_MAX + ' für ' + (hwahl.tag === m ? 'morgen' : 'heute') + ' gewählt</div></div>' +
     '<div class="karte"><div class="tw-kopf"><span class="bereich">Deine Tasks</span>' +
@@ -4964,6 +5089,19 @@ function heuteWahlZeichnen() {
   if (ni) { ni.value = neuText; if (neuFokus) ni.focus(); }
   const ei = $('twEdit');
   if (ei) { if (edText != null) ei.value = edText; ei.focus(); if (edText == null) ei.select(); }
+}
+/* V72: Stufe im Fenster. Gilt erst mit Übernehmen */
+function twStufe(t) { return hwahl && hwahl.stufe[t.ref] != null ? hwahl.stufe[t.ref] : (t.stufe || 1); }
+function twStufeSetzen(i, st) {
+  if (!hwahl || !hwahl.tasks || !hwahl.tasks[i]) return;
+  hwahl.stufe[hwahl.tasks[i].ref] = st;
+  haptik();
+  heuteWahlZeichnen();
+}
+/* Stufe eines offenen Tasks überall hier setzen: Für heute, Vorrat (und Speicher) */
+function taskStufeLokal(ref, st) {
+  [heuteTasks, tasksVorrat && tasksVorrat.tasks].forEach(l => (l || []).forEach(x => { if (x.ref === ref) x.stufe = st; }));
+  if (tasksVorrat) tasksVorratSetzen(tasksVorrat);
 }
 function heuteWahlZu() {
   if (hwahl && hwahl.tasks) tasksVorratSetzen({ tasks: hwahl.tasks, listen: hwahl.listen });
@@ -4979,13 +5117,23 @@ function heuteWahlFertig() {
     if (dazu.length || weg.length) aend.push({ t: tag, dazu: dazu, weg: weg });
   });
   const vorher = (heuteTasks || []).slice();
-  if (hwahl.an[h]) heuteTasks = hwahl.tasks.filter(t => hwahl.an[h].has(t.ref)).map(t => ({ ref: t.ref, titel: t.titel, liste: t.liste }));
+  // V72: geänderte Stufen (nur was gewählt ist) an den Tasks setzen und mitschicken
+  const stufen = [];
+  Object.keys(hwahl.stufe).forEach(ref => {
+    const t = hwahl.tasks.find(x => x.ref === ref), neu = hwahl.stufe[ref];
+    if (!t || !Object.keys(hwahl.an).some(tag => hwahl.an[tag] && hwahl.an[tag].has(ref)) || (t.stufe || 1) === neu) return;
+    stufen.push({ ref: ref, alt: t.stufe || 1, neu: neu });
+    t.stufe = neu;
+  });
+  if (hwahl.an[h]) heuteTasks = hwahl.tasks.filter(t => hwahl.an[h].has(t.ref)).map(t => Object.assign({ ref: t.ref, titel: t.titel, liste: t.liste, alt: t.alt || 0 }, t.stufe != null ? { stufe: t.stufe } : {}));
   tasksVorratSetzen({ tasks: hwahl.tasks, listen: hwahl.listen });
   hwahl = null;
   planSchliessen();
   heuteNeu();
-  if (!aend.length) return;
-  merken({ art: 'heutewahl', tag: tagIso, aend: aend, vorher: vorher, name: 'Tasks vorgemerkt' });
+  stufen.forEach(x => taskReihe('appTaskStufe', [x.ref, x.neu, true]).catch(e => melden(e.message || String(e))));
+  if (stufen.some(x => x.neu === 4)) { haptik(); setTimeout(haptik, 140); setTimeout(haptik, 280); }
+  if (!aend.length && !stufen.length) return;
+  merken({ art: 'heutewahl', tag: tagIso, aend: aend, vorher: vorher, stufen: stufen, name: 'Tasks vorgemerkt' });
   if (aend.some(x => x.t !== h)) melden('Für morgen vorgemerkt');
   aend.forEach(x => taskReihe('appHeuteSetzen', [x.dazu, x.weg, x.t])
     .then(l => { if (x.t === h) { heuteTasks = l || heuteTasks; heuteNeu(); } })
@@ -5515,6 +5663,10 @@ function rueckgaengig() {
     if (stufeOffen === ref) stufeOffen = null;
     zeichnen();
     nacheinander('appTaskOeffnen', a.key);
+  } else if (a.art === 'stufevor') {   // V72: Stufe eines offenen Tasks in der Karte Tasks
+    taskStufeLokal(a.ref, a.alt);
+    zeichnen();
+    taskReihe('appTaskStufe', [a.ref, a.alt, true]).catch(e => melden(e.message || String(e)));
   } else if (a.art === 'stufe') {
     const tf = P.felder.find(x => x.typ === 'tasks'), xt = tf && P.werte[a.iso] && P.werte[a.iso][tf.spalte];
     const t = xt && (xt.tasks || []).find(y => y.ref === a.ref);
@@ -5580,6 +5732,7 @@ function rueckgaengig() {
     nacheinander('appHeuteZurueck', a.t.ref);
   } else if (a.art === 'heutewahl') {
     heuteTasks = a.vorher;
+    (a.stufen || []).forEach(x => { taskStufeLokal(x.ref, x.alt); taskReihe('appTaskStufe', [x.ref, x.alt, true]).catch(() => {}); });
     zeichnen();
     const h = heute();
     (a.aend || []).forEach(x => server('appHeuteSetzen', x.weg, x.dazu, x.t)
@@ -5811,7 +5964,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 01:42</div>
+<div id="testband">TEST 02:19</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
