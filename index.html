@@ -1187,9 +1187,25 @@ function cosSenden(ops) {
 }
 /* Rückgängig (aus rueckgaengig in AppSeite) */
 function cosRueck(a) {
-  if (cosRueckTag(a)) { melden('Rückgängig: ' + a.name); return; }
+  if (a.art === 'cosGruppe') {   // V70: ein Tipp, mehrere Änderungen: alle zurück, die letzte zuerst
+    a.teile.slice().reverse().forEach(t => { verlauf.push(t); rueckgaengig(); });
+    melden('Rückgängig: ' + a.name);
+    return;
+  }
+  const r = cosRueckTag(a);
+  if (r === 'warte') { verlauf.push(a); $('undo').disabled = false; melden('Einen Moment, das wird noch angelegt. Dann geht Rückgängig.'); return; }
+  if (r) { melden('Rückgängig: ' + a.name); return; }
   if (a.art === 'cosHaken') { cosHakenSetzen(a.id, a.alt, true); melden('Rückgängig: ' + a.name); return; }
   if (a.art === 'cosAend') { cosAendern(a.ops, null); melden('Rückgängig: ' + a.name); }
+}
+/* V70: mehrere Änderungen aus einem Tipp werden ein Eintrag im Verlauf. Ein Rückgängig nimmt alle zurück */
+function cosGruppe(name, fn) {
+  const vor = verlauf.slice();
+  fn();
+  const teile = verlauf.filter(x => vor.indexOf(x) < 0);
+  if (teile.length < 2) return;
+  teile.forEach(x => verlauf.splice(verlauf.indexOf(x), 1));
+  merken({ art: 'cosGruppe', tag: tagIso, teile: teile, name: name });
 }
 /* Schritte eines Projekts in die Form fürs Ändern; Etappen bleiben zusammen, Geparktes steht hinten */
 function cosPaket(s) {
@@ -1476,15 +1492,19 @@ function cosLaufHtml(h, b, i, d, jm) {
 function cosFertig(i) {
   const h = heute(), b = bloeckeVon(h)[i];
   if (!b) return;
-  blockFertig(i);
-  const j = bloeckeVon(h).findIndex(x => x.key === b.key);
-  if (j >= 0) blockSetzen(h, j, 'gemacht', true);
+  cosGruppe('Fertig', () => {   // V70: Rückgängig nimmt Ende und gemacht zusammen zurück
+    blockFertig(i);
+    const j = bloeckeVon(h).findIndex(x => x.key === b.key);
+    if (j >= 0) blockSetzen(h, j, 'gemacht');
+  });
 }
 function cosSchrittFertig(i) {
   const b = bloeckeVon(heute())[i], s = cosSchrittVon(b);
   if (!b) return;
-  cosFertig(i);
-  if (s) cosHakenSetzen(s.id, 'fertig');
+  cosGruppe('Schritt fertig', () => {
+    cosFertig(i);
+    if (s) cosHakenSetzen(s.id, 'fertig');
+  });
 }
 
 /* ── Als Nächstes: wenn kein Block läuft und keiner auf Bewertung wartet ── */
@@ -1547,6 +1567,8 @@ function cosStart(id, k) {
   if (!P.bloecke) P.bloecke = {};
   P.bloecke[h] = (P.bloecke[h] || []).concat([b]).sort((x, y) => x.start.localeCompare(y.start));
   cosStartet = key; cosWahl = null; ansicht = 'tag'; tagIso = h;
+  const eintrag = { art: 'cosPlan', tag: h, keys: [key], name: 'Gestartet' };   // V70: Rückweg sofort, Ausplanen nimmt auch den Schlüssel am Schritt raus
+  merken(eintrag);
   haptik();
   fokusLokal(h);
   dranMeldung = { key: key, ja: true, t: Date.now(), erster: erster, text: erster ? 'Tag gestartet. Das Kästchen füllt sich.' : 'Läuft. Das Kästchen füllt sich.' };
@@ -1559,10 +1581,12 @@ function cosStart(id, k) {
       if (dranMerk[key]) { dranMerk[d.key] = dranMerk[key]; delete dranMerk[key]; }
       if (dranMeldung && dranMeldung.key === key) dranMeldung.key = d.key;
       (P.bloecke[h] || []).forEach(x => { if (x.key === key) { x.key = d.key; x.lokal = false; } });
-      merken({ art: 'plan', tag: h, key: d.key, name: 'Block gestartet' });
-    } else if (P.bloecke[h]) {
-      P.bloecke[h] = P.bloecke[h].filter(x => x.key !== key);
+      eintrag.keys[0] = d.key;
+    } else {
+      if (P.bloecke[h]) P.bloecke[h] = P.bloecke[h].filter(x => x.key !== key);
       fokusLokal(h);
+      const j = verlauf.indexOf(eintrag);
+      if (j >= 0) { verlauf.splice(j, 1); $('undo').disabled = !verlauf.length; }
     }
     zeichnen();
     cosLaden(true);
@@ -2687,14 +2711,14 @@ function cosAnfangen(key) {
 /* Doch nicht: ein paar Sekunden nach dem Start nimmt ein Tipp ihn zurück */
 function cosDochNichtHtml(b) {
   const a = verlauf[verlauf.length - 1];
-  if (!a || a.key !== b.key || (a.art !== 'start' && a.art !== 'plan')) return '';
+  if (!a || !(a.art === 'start' && a.key === b.key) && !(a.art === 'cosPlan' && a.keys.indexOf(b.key) >= 0)) return '';
   clearTimeout(cosDochNichtHtml.t);
   cosDochNichtHtml.t = setTimeout(() => { if (ansicht === 'tag' && tagIso === heute()) heuteNeu(); }, 12500);
   return '<button class="cos-doch" onclick="cosDochNicht(\'' + b.key + '\')">Doch nicht starten</button>';
 }
 function cosDochNicht(key) {
   const a = verlauf[verlauf.length - 1];
-  if (!a || a.key !== key) return;
+  if (!a || (a.key !== key && !(a.keys && a.keys.indexOf(key) >= 0))) return;
   haptik();
   rueckgaengig();
   melden('Nicht gestartet.');
@@ -2847,6 +2871,7 @@ async function cosVergessenNach(iso, key) {
     const d = await server('appBlockPlanen', { tag: iso, min: b.min, start: b.start, bereich: b.bereich, titel: s ? s.titel : (b.titel || ''), schritt: '', taskRef: '', taskTitel: '', nach: true });
     if (s && d && d.key && C && !C.fehlt) await server('appChiefZuordnen', d.key, s.id);
     await server(C && !C.fehlt ? 'appChiefAusplanen' : 'appBlockLoeschen', key);
+    if (d && d.key) merken({ art: 'cosNachV', tag: tagIso, iso: iso, neu: d.key, alt: cosKopie(b), titel: s ? s.titel : (b.titel || ''), sid: s ? s.id : '', name: 'Nachgetragen' });
     melden(d && d.meldung ? d.meldung : 'Nachgetragen, zählt halb.');
     planSchliessen();
     abfragen(true);
@@ -2855,6 +2880,18 @@ async function cosVergessenNach(iso, key) {
     if (plan) { plan.sendet = false; planZeichnen(); }
     melden(e.message || String(e));
   }
+}
+/* V70 Rückgängig für Nachgetragen: der halbe Block geht raus, der geplante Block kommt an seine Stelle zurück */
+async function cosVergessenZurueck(a) {
+  const b = a.alt, chief = C && !C.fehlt;
+  if (P.bloecke && P.bloecke[a.iso]) { P.bloecke[a.iso] = P.bloecke[a.iso].filter(x => x.key !== a.neu); fokusLokal(a.iso); zeichnen(); }
+  try {
+    await server(chief ? 'appChiefAusplanen' : 'appBlockLoeschen', a.neu);
+    const d = await server('appBlockPlanen', { tag: a.iso, min: b.min, start: b.start, bereich: b.bereich, titel: a.titel, schritt: '', taskRef: '', taskTitel: '' });
+    if (a.sid && chief && d && d.key) await server('appChiefZuordnen', d.key, a.sid);
+  } catch (e) { melden(e.message || String(e)); }
+  abfragen(true);
+  if (C) cosLaden(true);
 }
 function cosWannAufZu(id) { cosWannAuf = cosWannAuf === id ? null : id; haptik(); heuteNeu(); }
 function cosWannWahl(sid, k, start, jetzt) {
@@ -2956,20 +2993,27 @@ function cosAusplanen(key, ohneVerlauf) {
   zeichnen();
   cosNach('appChiefAusplanen', key).then(() => { cosLaden(true); cosBelegtLaden(true); if (offen === 0) abfragen(true); });
 }
-function cosZuordnen(key, sid) {
-  const b = bloeckeVon(heute()).find(x => x.key === key), s = C.schritte.find(x => x.id === sid);
-  if (!b || !s || b.lokal) return;
-  cosKeys[key] = sid; b.schritt = sid;
+function cosZuordnen(key, sid, ohneVerlauf) {
+  const b = bloeckeVon(heute()).find(x => x.key === key), s = sid ? C.schritte.find(x => x.id === sid) : null;
+  if (!b || (sid && !s) || b.lokal) return;
+  const alt = cosSchrittVon(b);
+  if (!ohneVerlauf) merken({ art: 'cosZuord', tag: tagIso, key: key, alt: alt ? alt.id : '', name: 'Zugeordnet' });
+  const ev = String(key).split('|')[0];   // V70: alte Zuordnung auch hier lösen, sonst findet cosSchrittVon sie bis zum nächsten Laden
+  C.schritte.forEach(x => { if (x.bl) delete x.bl[key]; if (x.keys) x.keys = x.keys.filter(k => String(k).split('|')[0] !== ev); });
+  if (sid) { cosKeys[key] = sid; b.schritt = sid; } else { delete cosKeys[key]; b.schritt = ''; }
   haptik();
-  melden('Zugeordnet: ' + s.titel);
+  if (!ohneVerlauf) melden('Zugeordnet: ' + s.titel);
   zeichnen();
-  cosNach('appChiefZuordnen', key, sid).then(() => cosLaden(true));
+  cosNach('appChiefZuordnen', key, sid || '').then(() => cosLaden(true));
 }
 /* Rückgängig für den Tag (aus cosRueck) */
 function cosRueckTag(a) {
+  const lokal = k => { const b = bloeckeVon(heute()).find(x => x.key === k); return !!(b && b.lokal) || String(k).indexOf('lokal|') === 0; };
   if (a.art === 'cosMerk') { cosMerkSetzen(a.k, a.alt, true); heuteNeu(); return true; }
-  if (a.art === 'cosPlan') { a.keys.forEach(k => cosAusplanen(k, true)); return true; }
-  if (a.art === 'cosPlanZeit') { cosVerschieben(a.key, a.alt, a.altK, true); return true; }
+  if (a.art === 'cosPlan') { if (a.keys.some(lokal)) return 'warte'; a.keys.forEach(k => cosAusplanen(k, true)); return true; }
+  if (a.art === 'cosPlanZeit') { if (lokal(a.key)) return 'warte'; cosVerschieben(a.key, a.alt, a.altK, true); return true; }
+  if (a.art === 'cosZuord') { if (lokal(a.key)) return 'warte'; cosZuordnen(a.key, a.alt, true); return true; }
+  if (a.art === 'cosNachV') { cosVergessenZurueck(a); return true; }
   if (a.art === 'cosPlanWeg') {
     const b = a.b, k = Math.max(1, Math.round((b.min || COS_MIN) / COS_MIN));
     if (a.sid) cosEinplanen([{ id: a.sid, start: b.start, k: Math.min(COS_SITZUNG, k) }], true);
@@ -3071,6 +3115,10 @@ function cosSitzFertig() {
   cosBlattLesen();
   cosBlattZu();
   if (b.key) {
+    if (b.zuordnen && b.start != null && (b.start !== b.alt || b.k !== b.altK) && !b.jetzt) {   // V70: Zuordnen und Verschieben, ein Rückgängig
+      cosGruppe('Zugeordnet und verschoben', () => { cosZuordnen(b.key, b.zuordnen); cosVerschieben(b.key, b.start, b.k); });
+      return;
+    }
     if (b.zuordnen) cosZuordnen(b.key, b.zuordnen);
     if (b.jetzt) {
       cosVerschieben(b.key, Math.max(0, jetztMin()), b.k, false, neu => { const i = bloeckeVon(h).findIndex(x => x.key === neu); if (i >= 0) blockStarten(h, i); });
@@ -3084,9 +3132,11 @@ function cosSitzFertig() {
 function cosSitzNichtHeute() {
   const b = cosBlatt, h = heute(), s = C.schritte.find(x => x.id === b.sid), p = s && cosNachName(s.projekt);
   cosBlattZu();
-  if (b.key) cosAusplanen(b.key);
-  if (s && p && s.wann === h) cosSchritteAendern(p, cosListe(p).map(x => (x.id === s.id ? Object.assign({}, x, cosWannNeu(x, '')) : x)), 'Nicht heute');
-  melden('Zurück an den Chief.');
+  cosGruppe('Nicht heute', () => {   // V70: Ausplanen und fester Tag weg, ein Rückgängig
+    if (b.key) cosAusplanen(b.key);
+    if (s && p && s.wann === h) cosSchritteAendern(p, cosListe(p).map(x => (x.id === s.id ? Object.assign({}, x, cosWannNeu(x, '')) : x)), 'Nicht heute');
+  });
+  melden('Zurück an den Chief. Oben geht Rückgängig.');
 }
 function cosSitzLoeschen() { const b = cosBlatt; cosBlattZu(); cosAusplanen(b.key); melden('Aus dem Kalender gelöscht. Oben geht Rückgängig.'); }
 
@@ -3412,7 +3462,7 @@ function cosRundeFertig() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611160130';
+const PWA_VERSION = '202611160142';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
