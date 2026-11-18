@@ -104,6 +104,10 @@
   .koe-zeile .ci-offen + .koe-wert { margin-left: 8px; }
   .koe-zeile .koe-pfeil { color: var(--leise); font-size: 20px; line-height: 1; }
   .koe-bald { opacity: .7; }
+  .koe-zwei { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .koe-zwei > div { padding: 10px 12px; border-radius: 12px; background: var(--chip); text-align: center; }
+  .koe-zwei small { display: block; font-size: 11px; color: var(--leise); text-transform: uppercase; letter-spacing: .04em; }
+  .koe-zwei b { font-size: 20px; font-variant-numeric: tabular-nums; }
   .ci-status { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 6px; font-size: 12px; font-weight: 600; }
   .ci-status.offen { color: #B0577F; }
   .ci-status.drin { color: var(--leise); font-weight: 500; }
@@ -3770,10 +3774,11 @@ function zeichneSensi() {
   senLaden(tagIso, false);
   const box = $('inhalt'), d = SN[tagIso];
   if (!d) {
-    box.innerHTML = senFehlt ? '<div class="karte"><b>Der Server kennt Sensi noch nicht.</b><div class="hinweis">Einmal im Terminal: ./bereitstellen.sh server</div></div>' : '<div class="laden">Lädt …</div>';
+    box.innerHTML = (senFehlt ? '<div class="karte"><b>Der Server kennt Sensi noch nicht.</b><div class="hinweis">Einmal im Terminal: ./bereitstellen.sh server</div></div>' : '<div class="laden">Lädt …</div>') +
+      (typeof sensiFelderHtml === 'function' ? sensiFelderHtml() : '');   // Handy Haken gehen auch ohne Sensi Server
     return;
   }
-  if (d.fehlt) { box.innerHTML = '<div class="karte"><b>Die Tabs Signale und Werke fehlen.</b><div class="hinweis">Einmal senEinrichten im Editor ausführen.</div></div>'; return; }
+  if (d.fehlt) { box.innerHTML = '<div class="karte"><b>Die Tabs Signale und Werke fehlen.</b><div class="hinweis">Einmal senEinrichten im Editor ausführen.</div></div>' + (typeof sensiFelderHtml === 'function' ? sensiFelderHtml() : ''); return; }
   const teile = SEN_ABSCHNITTE.map(a => ({ a: a, html: a.html(d) })).filter(x => x.html);
   const n = macSpalten();
   if (n < 2) { box.innerHTML = teile.map(x => x.html).join(''); senTick(); return; }
@@ -3904,7 +3909,8 @@ function senHandyHtml(d) {
   };
   return '<div class="karte"><div class="bereich"><span class="punkt" style="background:var(--sen)"></span>Handy</div><div class="sen-handy">' +
     '<div><small>Abgelegt</small>' + wann(hd.abgelegt) + '</div><div><small>Aufgenommen</small>' + wann(hd.aufgenommen) + '</div></div>' +
-    (!hd.abgelegt && !hd.aufgenommen ? '<div class="hinweis">Kommt per Kurzbefehl vom Ladegerät.</div>' : '') + '</div>';
+    (!hd.abgelegt && !hd.aufgenommen ? '<div class="hinweis">Kommt per Kurzbefehl vom Ladegerät.</div>' : '') + '</div>' +
+    (typeof sensiFelderHtml === 'function' ? sensiFelderHtml() : '');   // V76: Handy Haken aus dem Tag
 }
 
 /* ── Lesen: Start und Stopp ── */
@@ -4196,7 +4202,7 @@ function senFilmWeg() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611181929';
+const PWA_VERSION = '202611181950';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -4570,7 +4576,7 @@ function paket(m, H, tagPlus, aenderungen) {
     const r = {
       'Tag 1/10': z([6.4, 7.1, 5.8, 6.9, 6.2, 5.9, 6.2][i]), 'Fokus': z(alt ? [0.1, 0.13, 0.06, 0.12, 0.09, 0.08][i] : 0.05, alt ? ['2:24', '3:07', '1:26', '2:53', '2:10', '1:55'][i] : '1:17'),
       'Tasks': z(alt ? [4, 6, 2, 5, 3, 4][i] : 0), 'Termine': z(alt ? k + 1 : 1),
-      'Stimmung 1/10': z(alt ? 5 + k : 6), 'Aufwach': zt(t(7, 5 + 10 * k)), 'Dauer': zt(t(7, 40 - 25 * k)), 'HRV': z(44 + 4 * k + i),
+      'Stimmung 1/10': z(alt ? 5 + k : 6), 'Aufwach': zt(t(7, 5 + 10 * k)), 'Dauer': zt(t(7, 40 - 25 * k)), 'HRV': z(44 + 4 * k + i), 'Schritte': z(alt ? 6000 + 1500 * k : 4321),
       'Ausgaben': z(alt ? [18, 42, 9, 27, 64, 15][i] : 20), 'Mac': mac(40 + 10 * k, 90 + 30 * k, 35),
       'Kontostand': { wert: 1240 - 30 * i, anzeige: String(1240 - 30 * i), liste: [{ punkt: '●', name: 'Girokonto', betrag: String(1240 - 30 * i) + ',00' }, { punkt: '●', name: 'Tagesgeld', betrag: '800,00' }] }
     };
@@ -4909,7 +4915,35 @@ function wechselAnim() {
 
 /* V75 Reiter Köö: die Bereiche Schlaf und Körper aus der Tabelle stehen dort statt im Tag. Daten und Tageswert bleiben gleich */
 const KOE_BEREICHE = ['schlaf', 'körper'];
-function koeFeld(f) { return !!f && KOE_BEREICHE.indexOf(String(f.bereich || '').toLowerCase()) !== -1; }
+const KOE_IN_KOERPER = ['elvanse'];                      // steht in der Tabelle bei Schlaf, in Köö in der Karte Körper
+const SENSI_FELDER = ['x handy schlafen', 'x handy frühstück'];   // stehen im Reiter Sensi unter Handy
+const kleinName = f => String((f && f.spalte) || '').toLowerCase();
+function sensiFeld(f) { return !!f && SENSI_FELDER.indexOf(kleinName(f)) !== -1; }
+function koeFeld(f) { return !!f && !sensiFeld(f) && KOE_BEREICHE.indexOf(String(f.bereich || '').toLowerCase()) !== -1; }
+function koeKarte(f) {
+  if (KOE_IN_KOERPER.indexOf(kleinName(f)) !== -1) return 'Körper';
+  if (/^schritte/.test(kleinName(f))) return 'Bewegung';
+  return f.bereich;
+}
+/* Sensi: Handy Haken aus der Tabelle, zählen wie bisher zum Tageswert */
+function sensiFelderHtml() {
+  if (!P || !werteVon()) return '';
+  const fs = P.felder.filter(sensiFeld);
+  if (!fs.length) return '';
+  return '<div class="karte"><div class="bereich"><span class="punkt" style="background:var(--sen, ' + fs[0].farbe + ')"></span>Ohne Handy</div>' + fs.map(feldHtml).join('') + '</div>';
+}
+/* Köö: Bewegung zeigt die Schritte aus Health, solange es dafür kein eigenes Feld gibt. Nur Anzeige */
+function koeBewegungHtml() {
+  if (P.felder.some(f => koeFeld(f) && koeKarte(f) === 'Bewegung')) return '';
+  const name = Object.keys(werteVon() || {}).find(k => /^schritte/i.test(k));
+  if (!name) return '<div class="karte koe-bald"><div class="bereich"><span class="punkt" style="background:var(--leise)"></span>Bewegung</div><div class="hinweis">Kommt bald.</div></div>';
+  const zahlVon = iso => { const w = ((P.werte[iso] || {})[name] || {}).wert; return typeof w === 'number' ? w : null; };
+  const heuteW = zahlVon(tagIso), woche = [0, -1, -2, -3, -4, -5, -6].map(k => zahlVon(tagPlus(tagIso, k))).filter(x => x != null);
+  const schnitt = woche.length ? Math.round(woche.reduce((a, b) => a + b, 0) / woche.length) : null;
+  const zahl = x => x == null ? '–' : Math.round(x).toLocaleString('de-DE');
+  return '<div class="karte"><div class="bereich"><span class="punkt" style="background:' + RINGE[1][2] + '"></span>Bewegung</div><div class="koe-zwei">' +
+    '<div><small>Schritte</small><b>' + zahl(heuteW) + '</b></div><div><small>Ø 7 Tage</small><b>' + zahl(schnitt) + '</b></div></div></div>';
+}
 function koeOeffnen() { ansicht = 'koe'; zeichnen(); window.scrollTo(0, 0); }
 function koeAnteil(iso) { const t = ringTeile(iso); return t ? Math.round(t[1] * 100) : null; }
 function koeOffen() {
@@ -4923,7 +4957,7 @@ function koeZeileHtml() {
 }
 const KOE_BALD = [['Rauchen', 'Kommt bald.']];   // Platzhalter, speichern noch nichts
 function koeBaldHtml() {
-  return KOE_BALD.map(b => '<div class="karte koe-bald"><div class="bereich"><span class="punkt" style="background:var(--leise)"></span>' + esc(b[0]) + '</div><div class="hinweis">' + esc(b[1]) + '</div></div>').join('');
+  return koeBewegungHtml() + KOE_BALD.map(b => '<div class="karte koe-bald"><div class="bereich"><span class="punkt" style="background:var(--leise)"></span>' + esc(b[0]) + '</div><div class="hinweis">' + esc(b[1]) + '</div></div>').join('');
 }
 
 function zeichneTag() {
@@ -4958,10 +4992,11 @@ function zeichneTag() {
   });
 
   const bereiche = [];
-  P.felder.filter(f => f.typ !== 'gross' && f.typ !== 'oben' && koeFeld(f) === koe).forEach(f => {
-    const name = f.typ === 'mac' ? 'Bildschirm' : f.bereich;   // V68: Bildschirmzeit immer als eigene Karte, auch wenn sie in der Tabelle beim Fokus steht
+  P.felder.filter(f => f.typ !== 'gross' && f.typ !== 'oben' && koeFeld(f) === koe && !sensiFeld(f)).forEach(f => {
+    const name = f.typ === 'mac' ? 'Bildschirm' : koe ? koeKarte(f) : f.bereich;   // V68: Bildschirmzeit immer als eigene Karte, auch wenn sie in der Tabelle beim Fokus steht
     let b = bereiche.find(x => x.name === name);
-    if (!b) bereiche.push(b = { name: name, farbe: f.farbe, felder: [] });
+    const farbe = (P.felder.find(x => x.bereich === name) || f).farbe;
+    if (!b) bereiche.push(b = { name: name, farbe: farbe, felder: [] });
     b.felder.push(f);
   });
   const karten = bereiche.map(b => {
@@ -6510,7 +6545,8 @@ function rueckgaengig() {
   if (!a || !P) return;
   if (String(a.art).indexOf('cos') === 0) { if (typeof cosRueck === 'function') cosRueck(a); return; }   // Chief of Staff (ChiefSeite)
   if (String(a.art).indexOf('sen') === 0) { if (typeof senRueck === 'function') senRueck(a); return; }   // Sensi (SensiSeite)
-  ansicht = a.art === 'feld' && koeFeld(feldVon(a.id)) ? 'koe' : 'tag';   // V75: Schlaf und Körper stehen im Reiter Köö
+  const af = a.art === 'feld' ? feldVon(a.id) : null;
+  ansicht = sensiFeld(af) ? 'sensi' : koeFeld(af) ? 'koe' : 'tag';   // V75: Schlaf und Körper stehen im Reiter Köö, Handy Haken in Sensi
   tagIso = a.tag;
   if (a.art === 'feld') {
     const f = feldVon(a.id);
@@ -6633,7 +6669,12 @@ function setzen(id, wert, ohneVerlauf) {
     const alt = wertVon(f.spalte);
     merken({ art: 'feld', tag: tagIso, id: id, alt: alt == null ? '' : alt, name: nameVon(f) });
   }
+  const vor = ansicht === 'sensi' ? tagWertRechnen(tagIso, tagIso === heute() && tagIso >= ZEIT_AB ? fokusTagMin(tagIso) : undefined) : null;
   lokal(f, wert); zeichnen();
+  if (vor != null) {   // Sensi hat keine Tageszahl: Tageswert vorher und nachher als Meldung
+    const nach = tagWertRechnen(tagIso, tagIso === heute() && tagIso >= ZEIT_AB ? fokusTagMin(tagIso) : undefined), r1 = x => komma((Math.round(x * 10) / 10).toFixed(1));
+    if (nach != null && r1(nach) !== r1(vor)) melden('Tag ' + r1(vor) + ' → ' + r1(nach));
+  }
   nacheinander('appSpeichern', tagIso, f.spalte, wert, f.typ);
 }
 function eintragLokal(f, liste) {
@@ -6838,7 +6879,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 19:29</div>
+<div id="testband">TEST 19:50</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
