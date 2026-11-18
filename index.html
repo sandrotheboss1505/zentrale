@@ -107,6 +107,8 @@
   .koe-zeile .ci-offen + .koe-wert { margin-left: 8px; }
   .koe-zeile .koe-pfeil { color: var(--leise); font-size: 20px; line-height: 1; }
   .koe-bald { opacity: .7; }
+  .koe-zeiten { font-size: 12px; color: var(--leise); text-align: right; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .koe-zusatz { display: block; font-size: 11px; color: var(--leise); margin: 1px 0 0 !important; padding: 0 !important; }
   .version { text-align: center; font-size: 11px; color: var(--leise); opacity: .7; padding: 6px 0 14px; font-variant-numeric: tabular-nums; }
   /* Köö: Fokus und Kopf grau, nur Körper in Farbe */
   body.koeansicht .ringe-svg [data-spur="0"], body.koeansicht .ringe-svg [data-spur="2"] { stroke: var(--kreis); opacity: .28; }
@@ -4227,8 +4229,8 @@ function senFilmWeg() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611182042';
-const PWA_NAME = "V80 Bildschirm in Sensi";
+const PWA_VERSION = '202611182128';
+const PWA_NAME = "V81 Rauchen und Drinks mit Uhrzeit";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -4508,9 +4510,9 @@ function koeZeileHtml() {
   return '<div class="karte koe-zeile" onclick="koeOeffnen()"><span class="punkt" style="background:' + RINGE[1][2] + '"></span><b>Köö</b>' +
     (offen ? '<span class="ci-offen">' + offen + ' offen</span>' : '') + '<span class="koe-wert">' + (a == null ? '' : a + ' %') + '</span><span class="koe-pfeil">›</span></div>';
 }
-const KOE_BALD = [['Rauchen', 'Kommt bald.']];   // Platzhalter, speichern noch nichts
+const KOE_BALD = [];   // Platzhalter für später: [['Name', 'Kommt bald.']]
 function koeBaldHtml() {
-  return koeBewegungHtml() + KOE_BALD.map(b => '<div class="karte koe-bald"><div class="bereich"><span class="punkt" style="background:var(--leise)"></span>' + esc(b[0]) + '</div><div class="hinweis">' + esc(b[1]) + '</div></div>').join('');
+  return koeBewegungHtml() + koeRauchenHtml() + KOE_BALD.map(b => '<div class="karte koe-bald"><div class="bereich"><span class="punkt" style="background:var(--leise)"></span>' + esc(b[0]) + '</div><div class="hinweis">' + esc(b[1]) + '</div></div>').join('');
 }
 
 function zeichneTag() {
@@ -4560,13 +4562,14 @@ function zeichneTag() {
     const ruhig = String(b.name || '').toLowerCase() === 'geld';   // Geld: keine Animation, soll sofort reagieren
     const tasks = bloecke && typeof cosTasksKarte === 'function' ? cosTasksKarte() : '';   // V4: Tasks als eigene Karte unter dem Fokus
     return { name: b.name, bloecke: bloecke, unten: b.felder.some(f => f.typ === 'mac'),
-      html: '<div class="karte' + (ruhig ? ' ruhig' : '') + '">' + kopfZeile + b.felder.map(feldHtml).join('') + (koe && b.name === 'Bewegung' ? koeSchritteHtml() : '') + '</div>' + tasks };
+      html: '<div class="karte' + (ruhig ? ' ruhig' : '') + '">' + kopfZeile + b.felder.map(f => feldHtml(f) + (koe ? koeDrinkZusatz(f) : '')).join('') + (koe && b.name === 'Bewegung' ? koeSchritteHtml() : '') + '</div>' + tasks };
   });
   // V68: Fokus mit Tasks zuerst, Bildschirmzeit ganz unten, sonst wie in der Tabelle
   const fokus = karten.filter(k => k.bloecke), unten = karten.filter(k => k.unten && !k.bloecke);
   karten.splice(0, karten.length, ...karten.filter(k => !k.bloecke && !(k.unten && !k.bloecke)));
   const n = macSpalten();
   if (koe) {   // Köö: Schlaf, Körper, Bewegung, dann was noch kommt. Am Mac nebeneinander
+    koeLaden(tagIso, false);
     const rang = k => { const i = KOE_KARTEN.findIndex(x => x[0] === k.name); return i === -1 ? 99 : i; };
     karten.sort((a, b) => rang(a) - rang(b));
     const teile = karten.concat(unten).map(k => k.html).concat(koeBaldHtml());
@@ -4612,6 +4615,87 @@ function versionHtml() {
 /* Köö: unter den Ringen groß, was Körper heute bringt. Die Tageszahl in der Mitte ist grau, nur der Körperring bleibt */
 function koeNeben() { return ''; }
 /* Köö: an der Stelle von "Kästchen einsammeln" eine Zeile in derselben Höhe, damit Tag und Köö genau gleich anfangen */
+/* ── V81 Köö: Zigaretten, Nikotin und Drinks mit Uhrzeit (Server Koerper.js, Tab Signale). Keine Punkte ── */
+const KOE_ZAEHLER = [['rauchen', 'Zigaretten', ''], ['nikotin', 'Nikotin', 'Pouch oder Kaugummi']];
+const KOE_ARTEN = ['rauchen', 'nikotin', 'drink'];
+const KOE_NAMEN = { rauchen: 'Zigarette', nikotin: 'Nikotin', drink: 'Drink' };
+const KO = {}, koeLaedt = {}, koeGeladen = {};
+let koeFehlt = false, koeAusstehend = 0, koeLetzte = 0;
+function koeLeer(iso) { const a = {}; KOE_ARTEN.forEach(k => { a[k] = { n: 0, zeiten: [], gestern: 0, schnitt: 0 }; }); return { datum: iso, arten: a, leer: true }; }
+function koeStand(iso) { return KO[iso] || (KO[iso] = koeLeer(iso)); }
+function koeLaden(iso, erzwingen) {
+  if (!iso || koeLaedt[iso] || typeof server !== 'function') return;
+  if (!erzwingen && KO[iso] && !KO[iso].leer && Date.now() - (koeGeladen[iso] || 0) < 60000) return;
+  if (!erzwingen && koeFehlt && Date.now() - (koeGeladen[iso] || 0) < 300000) return;
+  koeLaedt[iso] = true;
+  const ab = Date.now();
+  server('appKoerper', iso).then(d => {
+    koeGeladen[iso] = Date.now(); koeFehlt = false;
+    if (!d || koeAusstehend > 0 || ab < koeLetzte) return;   // eine Änderung ist unterwegs, deren Antwort bringt den neuen Stand
+    KO[iso] = d.fehlt ? Object.assign(koeLeer(iso), { leer: false, fehlt: true }) : d;
+    if (ansicht === 'koe' && tagIso === iso) zeichnen();
+  }).catch(e => {
+    koeGeladen[iso] = Date.now();
+    if (/Unbekannte Funktion/.test(String(e && e.message))) { koeFehlt = true; if (ansicht === 'koe') zeichnen(); }
+  }).then(() => { koeLaedt[iso] = false; });
+}
+function koeNach(fn, ...args) {
+  offen++; koeAusstehend++; koeLetzte = Date.now();
+  let erg = null;
+  kette = kette.then(() => server(fn, ...args).then(d => { erg = d; }).catch(e => { erg = null; if (!koeFehlt) melden(e.message || String(e)); }))
+    .then(() => {
+      offen--; koeAusstehend--;
+      if (erg && erg.paket && koeAusstehend === 0) { KO[erg.paket.datum] = erg.paket; if (ansicht === 'koe' && tagIso === erg.paket.datum) zeichnen(); }
+      else if (!erg && koeAusstehend === 0) koeLaden(tagIso, true);
+    });
+  return kette.then(() => erg);
+}
+const koeUhr = ms => { const d = new Date(ms); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+/* Sofort zählen, die Antwort vom Server ersetzt es. Rückmeldung: heute, gestern, Ø 7 Tage */
+function koePlus(art, ohneVerlauf, zeitMs) {
+  const iso = tagIso, a = koeStand(iso).arten[art];
+  a.n++; a.zeiten = a.zeiten.concat(koeUhr(zeitMs || Date.now())).sort();
+  if (!ohneVerlauf) merken({ art: 'koe', tag: iso, was: art, plus: true, name: KOE_NAMEN[art] });
+  if (art !== 'drink') { haptik(); zeichnen(); koeMelden(art, a); }
+  return koeNach('appKoerperPlus', art, iso, zeitMs || null);
+}
+function koeMinus(art, ohneVerlauf) {
+  const iso = tagIso, a = koeStand(iso).arten[art];
+  if (!a.n && art !== 'drink') return Promise.resolve(null);
+  const eintrag = { art: 'koe', tag: iso, was: art, plus: false, zeit: null, name: KOE_NAMEN[art] };
+  if (a.n) { a.n--; a.zeiten = a.zeiten.slice(0, -1); }
+  if (!ohneVerlauf) merken(eintrag);
+  if (art !== 'drink') { haptik(); zeichnen(); koeMelden(art, a); }
+  return koeNach('appKoerperMinus', art, iso).then(r => { if (r) eintrag.zeit = r.zeit; return r; });
+}
+function koeMelden(art, a) {
+  const name = art === 'rauchen' ? (a.n === 1 ? 'Zigarette' : 'Zigaretten') : 'Nikotin';
+  melden(a.n + ' ' + name + ' heute · gestern ' + a.gestern + ' · Ø ' + komma(a.schnitt));
+}
+function koeRueck(a) {
+  ansicht = 'koe'; tagIso = a.tag;
+  if (a.plus) koeMinus(a.was, true);
+  else koePlus(a.was, true, a.zeit || undefined);
+}
+function koeZeitenHtml(a) {
+  return a && a.zeiten.length ? '<div class="koe-zeiten">' + a.zeiten.map(esc).join(' · ') + '</div>' : '';
+}
+function koeRauchenHtml() {
+  if (koeFehlt) return '<div class="karte koe-bald"><div class="bereich"><span class="punkt" style="background:var(--leise)"></span>Rauchen</div><div class="hinweis">Kommt mit dem nächsten Server.</div></div>';
+  const d = koeStand(tagIso);
+  return '<div class="karte"><div class="bereich"><span class="punkt" style="background:' + RINGE[1][2] + '"></span>Rauchen</div>' + KOE_ZAEHLER.map(([art, name, zusatz]) => {
+    const a = d.arten[art];
+    return '<div class="feld" data-koe="' + art + '"><div class="zeile"><span class="name">' + esc(name) + (zusatz ? '<small class="koe-zusatz">' + esc(zusatz) + '</small>' : '') + '</span>' +
+      '<div class="zaehler"><button onclick="koeMinus(\'' + art + '\')">−</button><span class="pille' + (a.n ? '' : ' leer') + '">' + (d.leer && !a.n ? '–' : a.n) + '</span>' +
+      '<button onclick="koePlus(\'' + art + '\')">+</button></div></div>' + koeZeitenHtml(a) + '</div>';
+  }).join('') + '</div>';
+}
+/* Drinks: die Zahl schreibt setzen wie bisher in Tage, hier kommt nur die Uhrzeit dazu */
+function koeDrinkZusatz(f) {
+  if (koeFehlt || kleinName(f) !== 'drinks') return '';
+  return koeZeitenHtml(koeStand(tagIso).arten.drink);
+}
+
 function koeReiheHtml() {
   if (!P || !P.bloecke) return '';
   const offen = tagIso === heute() ? koeOffen() : 0;
@@ -6117,6 +6201,7 @@ function rueckgaengig() {
   if (!a || !P) return;
   if (String(a.art).indexOf('cos') === 0) { if (typeof cosRueck === 'function') cosRueck(a); return; }   // Chief of Staff (ChiefSeite)
   if (String(a.art).indexOf('sen') === 0) { if (typeof senRueck === 'function') senRueck(a); return; }   // Sensi (SensiSeite)
+  if (a.art === 'koe') { koeRueck(a); return; }   // V81 Zigaretten, Nikotin
   const af = a.art === 'feld' ? feldVon(a.id) : null;
   ansicht = sensiFeld(af) ? 'sensi' : koeFeld(af) ? 'koe' : 'tag';   // V75: Schlaf und Körper stehen im Reiter Köö, Handy Haken in Sensi
   tagIso = a.tag;
@@ -6240,6 +6325,10 @@ function setzen(id, wert, ohneVerlauf) {
   if (!ohneVerlauf) {
     const alt = wertVon(f.spalte);
     merken({ art: 'feld', tag: tagIso, id: id, alt: alt == null ? '' : alt, name: nameVon(f) });
+  }
+  if (f.typ === 'zahl' && kleinName(f) === 'drinks' && !koeFehlt) {   // V81: jeder Drink auch mit Uhrzeit in Signale
+    const d = (Number(wert) || 0) - (Number(wertVon(f.spalte)) || 0);
+    for (let k = 0; k < Math.abs(d); k++) { if (d > 0) koePlus('drink', true); else koeMinus('drink', true); }
   }
   const vor = ansicht === 'sensi' ? tagWertRechnen(tagIso, tagIso === heute() && tagIso >= ZEIT_AB ? fokusTagMin(tagIso) : undefined) : null;
   lokal(f, wert); zeichnen();

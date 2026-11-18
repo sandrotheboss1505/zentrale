@@ -101,7 +101,7 @@ if TEST:
             sys.exit('bauen.py: </script in ' + marke)
         welt = welt.replace(marke, teil)
     welt = welt.replace('__CHIEF__', json.dumps(lies(HIER, '..', 'Chief.js'), ensure_ascii=False).replace('</', '<\\/'))
-    welt = welt.replace('__SENSI__', json.dumps(lies(HIER, '..', 'Sensi.js'), ensure_ascii=False).replace('</', '<\\/'))
+    welt = welt.replace('__SENSI__', json.dumps(lies(HIER, '..', 'Sensi.js') + '\n' + lies(HIER, '..', 'Koerper.js'), ensure_ascii=False).replace('</', '<\\/'))   # V81: Körper braucht Sensi
     ersetze('<script>\n/* ── Einstellungen ── */', '<script>\n' + welt + '</script>\n<script>\n/* ── Einstellungen ── */')
     ersetze('<title>Zentrale</title>', '<title>Zentrale Test</title>')
     ersetze('<meta name="apple-mobile-web-app-title" content="Zentrale">', '<meta name="apple-mobile-web-app-title" content="Test">')
