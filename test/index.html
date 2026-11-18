@@ -126,6 +126,10 @@
   .koe-zwei > div { padding: 10px 12px; border-radius: 12px; background: var(--chip); text-align: center; }
   .koe-zwei small { display: block; font-size: 11px; color: var(--leise); text-transform: uppercase; letter-spacing: .04em; }
   .koe-zwei b { font-size: 20px; font-variant-numeric: tabular-nums; }
+  .koe-zwei span { display: block; font-size: 12px; color: var(--leise); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .feld + .koe-zwei, .koe-zwei + .koe-zwei { margin-top: 10px; }
+  .koe-sport b.sp-heute { color: #0C9A6C; }
+  .koe-sport b.sp-lange { color: #E07B1F; }
   .ci-status { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 6px; font-size: 12px; font-weight: 600; }
   .ci-status.offen { color: #B0577F; }
   .ci-status.drin { color: var(--leise); font-weight: 500; }
@@ -4221,7 +4225,7 @@ function senFilmWeg() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611182245';
+const PWA_VERSION = '202611182258';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -4666,6 +4670,10 @@ exports.welt = function (H, tagPlus, quelle, sensiQuelle, sensiOpt) {
         await new Promise(r => setTimeout(r, 150));
         d = sw().ruf(q.fn, q.args || []);
       }
+      else if (q.fn === 'appSport') {   // V85: letzte Einheit gestern, Woche 1 von 3 Kraft
+        if (extra.alt) throw new Error('Unbekannte Funktion: ' + q.fn);
+        d = { letzte: { datum: tagPlus(-1), art: 'Kraft', block: 'Ganzkörper A', minuten: 45 }, woche: { kraft: 1, ziel: 3 } };
+      }
       else if (/^appChief/.test(q.fn)) {
         await new Promise(r => setTimeout(r, 200));
         d = m.ruf(q.fn, q.args || []);
@@ -4970,9 +4978,34 @@ function koeSchritteHtml() {
   const zahl = x => x == null ? '–' : Math.round(x).toLocaleString('de-DE');
   return '<div class="koe-zwei"><div><small>Schritte</small><b>' + zahl(heuteW) + '</b></div><div><small>Ø 7 Tage</small><b>' + zahl(schnitt) + '</b></div></div>';
 }
+/* V85: Sport aus dem eigenen Sport Sheet (Server Sport.js, eigene Abfrage appSport), zwei Kästchen unter den Schritten. Nur Anzeige */
+let SPD = null, spFehlt = false, spLaedt = false, spGeladen = 0;
+function spLaden(erzwingen) {
+  if (spLaedt || typeof server !== 'function') return;
+  if (!erzwingen && spGeladen && Date.now() - spGeladen < (spFehlt ? 300000 : 120000)) return;
+  spLaedt = true;
+  server('appSport').then(d => {
+    spGeladen = Date.now(); spFehlt = false; SPD = d || { letzte: null };
+    if (ansicht === 'koe') zeichnen();
+  }).catch(e => {
+    spGeladen = Date.now();
+    if (/Unbekannte Funktion/.test(String(e && e.message))) { spFehlt = true; SPD = null; if (ansicht === 'koe') zeichnen(); }
+  }).then(() => { spLaedt = false; });
+}
+function koeSportHtml() {
+  if (spFehlt || !SPD || !SPD.letzte || !SPD.letzte.datum) return '';   // alter Server oder kein Sport: Kästchen weglassen
+  const l = SPD.letzte, ms = iso => { const t = iso.split('-').map(Number); return new Date(t[0], t[1] - 1, t[2]).getTime(); };
+  const tage = Math.max(0, Math.round((ms(heute()) - ms(l.datum)) / 864e5));
+  const gross = tage === 0 ? 'heute' : tage === 1 ? 'vor 1 Tag' : 'vor ' + tage + ' Tagen';
+  const klasse = tage === 0 ? 'sp-heute' : tage >= 3 ? 'sp-lange' : '';
+  const was = l.block || l.art || '';
+  const w = SPD.woche, woche = w && w.kraft != null && w.ziel != null ? 'Woche: ' + w.kraft + ' von ' + w.ziel + ' Kraft' : '';
+  return '<div class="koe-zwei koe-sport"><div><small>Letzter Sport</small><b class="' + klasse + '">' + gross + '</b><span>' + esc(label(l.datum) + (was ? ' · ' + was : '')) + '</span></div>' +
+    '<div><small>Dauer</small><b>' + (typeof l.minuten === 'number' ? Math.round(l.minuten) + ' min' : '–') + '</b><span>' + esc(woche) + '</span></div></div>';
+}
 function koeBewegungHtml() {   // nur wenn es keine Felder für Bewegung gibt
   if (P.felder.some(f => koeFeld(f) && koeKarte(f) === 'Bewegung')) return '';
-  const sch = koeSchritteHtml();
+  const sch = koeSchritteHtml() + koeSportHtml();
   return '<div class="karte' + (sch ? '' : ' koe-bald') + '"><div class="bereich"><span class="punkt" style="background:' + (sch ? RINGE[1][2] : 'var(--leise)') + '"></span>Bewegung</div>' +
     (sch || '<div class="hinweis">Kommt bald.</div>') + '</div>';
 }
@@ -5033,14 +5066,14 @@ function zeichneTag() {
     const ruhig = String(b.name || '').toLowerCase() === 'geld';   // Geld: keine Animation, soll sofort reagieren
     const tasks = bloecke && typeof cosTasksKarte === 'function' ? cosTasksKarte() : '';   // V4: Tasks als eigene Karte unter dem Fokus
     return { name: b.name, bloecke: bloecke, unten: b.felder.some(f => f.typ === 'mac'),
-      html: '<div class="karte' + (ruhig ? ' ruhig' : '') + '">' + kopfZeile + b.felder.map(f => feldHtml(f) + (koe ? koeDrinkZusatz(f) : '')).join('') + (koe && b.name === 'Bewegung' ? koeSchritteHtml() : '') + '</div>' + tasks };
+      html: '<div class="karte' + (ruhig ? ' ruhig' : '') + '">' + kopfZeile + b.felder.map(f => feldHtml(f) + (koe ? koeDrinkZusatz(f) : '')).join('') + (koe && b.name === 'Bewegung' ? koeSchritteHtml() + koeSportHtml() : '') + '</div>' + tasks };
   });
   // V68: Fokus mit Tasks zuerst, Bildschirmzeit ganz unten, sonst wie in der Tabelle
   const fokus = karten.filter(k => k.bloecke), unten = karten.filter(k => k.unten && !k.bloecke);
   karten.splice(0, karten.length, ...karten.filter(k => !k.bloecke && !(k.unten && !k.bloecke)));
   const n = macSpalten();
   if (koe) {   // Köö: Schlaf, Körper, Bewegung, dann was noch kommt. Am Mac nebeneinander
-    koeLaden(tagIso, false);
+    koeLaden(tagIso, false); spLaden(false);
     const rang = k => { const i = KOE_KARTEN.findIndex(x => x[0] === k.name); return i === -1 ? 99 : i; };
     karten.sort((a, b) => rang(a) - rang(b));
     const teile = karten.concat(unten).map(k => k.html).concat(koeBaldHtml());
@@ -7029,7 +7062,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 22:45</div>
+<div id="testband">TEST 22:58</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
