@@ -11,6 +11,7 @@ import io, json, os, re, sys, time
 HIER = os.path.dirname(os.path.abspath(__file__))
 API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec'
 VERSION = time.strftime('%Y%m%d%H%M')
+NAME = os.environ.get('ZENTRALE_NAME', '').strip()   # aus bereitstellen.sh, zum Beispiel "V80 Beschreibung"
 TEST = len(sys.argv) > 1 and sys.argv[1] == 'test'
 ZIEL = os.path.join(HIER, 'test') if TEST else HIER
 
@@ -50,6 +51,7 @@ ersetze('<script>\n/* ── Einstellungen ── */', '''<script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = '%s';
 const PWA_VERSION = '%s';
+const PWA_NAME = %s;
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -84,7 +86,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load', () => navigato
   #schluessel button { height: 46px; border-radius: 12px; background: #073763; color: #fff; font-weight: 600; }
 </style>
 <script>
-/* ── Einstellungen ── */''' % ('spielwelt' if TEST else API, VERSION))
+/* ── Einstellungen ── */''' % ('spielwelt' if TEST else API, VERSION, json.dumps('Test' if TEST and not NAME else NAME, ensure_ascii=False).replace('</', '<\\/')))
 
 if '<?' in s:
     sys.exit('bauen.py: Es steht noch Apps Script Vorlagen Code in der Seite.')

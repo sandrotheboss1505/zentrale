@@ -107,6 +107,7 @@
   .koe-zeile .ci-offen + .koe-wert { margin-left: 8px; }
   .koe-zeile .koe-pfeil { color: var(--leise); font-size: 20px; line-height: 1; }
   .koe-bald { opacity: .7; }
+  .version { text-align: center; font-size: 11px; color: var(--leise); opacity: .7; padding: 6px 0 14px; font-variant-numeric: tabular-nums; }
   /* Köö: Fokus und Kopf grau, nur Körper in Farbe */
   body.koeansicht .ringe-svg [data-spur="0"], body.koeansicht .ringe-svg [data-spur="2"] { stroke: var(--kreis); opacity: .28; }
   body.koeansicht .ringe-svg .ring[data-ring="0"], body.koeansicht .ringe-svg .ring[data-ring="2"] { stroke: var(--kreis); }
@@ -4226,7 +4227,8 @@ function senFilmWeg() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611182019';
+const PWA_VERSION = '202611182041';
+const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -4950,16 +4952,15 @@ const KOE_KARTEN = [
 const KOE_BEREICHE = ['schlaf', 'körper', 'bewegung'];
 const SENSI_FELDER = ['x handy schlafen', 'x handy frühstück'];   // stehen im Reiter Sensi unter Handy
 const kleinName = f => String((f && f.spalte) || '').toLowerCase();
-function sensiFeld(f) { return !!f && SENSI_FELDER.indexOf(kleinName(f)) !== -1; }
+function sensiFeld(f) { return !!f && (SENSI_FELDER.indexOf(kleinName(f)) !== -1 || f.typ === 'mac'); }   // V80: Bildschirm auch in Sensi
 function koeNachName(f) { const n = kleinName(f); const k = KOE_KARTEN.find(x => x[1].some(a => n.indexOf(a) === 0)); return k ? k[0] : null; }
 function koeFeld(f) { return !!f && f.typ !== 'gross' && !sensiFeld(f) && (!!koeNachName(f) || KOE_BEREICHE.indexOf(String(f.bereich || '').toLowerCase()) !== -1); }
 function koeKarte(f) { return koeNachName(f) || f.bereich; }
 /* Sensi: Handy Haken aus der Tabelle, zählen wie bisher zum Tageswert */
 function sensiFelderHtml() {
   if (!P || !werteVon()) return '';
-  const fs = P.felder.filter(sensiFeld);
-  if (!fs.length) return '';
-  return '<div class="karte"><div class="bereich"><span class="punkt" style="background:var(--sen, ' + fs[0].farbe + ')"></span>Ohne Handy</div>' + fs.map(feldHtml).join('') + '</div>';
+  const karte = (name, fs) => fs.length ? '<div class="karte"><div class="bereich"><span class="punkt" style="background:var(--sen, ' + fs[0].farbe + ')"></span>' + name + '</div>' + fs.map(feldHtml).join('') + '</div>' : '';
+  return karte('Ohne Handy', P.felder.filter(f => sensiFeld(f) && f.typ !== 'mac')) + karte('Bildschirm', P.felder.filter(f => sensiFeld(f) && f.typ === 'mac'));
 }
 /* Köö: Bewegung zeigt die Schritte aus Health, solange es dafür kein eigenes Feld gibt. Nur Anzeige */
 function koeSchritteHtml() {
@@ -5061,7 +5062,7 @@ function zeichneTag() {
     nachTag(); return;
   }
   const koeZ = { html: koeZeileHtml() };
-  if (n < 2) { $('inhalt').innerHTML = html + listen + fokus.concat(koeZ, karten, unten).map(k => k.html).join(''); nachTag(); return; }
+  if (n < 2) { $('inhalt').innerHTML = html + listen + fokus.concat(koeZ, karten, unten).map(k => k.html).join('') + versionHtml(); nachTag(); return; }
   /* Mac (V68): Schlaf, Fokus, Kopf nebeneinander. Kalender des Tages und Bildschirm unten */
   const sp = Array.from({ length: n }, () => ''), fk = n === 3 ? 1 : 1;
   const istSchlaf = k => String(k.name || '').toLowerCase() === 'schlaf', istKopf = k => String(k.name || '').toLowerCase() === 'kopf';
@@ -5077,8 +5078,15 @@ function zeichneTag() {
   });
   if (typeof cosLeisteKarte === 'function') sp[fk] += cosLeisteKarte();
   unten.forEach(k => { sp[n - 1] += k.html; });
-  $('inhalt').innerHTML = html + '<div class="mac-spalten">' + sp.map(s => '<div class="mac-spalte">' + s + '</div>').join('') + '</div>';
+  $('inhalt').innerHTML = html + '<div class="mac-spalten">' + sp.map(s => '<div class="mac-spalte">' + s + '</div>').join('') + '</div>' + versionHtml();
   nachTag();
+}
+/* V80: ganz unten im Tag, welche Version läuft (Name aus bereitstellen.sh, Zeit aus bauen.py) */
+function versionHtml() {
+  if (typeof PWA_VERSION === 'undefined') return '';
+  const v = String(PWA_VERSION), zeit = v.length === 12 ? Number(v.slice(6, 8)) + '.' + Number(v.slice(4, 6)) + '. ' + v.slice(8, 10) + ':' + v.slice(10, 12) : v;
+  const name = typeof PWA_NAME !== 'undefined' && PWA_NAME ? PWA_NAME : '';
+  return '<div class="version">' + esc([name, zeit].filter(Boolean).join(' · ')) + '</div>';
 }
 
 /* Neben der großen Zahl: nur der Schnitt Tag 1/10 der letzten 4 Tage, heute zählt mit. Links bleibt leer, damit die Zahl mittig steht.
@@ -6925,7 +6933,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 20:19</div>
+<div id="testband">TEST 20:41</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
