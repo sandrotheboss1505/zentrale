@@ -3568,24 +3568,27 @@ function cosRundeFertig() {
   :root { --sen: #3E7F86; --sen-hell: #E2F0F0; --sen-auf: #FFFFFF; }
   @media (prefers-color-scheme: dark) { :root { --sen: #86C7C9; --sen-hell: rgba(134,199,201,.16); --sen-auf: #10302F; } }
 
-  .sen-kopf { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 18px; padding: 10px 0 14px; }
+  /* V79: Kopf genau so groß wie in Tag und Köö (Ring 168, Legende, Zeile darunter), damit beim Wechseln nichts verrutscht */
+  .sen-kopf { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 18px; padding: 10px 0 22px; }
   .sen-zahl { display: flex; flex-direction: column; align-items: center; gap: 4px; }
   .sen-zahl small { font-size: 11px; color: var(--leise); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
   .sen-zahl b { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; color: var(--text); }
   .sen-zahl b.pop { animation: senpop .55s cubic-bezier(.3, 1.6, .5, 1); color: var(--sen); }
   @keyframes senpop { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
-  .sen-ring { position: relative; width: 112px; height: 112px; display: grid; place-items: center; }
+  .sen-ring { position: relative; width: 168px; height: 168px; display: grid; place-items: center; }
   .sen-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
-  .sen-ring .seg { fill: none; stroke-width: 9; stroke-linecap: round; transition: opacity .6s ease-out, stroke .3s; }
+  .sen-ring .seg { fill: none; stroke-width: 6; stroke-linecap: round; transition: opacity .6s ease-out, stroke .3s; }
   .sen-ring .seg.an { animation: senseg .7s cubic-bezier(.2, .8, .2, 1) both; }
   @keyframes senseg { from { opacity: 0; } }
   .sen-ring-in { text-align: center; line-height: 1.15; }
-  .sen-ring-in b { display: block; font-size: 15px; }
+  .sen-ring-in b { display: block; font-size: 22px; }
   .sen-ring-in small { font-size: 11px; color: var(--leise); }
   .sen-teile { margin: -2px 0 12px; display: grid; gap: 4px; }
   .sen-teil { display: flex; justify-content: center; gap: 8px; font-size: 13px; color: var(--leise); }
   .sen-teil b { color: var(--sen); font-weight: 700; font-variant-numeric: tabular-nums; }
   .sen-teil.neu { animation: ciein .4s ease-out; }
+  .sen-kopf .ringe-leg span b { color: var(--sen); font-weight: 700; }
+  .sen-kopf .ringe-leg span.neu { animation: ciein .4s ease-out; }
 
   .sen-rechts { margin-left: auto; font-size: 11px; font-weight: 600; color: var(--leise); text-transform: none; letter-spacing: 0; font-variant-numeric: tabular-nums; }
   .sen-buch { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 14px; align-items: center; }
@@ -3805,12 +3808,20 @@ function zeichneSensi() {
 /* Kopf: Tiefe heute, Wochenring (ohne Ziel), Tiefe Woche, darunter woher die Punkte kommen */
 function senKopfHtml(d) {
   const pop = Date.now() < senPopBis ? ' class="pop"' : '';
-  const teile = (d.teile || []).map((t, i, l) => '<div class="sen-teil' + (Date.now() < senNeuBis && i === l.length - 1 ? ' neu' : '') + '"><span>' + esc(t.text) + '</span>' +
-    (t.punkte ? '<b>+' + senZahl(t.punkte) + '</b>' : '') + '</div>').join('');
   const name = d.datum === heute() ? 'Tiefe heute' : d.datum === tagPlus(heute(), -1) ? 'Tiefe gestern' : 'Tiefe ' + label(d.datum);
+  // Unter dem Ring wie im Tag: eine Legende (woher die Tiefe kommt, kurz) und eine Zeile in Höhe von "Kästchen einsammeln"
+  const leg = (d.teile || []).map((t, i, l) => '<span' + (Date.now() < senNeuBis && i === l.length - 1 ? ' class="neu"' : '') + ' title="' + esc(t.text) + '">' + esc(senKurz(t)) +
+    (t.punkte ? ' <b>+' + senZahl(t.punkte) + '</b>' : '') + '</span>').join('');
+  const reihe = P && P.bloecke ? '<div class="cos-reihe">' + (leg ? '' : 'Lesen und Filme geben Tiefe.') + '</div>' : '';
   return '<div class="sen-kopf"><div class="sen-zahl"><small>' + esc(name) + '</small><b id="senHeute"' + pop + '>' + senZahl(d.tiefe) + '</b></div>' +
-    senRingHtml(d) + '<div class="sen-zahl"><small>Tiefe Woche</small><b id="senWoche">' + senZahl(d.woche) + '</b></div></div>' +
-    '<div class="sen-teile">' + (teile || '<div class="sen-teil">Lesen und Filme geben Tiefe.</div>') + '</div>';
+    '<div class="ringe">' + senRingHtml(d) + '<div class="ringe-leg">' + (leg || '<span>&nbsp;</span>') + '</div>' + reihe + '</div>' +
+    '<div class="sen-zahl"><small>Tiefe Woche</small><b id="senWoche">' + senZahl(d.woche) + '</b></div></div>';
+}
+/* Kurzname für die Legende unter dem Ring, der ganze Text steht als title daran */
+function senKurz(t) {
+  const x = String(t.text || '');
+  if (t.art === 'lesen') return (x.match(/^Lesen \d+ min/) || ['Lesen'])[0];
+  return { buch: 'Buch fertig', film: 'Film', serie: 'Serie' }[t.art] || x.split(' ')[0];
 }
 /* Sieben Bögen, Montag oben. Je mehr Tiefe, desto kräftiger. Der gezeigte Tag ist etwas dicker */
 function senRingHtml(d) {
@@ -3818,7 +3829,7 @@ function senRingHtml(d) {
   const segs = (d.wocheTage || []).map((t, i) => {
     const an = t.tiefe > 0, deck = an ? 0.35 + 0.65 * Math.min(1, t.tiefe / 6) : 1;
     return '<circle class="seg' + (an ? ' an' : '') + '" cx="56" cy="56" r="' + r + '" stroke="' + (an ? 'var(--sen)' : 'var(--linie)') + '" style="opacity:' + deck.toFixed(2) +
-      (t.tag === d.datum ? ';stroke-width:12' : '') + ';animation-delay:' + (i * 0.05) + 's" stroke-dasharray="' + (lu - gap).toFixed(1) + ' ' + (u - lu + gap).toFixed(1) +
+      (t.tag === d.datum ? ';stroke-width:8' : '') + ';animation-delay:' + (i * 0.05) + 's" stroke-dasharray="' + (lu - gap).toFixed(1) + ' ' + (u - lu + gap).toFixed(1) +
       '" stroke-dashoffset="' + (-(i * lu + gap / 2)).toFixed(1) + '"/>';
   }).join('');
   const kw = 'KW ' + senKw(d.datum);
@@ -4215,7 +4226,7 @@ function senFilmWeg() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611182008';
+const PWA_VERSION = '202611182019';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
