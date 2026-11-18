@@ -96,6 +96,14 @@
   .unter { font-size: 12px; color: var(--leise); text-align: right; margin-top: 4px; }
   .zuletzt { color: #D5A6BD; font-weight: 600; }
   .ci-offen { margin-left: auto; font-size: 11px; font-weight: 600; color: #B0577F; text-transform: none; letter-spacing: 0; }
+  /* V75 Köö: schmale Zeile im Tag, führt zum Reiter */
+  .koe-zeile { display: flex; align-items: center; gap: 10px; cursor: pointer; padding-top: 14px; padding-bottom: 14px; }
+  .koe-zeile .punkt { margin: 0; }
+  .koe-zeile b { font-size: 15px; }
+  .koe-zeile .koe-wert { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; color: #0C9A6C; }
+  .koe-zeile .ci-offen + .koe-wert { margin-left: 8px; }
+  .koe-zeile .koe-pfeil { color: var(--leise); font-size: 20px; line-height: 1; }
+  .koe-bald { opacity: .7; }
   .ci-status { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 6px; font-size: 12px; font-weight: 600; }
   .ci-status.offen { color: #B0577F; }
   .ci-status.drin { color: var(--leise); font-weight: 500; }
@@ -498,6 +506,7 @@
 <main id="inhalt"><div class="laden">Lädt …</div></main>
 <nav>
   <button id="navTag" class="aktiv">Tag</button>
+  <button id="navKoe">Köö</button>
   <button id="navSensi">Sensi</button>
   <button id="navWoche">Woche</button>
   <button id="navChief">Chief</button>
@@ -4187,7 +4196,7 @@ function senFilmWeg() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611181910';
+const PWA_VERSION = '202611181929';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -4393,12 +4402,13 @@ function zeichnen() {
   tippNachZeichnen();
   $('navTag').classList.toggle('aktiv', ansicht === 'tag');
   $('navWoche').classList.toggle('aktiv', ansicht === 'woche');
+  $('navKoe').classList.toggle('aktiv', ansicht === 'koe');
   if ($('navChief')) $('navChief').classList.toggle('aktiv', ansicht === 'chief');
   if ($('navSensi')) $('navSensi').classList.toggle('aktiv', ansicht === 'sensi');
   document.body.classList.toggle('wochenansicht', ansicht === 'woche');
   document.body.classList.toggle('chiefansicht', ansicht === 'chief');
   document.body.classList.toggle('sensiansicht', ansicht === 'sensi');
-  const zeigeNav = ansicht === 'tag' || ansicht === 'sensi';   // Sensi blättert wie der Tag
+  const zeigeNav = ansicht === 'tag' || ansicht === 'sensi' || ansicht === 'koe';   // Sensi und Köö blättern wie der Tag
   $('zurueck').style.visibility = $('vor').style.visibility = zeigeNav ? 'visible' : 'hidden';
   const neuAns = ansicht !== letzteAnsicht;
   letzteAnsicht = ansicht;
@@ -4416,10 +4426,29 @@ function wechselAnim() {
   clearTimeout(wechselT); wechselT = setTimeout(() => el.classList.remove('wechsel'), 800);
 }
 
+/* V75 Reiter Köö: die Bereiche Schlaf und Körper aus der Tabelle stehen dort statt im Tag. Daten und Tageswert bleiben gleich */
+const KOE_BEREICHE = ['schlaf', 'körper'];
+function koeFeld(f) { return !!f && KOE_BEREICHE.indexOf(String(f.bereich || '').toLowerCase()) !== -1; }
+function koeOeffnen() { ansicht = 'koe'; zeichnen(); window.scrollTo(0, 0); }
+function koeAnteil(iso) { const t = ringTeile(iso); return t ? Math.round(t[1] * 100) : null; }
+function koeOffen() {
+  return P.felder.filter(f => koeFeld(f) && ['kaestchen', 'mac', 'oben', 'wert'].indexOf(f.typ) === -1 && f.typ !== 'gross').filter(f => { const w = wertVon(f.spalte); return w == null || w === ''; }).length;
+}
+function koeZeileHtml() {
+  if (!P.felder.some(koeFeld)) return '';
+  const a = koeAnteil(tagIso), offen = tagIso === heute() ? koeOffen() : 0;
+  return '<div class="karte koe-zeile" onclick="koeOeffnen()"><span class="punkt" style="background:' + RINGE[1][2] + '"></span><b>Köö</b>' +
+    (offen ? '<span class="ci-offen">' + offen + ' offen</span>' : '') + '<span class="koe-wert">' + (a == null ? '' : a + ' %') + '</span><span class="koe-pfeil">›</span></div>';
+}
+const KOE_BALD = [['Rauchen', 'Kommt bald.']];   // Platzhalter, speichern noch nichts
+function koeBaldHtml() {
+  return KOE_BALD.map(b => '<div class="karte koe-bald"><div class="bereich"><span class="punkt" style="background:var(--leise)"></span>' + esc(b[0]) + '</div><div class="hinweis">' + esc(b[1]) + '</div></div>').join('');
+}
+
 function zeichneTag() {
-  const h = heute(), liste = tageListe(), i = liste.indexOf(tagIso);
+  const h = heute(), liste = tageListe(), i = liste.indexOf(tagIso), koe = ansicht === 'koe';
   $('kopfTitel').textContent = tagIso === h ? 'Heute' : tagIso === tagPlus(h, -1) ? 'Gestern' : label(tagIso);
-  $('kopfDatum').textContent = label(tagIso);
+  $('kopfDatum').textContent = (koe ? 'Köö · ' : '') + label(tagIso);
   $('zurueck').disabled = i <= 0;
   $('vor').disabled = i === -1 || i >= liste.length - 1;
 
@@ -4431,11 +4460,11 @@ function zeichneTag() {
   }
 
   let html = '';
-  const oben = P.felder.filter(f => f.typ === 'oben');
+  const oben = P.felder.filter(f => f.typ === 'oben' && koeFeld(f) === koe);
   P.felder.filter(f => f.typ === 'gross').forEach(f => {
     const live = tagLive(tagIso), w = live != null ? live : wertVon(f.spalte), s = stufe(f, w);
     html += '<div class="tageszahl"><div class="neben links">' + nebenWerte(f, 'l') + '</div><div class="ringe"><div class="ringe-kreis" id="tagRinge">' + ringeSvg(tagIso) + '<div class="zahl" id="tagZahl" style="' + (ton(f, s) || 'background:var(--chip)') + '">' +
-      (live != null ? live.toFixed(1).replace('.', ',') : esc(anzeigeVon(f.spalte)) || '–') + '</div></div>' + ringeLegende() + (typeof cosReiheHtml === 'function' ? cosReiheHtml(tagIso) : '') + '</div><div class="neben">' + nebenWerte(f, 'r') +
+      (live != null ? live.toFixed(1).replace('.', ',') : esc(anzeigeVon(f.spalte)) || '–') + '</div></div>' + ringeLegende() + (!koe && typeof cosReiheHtml === 'function' ? cosReiheHtml(tagIso) : '') + '</div><div class="neben">' + (koe ? koeNeben() : nebenWerte(f, 'r')) +
       oben.map(o => '<div' + (o.liste ? ' class="klappbar' + (auf.has(o.spalte) ? ' auf' : '') + '" onclick="umklappen(' + P.felder.indexOf(o) + ')"' : '') +
         '><small>' + esc(o.spalte) + (o.liste ? '<span class="pfeil">▸</span>' : '') + '</small><b style="' + ton(o, stufe(o, wertVon(o.spalte))) + '">' +
         (esc(anzeigeVon(o.spalte)) || '–') + '</b></div>').join('') + '</div></div>';
@@ -4448,7 +4477,7 @@ function zeichneTag() {
   });
 
   const bereiche = [];
-  P.felder.filter(f => f.typ !== 'gross' && f.typ !== 'oben').forEach(f => {
+  P.felder.filter(f => f.typ !== 'gross' && f.typ !== 'oben' && koeFeld(f) === koe).forEach(f => {
     const name = f.typ === 'mac' ? 'Bildschirm' : f.bereich;   // V68: Bildschirmzeit immer als eigene Karte, auch wenn sie in der Tabelle beim Fokus steht
     let b = bereiche.find(x => x.name === name);
     if (!b) bereiche.push(b = { name: name, farbe: f.farbe, felder: [] });
@@ -4468,10 +4497,23 @@ function zeichneTag() {
   const fokus = karten.filter(k => k.bloecke), unten = karten.filter(k => k.unten && !k.bloecke);
   karten.splice(0, karten.length, ...karten.filter(k => !k.bloecke && !(k.unten && !k.bloecke)));
   const n = macSpalten();
-  if (n < 2) { $('inhalt').innerHTML = html + listen + fokus.concat(karten, unten).map(k => k.html).join(''); nachTag(); return; }
+  if (koe) {   // Köö: Schlaf, Körper, dann was noch kommt. Am Mac nebeneinander
+    const teile = karten.concat(unten).map(k => k.html).concat(koeBaldHtml());
+    if (n < 2) $('inhalt').innerHTML = html + listen + teile.join('');
+    else {
+      const sp = Array.from({ length: n }, () => '');
+      teile.forEach((t, j) => { sp[Math.min(j, n - 1)] += t; });
+      sp[0] += listen;
+      $('inhalt').innerHTML = html + '<div class="mac-spalten">' + sp.map(x => '<div class="mac-spalte">' + x + '</div>').join('') + '</div>';
+    }
+    nachTag(); return;
+  }
+  const koeZ = { html: koeZeileHtml() };
+  if (n < 2) { $('inhalt').innerHTML = html + listen + fokus.concat(koeZ, karten, unten).map(k => k.html).join(''); nachTag(); return; }
   /* Mac (V68): Schlaf, Fokus, Kopf nebeneinander. Kalender des Tages und Bildschirm unten */
   const sp = Array.from({ length: n }, () => ''), fk = n === 3 ? 1 : 1;
   const istSchlaf = k => String(k.name || '').toLowerCase() === 'schlaf', istKopf = k => String(k.name || '').toLowerCase() === 'kopf';
+  sp[0] += koeZ.html;
   karten.filter(istSchlaf).forEach(k => { sp[0] += k.html; });
   fokus.forEach(k => { sp[fk] += k.html; });
   karten.filter(istKopf).forEach(k => { sp[n === 3 ? 2 : 0] += k.html; });
@@ -4489,6 +4531,11 @@ function zeichneTag() {
 
 /* Neben der großen Zahl: nur der Schnitt Tag 1/10 der letzten 4 Tage, heute zählt mit. Links bleibt leer, damit die Zahl mittig steht.
    Ausgaben 7 Tage stehen in der Geld Karte, Schlaf in der Schlaf Karte. */
+/* Köö: neben der Zahl der Anteil von Schlaf und Körper, den sie heute bringen */
+function koeNeben() {
+  const a = koeAnteil(tagIso);
+  return '<div><small>Köö</small><b style="color:' + RINGE[1][2] + '">' + (a == null ? '–' : a + ' %') + '</b></div>';
+}
 function nebenWerte(f, seite) {
   if (seite === 'l') return '';
   const tage = [0, -1, -2, -3].map(n => wertVon(f.spalte, tagPlus(tagIso, n))).filter(x => typeof x === 'number');
@@ -5982,7 +6029,7 @@ function rueckgaengig() {
   if (!a || !P) return;
   if (String(a.art).indexOf('cos') === 0) { if (typeof cosRueck === 'function') cosRueck(a); return; }   // Chief of Staff (ChiefSeite)
   if (String(a.art).indexOf('sen') === 0) { if (typeof senRueck === 'function') senRueck(a); return; }   // Sensi (SensiSeite)
-  ansicht = 'tag';
+  ansicht = a.art === 'feld' && koeFeld(feldVon(a.id)) ? 'koe' : 'tag';   // V75: Schlaf und Körper stehen im Reiter Köö
   tagIso = a.tag;
   if (a.art === 'feld') {
     const f = feldVon(a.id);
@@ -6205,7 +6252,7 @@ document.addEventListener('keydown', e => {
   if (a && (a.tagName === 'TEXTAREA' || a.tagName === 'INPUT' || a.isContentEditable)) return;
   if (e.metaKey && !e.shiftKey && e.key.toLowerCase() === 'z') { e.preventDefault(); if (!$('undo').disabled) rueckgaengig(); return; }
   if (e.metaKey || e.ctrlKey || e.altKey || fenster) return;
-  const blaettert = ansicht === 'tag' || ansicht === 'sensi';
+  const blaettert = ansicht === 'tag' || ansicht === 'sensi' || ansicht === 'koe';
   if (e.key === 'ArrowLeft' && blaettert && !$('zurueck').disabled) blaettern(-1);
   else if (e.key === 'ArrowRight' && blaettert && !$('vor').disabled) blaettern(1);
 });
@@ -6219,6 +6266,7 @@ $('neu').onclick = aktualisieren;
 $('undo').onclick = rueckgaengig;
 $('navTag').onclick = () => { ansicht = 'tag'; zeichnen(); };
 $('navWoche').onclick = () => { ansicht = 'woche'; zeichnen(); };
+$('navKoe').onclick = koeOeffnen;
 
 /* ── Ort: Standort beim Öffnen, höchstens einmal pro Stunde ── */
 function ortMelden() {
