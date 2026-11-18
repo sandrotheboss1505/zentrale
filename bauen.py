@@ -38,6 +38,10 @@ ersetze('<base target="_top">\n', '''<title>Zentrale</title>
 ersetze("<?!= HtmlService.createHtmlOutputFromFile('ChiefSeite').getContent() ?>",
         io.open(os.path.join(HIER, '..', 'ChiefSeite.html'), encoding='utf-8').read())
 
+# Sensi: eigene Datei SensiSeite.html, genauso eingesetzt
+ersetze("<?!= HtmlService.createHtmlOutputFromFile('SensiSeite').getContent() ?>",
+        io.open(os.path.join(HIER, '..', 'SensiSeite.html'), encoding='utf-8').read())
+
 # Startdaten kommen in der PWA aus dem Handyspeicher, nicht vom Server
 ersetze('const START = <?!= start ?>;', 'const START = null;')
 
@@ -90,11 +94,12 @@ if TEST:
     T = os.path.join(HIER, '..', 'tests')
     lies = lambda *p: io.open(os.path.join(*p), encoding='utf-8').read()
     welt = lies(T, 'testseite.js')
-    for marke, teil in (('__MOCK__', lies(T, 'mock.js')), ('__SPIELDATEN__', lies(T, 'spieldaten.js'))):
+    for marke, teil in (('__MOCK__', lies(T, 'mock.js')), ('__SENSIMOCK__', lies(T, 'sensi_mock.js')), ('__SPIELDATEN__', lies(T, 'spieldaten.js'))):
         if '</script' in teil:
             sys.exit('bauen.py: </script in ' + marke)
         welt = welt.replace(marke, teil)
     welt = welt.replace('__CHIEF__', json.dumps(lies(HIER, '..', 'Chief.js'), ensure_ascii=False).replace('</', '<\\/'))
+    welt = welt.replace('__SENSI__', json.dumps(lies(HIER, '..', 'Sensi.js'), ensure_ascii=False).replace('</', '<\\/'))
     ersetze('<script>\n/* ── Einstellungen ── */', '<script>\n' + welt + '</script>\n<script>\n/* ── Einstellungen ── */')
     ersetze('<title>Zentrale</title>', '<title>Zentrale Test</title>')
     ersetze('<meta name="apple-mobile-web-app-title" content="Zentrale">', '<meta name="apple-mobile-web-app-title" content="Test">')
