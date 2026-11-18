@@ -409,7 +409,7 @@
   body.mac3 .mac-spalten { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .mac-spalte { min-width: 0; }
   body.mac .karte { margin-bottom: 20px; padding: 16px 18px; }
-  body.mac nav { left: 50%; right: auto; bottom: 18px; transform: translateX(-50%); width: 240px; padding: 4px;
+  body.mac nav { left: 50%; right: auto; bottom: 18px; transform: translateX(-50%); width: 320px; padding: 4px;
     border: 1px solid var(--linie); border-radius: 999px; box-shadow: 0 6px 24px rgba(0,0,0,.12); }
   body.mac nav button { padding: 8px 0; border-radius: 999px; }
   body.mac nav button.aktiv { background: var(--akzent-hell); }
@@ -498,6 +498,7 @@
 <main id="inhalt"><div class="laden">Lädt …</div></main>
 <nav>
   <button id="navTag" class="aktiv">Tag</button>
+  <button id="navSensi">Sensi</button>
   <button id="navWoche">Woche</button>
   <button id="navChief">Chief</button>
 </nav>
@@ -3536,11 +3537,657 @@ function cosRundeFertig() {
 })();
 </script>
 
+<style>
+  /* ── Sensi: Tiefe, Lesen, Gesehen, Handy. Eigene Klassen mit sen-, Farben und Abstände wie der Rest der App ── */
+  :root { --sen: #3E7F86; --sen-hell: #E2F0F0; --sen-auf: #FFFFFF; }
+  @media (prefers-color-scheme: dark) { :root { --sen: #86C7C9; --sen-hell: rgba(134,199,201,.16); --sen-auf: #10302F; } }
+
+  .sen-kopf { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 18px; padding: 10px 0 14px; }
+  .sen-zahl { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .sen-zahl small { font-size: 11px; color: var(--leise); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+  .sen-zahl b { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; color: var(--text); }
+  .sen-zahl b.pop { animation: senpop .55s cubic-bezier(.3, 1.6, .5, 1); color: var(--sen); }
+  @keyframes senpop { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
+  .sen-ring { position: relative; width: 112px; height: 112px; display: grid; place-items: center; }
+  .sen-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+  .sen-ring .seg { fill: none; stroke-width: 9; stroke-linecap: round; transition: opacity .6s ease-out, stroke .3s; }
+  .sen-ring .seg.an { animation: senseg .7s cubic-bezier(.2, .8, .2, 1) both; }
+  @keyframes senseg { from { opacity: 0; } }
+  .sen-ring-in { text-align: center; line-height: 1.15; }
+  .sen-ring-in b { display: block; font-size: 15px; }
+  .sen-ring-in small { font-size: 11px; color: var(--leise); }
+  .sen-teile { margin: -2px 0 12px; display: grid; gap: 4px; }
+  .sen-teil { display: flex; justify-content: center; gap: 8px; font-size: 13px; color: var(--leise); }
+  .sen-teil b { color: var(--sen); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .sen-teil.neu { animation: ciein .4s ease-out; }
+
+  .sen-rechts { margin-left: auto; font-size: 11px; font-weight: 600; color: var(--leise); text-transform: none; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+  .sen-buch { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 14px; align-items: center; }
+  .sen-cover { position: relative; width: 62px; height: 92px; border-radius: 8px; overflow: hidden; background: var(--sen-hell); color: var(--sen);
+    display: grid; place-items: center; font: 700 22px/1 Georgia, serif; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .sen-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .sen-cover.klein { width: 34px; height: 50px; border-radius: 5px; font-size: 14px; }
+  .sen-buch-r { min-width: 0; display: grid; gap: 3px; }
+  .sen-buch-r b { font-size: 17px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .sen-buch-r small { font-size: 13px; color: var(--leise); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sen-seite { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 4px; }
+  .sen-fort { height: 5px; border-radius: 3px; background: var(--sen-hell); overflow: hidden; }
+  .sen-fort i { display: block; height: 100%; background: var(--sen); border-radius: 3px; transition: width .8s cubic-bezier(.2, .8, .2, 1); }
+  .sen-knopf { display: block; width: 100%; height: 46px; margin-top: 14px; border-radius: 12px; background: var(--sen); color: var(--sen-auf); font-weight: 700; font-size: 15px; }
+  .sen-knopf.hell { background: var(--sen-hell); color: var(--sen); }
+  .sen-knopf:active { transform: scale(.97); }
+  .sen-uhr { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; margin-top: 14px; padding: 10px 10px 10px 16px;
+    border-radius: 14px; background: var(--sen-hell); animation: ciein .3s ease-out; }
+  .sen-uhr-t { font-size: 26px; font-weight: 800; color: var(--sen); font-variant-numeric: tabular-nums; line-height: 1; }
+  .sen-uhr-t small { display: block; font-size: 12px; font-weight: 600; color: var(--leise); margin-top: 4px; }
+  .sen-uhr button { height: 44px; padding: 0 22px; border-radius: 12px; background: var(--sen); color: var(--sen-auf); font-weight: 700; }
+  .sen-punkt { display: inline-block; width: 8px; height: 8px; border-radius: 4px; background: var(--sen); margin-right: 8px; vertical-align: 1px; animation: ciatmen 1.6s ease-in-out infinite; }
+  .sen-zeile { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; width: 100%; text-align: left; padding: 9px 0; border-top: 1px solid var(--linie); font-size: 14px; }
+  .sen-zeile.mit { grid-template-columns: 34px minmax(0, 1fr) auto; }
+  .sen-zeile:first-child { border-top: 0; }
+  .sen-zeile .t { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sen-zeile .t small { display: block; font-size: 12px; color: var(--leise); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sen-zeile.neu { animation: ciein .4s ease-out; }
+  .sen-pkt { min-width: 30px; padding: 2px 8px; border-radius: 9px; font-size: 12px; font-weight: 700; text-align: center; background: var(--sen-hell); color: var(--sen); font-variant-numeric: tabular-nums; }
+  .sen-pkt.null { background: var(--chip); color: var(--leise); font-weight: 500; }
+  .sen-liste { margin-top: 12px; }
+  .sen-link { display: block; margin: 10px auto 0; font-size: 14px; font-weight: 600; color: var(--sen); padding: 6px 2px; }
+  .sen-handy { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sen-handy > div { padding: 10px 12px; border-radius: 12px; background: var(--chip); text-align: center; }
+  .sen-handy small { display: block; font-size: 11px; color: var(--leise); text-transform: uppercase; letter-spacing: .04em; }
+  .sen-handy b { font-size: 20px; font-variant-numeric: tabular-nums; }
+  .sen-handy span { display: block; font-size: 12px; color: var(--leise); }
+  .sen-unruhe { height: 5px; border-radius: 3px; background: var(--linie); overflow: hidden; margin: 8px 4px 0; }
+  .sen-unruhe i { display: block; height: 100%; border-radius: 3px; background: var(--leise); opacity: .55; transition: width .8s cubic-bezier(.2, .8, .2, 1); }
+
+  /* Blatt (wie im Chief, eigene Klassen) */
+  .sen-blatt { position: fixed; inset: 0; z-index: 40; display: none; }
+  .sen-blatt.offen { display: block; }
+  .sen-blatt-hg { position: absolute; inset: 0; background: rgba(20,20,18,.42); }
+  .sen-blatt-in { position: absolute; left: 0; right: 0; bottom: 0; max-height: calc(100% - 36px); overflow-y: auto; overscroll-behavior: contain; background: var(--karte);
+    border-radius: 22px 22px 0 0; padding: 8px 18px calc(22px + env(safe-area-inset-bottom)); }
+  .sen-blatt.neu .sen-blatt-hg { animation: coshg .2s ease-out; }
+  .sen-blatt.neu .sen-blatt-in { animation: senrauf .28s cubic-bezier(.2,.8,.2,1); }
+  @keyframes senrauf { from { transform: translateY(40px); opacity: .4; } }
+  body.mac .sen-blatt-in { left: 50%; right: auto; top: 50%; bottom: auto; width: 480px; max-height: 88vh; border-radius: 22px; transform: translate(-50%, -50%); box-shadow: 0 24px 64px rgba(0,0,0,.3); }
+  body.mac .sen-blatt.neu .sen-blatt-in { animation: none; }
+  .sen-bk { display: flex; align-items: center; margin-bottom: 8px; }
+  .sen-bk b { flex: 1; text-align: center; font-size: 17px; }
+  .sen-bk button, .sen-bk span { width: 92px; height: 44px; font-weight: 600; color: var(--sen); text-align: left; }
+  .sen-bk button.an { text-align: right; font-weight: 700; }
+  .sen-bk button:disabled { opacity: .35; }
+  .sen-feld { margin-top: 14px; }
+  .sen-feld > small { display: block; font-size: 12px; font-weight: 600; color: var(--leise); margin-bottom: 6px; }
+  .sen-blatt input[type=text], .sen-blatt input[type=number], .sen-blatt input[type=url] { width: 100%; height: 46px; border: 0; border-radius: 12px; background: var(--chip);
+    color: var(--text); font: inherit; font-size: 16px; padding: 0 14px; text-align: left; }
+  .sen-blatt input.gross { height: 64px; font-size: 32px; font-weight: 800; text-align: center; font-variant-numeric: tabular-nums; }
+  .sen-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sen-chips button { flex: 1; min-width: 64px; height: 42px; padding: 0 12px; border-radius: 12px; background: var(--chip); font-weight: 600; font-size: 14px; }
+  .sen-chips button.an { background: var(--sen); color: var(--sen-auf); animation: tipp .3s ease-out; }
+  .sen-chips button:disabled { opacity: .5; }
+  .sen-sterne button { font-size: 20px; color: var(--leise); }
+  .sen-sterne button.an { background: var(--sen-hell); color: var(--sen); }
+  .sen-vorschau { margin-top: 16px; text-align: center; font-size: 14px; color: var(--leise); }
+  .sen-vorschau b { color: var(--sen); font-size: 18px; }
+  .sen-such { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+  .sen-such button { height: 46px; padding: 0 16px; border-radius: 12px; background: var(--sen); color: var(--sen-auf); font-weight: 700; }
+  .sen-treffer { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; align-items: center; width: 100%; text-align: left; padding: 10px 0; border-top: 1px solid var(--linie); }
+  .sen-treffer:first-child { border-top: 0; }
+  .sen-treffer b { display: block; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sen-treffer small { font-size: 12px; color: var(--leise); }
+  .sen-leise { font-size: 13px; color: var(--leise); text-align: center; padding: 14px 0 4px; }
+  .sen-aktionen { display: grid; gap: 8px; margin-top: 18px; }
+  .sen-aktionen button { height: 46px; border-radius: 12px; background: var(--chip); font-weight: 600; }
+  .sen-aktionen button.gut { background: var(--sen); color: var(--sen-auf); }
+  .sen-aktionen button.weg { color: #B3261E; background: none; }
+  @media (prefers-reduced-motion: reduce) { .sen-zahl b.pop, .sen-ring .seg.an, .sen-uhr, .sen-zeile.neu, .sen-teil.neu, .sen-blatt.neu .sen-blatt-in, .sen-punkt { animation: none; } }
+</style>
+<div id="senBlatt" class="sen-blatt"></div>
+<script>
+/* ── Sensi: Tiefe ist Muße, nicht Arbeit. Nur Plus, ändert nichts am Tageswert. Daten aus appSensi (Tabs Signale und Werke) ──
+   Aufbau als Liste von Abschnitten (SEN_ABSCHNITTE). Neuer Abschnitt: eine Zeile dort und eine Funktion, die HTML liefert. */
+
+const SEN_SPEICHER = 'zentrale_sensi_1', SEN_UHR_SPEICHER = 'zentrale_sensi_uhr';
+const SEN_ABSCHNITTE = [
+  { id: 'kopf', breit: true, html: senKopfHtml },
+  { id: 'lesen', html: senLesenHtml },
+  { id: 'gesehen', html: senGesehenHtml },
+  { id: 'audio', html: senAudioHtml },
+  { id: 'handy', html: senHandyHtml }
+];
+let SN = {};                  // Pakete je Tag vom Server
+let senUhrL = null;           // laufende Uhr { art, werkId, start }
+let senFehlt = false, senAusstehend = 0, senPopBis = 0, senNeuBis = 0;
+const senLaedt = {}, senGeladen = {};
+let senB = null;              // offenes Blatt
+try { SN = JSON.parse(localStorage.getItem(SEN_SPEICHER) || '{}') || {}; } catch (e) { SN = {}; }
+try { senUhrL = JSON.parse(localStorage.getItem(SEN_UHR_SPEICHER) || 'null'); } catch (e) { senUhrL = null; }
+
+/* ── Laden: sofort aus dem Gerätespeicher, frisch im Hintergrund ── */
+function senLaden(iso, erzwingen) {
+  if (!iso || senLaedt[iso] || typeof server !== 'function') return;
+  if (!erzwingen && SN[iso] && Date.now() - (senGeladen[iso] || 0) < 60000) return;
+  if (!erzwingen && senFehlt && Date.now() - (senGeladen[iso] || 0) < 300000) return;
+  senLaedt[iso] = true;
+  const ab = Date.now();
+  server('appSensi', iso).then(d => {
+    senGeladen[iso] = Date.now(); senFehlt = false;
+    if (!d || senAusstehend > 0 || ab < senLetzte) return;   // eine Änderung ist unterwegs, deren Antwort bringt den neuen Stand
+    senUebernehmen(d);
+  }).catch(e => {
+    senGeladen[iso] = Date.now();
+    if (/Unbekannte Funktion/.test(String(e && e.message))) { senFehlt = true; if (ansicht === 'sensi') zeichnen(); }
+  }).finally(() => { senLaedt[iso] = false; });
+}
+let senLetzte = 0;
+function senUebernehmen(d) {
+  if (!d || !d.datum) return;
+  SN[d.datum] = d;
+  const tage = Object.keys(SN).sort();
+  tage.slice(0, Math.max(0, tage.length - 10)).forEach(t => { delete SN[t]; });
+  if (!d.fehlt && senAusstehend === 0) senUhrSetzenL(d.uhr || null);
+  senSpeichern();
+  if (ansicht === 'sensi' && tagIso === d.datum) zeichneSensi();
+}
+function senSpeichern() { try { localStorage.setItem(SEN_SPEICHER, JSON.stringify(SN)); } catch (e) { /* ohne Speicher */ } }
+function senUhrSetzenL(u) {
+  senUhrL = u && u.start ? u : null;
+  try { localStorage.setItem(SEN_UHR_SPEICHER, JSON.stringify(senUhrL)); } catch (e) { /* egal */ }
+}
+/* Wie nacheinander, gibt die Antwort zurück. Kommt ein Paket mit, ersetzt es den Stand, sobald nichts mehr unterwegs ist */
+function senNach(fn, ...args) {
+  offen++; senAusstehend++; senLetzte = Date.now();
+  let erg = null;
+  kette = kette.then(() => server(fn, ...args)
+    .then(d => { erg = d; })
+    .catch(e => { erg = null; melden(e.message || String(e)); }))
+    .then(() => {
+      offen--; geschrieben++; senAusstehend--;
+      if (erg && erg.paket && senAusstehend === 0) senUebernehmen(erg.paket);
+      else if (!erg && senAusstehend === 0) senLaden(tagIso, true);   // ging schief: Stand vom Server holen
+    });
+  return kette.then(() => erg);
+}
+
+/* ── Rechnen wie der Server (nur für die sofortige Anzeige, die Antwort ersetzt es) ── */
+function senP() { const d = SN[tagIso]; return (d && d.punkte) || { lesen: { je: 15, punkte: 1, ab: 15 }, buch: { fertig: 3, ganz: 2 }, film: { ganz: 3, handyWeg: 1, nichtGanz: 0 }, serie: 0 }; }
+function senLesenPkt(min) { const L = senP().lesen; return min >= L.ab ? Math.floor(min / L.je) * L.punkte : 0; }
+function senFilmPkt(f) { const F = senP().film; if (f.art === 'Serie') return senP().serie || 0; return f.ganz ? F.ganz + (f.handyWeg || f.ort === 'Kino' ? F.handyWeg : 0) : F.nichtGanz; }
+function senZahl(x) { return String(Math.round((Number(x) || 0) * 10) / 10).replace('.', ','); }
+function senKopie(x) { return JSON.parse(JSON.stringify(x)); }
+function senMin() { return senUhrL ? Math.max(0, Math.round((Date.now() - senUhrL.start) / 60000)) : 0; }
+/* Tag einer Lesesitzung: bis 5 Uhr zählt zum Vortag (der Server nimmt dazu die Einschlafzeit) */
+function senTagVon(ms) { const d = new Date(ms); return d.getHours() < 5 ? tagPlus(isoVon(d), -1) : isoVon(d); }
+/* Punkte sofort sichtbar: Zahl ändern, Plus fliegt vom Finger zur Zahl, Meldung mit vorher und nachher */
+function senGewinn(iso, punkte, text, teil) {
+  const d = SN[iso];
+  if (!d) { melden(text); return; }
+  const vorher = d.tiefe || 0;
+  d.tiefe = Math.round((vorher + punkte) * 10) / 10;
+  d.woche = Math.round(((d.woche || 0) + punkte) * 10) / 10;
+  (d.wocheTage || []).forEach(t => { if (t.tag === iso) t.tiefe = d.tiefe; });
+  if (teil) { (d.teile = d.teile || []).push(teil); senNeuBis = Date.now() + 900; }
+  melden(text + (punkte > 0 ? ' · +' + senZahl(punkte) + ' Tiefe · ' + senZahl(vorher) + ' → ' + senZahl(d.tiefe) : ''));
+  if (punkte > 0) { senPopBis = Date.now() + 1200; senFliegt(punkte); }
+}
+function senFliegt(p) {
+  const von = letzterTipp;
+  if (!von || !document.body.animate) return;
+  setTimeout(() => {
+    const ziel = $('senHeute');
+    if (!ziel) return;
+    const r = ziel.getBoundingClientRect(), el = document.createElement('div');
+    el.className = 'flug-plus'; el.style.background = 'var(--sen)'; el.style.color = 'var(--sen-auf)';
+    el.textContent = '+' + senZahl(p);
+    el.style.left = von.x + 'px'; el.style.top = von.y + 'px';
+    document.body.appendChild(el);
+    const dx = r.left + r.width / 2 - von.x, dy = r.top + r.height / 2 - von.y;
+    const a = el.animate([
+      { transform: 'translate(-50%, -50%) scale(.6)', opacity: 0 },
+      { transform: 'translate(-50%, calc(-50% - 26px)) scale(1.15)', opacity: 1, offset: 0.3 },
+      { transform: 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) scale(.6)', opacity: 0.85 }
+    ], { duration: 900, easing: 'cubic-bezier(.45,0,.8,.6)' });
+    a.onfinish = () => { el.remove(); const z = $('senHeute'); if (z) { z.classList.remove('pop'); void z.offsetWidth; z.classList.add('pop'); } };
+  }, 60);
+}
+
+/* ── Zeichnen ── */
+function zeichneSensi() {
+  const h = heute(), liste = tageListe(), i = liste.indexOf(tagIso);
+  $('kopfTitel').textContent = tagIso === h ? 'Heute' : tagIso === tagPlus(h, -1) ? 'Gestern' : label(tagIso);
+  $('kopfDatum').textContent = 'Sensi · ' + label(tagIso);
+  $('zurueck').disabled = i <= 0;
+  $('vor').disabled = i === -1 || i >= liste.length - 1;
+  senLaden(tagIso, false);
+  const box = $('inhalt'), d = SN[tagIso];
+  if (!d) {
+    box.innerHTML = senFehlt ? '<div class="karte"><b>Der Server kennt Sensi noch nicht.</b><div class="hinweis">Einmal im Terminal: ./bereitstellen.sh server</div></div>' : '<div class="laden">Lädt …</div>';
+    return;
+  }
+  if (d.fehlt) { box.innerHTML = '<div class="karte"><b>Die Tabs Signale und Werke fehlen.</b><div class="hinweis">Einmal senEinrichten im Editor ausführen.</div></div>'; return; }
+  const teile = SEN_ABSCHNITTE.map(a => ({ a: a, html: a.html(d) })).filter(x => x.html);
+  const n = macSpalten();
+  if (n < 2) { box.innerHTML = teile.map(x => x.html).join(''); senTick(); return; }
+  // Mac: breite Abschnitte oben, der Rest der Reihe nach auf die Spalten
+  const sp = Array.from({ length: n }, () => '');
+  teile.filter(x => !x.a.breit).forEach((x, j) => { sp[j % n] += x.html; });
+  box.innerHTML = teile.filter(x => x.a.breit).map(x => x.html).join('') + '<div class="mac-spalten">' + sp.map(s => '<div class="mac-spalte">' + s + '</div>').join('') + '</div>';
+  senTick();
+}
+
+/* Kopf: Tiefe heute, Wochenring (ohne Ziel), Tiefe Woche, darunter woher die Punkte kommen */
+function senKopfHtml(d) {
+  const pop = Date.now() < senPopBis ? ' class="pop"' : '';
+  const teile = (d.teile || []).map((t, i, l) => '<div class="sen-teil' + (Date.now() < senNeuBis && i === l.length - 1 ? ' neu' : '') + '"><span>' + esc(t.text) + '</span>' +
+    (t.punkte ? '<b>+' + senZahl(t.punkte) + '</b>' : '') + '</div>').join('');
+  const name = d.datum === heute() ? 'Tiefe heute' : d.datum === tagPlus(heute(), -1) ? 'Tiefe gestern' : 'Tiefe ' + label(d.datum);
+  return '<div class="sen-kopf"><div class="sen-zahl"><small>' + esc(name) + '</small><b id="senHeute"' + pop + '>' + senZahl(d.tiefe) + '</b></div>' +
+    senRingHtml(d) + '<div class="sen-zahl"><small>Tiefe Woche</small><b id="senWoche">' + senZahl(d.woche) + '</b></div></div>' +
+    '<div class="sen-teile">' + (teile || '<div class="sen-teil">Lesen und Filme geben Tiefe.</div>') + '</div>';
+}
+/* Sieben Bögen, Montag oben. Je mehr Tiefe, desto kräftiger. Der gezeigte Tag ist etwas dicker */
+function senRingHtml(d) {
+  const r = 46, u = 2 * Math.PI * r, lu = u / 7, gap = 14;
+  const segs = (d.wocheTage || []).map((t, i) => {
+    const an = t.tiefe > 0, deck = an ? 0.35 + 0.65 * Math.min(1, t.tiefe / 6) : 1;
+    return '<circle class="seg' + (an ? ' an' : '') + '" cx="56" cy="56" r="' + r + '" stroke="' + (an ? 'var(--sen)' : 'var(--linie)') + '" style="opacity:' + deck.toFixed(2) +
+      (t.tag === d.datum ? ';stroke-width:12' : '') + ';animation-delay:' + (i * 0.05) + 's" stroke-dasharray="' + (lu - gap).toFixed(1) + ' ' + (u - lu + gap).toFixed(1) +
+      '" stroke-dashoffset="' + (-(i * lu + gap / 2)).toFixed(1) + '"/>';
+  }).join('');
+  const kw = 'KW ' + senKw(d.datum);
+  return '<div class="sen-ring"><svg viewBox="0 0 112 112" aria-hidden="true">' + segs + '</svg><div class="sen-ring-in"><b>' + esc(kw) + '</b><small>' +
+    (d.wocheTage || []).filter(t => t.tiefe > 0).length + ' von 7</small></div></div>';
+}
+
+/* ISO Kalenderwoche eines Tages (die Woche gehört zum Jahr ihres Donnerstags) */
+function senKw(iso) {
+  const [y, m, t] = iso.split('-').map(Number), d = new Date(Date.UTC(y, m - 1, t));
+  d.setUTCDate(d.getUTCDate() + 3 - (d.getUTCDay() + 6) % 7);
+  return Math.floor((d - Date.UTC(d.getUTCFullYear(), 0, 1)) / 86400000 / 7) + 1;
+}
+function senCover(w, klein) {
+  const b = String(w.titel || '?').trim().charAt(0).toUpperCase();
+  return '<span class="sen-cover' + (klein ? ' klein' : '') + '">' + esc(b) + (w.cover ? '<img src="' + esc(w.cover) + '" alt="" loading="lazy" onerror="this.remove()">' : '') + '</span>';
+}
+
+/* Lesen: aktuelles Buch mit Cover und Seite, Start oder laufende Uhr, weitere Bücher, Sitzungen des Tages */
+function senLesenHtml(d) {
+  const buecher = d.buecher || [];
+  const laeuft = senUhrL && senUhrL.art === 'lesen' ? senUhrL : null;
+  const haupt = (laeuft && buecher.find(b => b.id === laeuft.werkId)) || buecher[0] || null;
+  const minHeute = (d.lesen || []).reduce((a, x) => a + x.min, 0);
+  let h = '<div class="karte"><div class="bereich"><span class="punkt" style="background:var(--sen)"></span>Lesen' +
+    (minHeute ? '<span class="sen-rechts">' + minHeute + ' min</span>' : '') + '</div>';
+  if (haupt) {
+    const pr = haupt.umfang ? Math.min(100, Math.round(haupt.seite / haupt.umfang * 100)) : 0;
+    h += '<div class="sen-buch"><button onclick="senBuchBlatt(\'' + esc(haupt.id) + '\')" aria-label="Buch bearbeiten">' + senCover(haupt) + '</button><div class="sen-buch-r"><b>' + esc(haupt.titel) + '</b>' +
+      (haupt.von ? '<small>' + esc(haupt.von) + '</small>' : '') + '<div class="sen-seite">S. ' + (haupt.seite || 0) + (haupt.umfang ? ' von ' + haupt.umfang : '') + '</div>' +
+      (haupt.umfang ? '<div class="sen-fort"><i style="width:' + pr + '%"></i></div>' : '') + '</div></div>';
+    h += laeuft ? '<div class="sen-uhr"><div class="sen-uhr-t"><span id="senUhrZeit">' + senUhrText() + '</span><small id="senUhrPkt">' + senUhrPktText() + '</small></div>' +
+      '<button onclick="senStoppBlatt()">Stopp</button></div>'
+      : '<button class="sen-knopf" onclick="senStart(\'' + esc(haupt.id) + '\')">Start</button>';
+  } else {
+    h += '<div class="hinweis">Noch kein Buch. Mit Buch hinzufügen geht es los.</div>';
+  }
+  const andere = buecher.filter(b => b !== haupt);
+  const sitz = d.lesen || [];
+  if (andere.length || sitz.length) {
+    h += '<div class="sen-liste">' + andere.map(b => '<div class="sen-zeile mit">' + senCover(b, true) + '<button class="t" onclick="senBuchBlatt(\'' + esc(b.id) + '\')">' + esc(b.titel) +
+      '<small>S. ' + (b.seite || 0) + (b.umfang ? ' von ' + b.umfang : '') + '</small></button>' +
+      (laeuft ? '<span></span>' : '<button class="sen-pkt" onclick="senStart(\'' + esc(b.id) + '\')">Start</button>') + '</div>').join('') +
+      sitz.map((s, i) => '<div class="sen-zeile' + (Date.now() < senNeuBis && i === sitz.length - 1 ? ' neu' : '') + '"><span class="t">' + esc(s.zeit) + '  ' + s.min + ' min' +
+        (s.titel ? '  ' + esc(s.titel) : '') + (s.notiz ? '<small>' + esc(s.notiz) + '</small>' : '') + '</span><span class="sen-pkt' + (s.punkte ? '' : ' null') + '">' +
+        (s.punkte ? '+' + senZahl(s.punkte) : '0') + '</span></div>').join('') + '</div>';
+  }
+  return h + '<button class="sen-link" onclick="senBuchNeu()">Buch hinzufügen</button></div>';
+}
+function senUhrText() {
+  const s = senUhrL ? Math.max(0, Math.floor((Date.now() - senUhrL.start) / 1000)) : 0;
+  const hh = Math.floor(s / 3600), mm = Math.floor(s / 60) % 60, ss = s % 60;
+  return (hh ? hh + ':' + zwei(mm) : mm) + ':' + zwei(ss);
+}
+function senUhrPktText() {
+  const min = senMin(), p = senLesenPkt(min), L = senP().lesen;
+  if (min < L.ab) return '<span class="sen-punkt"></span>noch ' + (L.ab - min) + ' min bis zum ersten Punkt';
+  return '<span class="sen-punkt"></span>+' + p + ' bisher, nächster in ' + (L.je - min % L.je) + ' min';
+}
+/* Uhr jede Sekunde, ohne neu zu zeichnen */
+function senTick() {
+  const z = $('senUhrZeit'), p = $('senUhrPkt');
+  if (z) z.textContent = senUhrText();
+  if (p) p.innerHTML = senUhrPktText();
+}
+
+/* Gesehen: Filme des Tages */
+function senGesehenHtml(d) {
+  const f = d.filme || [];
+  return '<div class="karte"><div class="bereich"><span class="punkt" style="background:var(--sen)"></span>Gesehen</div>' +
+    (f.length ? '<div>' + f.map((x, i) => '<button class="sen-zeile mit' + (Date.now() < senNeuBis && i === f.length - 1 ? ' neu' : '') + '" onclick="senFilmAnsicht(\'' + esc(x.id) + '\')">' + senCover(x, true) +
+      '<span class="t">' + esc(x.titel) + '<small>' + esc([x.art === 'Serie' ? 'Serie' : '', x.ort, x.ganz ? 'ganz' : 'nicht ganz', x.handyWeg ? 'Handy weg' : '', x.bewertung ? '★'.repeat(x.bewertung) : ''].filter(Boolean).join(' · ')) +
+      '</small></span><span class="sen-pkt' + (x.punkte ? '' : ' null') + '">' + (x.punkte ? '+' + senZahl(x.punkte) : '0') + '</span></button>').join('') + '</div>'
+      : '<div class="hinweis">' + (tagIso === heute() ? 'Heute' : 'An diesem Tag') + ' noch nichts gesehen.</div>') +
+    '<button class="sen-knopf hell" onclick="senFilmNeu()">Film eintragen</button></div>';
+}
+
+/* Audio: Hörzeit und Unruhe aus Spotify, nur Anzeige (noch keine Punkte). Alter Server ohne audio: Abschnitt fehlt */
+function senAudioHtml(d) {
+  const a = d.audio;
+  if (!a) return '';
+  const kopf = '<div class="bereich"><span class="punkt" style="background:var(--sen)"></span>Audio' + (a.titel ? '<span class="sen-rechts">' + a.titel + ' Titel</span>' : '') + '</div>';
+  if (!a.verbunden) return '<div class="karte">' + kopf + '<div class="hinweis">Spotify ist noch nicht verbunden. Anleitung in LIESMICH.md, Abschnitt Sensi Audio.</div></div>';
+  if (!a.titel) return '<div class="karte">' + kopf + '<div class="hinweis">' + (d.datum === heute() ? 'Heute' : 'An diesem Tag') + ' noch nichts gehört.</div></div>';
+  const pz = Math.round((a.quote || 0) * 100);
+  return '<div class="karte">' + kopf + '<div class="sen-handy">' +
+    '<div><small>Hörzeit</small><b>' + hm(a.min) + '</b><span>' + (a.albumMin ? 'davon Alben ' + hm(a.albumMin) : 'gehört') + '</span></div>' +
+    '<div><small>Unruhe</small><b>' + (a.gezaehlt ? pz + ' %' : '–') + '</b><span>' + (a.gezaehlt ? a.abbrueche + ' von ' + a.gezaehlt + ' abgebrochen' : 'zu wenig Titel') + '</span>' +
+      (a.gezaehlt ? '<div class="sen-unruhe"><i style="width:' + pz + '%"></i></div>' : '') + '</div></div>' +
+    ((a.alben || []).length ? '<div class="sen-liste">' + a.alben.map(x => '<div class="sen-zeile"><span class="t">Album ganz · ' + esc(x.album) + '<small>' + esc(x.kuenstler) + '</small></span>' +
+      '<span class="sen-pkt null">' + hm(x.min) + '</span></div>').join('') + '</div>' : '') + '</div>';
+}
+
+/* Handy: letzte Zeiten vom Kurzbefehl, nur Anzeige */
+function senHandyHtml(d) {
+  const hd = d.handy || {};
+  const wann = x => {
+    if (!x) return '<b>–</b><span>noch nichts</span>';
+    const h = heute(), t = x.kal === h ? 'heute' : x.kal === tagPlus(h, -1) ? 'gestern' : label(x.kal);
+    return '<b>' + esc(x.zeit) + '</b><span>' + esc(t) + '</span>';
+  };
+  return '<div class="karte"><div class="bereich"><span class="punkt" style="background:var(--sen)"></span>Handy</div><div class="sen-handy">' +
+    '<div><small>Abgelegt</small>' + wann(hd.abgelegt) + '</div><div><small>Aufgenommen</small>' + wann(hd.aufgenommen) + '</div></div>' +
+    (!hd.abgelegt && !hd.aufgenommen ? '<div class="hinweis">Kommt per Kurzbefehl vom Ladegerät.</div>' : '') + '</div>';
+}
+
+/* ── Lesen: Start und Stopp ── */
+function senStart(werkId) {
+  if (senUhrL) { melden('Es läuft schon eine Uhr.'); return; }
+  const uhr = { art: 'lesen', werkId: werkId, start: Date.now() };
+  senUhrSetzenL(uhr);
+  haptik();
+  merken({ art: 'senStart', tag: tagIso, name: 'Lesen gestartet' });
+  const d = SN[tagIso], b = d && (d.buecher || []).find(x => x.id === werkId);
+  melden('Los. ' + (b ? b.titel : 'Lesen') + ' läuft.');
+  zeichnen();
+  senNach('appSensiStart', 'lesen', werkId, uhr.start);
+}
+function senStoppBlatt() {
+  if (!senUhrL) return;
+  const d = SN[tagIso], b = d && (d.buecher || []).find(x => x.id === senUhrL.werkId);
+  senBlattAuf({ art: 'stopp', seite: b ? b.seite : 0, umfang: b ? b.umfang : 0, fertig: false, titel: b ? b.titel : 'Lesen' });
+}
+function senStoppSenden() {
+  if (!senUhrL || !senB) return;
+  const el = $('senSeite'), seite = el && el.value !== '' ? Math.max(0, Math.round(Number(el.value))) : senB.seite;
+  const fertig = !!senB.fertig, uhr = senUhrL, min = senMin();
+  const iso = senTagVon(uhr.start), d = SN[iso], vorher = d ? senKopie(d) : null;
+  const b = d && (d.buecher || []).find(x => x.id === uhr.werkId);
+  const titel = b ? b.titel : '';
+  let p = senLesenPkt(min);
+  const ein = { zeit: zwei(new Date(uhr.start).getHours()) + ':' + zwei(new Date(uhr.start).getMinutes()), min: min, titel: titel, notiz: b ? 'S. ' + (b.seite || 0) + ' bis ' + seite : '', punkte: p };
+  if (d) {
+    (d.lesen = d.lesen || []).push(ein);
+    if (b) { b.seite = seite; if (fertig) d.buecher = d.buecher.filter(x => x !== b); }
+  }
+  const eintrag = { art: 'senStopp', tag: tagIso, iso: iso, uhr: uhr, vorher: vorher, schluessel: null, name: 'Lesen ' + min + ' min' };
+  merken(eintrag);
+  senUhrSetzenL(null);
+  senBlattZu();
+  haptik();
+  senGewinn(iso, p, 'Lesen ' + min + ' min', { text: 'Lesen ' + min + ' min' + (titel ? ' ' + titel : ''), punkte: p });
+  if (fertig) senGewinn(iso, senP().buch.fertig, titel + ' beendet', { text: titel + ' beendet', punkte: senP().buch.fertig });
+  zeichnen();
+  senNach('appSensiStopp', { seite: seite, fertig: fertig }).then(r => { if (r && r.schluessel) eintrag.schluessel = r.schluessel; else if (!r) { eintrag.kaputt = true; } });
+}
+function senVerwerfen() {
+  if (!senUhrL) return;
+  const uhr = senUhrL;
+  senUhrSetzenL(null);
+  senBlattZu();
+  merken({ art: 'senVerwerfen', tag: tagIso, uhr: uhr, name: 'Nicht gezählt' });
+  melden('Nicht gezählt.');
+  zeichnen();
+  senNach('appSensiStopp', { verwerfen: true });
+}
+
+/* ── Rückgängig (aus rueckgaengig in AppSeite) ── */
+function senRueck(a) {
+  if (a.art === 'senStart') {
+    senUhrSetzenL(null); zeichnen();
+    senNach('appSensiStopp', { verwerfen: true });
+  } else if (a.art === 'senVerwerfen') {
+    senUhrSetzenL(a.uhr); zeichnen();
+    senNach('appSensiStart', a.uhr.art, a.uhr.werkId, a.uhr.start);
+  } else if (a.art === 'senStopp') {
+    if (a.kaputt) { melden('Das wurde nicht gespeichert.'); return; }
+    if (!a.schluessel) { verlauf.push(a); $('undo').disabled = false; melden('Einen Moment, das wird noch gespeichert. Dann geht Rückgängig.'); return; }
+    if (a.vorher) SN[a.iso] = a.vorher;
+    senUhrSetzenL(a.uhr); zeichnen();
+    senNach('appSensiZurueck', a.schluessel, true);
+  } else if (a.art === 'senWerk') {
+    if (!a.zurueck) { verlauf.push(a); $('undo').disabled = false; melden('Einen Moment, das wird noch gespeichert. Dann geht Rückgängig.'); return; }
+    if (a.vorher) SN[a.iso] = a.vorher;
+    zeichnen();
+    senNach('appSensiWerk', a.zurueck.op, Object.assign({ tag: a.iso }, a.zurueck.daten));
+  }
+  melden('Rückgängig: ' + a.name);
+}
+
+/* Bücher und Filme ändern: sofort hier, dann beim Server. Der Server gibt den Gegenschritt für Rückgängig */
+function senWerk(op, daten, name, lokal) {
+  const iso = tagIso, d = SN[iso];
+  const eintrag = { art: 'senWerk', tag: iso, iso: iso, vorher: d ? senKopie(d) : null, zurueck: null, name: name };
+  if (d && lokal) lokal(d);
+  merken(eintrag);
+  zeichnen();
+  return senNach('appSensiWerk', op, Object.assign({ tag: iso }, daten)).then(r => {
+    if (r && r.zurueck) eintrag.zurueck = r.zurueck;
+    else { const i = verlauf.indexOf(eintrag); if (i >= 0) verlauf.splice(i, 1); $('undo').disabled = !verlauf.length; }
+    return r;
+  });
+}
+
+/* ── Blätter ── */
+function senBlattAuf(b) { senB = b; document.body.style.overflow = 'hidden'; senBlattZeichnen(true); }
+function senBlattZu() { senB = null; document.body.style.overflow = ''; senBlattZeichnen(); }
+function senBlattZeichnen(neu) {
+  const el = $('senBlatt');
+  if (!senB) { el.className = 'sen-blatt'; el.innerHTML = ''; return; }
+  const a = senB.art;
+  const inhalt = a === 'stopp' ? senBlattStopp() : a === 'buchneu' ? senBlattBuchNeu() : a === 'buch' ? senBlattBuch() : a === 'film' ? senBlattFilm() : senBlattFilmAnsicht();
+  const alt = el.querySelector('.sen-blatt-in'), scroll = !neu && alt ? alt.scrollTop : 0;
+  el.className = 'sen-blatt offen' + (neu ? ' neu' : '');
+  el.innerHTML = '<div class="sen-blatt-hg" onclick="senBlattZu()"></div><div class="sen-blatt-in" role="dialog" aria-modal="true">' + inhalt + '</div>';
+  el.querySelector('.sen-blatt-in').scrollTop = scroll;
+  if (neu && senB.fokus) { const f = $(senB.fokus); if (f) setTimeout(() => { f.focus(); if (f.select) f.select(); }, 80); }
+}
+function senBk(titel, rechts, fn, aus) {
+  return '<div class="sen-bk"><button onclick="senBlattZu()">Abbrechen</button><b>' + titel + '</b>' +
+    (rechts ? '<button class="an" onclick="' + fn + '"' + (aus ? ' disabled' : '') + '>' + rechts + '</button>' : '<span></span>') + '</div>';
+}
+function senLies(id) { const el = $(id); return el ? el.value : ''; }
+
+/* Stopp: bis Seite? */
+function senBlattStopp() {
+  const b = senB, min = senMin(), p = senLesenPkt(min) + (b.fertig ? senP().buch.fertig : 0);
+  senB.fokus = 'senSeite';
+  return senBk('Bis Seite?', 'Fertig', 'senStoppSenden()') +
+    '<div class="sen-vorschau">' + esc(b.titel) + ' · ' + min + ' min · <b>+' + senZahl(p) + '</b> Tiefe</div>' +
+    '<div class="sen-feld"><input id="senSeite" class="gross" type="number" inputmode="numeric" min="0" value="' + (b.seite || '') + '" oninput="senSeiteTipp()" onkeydown="if(event.key===\'Enter\')senStoppSenden()"></div>' +
+    '<div class="sen-feld sen-chips">' + [5, 10, 20].map(n => '<button onclick="senSeitePlus(' + n + ')">+' + n + '</button>').join('') + '</div>' +
+    (b.umfang ? '<div class="sen-feld sen-chips"><button class="' + (b.fertig ? 'an' : '') + '" onclick="senFertigUm()">Buch fertig' + (b.fertig ? ' · +' + senP().buch.fertig : '') + '</button></div>' : '') +
+    '<div class="sen-aktionen"><button class="weg" onclick="senVerwerfen()">Nicht zählen</button></div>';
+}
+function senSeitePlus(n) { const el = $('senSeite'); el.value = Math.max(0, (Number(el.value) || senB.seite || 0) + n); senSeiteTipp(); }
+function senSeiteTipp() {
+  const v = Number(senLies('senSeite')) || 0, auto = senB.umfang && v >= senB.umfang;
+  if (auto !== !!senB.fertig && (auto || senB.autoFertig)) { senB.fertig = auto; senB.autoFertig = auto; const w = senLies('senSeite'); senBlattZeichnen(); const el = $('senSeite'); el.value = w; el.focus(); }
+}
+function senFertigUm() { const w = senLies('senSeite'); senB.fertig = !senB.fertig; senB.autoFertig = false; haptik(); senBlattZeichnen(); $('senSeite').value = w; }
+
+/* Buch hinzufügen: ISBN oder Titel suchen, sonst von Hand */
+function senBuchNeu() { senBlattAuf({ art: 'buchneu', suche: '', treffer: null, sucht: false, hand: false, fokus: 'senSuche' }); }
+function senBlattBuchNeu() {
+  const b = senB;
+  if (b.treffer && !b.treffer.length) b.hand = true;
+  let h = senBk('Buch hinzufügen', b.hand ? 'Dazu' : '', 'senBuchHand()') +
+    '<div class="sen-feld sen-such"><input id="senSuche" type="text" placeholder="ISBN oder Titel" value="' + esc(b.suche) + '" autocomplete="off" onkeydown="if(event.key===\'Enter\')senSuchen()">' +
+    '<button onclick="senSuchen()">' + (b.sucht ? '…' : 'Suchen') + '</button></div>';
+  if (b.treffer) {
+    h += b.treffer.length ? '<div class="sen-feld">' + b.treffer.map((t, i) => '<button class="sen-treffer" onclick="senTrefferNehmen(' + i + ')">' + senCover(t, true) +
+      '<span><b>' + esc(t.titel) + '</b><small>' + esc([t.von, t.jahr, t.umfang ? t.umfang + ' Seiten' : ''].filter(Boolean).join(' · ')) + '</small></span></button>').join('') + '</div>'
+      : '<div class="sen-leise">Nichts gefunden. Einfach von Hand eintragen.</div>';
+  }
+  if (b.hand) {
+    h += '<div class="sen-feld"><small>Titel</small><input id="senHTitel" type="text" value="' + esc(b.hTitel || (senIsbnL(b.suche) ? '' : b.suche)) + '"></div>' +
+      '<div class="sen-feld"><small>Von</small><input id="senHVon" type="text" value="' + esc(b.hVon || '') + '"></div>' +
+      '<div class="sen-feld"><small>Seiten</small><input id="senHSeiten" type="number" inputmode="numeric" min="0" value="' + esc(b.hSeiten || '') + '"></div>';
+  } else h += '<button class="sen-link" onclick="senB.suche=senLies(\'senSuche\');senB.hand=true;senBlattZeichnen()">Von Hand eintragen</button>';
+  return h;
+}
+function senIsbnL(s) { return /^(97[89]\d{10}|\d{9}[\dX])$/i.test(String(s || '').replace(/[\s-]/g, '')); }
+function senSuchen() {
+  const q = senLies('senSuche').trim();
+  if (!q || !senB) return;
+  senB.suche = q; senB.sucht = true; senBlattZeichnen();
+  server('appSensiWerk', 'suchen', { suche: q }).then(r => {
+    if (!senB || senB.art !== 'buchneu') return;
+    senB.sucht = false; senB.treffer = (r && r.treffer) || []; senBlattZeichnen();
+  }).catch(e => { if (senB) { senB.sucht = false; senB.treffer = []; senBlattZeichnen(); } melden(e.message || String(e)); });
+}
+function senTrefferNehmen(i) {
+  const t = senB && senB.treffer && senB.treffer[i];
+  if (!t) return;
+  senBuchAnlegen({ art: 'Buch', titel: t.titel, von: t.von, jahr: t.jahr, umfang: t.umfang, cover: t.cover, isbn: t.isbn, quelle: t.quelle });
+}
+function senBuchHand() {
+  const titel = senLies('senHTitel').trim();
+  if (!titel) { melden('Titel fehlt.'); return; }
+  senBuchAnlegen({ art: 'Buch', titel: titel, von: senLies('senHVon').trim(), umfang: Number(senLies('senHSeiten')) || 0 });
+}
+function senBuchAnlegen(w) {
+  senBlattZu();
+  haptik();
+  const tmp = Object.assign({ id: 'neu' + Date.now(), seite: 0, status: 'läuft' }, w);
+  senNeuBis = Date.now() + 900;
+  melden('„' + w.titel + '“ liegt bereit.');
+  senWerk('neu', w, 'Buch: ' + w.titel, d => { d.buecher = [tmp].concat(d.buecher || []); });
+}
+
+/* Buch antippen: Seite, fertig, abgebrochen, entfernen */
+function senBuchBlatt(id) {
+  const d = SN[tagIso], b = d && (d.buecher || []).find(x => x.id === id);
+  if (!b) return;
+  senBlattAuf({ art: 'buch', id: id, b: b });
+}
+function senBlattBuch() {
+  const b = senB.b, pf = senP().buch.fertig;
+  return senBk(esc(String(b.titel).slice(0, 40)), 'Sichern', 'senSeiteSichern()') +
+    '<div class="sen-feld"><small>Seite' + (b.umfang ? ' (von ' + b.umfang + ')' : '') + '</small><input id="senBSeite" class="gross" type="number" inputmode="numeric" min="0" value="' + (b.seite || 0) + '"></div>' +
+    '<div class="sen-aktionen"><button class="gut" onclick="senBuchEnde(\'fertig\')">Fertig gelesen · +' + pf + '</button>' +
+    '<button onclick="senBuchEnde(\'abgebrochen\')">Abgebrochen</button><button class="weg" onclick="senBuchWeg()">Entfernen</button></div>';
+}
+function senSeiteSichern() {
+  const b = senB.b, s = Math.max(0, Math.round(Number(senLies('senBSeite')) || 0));
+  senBlattZu();
+  if (s === b.seite) return;
+  melden('Seite ' + s);
+  senWerk('aendern', { id: b.id, seite: s }, 'Seite ' + s, d => { const x = (d.buecher || []).find(y => y.id === b.id); if (x) x.seite = s; });
+}
+function senBuchEnde(status) {
+  const b = senB.b;
+  if (senUhrL && senUhrL.werkId === b.id) { melden('Erst die Uhr stoppen.'); return; }
+  senBlattZu(); haptik();
+  const iso = tagIso;
+  senWerk('beenden', { id: b.id, status: status }, (status === 'fertig' ? 'Beendet: ' : 'Abgebrochen: ') + b.titel, d => { d.buecher = (d.buecher || []).filter(x => x.id !== b.id); });
+  if (status === 'fertig') senGewinn(iso, senP().buch.fertig, b.titel + ' beendet', { text: b.titel + ' beendet', punkte: senP().buch.fertig });
+  else melden('„' + b.titel + '“ abgebrochen. Auch gut.');
+  zeichnen();
+}
+function senBuchWeg() {
+  const b = senB.b;
+  if (senUhrL && senUhrL.werkId === b.id) { melden('Erst die Uhr stoppen.'); return; }
+  senBlattZu();
+  melden('„' + b.titel + '“ entfernt.');
+  senWerk('loeschen', { id: b.id }, 'Entfernt: ' + b.titel, d => { d.buecher = (d.buecher || []).filter(x => x.id !== b.id); });
+}
+
+/* Film eintragen */
+function senFilmNeu() { senBlattAuf({ art: 'film', f: { art: 'Film', titel: '', link: '', ganz: true, handyWeg: false, ort: '', bewertung: 0 }, fokus: 'senFTitel' }); }
+function senBlattFilm() {
+  const f = senB.f, p = senFilmPkt(f), O = (SN[tagIso] && SN[tagIso].orte) || ['Kino', 'Beamer', 'Laptop', 'Handy'];
+  const chip = (an, text, fn, aus) => '<button class="' + (an ? 'an' : '') + '" onclick="' + fn + '"' + (aus ? ' disabled' : '') + '>' + text + '</button>';
+  return senBk(f.art === 'Serie' ? 'Serie eintragen' : 'Film eintragen', 'Sichern', 'senFilmSichern()') +
+    '<div class="sen-feld"><small>Titel</small><input id="senFTitel" type="text" value="' + esc(f.titel) + '" autocomplete="off" oninput="senB.f.titel=this.value"></div>' +
+    '<div class="sen-feld sen-chips">' + chip(f.art === 'Film', 'Film', "senFilmSetzen('art','Film')") + chip(f.art === 'Serie', 'Serie', "senFilmSetzen('art','Serie')") + '</div>' +
+    '<div class="sen-feld"><small>Wo</small><div class="sen-chips">' + O.map(o => chip(f.ort === o, o, "senFilmSetzen('ort','" + o + "')")).join('') + '</div></div>' +
+    '<div class="sen-feld"><small>Ganz gesehen</small><div class="sen-chips">' + chip(f.ganz, 'Ja', "senFilmSetzen('ganz',true)") + chip(!f.ganz, 'Nein', "senFilmSetzen('ganz',false)") + '</div></div>' +
+    '<div class="sen-feld"><small>Handy weg</small><div class="sen-chips">' + chip(f.handyWeg || f.ort === 'Kino', 'Ja', "senFilmSetzen('handyWeg',true)") +
+      chip(!f.handyWeg && f.ort !== 'Kino', 'Nein', "senFilmSetzen('handyWeg',false)", f.ort === 'Kino') + '</div></div>' +
+    '<div class="sen-feld"><small>Bewertung (frei)</small><div class="sen-chips sen-sterne">' + [1, 2, 3, 4, 5].map(n => chip(f.bewertung >= n, '★', 'senFilmSetzen(\'bewertung\',' + n + ')')).join('') + '</div></div>' +
+    '<div class="sen-feld"><small>MUBI Link (frei)</small><input id="senFLink" type="url" inputmode="url" placeholder="https://mubi.com/…" value="' + esc(f.link) + '" oninput="senB.f.link=this.value"></div>' +
+    '<div class="sen-vorschau">' + (p ? '<b>+' + senZahl(p) + '</b> Tiefe' : f.art === 'Serie' ? 'Serien stehen nur da, ohne Punkte.' : 'Nicht ganz gesehen gibt keine Punkte, steht aber da.') + '</div>';
+}
+function senFilmSetzen(k, v) {
+  const f = senB.f;
+  f.titel = senLies('senFTitel'); f.link = senLies('senFLink');
+  if (k === 'bewertung' && f.bewertung === v) v = 0;
+  if (k === 'ort' && f.ort === v) v = '';
+  f[k] = v;
+  if (f.ort === 'Kino') f.handyWeg = true;
+  haptik(); senBlattZeichnen();
+}
+function senFilmSichern() {
+  const f = Object.assign({}, senB.f, { titel: senLies('senFTitel').trim(), link: senLies('senFLink').trim() });
+  if (!f.titel) { melden('Titel fehlt.'); const el = $('senFTitel'); if (el) el.focus(); return; }
+  if (f.ort === 'Kino') f.handyWeg = true;
+  const iso = tagIso, p = senFilmPkt(f);
+  senBlattZu(); haptik();
+  const tmp = Object.assign({ id: 'neu' + Date.now(), punkte: p, quelle: 'MUBI' }, f);
+  senWerk('neu', f, (f.art === 'Serie' ? 'Serie: ' : 'Film: ') + f.titel, d => { d.filme = (d.filme || []).concat([tmp]); });
+  senGewinn(iso, p, '„' + f.titel + '“ eingetragen', { text: (f.art === 'Serie' ? 'Serie ' : 'Film ') + f.titel, punkte: p });
+  zeichnen();
+}
+function senFilmAnsicht(id) {
+  const d = SN[tagIso], f = d && (d.filme || []).find(x => x.id === id);
+  if (f) senBlattAuf({ art: 'filmansicht', f: f });
+}
+function senBlattFilmAnsicht() {
+  const f = senB.f;
+  return senBk(f.art === 'Serie' ? 'Serie' : 'Film', '', '') +
+    '<div class="sen-buch">' + senCover(f) + '<div class="sen-buch-r"><b>' + esc(f.titel) + '</b><small>' +
+    esc([f.ort, f.ganz ? 'ganz' : 'nicht ganz', f.handyWeg ? 'Handy weg' : '', f.bewertung ? '★'.repeat(f.bewertung) : ''].filter(Boolean).join(' · ')) + '</small>' +
+    (f.link ? '<a class="sen-link" style="margin:4px 0 0" href="' + esc(f.link) + '" target="_blank" rel="noopener">Bei ' + esc(f.quelle || 'MUBI') + ' öffnen</a>' : '') + '</div></div>' +
+    '<div class="sen-aktionen"><button class="weg" onclick="senFilmWeg()">Entfernen</button></div>';
+}
+function senFilmWeg() {
+  const f = senB.f, iso = tagIso;
+  senBlattZu();
+  melden('„' + f.titel + '“ entfernt.');
+  senWerk('loeschen', { id: f.id }, 'Entfernt: ' + f.titel, d => {
+    d.filme = (d.filme || []).filter(x => x.id !== f.id);
+    d.tiefe = Math.max(0, Math.round(((d.tiefe || 0) - (f.punkte || 0)) * 10) / 10);
+    d.woche = Math.max(0, Math.round(((d.woche || 0) - (f.punkte || 0)) * 10) / 10);
+    (d.wocheTage || []).forEach(t => { if (t.tag === iso) t.tiefe = d.tiefe; });
+    d.teile = (d.teile || []).filter(t => t.text !== (f.art === 'Serie' ? 'Serie ' : 'Film ') + f.titel);
+  });
+}
+
+/* ── Einhängen ── */
+(function () {
+  const k = document.getElementById('navSensi');   // $ gibt es erst im Hauptscript
+  if (k) k.onclick = () => { if (senB) senBlattZu(); ansicht = 'sensi'; zeichnen(); senLaden(tagIso, true); window.scrollTo(0, 0); };
+  window.addEventListener('load', () => setTimeout(() => { if (typeof tagIso === 'string' && tagIso) senLaden(tagIso, false); }, 2500));
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && ansicht === 'sensi') senLaden(tagIso, true); });
+  document.addEventListener('keydown', e => { if (senB && e.key === 'Escape') { e.preventDefault(); senBlattZu(); } });
+  setInterval(() => { if (document.visibilityState === 'visible' && typeof ansicht !== 'undefined' && ansicht === 'sensi' && senUhrL) senTick(); }, 1000);
+})();
+</script>
+
 
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611160226';
+const PWA_VERSION = '202611181910';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -3747,14 +4394,17 @@ function zeichnen() {
   $('navTag').classList.toggle('aktiv', ansicht === 'tag');
   $('navWoche').classList.toggle('aktiv', ansicht === 'woche');
   if ($('navChief')) $('navChief').classList.toggle('aktiv', ansicht === 'chief');
+  if ($('navSensi')) $('navSensi').classList.toggle('aktiv', ansicht === 'sensi');
   document.body.classList.toggle('wochenansicht', ansicht === 'woche');
   document.body.classList.toggle('chiefansicht', ansicht === 'chief');
-  const zeigeNav = ansicht === 'tag';
+  document.body.classList.toggle('sensiansicht', ansicht === 'sensi');
+  const zeigeNav = ansicht === 'tag' || ansicht === 'sensi';   // Sensi blättert wie der Tag
   $('zurueck').style.visibility = $('vor').style.visibility = zeigeNav ? 'visible' : 'hidden';
   const neuAns = ansicht !== letzteAnsicht;
   letzteAnsicht = ansicht;
   if (ansicht === 'woche') zeichneWoche();
   else if (ansicht === 'chief' && typeof zeichneChief === 'function') zeichneChief();
+  else if (ansicht === 'sensi' && typeof zeichneSensi === 'function') zeichneSensi();
   else zeichneTag();
   if (neuAns) wechselAnim();
 }
@@ -5331,6 +5981,7 @@ function rueckgaengig() {
   $('undo').disabled = !verlauf.length;
   if (!a || !P) return;
   if (String(a.art).indexOf('cos') === 0) { if (typeof cosRueck === 'function') cosRueck(a); return; }   // Chief of Staff (ChiefSeite)
+  if (String(a.art).indexOf('sen') === 0) { if (typeof senRueck === 'function') senRueck(a); return; }   // Sensi (SensiSeite)
   ansicht = 'tag';
   tagIso = a.tag;
   if (a.art === 'feld') {
@@ -5554,8 +6205,9 @@ document.addEventListener('keydown', e => {
   if (a && (a.tagName === 'TEXTAREA' || a.tagName === 'INPUT' || a.isContentEditable)) return;
   if (e.metaKey && !e.shiftKey && e.key.toLowerCase() === 'z') { e.preventDefault(); if (!$('undo').disabled) rueckgaengig(); return; }
   if (e.metaKey || e.ctrlKey || e.altKey || fenster) return;
-  if (e.key === 'ArrowLeft' && ansicht === 'tag' && !$('zurueck').disabled) blaettern(-1);
-  else if (e.key === 'ArrowRight' && ansicht === 'tag' && !$('vor').disabled) blaettern(1);
+  const blaettert = ansicht === 'tag' || ansicht === 'sensi';
+  if (e.key === 'ArrowLeft' && blaettert && !$('zurueck').disabled) blaettern(-1);
+  else if (e.key === 'ArrowRight' && blaettert && !$('vor').disabled) blaettern(1);
 });
 $('planen').addEventListener('click', e => {
   if (e.target === $('planen') && document.body.classList.contains('mac')) macFensterZu();
