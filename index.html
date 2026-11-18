@@ -3571,14 +3571,11 @@ function cosRundeFertig() {
   .sen-zahl b { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; color: var(--text); }
   .sen-zahl b.pop { animation: senpop .55s cubic-bezier(.3, 1.6, .5, 1); color: var(--sen); }
   @keyframes senpop { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
-  .sen-ring { position: relative; width: 168px; height: 168px; display: grid; place-items: center; }
-  .sen-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
-  .sen-ring .seg { fill: none; stroke-width: 6; stroke-linecap: round; transition: opacity .6s ease-out, stroke .3s; }
-  .sen-ring .seg.an { animation: senseg .7s cubic-bezier(.2, .8, .2, 1) both; }
-  @keyframes senseg { from { opacity: 0; } }
-  .sen-ring-in { text-align: center; line-height: 1.15; }
-  .sen-ring-in b { display: block; font-size: 22px; }
-  .sen-ring-in small { font-size: 11px; color: var(--leise); }
+  /* V83: Balken 1 bis 10 statt Wochenring, gleich hoch wie die Ringe im Tag */
+  .sen-balken { width: 168px; height: 168px; box-sizing: border-box; padding-top: 88px; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+  .sen-balken-bahn { position: relative; height: 18px; border-radius: 9px; background: var(--linie); overflow: hidden; }
+  .sen-balken-voll { position: absolute; inset: 0 auto 0 0; border-radius: 9px; background: var(--sen); transition: width .7s cubic-bezier(.2, .8, .2, 1); }
+  .sen-balken-skala { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: var(--leise); font-variant-numeric: tabular-nums; margin-top: -6px; }
   .sen-teile { margin: -2px 0 12px; display: grid; gap: 4px; }
   .sen-teil { display: flex; justify-content: center; gap: 8px; font-size: 13px; color: var(--leise); }
   .sen-teil b { color: var(--sen); font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -3665,7 +3662,7 @@ function cosRundeFertig() {
   .sen-aktionen button { height: 46px; border-radius: 12px; background: var(--chip); font-weight: 600; }
   .sen-aktionen button.gut { background: var(--sen); color: var(--sen-auf); }
   .sen-aktionen button.weg { color: #B3261E; background: none; }
-  @media (prefers-reduced-motion: reduce) { .sen-zahl b.pop, .sen-ring .seg.an, .sen-uhr, .sen-zeile.neu, .sen-teil.neu, .sen-blatt.neu .sen-blatt-in, .sen-punkt { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .sen-zahl b.pop, .sen-balken-voll, .sen-uhr, .sen-zeile.neu, .sen-teil.neu, .sen-blatt.neu .sen-blatt-in, .sen-punkt { animation: none; } }
 </style>
 <div id="senBlatt" class="sen-blatt"></div>
 <script>
@@ -3801,7 +3798,7 @@ function zeichneSensi() {
   senTick();
 }
 
-/* Kopf: Tiefe heute, Wochenring (ohne Ziel), Tiefe Woche, darunter woher die Punkte kommen */
+/* Kopf: Tiefe heute, Balken 1 bis 10, Tiefe Woche, darunter woher die Punkte kommen */
 function senKopfHtml(d) {
   const pop = Date.now() < senPopBis ? ' class="pop"' : '';
   const name = d.datum === heute() ? 'Tiefe heute' : d.datum === tagPlus(heute(), -1) ? 'Tiefe gestern' : 'Tiefe ' + label(d.datum);
@@ -3810,7 +3807,7 @@ function senKopfHtml(d) {
     (t.punkte ? ' <b>+' + senZahl(t.punkte) + '</b>' : '') + '</span>').join('');
   const reihe = P && P.bloecke ? '<div class="cos-reihe">' + (leg ? '' : 'Lesen und Filme geben Tiefe.') + '</div>' : '';
   return '<div class="sen-kopf"><div class="sen-zahl"><small>' + esc(name) + '</small><b id="senHeute"' + pop + '>' + senZahl(d.tiefe) + '</b></div>' +
-    '<div class="ringe">' + senRingHtml(d) + '<div class="ringe-leg">' + (leg || '<span>&nbsp;</span>') + '</div>' + reihe + '</div>' +
+    '<div class="ringe">' + senBalkenHtml(d) + '<div class="ringe-leg">' + (leg || '<span>&nbsp;</span>') + '</div>' + reihe + '</div>' +
     '<div class="sen-zahl"><small>Tiefe Woche</small><b id="senWoche">' + senZahl(d.woche) + '</b></div></div>';
 }
 /* Kurzname für die Legende unter dem Ring, der ganze Text steht als title daran */
@@ -3819,26 +3816,18 @@ function senKurz(t) {
   if (t.art === 'lesen') return (x.match(/^Lesen \d+ min/) || ['Lesen'])[0];
   return { buch: 'Buch fertig', film: 'Film', serie: 'Serie' }[t.art] || x.split(' ')[0];
 }
-/* Sieben Bögen, Montag oben. Je mehr Tiefe, desto kräftiger. Der gezeigte Tag ist etwas dicker */
-function senRingHtml(d) {
-  const r = 46, u = 2 * Math.PI * r, lu = u / 7, gap = 14;
-  const segs = (d.wocheTage || []).map((t, i) => {
-    const an = t.tiefe > 0, deck = an ? 0.35 + 0.65 * Math.min(1, t.tiefe / 6) : 1;
-    return '<circle class="seg' + (an ? ' an' : '') + '" cx="56" cy="56" r="' + r + '" stroke="' + (an ? 'var(--sen)' : 'var(--linie)') + '" style="opacity:' + deck.toFixed(2) +
-      (t.tag === d.datum ? ';stroke-width:8' : '') + ';animation-delay:' + (i * 0.05) + 's" stroke-dasharray="' + (lu - gap).toFixed(1) + ' ' + (u - lu + gap).toFixed(1) +
-      '" stroke-dashoffset="' + (-(i * lu + gap / 2)).toFixed(1) + '"/>';
-  }).join('');
-  const kw = 'KW ' + senKw(d.datum);
-  return '<div class="sen-ring"><svg viewBox="0 0 112 112" aria-hidden="true">' + segs + '</svg><div class="sen-ring-in"><b>' + esc(kw) + '</b><small>' +
-    (d.wocheTage || []).filter(t => t.tiefe > 0).length + ' von 7</small></div></div>';
+/* Wert des Tages von 1 bis 10. Vorläufig: Tiefe des Tages, ein Punkt eine Stufe, höchstens 10.
+   Die Gewichtung bauen wir später, dann ändert sich nur diese Funktion */
+function senWert(d) { const t = Number(d && d.tiefe) || 0; return t > 0 ? Math.min(10, t) : null; }
+let senBalkenStand = { iso: null, w: 0 };   // zuletzt gezeigt, damit der Balken vom alten Stand aus wächst
+function senBalkenHtml(d) {
+  const w = senWert(d), alt = senBalkenStand.iso === d.datum ? senBalkenStand.w : 0, neu = w == null ? 0 : w;
+  senBalkenStand = { iso: d.datum, w: neu };
+  if (alt !== neu) requestAnimationFrame(() => requestAnimationFrame(() => { const el = $('senBalken'); if (el) el.style.width = (neu * 10) + '%'; }));
+  return '<div class="sen-balken" data-wert="' + (w == null ? '' : w) + '"><div class="sen-balken-bahn"><div class="sen-balken-voll" id="senBalken" style="width:' + (alt * 10) + '%"></div></div>' +
+    '<div class="sen-balken-skala"><span>1</span><span>10</span></div></div>';
 }
 
-/* ISO Kalenderwoche eines Tages (die Woche gehört zum Jahr ihres Donnerstags) */
-function senKw(iso) {
-  const [y, m, t] = iso.split('-').map(Number), d = new Date(Date.UTC(y, m - 1, t));
-  d.setUTCDate(d.getUTCDate() + 3 - (d.getUTCDay() + 6) % 7);
-  return Math.floor((d - Date.UTC(d.getUTCFullYear(), 0, 1)) / 86400000 / 7) + 1;
-}
 function senCover(w, klein) {
   const b = String(w.titel || '?').trim().charAt(0).toUpperCase();
   return '<span class="sen-cover' + (klein ? ' klein' : '') + '">' + esc(b) + (w.cover ? '<img src="' + esc(w.cover) + '" alt="" loading="lazy" onerror="this.remove()">' : '') + '</span>';
@@ -4222,8 +4211,8 @@ function senFilmWeg() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611182139';
-const PWA_NAME = "V82 Tag ohne Köö Zeile, Geld vor Kopf";
+const PWA_VERSION = '202611182221';
+const PWA_NAME = "V83 Sensi Balken 1 bis 10";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
