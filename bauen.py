@@ -76,7 +76,7 @@ function schluesselFragen(falsch) {
   document.body.appendChild(d);
 }
 document.addEventListener('DOMContentLoaded', () => { if (!schluessel()) schluesselFragen(false); });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(() => {}));
 </script>
 <style>
   #schluessel { position: fixed; inset: 0; z-index: 99; background: var(--bg); display: grid; place-items: center; padding: 24px; }

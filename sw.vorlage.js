@@ -15,7 +15,9 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const r = e.request;
   if (r.method !== 'GET' || new URL(r.url).origin !== location.origin) return;
-  e.respondWith(fetch(r).then(antwort => {
+  // cache: 'no-cache' fragt GitHub jedes Mal, ob es Neues gibt (sonst hält der Browser die Seite bis zu 10 Minuten, max-age=600).
+  // Unverändert antwortet GitHub kurz mit 304, das kostet kaum etwas.
+  e.respondWith(fetch(r, { cache: 'no-cache' }).then(antwort => {
     const kopie = antwort.clone();
     caches.open(CACHE).then(c => c.put(r, kopie));
     return antwort;
