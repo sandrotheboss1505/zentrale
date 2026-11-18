@@ -104,6 +104,14 @@
   .koe-zeile .ci-offen + .koe-wert { margin-left: 8px; }
   .koe-zeile .koe-pfeil { color: var(--leise); font-size: 20px; line-height: 1; }
   .koe-bald { opacity: .7; }
+  body.koeansicht .ringe-svg [data-spur="0"], body.koeansicht .ringe-svg [data-spur="2"],
+  body.koeansicht .ringe-svg .ring[data-ring="0"], body.koeansicht .ringe-svg .ring[data-ring="2"] { display: none; }
+  body.koeansicht .tageszahl .zahl { background: var(--chip) !important; color: var(--leise) !important; }
+  .koe-gross { display: flex; flex-direction: column; align-items: center; line-height: 1; margin-top: 6px; color: #0C9A6C; }
+  .koe-gross b { font-size: 40px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .koe-gross b small { font-size: 20px; font-weight: 700; }
+  .koe-gross.pop b { animation: hzpop .5s ease-out; }
+  .koe-gross span { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-top: 4px; }
   .koe-zwei { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .koe-zwei > div { padding: 10px 12px; border-radius: 12px; background: var(--chip); text-align: center; }
   .koe-zwei small { display: block; font-size: 11px; color: var(--leise); text-transform: uppercase; letter-spacing: .04em; }
@@ -4202,7 +4210,7 @@ function senFilmWeg() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611181951';
+const PWA_VERSION = '202611182001';
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -4414,6 +4422,7 @@ function zeichnen() {
   document.body.classList.toggle('wochenansicht', ansicht === 'woche');
   document.body.classList.toggle('chiefansicht', ansicht === 'chief');
   document.body.classList.toggle('sensiansicht', ansicht === 'sensi');
+  document.body.classList.toggle('koeansicht', ansicht === 'koe');
   const zeigeNav = ansicht === 'tag' || ansicht === 'sensi' || ansicht === 'koe';   // Sensi und Köö blättern wie der Tag
   $('zurueck').style.visibility = $('vor').style.visibility = zeigeNav ? 'visible' : 'hidden';
   const neuAns = ansicht !== letzteAnsicht;
@@ -4433,17 +4442,20 @@ function wechselAnim() {
 }
 
 /* V75 Reiter Köö: die Bereiche Schlaf und Körper aus der Tabelle stehen dort statt im Tag. Daten und Tageswert bleiben gleich */
-const KOE_BEREICHE = ['schlaf', 'körper'];
-const KOE_IN_KOERPER = ['elvanse'];                      // steht in der Tabelle bei Schlaf, in Köö in der Karte Körper
+/* V77: Zuordnung nach dem Namen der Spalte (Anfang reicht), egal in welchem Bereich sie in der Tabelle steht.
+   Was sonst noch in den Bereichen Schlaf, Körper oder Bewegung steht, kommt in die Karte seines Bereichs */
+const KOE_KARTEN = [
+  ['Schlaf', ['aufwach', 'einschlaf', 'dauer', 'hrv']],
+  ['Körper', ['elvanse', 'ott', 'drinks', 'migna']],
+  ['Bewegung', ['sport', 'knieübung', 'schritte', 'bewegung']]
+];
+const KOE_BEREICHE = ['schlaf', 'körper', 'bewegung'];
 const SENSI_FELDER = ['x handy schlafen', 'x handy frühstück'];   // stehen im Reiter Sensi unter Handy
 const kleinName = f => String((f && f.spalte) || '').toLowerCase();
 function sensiFeld(f) { return !!f && SENSI_FELDER.indexOf(kleinName(f)) !== -1; }
-function koeFeld(f) { return !!f && !sensiFeld(f) && KOE_BEREICHE.indexOf(String(f.bereich || '').toLowerCase()) !== -1; }
-function koeKarte(f) {
-  if (KOE_IN_KOERPER.indexOf(kleinName(f)) !== -1) return 'Körper';
-  if (/^schritte/.test(kleinName(f))) return 'Bewegung';
-  return f.bereich;
-}
+function koeNachName(f) { const n = kleinName(f); const k = KOE_KARTEN.find(x => x[1].some(a => n.indexOf(a) === 0)); return k ? k[0] : null; }
+function koeFeld(f) { return !!f && f.typ !== 'gross' && !sensiFeld(f) && (!!koeNachName(f) || KOE_BEREICHE.indexOf(String(f.bereich || '').toLowerCase()) !== -1); }
+function koeKarte(f) { return koeNachName(f) || f.bereich; }
 /* Sensi: Handy Haken aus der Tabelle, zählen wie bisher zum Tageswert */
 function sensiFelderHtml() {
   if (!P || !werteVon()) return '';
@@ -4452,16 +4464,21 @@ function sensiFelderHtml() {
   return '<div class="karte"><div class="bereich"><span class="punkt" style="background:var(--sen, ' + fs[0].farbe + ')"></span>Ohne Handy</div>' + fs.map(feldHtml).join('') + '</div>';
 }
 /* Köö: Bewegung zeigt die Schritte aus Health, solange es dafür kein eigenes Feld gibt. Nur Anzeige */
-function koeBewegungHtml() {
-  if (P.felder.some(f => koeFeld(f) && koeKarte(f) === 'Bewegung')) return '';
+function koeSchritteHtml() {
+  if (P.felder.some(f => koeFeld(f) && /^schritte/.test(kleinName(f)))) return '';   // als Feld eingerichtet: steht schon in der Karte
   const name = Object.keys(werteVon() || {}).find(k => /^schritte/i.test(k));
-  if (!name) return '<div class="karte koe-bald"><div class="bereich"><span class="punkt" style="background:var(--leise)"></span>Bewegung</div><div class="hinweis">Kommt bald.</div></div>';
+  if (!name) return '';
   const zahlVon = iso => { const w = ((P.werte[iso] || {})[name] || {}).wert; return typeof w === 'number' ? w : null; };
   const heuteW = zahlVon(tagIso), woche = [0, -1, -2, -3, -4, -5, -6].map(k => zahlVon(tagPlus(tagIso, k))).filter(x => x != null);
   const schnitt = woche.length ? Math.round(woche.reduce((a, b) => a + b, 0) / woche.length) : null;
   const zahl = x => x == null ? '–' : Math.round(x).toLocaleString('de-DE');
-  return '<div class="karte"><div class="bereich"><span class="punkt" style="background:' + RINGE[1][2] + '"></span>Bewegung</div><div class="koe-zwei">' +
-    '<div><small>Schritte</small><b>' + zahl(heuteW) + '</b></div><div><small>Ø 7 Tage</small><b>' + zahl(schnitt) + '</b></div></div></div>';
+  return '<div class="koe-zwei"><div><small>Schritte</small><b>' + zahl(heuteW) + '</b></div><div><small>Ø 7 Tage</small><b>' + zahl(schnitt) + '</b></div></div>';
+}
+function koeBewegungHtml() {   // nur wenn es keine Felder für Bewegung gibt
+  if (P.felder.some(f => koeFeld(f) && koeKarte(f) === 'Bewegung')) return '';
+  const sch = koeSchritteHtml();
+  return '<div class="karte' + (sch ? '' : ' koe-bald') + '"><div class="bereich"><span class="punkt" style="background:' + (sch ? RINGE[1][2] : 'var(--leise)') + '"></span>Bewegung</div>' +
+    (sch || '<div class="hinweis">Kommt bald.</div>') + '</div>';
 }
 function koeOeffnen() { ansicht = 'koe'; zeichnen(); window.scrollTo(0, 0); }
 function koeAnteil(iso) { const t = ringTeile(iso); return t ? Math.round(t[1] * 100) : null; }
@@ -4498,7 +4515,7 @@ function zeichneTag() {
   P.felder.filter(f => f.typ === 'gross').forEach(f => {
     const live = tagLive(tagIso), w = live != null ? live : wertVon(f.spalte), s = stufe(f, w);
     html += '<div class="tageszahl"><div class="neben links">' + nebenWerte(f, 'l') + '</div><div class="ringe"><div class="ringe-kreis" id="tagRinge">' + ringeSvg(tagIso) + '<div class="zahl" id="tagZahl" style="' + (ton(f, s) || 'background:var(--chip)') + '">' +
-      (live != null ? live.toFixed(1).replace('.', ',') : esc(anzeigeVon(f.spalte)) || '–') + '</div></div>' + ringeLegende() + (!koe && typeof cosReiheHtml === 'function' ? cosReiheHtml(tagIso) : '') + '</div><div class="neben">' + (koe ? koeNeben() : nebenWerte(f, 'r')) +
+      (live != null ? live.toFixed(1).replace('.', ',') : esc(anzeigeVon(f.spalte)) || '–') + '</div></div>' + (koe ? '' : ringeLegende()) + (koe ? koeGrossHtml() : '') + (!koe && typeof cosReiheHtml === 'function' ? cosReiheHtml(tagIso) : '') + '</div><div class="neben">' + (koe ? koeNeben() : nebenWerte(f, 'r')) +
       oben.map(o => '<div' + (o.liste ? ' class="klappbar' + (auf.has(o.spalte) ? ' auf' : '') + '" onclick="umklappen(' + P.felder.indexOf(o) + ')"' : '') +
         '><small>' + esc(o.spalte) + (o.liste ? '<span class="pfeil">▸</span>' : '') + '</small><b style="' + ton(o, stufe(o, wertVon(o.spalte))) + '">' +
         (esc(anzeigeVon(o.spalte)) || '–') + '</b></div>').join('') + '</div></div>';
@@ -4514,7 +4531,7 @@ function zeichneTag() {
   P.felder.filter(f => f.typ !== 'gross' && f.typ !== 'oben' && koeFeld(f) === koe && !sensiFeld(f)).forEach(f => {
     const name = f.typ === 'mac' ? 'Bildschirm' : koe ? koeKarte(f) : f.bereich;   // V68: Bildschirmzeit immer als eigene Karte, auch wenn sie in der Tabelle beim Fokus steht
     let b = bereiche.find(x => x.name === name);
-    const farbe = (P.felder.find(x => x.bereich === name) || f).farbe;
+    const farbe = (P.felder.find(x => x.bereich === name) || (koe && name === 'Bewegung' ? { farbe: RINGE[1][2] } : f)).farbe;
     if (!b) bereiche.push(b = { name: name, farbe: farbe, felder: [] });
     b.felder.push(f);
   });
@@ -4526,13 +4543,15 @@ function zeichneTag() {
     const ruhig = String(b.name || '').toLowerCase() === 'geld';   // Geld: keine Animation, soll sofort reagieren
     const tasks = bloecke && typeof cosTasksKarte === 'function' ? cosTasksKarte() : '';   // V4: Tasks als eigene Karte unter dem Fokus
     return { name: b.name, bloecke: bloecke, unten: b.felder.some(f => f.typ === 'mac'),
-      html: '<div class="karte' + (ruhig ? ' ruhig' : '') + '">' + kopfZeile + b.felder.map(feldHtml).join('') + '</div>' + tasks };
+      html: '<div class="karte' + (ruhig ? ' ruhig' : '') + '">' + kopfZeile + b.felder.map(feldHtml).join('') + (koe && b.name === 'Bewegung' ? koeSchritteHtml() : '') + '</div>' + tasks };
   });
   // V68: Fokus mit Tasks zuerst, Bildschirmzeit ganz unten, sonst wie in der Tabelle
   const fokus = karten.filter(k => k.bloecke), unten = karten.filter(k => k.unten && !k.bloecke);
   karten.splice(0, karten.length, ...karten.filter(k => !k.bloecke && !(k.unten && !k.bloecke)));
   const n = macSpalten();
-  if (koe) {   // Köö: Schlaf, Körper, dann was noch kommt. Am Mac nebeneinander
+  if (koe) {   // Köö: Schlaf, Körper, Bewegung, dann was noch kommt. Am Mac nebeneinander
+    const rang = k => { const i = KOE_KARTEN.findIndex(x => x[0] === k.name); return i === -1 ? 99 : i; };
+    karten.sort((a, b) => rang(a) - rang(b));
     const teile = karten.concat(unten).map(k => k.html).concat(koeBaldHtml());
     if (n < 2) $('inhalt').innerHTML = html + listen + teile.join('');
     else {
@@ -4566,10 +4585,11 @@ function zeichneTag() {
 
 /* Neben der großen Zahl: nur der Schnitt Tag 1/10 der letzten 4 Tage, heute zählt mit. Links bleibt leer, damit die Zahl mittig steht.
    Ausgaben 7 Tage stehen in der Geld Karte, Schlaf in der Schlaf Karte. */
-/* Köö: neben der Zahl der Anteil von Schlaf und Körper, den sie heute bringen */
-function koeNeben() {
+/* Köö: unter den Ringen groß, was Körper heute bringt. Die Tageszahl in der Mitte ist grau, nur der Körperring bleibt */
+function koeNeben() { return ''; }
+function koeGrossHtml() {
   const a = koeAnteil(tagIso);
-  return '<div><small>Köö</small><b style="color:' + RINGE[1][2] + '">' + (a == null ? '–' : a + ' %') + '</b></div>';
+  return '<div class="koe-gross" id="koeGross"><b>' + (a == null ? '–' : a) + '<small> %</small></b><span>Körper</span></div>';
 }
 function nebenWerte(f, seite) {
   if (seite === 'l') return '';
@@ -5003,7 +5023,7 @@ function ringeSvg(iso) {
   const alt = ringStand.iso === iso && ringStand.teile ? ringStand.teile : t.map(() => 0);
   ringStand = { iso: iso, teile: t, alt: alt };
   return '<svg class="ringe-svg" viewBox="0 0 168 168" aria-hidden="true"><g transform="rotate(-90 84 84)" fill="none" stroke-width="9" stroke-linecap="round">' +
-    RINGE.map((r, i) => '<circle cx="84" cy="84" r="' + RING_R[i] + '" stroke="' + r[2] + '" opacity=".24"/>' +
+    RINGE.map((r, i) => '<circle data-spur="' + i + '" cx="84" cy="84" r="' + RING_R[i] + '" stroke="' + r[2] + '" opacity=".24"/>' +
       '<circle class="ring" data-ring="' + i + '" cx="84" cy="84" r="' + RING_R[i] + '" stroke="' + r[2] + '" stroke-dasharray="' + ringDash(i, alt[i]) + '"' +
       (alt[i] > 0.004 ? '' : ' style="opacity:0"') + '/>').join('') + '</g></svg>';
 }
@@ -5023,7 +5043,15 @@ function ringeSetzen() {
   });
   const leg = document.querySelectorAll('.ringe-leg span');
   leg.forEach((el, i) => { el.lastChild.textContent = RINGE[i][1] + ' ' + Math.round(st.teile[i] * 100) + '%'; });
+  const kg = $('koeGross');   // Köö: Körperanteil springt mit, bei Änderung kurz größer
+  if (kg) {
+    const neu = Math.round(st.teile[1] * 100), b = kg.querySelector('b');
+    if (koeGrossStand.iso === st.iso && koeGrossStand.w != null && koeGrossStand.w !== neu) { kg.classList.remove('pop'); void kg.offsetWidth; kg.classList.add('pop'); }
+    b.innerHTML = neu + '<small> %</small>';
+    koeGrossStand = { iso: st.iso, w: neu };
+  }
 }
+let koeGrossStand = { iso: null, w: null };
 /* Nach dem Zeichnen: Ringe wachsen vom alten Stand auf den neuen, die Zahl bekommt ihr Plus */
 function nachTag() {
   const k = $('tagRinge');
