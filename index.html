@@ -102,6 +102,17 @@
   .koe-bald { opacity: .7; }
   .koe-zeiten { font-size: 12px; color: var(--leise); text-align: right; margin-top: 4px; font-variant-numeric: tabular-nums; }
   .koe-zusatz { display: block; font-size: 11px; color: var(--leise); margin: 1px 0 0 !important; padding: 0 !important; }
+  .woche-karte { cursor: pointer; }
+  .woche-karte .bereich { margin-bottom: 10px; }
+  .wk-schnitt { margin-left: auto; font-size: 13px; font-weight: 700; color: var(--text); text-transform: none; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+  .wk-pfeil { margin-left: 8px; color: var(--leise); font-size: 18px; line-height: 1; text-transform: none; }
+  .wk-balken { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+  .wk-tag { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .wk-bahn { position: relative; width: 100%; max-width: 30px; height: 44px; border-radius: 6px; background: var(--chip); overflow: hidden; }
+  .wk-bahn i { position: absolute; left: 0; right: 0; bottom: 0; border-radius: 6px; transition: height .6s cubic-bezier(.2, .8, .2, 1); }
+  .wk-tag small { font-size: 11px; font-weight: 600; color: var(--leise); }
+  .wk-tag.heute small { color: var(--text); }
+  .wk-tag.heute .wk-bahn { box-shadow: inset 0 0 0 1.5px var(--kreis); }
   .version { text-align: center; font-size: 11px; color: var(--leise); opacity: .7; padding: 6px 0 14px; font-variant-numeric: tabular-nums; }
   /* Köö: Fokus und Kopf grau, nur Körper in Farbe */
   body.koeansicht .ringe-svg [data-spur="0"], body.koeansicht .ringe-svg [data-spur="2"] { stroke: var(--kreis); opacity: .28; }
@@ -521,7 +532,6 @@
   <button id="navTag" class="aktiv">Tag</button>
   <button id="navKoe">Köö</button>
   <button id="navSensi">Sensi</button>
-  <button id="navWoche">Woche</button>
   <button id="navChief">Chief</button>
 </nav>
 <div id="meldung"></div>
@@ -4211,8 +4221,8 @@ function senFilmWeg() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611182221';
-const PWA_NAME = "V83 Sensi Balken 1 bis 10";
+const PWA_VERSION = '202611182245';
+const PWA_NAME = "V84 Woche als Karte im Tag";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -4417,7 +4427,7 @@ function zeichnen() {
   if (!P) return;
   tippNachZeichnen();
   $('navTag').classList.toggle('aktiv', ansicht === 'tag');
-  $('navWoche').classList.toggle('aktiv', ansicht === 'woche');
+  if ($('navWoche')) $('navWoche').classList.toggle('aktiv', ansicht === 'woche');   // V84: Woche über die Karte im Tag
   $('navKoe').classList.toggle('aktiv', ansicht === 'koe');
   if ($('navChief')) $('navChief').classList.toggle('aktiv', ansicht === 'chief');
   if ($('navSensi')) $('navSensi').classList.toggle('aktiv', ansicht === 'sensi');
@@ -4523,14 +4533,14 @@ function zeichneTag() {
   });
 
   const bereiche = [];
-  P.felder.filter(f => f.typ !== 'gross' && f.typ !== 'oben' && koeFeld(f) === koe && !sensiFeld(f)).forEach(f => {
+  P.felder.filter(f => f.typ !== 'gross' && f.typ !== 'oben' && f.typ !== 'termine' && koeFeld(f) === koe && !sensiFeld(f)).forEach(f => {   // V84: Termine stehen schon im Fokus
     const name = f.typ === 'mac' ? 'Bildschirm' : koe ? koeKarte(f) : f.bereich;   // V68: Bildschirmzeit immer als eigene Karte, auch wenn sie in der Tabelle beim Fokus steht
     let b = bereiche.find(x => x.name === name);
     const farbe = (P.felder.find(x => x.bereich === name) || (koe && name === 'Bewegung' ? { farbe: RINGE[1][2] } : f)).farbe;
     if (!b) bereiche.push(b = { name: name, farbe: farbe, felder: [] });
     b.felder.push(f);
   });
-  const karten = bereiche.map(b => {
+  const karten = bereiche.filter(b => b.felder.some(f => f.typ === 'bloecke') || b.felder.some(f => feldHtml(f) !== '')).map(b => {   // V84: leere Karten (Struktur ohne Termine) fallen weg
     const bloecke = b.felder.some(f => f.typ === 'bloecke');
     const kopfZeile = bloecke ? '' :
       '<div class="bereich"><span class="punkt" style="background:' + b.farbe + '"></span>' + esc(b.name) +
@@ -4561,12 +4571,14 @@ function zeichneTag() {
   // V82: keine Zeile Köö mehr im Tag. Am Handy Geld vor Kopf
   const geldZuerst = k => String(k.name || '').toLowerCase() === 'geld' ? 0 : 1;
   karten.sort((a, b) => geldZuerst(a) - geldZuerst(b));
-  if (n < 2) { $('inhalt').innerHTML = html + listen + fokus.concat(karten, unten).map(k => k.html).join('') + versionHtml(); nachTag(); return; }
+  const woche = { html: wocheKarteHtml() };
+  if (n < 2) { $('inhalt').innerHTML = html + listen + fokus.concat(woche, karten, unten).map(k => k.html).join('') + versionHtml(); nachTag(); return; }
   /* Mac (V68): Schlaf, Fokus, Kopf nebeneinander. Kalender des Tages und Bildschirm unten */
   const sp = Array.from({ length: n }, () => ''), fk = n === 3 ? 1 : 1;
   const istSchlaf = k => String(k.name || '').toLowerCase() === 'schlaf', istKopf = k => String(k.name || '').toLowerCase() === 'kopf';
   karten.filter(istSchlaf).forEach(k => { sp[0] += k.html; });
   fokus.forEach(k => { sp[fk] += k.html; });
+  sp[fk] += woche.html;
   karten.filter(istKopf).forEach(k => { sp[n === 3 ? 2 : 0] += k.html; });
   sp[n === 3 ? 2 : 0] += listen;
   karten.filter(k => !istSchlaf(k) && !istKopf(k)).forEach(k => {
@@ -4579,6 +4591,22 @@ function zeichneTag() {
   $('inhalt').innerHTML = html + '<div class="mac-spalten">' + sp.map(s => '<div class="mac-spalte">' + s + '</div>').join('') + '</div>' + versionHtml();
   nachTag();
 }
+/* V84: Karte Woche im Tag statt Reiter. Sieben Balken Mo bis So mit dem Tageswert, Ø der Woche, Antippen öffnet die Woche */
+function wocheOeffnen() { ansicht = 'woche'; zeichnen(); window.scrollTo(0, 0); }
+function wocheKarteHtml() {
+  const f = P.felder.find(x => x.typ === 'gross');
+  if (!f) return '';
+  const t = tagIso.split('-').map(Number), tagNr = (new Date(t[0], t[1] - 1, t[2]).getDay() + 6) % 7, mo = tagPlus(tagIso, -tagNr);
+  const tage = [0, 1, 2, 3, 4, 5, 6].map(k => tagPlus(mo, k));
+  const werte = tage.map(iso => { const l = tagLive(iso), w = l != null ? l : wertVon(f.spalte, iso); return typeof w === 'number' ? w : null; });
+  const da = werte.filter(w => w != null), schnitt = da.length ? Math.round(da.reduce((a, b) => a + b, 0) / da.length * 10) / 10 : null;
+  const balken = werte.map((w, i) => '<div class="wk-tag' + (tage[i] === tagIso ? ' heute' : '') + '"><span class="wk-bahn"><i style="height:' + (w == null ? 0 : Math.max(8, w * 10)) + '%;' +
+    (w == null ? '' : 'background:' + (stufeFarbe(f, w) || f.farbe)) + '"></i></span><small>' + 'MDMDFSS'[i] + '</small></div>').join('');
+  return '<div class="karte woche-karte" onclick="wocheOeffnen()"><div class="bereich"><span class="punkt" style="background:' + f.farbe + '"></span>Woche' +
+    '<span class="wk-schnitt">' + (schnitt == null ? '' : 'Ø ' + komma(schnitt.toFixed(1))) + '</span><span class="wk-pfeil">›</span></div><div class="wk-balken">' + balken + '</div></div>';
+}
+/* Farbe der Stufe aus ton(), nur der Hintergrund */
+function stufeFarbe(f, w) { const m = String(ton(f, stufe(f, w)) || '').match(/background:\s*([^;]+)/); return m ? m[1].trim() : ''; }
 /* V80: ganz unten im Tag, welche Version läuft (Name aus bereitstellen.sh, Zeit aus bauen.py) */
 function versionHtml() {
   if (typeof PWA_VERSION === 'undefined') return '';
@@ -6425,7 +6453,6 @@ $('vor').onclick = () => blaettern(1);
 $('neu').onclick = aktualisieren;
 $('undo').onclick = rueckgaengig;
 $('navTag').onclick = () => { ansicht = 'tag'; zeichnen(); };
-$('navWoche').onclick = () => { ansicht = 'woche'; zeichnen(); };
 $('navKoe').onclick = koeOeffnen;
 
 /* ── Ort: Standort beim Öffnen, höchstens einmal pro Stunde ── */
