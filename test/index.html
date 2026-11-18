@@ -99,13 +99,6 @@
   .unter { font-size: 12px; color: var(--leise); text-align: right; margin-top: 4px; }
   .zuletzt { color: #D5A6BD; font-weight: 600; }
   .ci-offen { margin-left: auto; font-size: 11px; font-weight: 600; color: #B0577F; text-transform: none; letter-spacing: 0; }
-  /* V75 Köö: schmale Zeile im Tag, führt zum Reiter */
-  .koe-zeile { display: flex; align-items: center; gap: 10px; cursor: pointer; padding-top: 14px; padding-bottom: 14px; }
-  .koe-zeile .punkt { margin: 0; }
-  .koe-zeile b { font-size: 15px; }
-  .koe-zeile .koe-wert { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; color: #0C9A6C; }
-  .koe-zeile .ci-offen + .koe-wert { margin-left: 8px; }
-  .koe-zeile .koe-pfeil { color: var(--leise); font-size: 20px; line-height: 1; }
   .koe-bald { opacity: .7; }
   .koe-zeiten { font-size: 12px; color: var(--leise); text-align: right; margin-top: 4px; font-variant-numeric: tabular-nums; }
   .koe-zusatz { display: block; font-size: 11px; color: var(--leise); margin: 1px 0 0 !important; padding: 0 !important; }
@@ -4229,7 +4222,7 @@ function senFilmWeg() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611182126';
+const PWA_VERSION = '202611182139';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -4989,12 +4982,6 @@ function koeAnteil(iso) { const t = ringTeile(iso); return t ? Math.round(t[1] *
 function koeOffen() {
   return P.felder.filter(f => koeFeld(f) && ['kaestchen', 'mac', 'oben', 'wert'].indexOf(f.typ) === -1 && f.typ !== 'gross').filter(f => { const w = wertVon(f.spalte); return w == null || w === ''; }).length;
 }
-function koeZeileHtml() {
-  if (!P.felder.some(koeFeld)) return '';
-  const a = koeAnteil(tagIso), offen = tagIso === heute() ? koeOffen() : 0;
-  return '<div class="karte koe-zeile" onclick="koeOeffnen()"><span class="punkt" style="background:' + RINGE[1][2] + '"></span><b>Köö</b>' +
-    (offen ? '<span class="ci-offen">' + offen + ' offen</span>' : '') + '<span class="koe-wert">' + (a == null ? '' : a + ' %') + '</span><span class="koe-pfeil">›</span></div>';
-}
 const KOE_BALD = [];   // Platzhalter für später: [['Name', 'Kommt bald.']]
 function koeBaldHtml() {
   return koeBewegungHtml() + koeRauchenHtml() + KOE_BALD.map(b => '<div class="karte koe-bald"><div class="bereich"><span class="punkt" style="background:var(--leise)"></span>' + esc(b[0]) + '</div><div class="hinweis">' + esc(b[1]) + '</div></div>').join('');
@@ -5067,12 +5054,13 @@ function zeichneTag() {
     }
     nachTag(); return;
   }
-  const koeZ = { html: koeZeileHtml() };
-  if (n < 2) { $('inhalt').innerHTML = html + listen + fokus.concat(koeZ, karten, unten).map(k => k.html).join('') + versionHtml(); nachTag(); return; }
+  // V82: keine Zeile Köö mehr im Tag. Am Handy Geld vor Kopf
+  const geldZuerst = k => String(k.name || '').toLowerCase() === 'geld' ? 0 : 1;
+  karten.sort((a, b) => geldZuerst(a) - geldZuerst(b));
+  if (n < 2) { $('inhalt').innerHTML = html + listen + fokus.concat(karten, unten).map(k => k.html).join('') + versionHtml(); nachTag(); return; }
   /* Mac (V68): Schlaf, Fokus, Kopf nebeneinander. Kalender des Tages und Bildschirm unten */
   const sp = Array.from({ length: n }, () => ''), fk = n === 3 ? 1 : 1;
   const istSchlaf = k => String(k.name || '').toLowerCase() === 'schlaf', istKopf = k => String(k.name || '').toLowerCase() === 'kopf';
-  sp[0] += koeZ.html;
   karten.filter(istSchlaf).forEach(k => { sp[0] += k.html; });
   fokus.forEach(k => { sp[fk] += k.html; });
   karten.filter(istKopf).forEach(k => { sp[n === 3 ? 2 : 0] += k.html; });
@@ -7025,7 +7013,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 21:26</div>
+<div id="testband">TEST 21:39</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
