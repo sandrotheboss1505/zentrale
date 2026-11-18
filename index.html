@@ -421,6 +421,8 @@
   .tw-kopf button { font-size: 13px; font-weight: 600; color: var(--akzent); }
   .tw-neu { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
   #planen .tw-neu input[type=text] { flex: 1; width: auto; min-width: 0; margin-top: 0; }
+  .tw-plus { flex: none; width: 36px; height: 36px; border-radius: 18px; background: var(--akzent); color: #fff; font-size: 22px; line-height: 1; display: grid; place-items: center; }
+  .tw-plus:active { transform: scale(.92); }
   .tw-liste { flex: none; max-width: 40%; padding: 8px 12px; border-radius: 10px; background: var(--gold-hell); color: var(--gold); font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .tw-zeile { display: grid; grid-template-columns: 22px minmax(0, 1fr) 30px 30px; gap: 10px; align-items: center; padding: 5px 0; font-size: 15px; }
   .tw-zeile.unter { padding-left: 24px; }
@@ -4229,8 +4231,8 @@ function senFilmWeg() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611182323';
-const PWA_NAME = "V86 Mac Layout Fokus links";
+const PWA_VERSION = '202611182341';
+const PWA_NAME = "V87 Neuer Task mit Plus";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -5679,8 +5681,9 @@ function heuteWahlZeichnen() {
     '<div class="slotinfo">' + (an ? an.size : 0) + ' von ' + HEUTE_MAX + ' für ' + (hwahl.tag === m ? 'morgen' : 'heute') + ' gewählt</div></div>' +
     '<div class="karte"><div class="tw-kopf"><span class="bereich">Deine Tasks</span>' +
     (hwahl.tasks && hwahl.tasks.length ? '<button onclick="twBearbeiten()">' + (bearb ? 'Fertig' : 'Bearbeiten') + '</button>' : '') + '</div>' +
-    (hwahl.tasks === null || !twListe() ? '' : '<div class="tw-neu"><input type="text" id="twNeu" placeholder="Neuer Task" enterkeyhint="done" onkeydown="twNeuTaste(event)">' +
-      '<button class="tw-liste" onclick="twListeWechseln()" aria-label="Liste wechseln">' + esc(twListe().titel) + '</button></div>') +
+    (hwahl.tasks === null || !twListe() ? '' : '<form class="tw-neu" onsubmit="event.preventDefault(); window.twNeu();"><input type="text" id="twNeu" placeholder="Neuer Task" enterkeyhint="send" autocomplete="off">' +
+      '<button type="button" class="tw-liste" onclick="twListeWechseln()" aria-label="Liste wechseln">' + esc(twListe().titel) + '</button>' +
+      '<button type="submit" class="tw-plus" aria-label="Task anlegen">+</button></form>') +   // V87: Formular und Plus, damit es auch am iPhone anlegt
     liste + '</div>' +
     '<button class="planknopf" onclick="heuteWahlFertig()"' + (hwahl.sendet ? ' disabled' : '') + '>Übernehmen</button></div>';
   const ni = $('twNeu');
@@ -5707,6 +5710,7 @@ function heuteWahlZu() {
 }
 function heuteWahlFertig() {
   if (!hwahl || hwahl.sendet || !hwahl.tasks) return;
+  if ($('twNeu') && $('twNeu').value.trim()) twNeu();   // V87: noch getippter Task wird vorher angelegt und gleich vorgemerkt
   const h = heute(), aend = [];
   Object.keys(hwahl.an).forEach(tag => {
     const an = hwahl.an[tag], alt = hwahl.vorher[tag];
@@ -5752,7 +5756,6 @@ function twListeWechseln() {
   twListeMerken(hwahl.listen[(hwahl.listen.indexOf(l) + 1) % hwahl.listen.length].id);
   heuteWahlZeichnen();
 }
-function twNeuTaste(e) { if (e.key === 'Enter') { e.preventDefault(); twNeu(); } }
 /* Neuer Task: oben in seine Liste (wie in Google Tasks) und gleich für den gewählten Tag vorgemerkt */
 function twNeu() {
   const ein = $('twNeu'), titel = ein ? ein.value.trim() : '', l = twListe();
