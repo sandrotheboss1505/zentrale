@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """
 ZENTRALE · PWA bauen
-Macht aus ../AppSeite.html (der alten Web App) die Seite web/index.html für GitHub Pages.
-Eine Quelle für beide: Änderungen immer in AppSeite.html, danach bauen (macht bereitstellen.sh).
+Die Oberfläche liegt in Teilen im Ordner app/ (ein Unterordner pro Bereich, CSS und JS getrennt).
+bauen.py setzt sie nach der Liste SEITEN zu AppSeite.html, ChiefSeite.html und SensiSeite.html im Hauptordner zusammen
+(die braucht die alte Web App doGet, clasp schickt sie zu Google) und macht daraus web/index.html für GitHub Pages.
+Die drei Seiten sind erzeugt: nie von Hand ändern, Änderungen immer in app/.
 Aufruf: python3 web/bauen.py        (Live Seite web/index.html)
         python3 web/bauen.py test   (Testseite web/test/ mit Spieldaten, spricht nie mit Google)
 """
@@ -14,6 +16,113 @@ VERSION = time.strftime('%Y%m%d%H%M')
 NAME = os.environ.get('ZENTRALE_NAME', '').strip()   # aus bereitstellen.sh, zum Beispiel "V80 Beschreibung"
 TEST = len(sys.argv) > 1 and sys.argv[1] == 'test'
 ZIEL = os.path.join(HIER, 'test') if TEST else HIER
+
+# ── Oberfläche: Teile aus app/ in fester Reihenfolge ──
+# Jede Seite ist eine Liste. Ein .html Teil wird so eingesetzt, wie er ist.
+# Eine Liste von .css Dateien wird ein <style> Block, eine Liste von .js Dateien ein <script> Block.
+# Die Reihenfolge zählt: CSS gilt von oben nach unten, JS läuft von oben nach unten.
+# Im Browser laufen die Blöcke von Chief und Sensi vor dem Hauptteil (AppSeite setzt sie vor ihren <script> Block).
+# Neue Datei in app/: hier eintragen, sonst bricht bauen.py ab.
+# SEITEN Anfang
+SEITEN = [
+    ('AppSeite.html', [
+        'basis/kopf.html',                # Kopf der Seite bis vor <style>
+        [
+            'basis/basis.css',            # Farben, Schrift, Kopf, Karte, Bedienelemente, Leiste, Meldung, Tipp Animation
+            'koeoe/koeoe.css',            # Köö: Zeiten, Ringe grau außer Körper, Kästchen, Sport
+            'woche/woche.css',            # Karte Woche im Tag, Liste Letzte 14 Tage
+            'geld/geld.css',              # Posten (Ausgaben, Konten), Geld Karte letzte 7 Tage
+            'tag/tag.css',                # Check ins, Termine, Blöcke, Heute Karte, Planen, Neu Fenster, Tasks vormerken
+            'basis/mac.css',              # Mac: breites Layout, Wechsel der Ansicht
+            'tag/erledigt.css',           # Ringe, Erledigt, Taskpunkte, Plus fliegt
+        ],
+        'basis/seite.html',               # Gerüst: Kopfleiste, Inhalt, Leiste, Chief und Sensi (Apps Script Einschub)
+        [
+            'basis/kern.js',              # Einstellungen, Zustand, kleine Hilfen, Serveraufruf, Abfragen
+            'basis/hilfen.js',            # Farben aus Ziele, Hilfen, Zeichnen, Tipp Animation, Wechsel
+            'koeoe/koeoe.js',             # Köö: Zuordnung der Felder, Sport, Rauchen, Nikotin, Drinks
+            'tag/tag.js',                 # Tag zeichnen, Version
+            'woche/woche.js',             # Karte Woche im Tag, Ansicht Letzte 14 Tage
+            'tag/felder.js',              # Felder, Bildschirm Balken, Check ins, Mehrfach, Termine, Tasks
+            'geld/geld.js',               # Listen aus Zellnotizen, Posten, Geld Karte letzte 7 Tage
+            'tag/tageswert.js',           # Fokuspunkte, Tageswert wie in Tage, Fokuszeit, Blöcke
+            'tag/ringe.js',               # Ringe um die Tageszahl, Plus fliegt
+            'tag/heute.js',               # Heute: Jetzt, Später, Dran, Los, Erledigt, Stufen
+            'tag/tasks.js',               # Für heute, Tasks Vorrat, Tasks vormerken und bearbeiten, Block bewerten
+            'tag/planen.js',              # Planen: Block oder Task, Lücke, Tagesleiste
+            'basis/aktionen.js',          # Aktionen: Speichern, Rückgängig, Einträge, Blättern, Aktualisieren
+            'basis/start.js',             # Mac Layout und Tasten, Ort, Start, Abfragen im Takt, Räder
+        ],
+        'basis/ende.html',                # Ende der Seite
+    ]),
+    ('ChiefSeite.html', [
+        [
+            'chief/chief.css',            # Kästchen, Seite Chief, Projekt, Ziehen, Woche am Mac, Blätter
+            'chief/fokus.css',            # Fokus im Tag: Balken, Liste nach Uhrzeit, Tasks, Leiste am Mac
+        ],
+        'chief/blatt.html',               # Platz für das Blatt
+        [
+            'chief/zustand.js',           # Zustand, Laden, Ändern mit Rückweg
+            'chief/rechnen.js',           # Rechnen, Kästchen, Block läuft, Als Nächstes
+            'chief/seite.js',             # Seite Chief: Übersicht, Projekt, Woche am Mac
+            'chief/blaetter.js',          # Blätter: Schritt, Projekt, Etappe, Zerlegen
+            'chief/ziehen.js',            # Ziehen am Griff (Rang, Schritte)
+            'chief/fokus.js',             # Tag: Fokus Karte, Liste nach Uhrzeit, Balken
+            'chief/vornehmen.js',         # Heute vornehmen, Vergessen, Einplanen, Blatt Wann
+            'chief/plus.js',              # Blatt Plus, Karte Tasks
+            'chief/mac.js',               # Mac: Tag als Leiste
+            'chief/runde.js',             # Wochenrunde, Mittwochsrunde, Einhängen
+        ],
+    ]),
+    ('SensiSeite.html', [
+        [
+            'sensi/sensi.css',            # Tiefe, Lesen, Gesehen, Handy, Blatt
+        ],
+        'sensi/blatt.html',               # Platz für das Blatt
+        [
+            'sensi/sensi.js',             # Zustand, Laden, Rechnen, Zeichnen, Lesen, Rückgängig
+            'sensi/blaetter.js',          # Blätter (Buch, Film, Seite), Einhängen
+        ],
+    ]),
+]
+# SEITEN Ende
+
+APP = os.path.join(HIER, '..', 'app')
+
+def teile_bauen():
+    benutzt = set()
+    def lies(name):
+        p = os.path.join(APP, name)
+        if not os.path.isfile(p):
+            sys.exit('bauen.py: Teil fehlt: app/' + name)
+        t = io.open(p, encoding='utf-8').read()
+        if not t.endswith('\n'):
+            sys.exit('bauen.py: app/' + name + ' muss mit einem Zeilenumbruch enden')
+        benutzt.add(name)
+        return t
+    for seite, liste in SEITEN:
+        out = ''
+        for t in liste:
+            if isinstance(t, str):
+                out += lies(t)
+                continue
+            art = 'style' if t[0].endswith('.css') else 'script'
+            if any(not x.endswith('.css' if art == 'style' else '.js') for x in t):
+                sys.exit('bauen.py: CSS und JS gemischt in einem Block von ' + seite)
+            out += '<' + art + '>\n' + ''.join(lies(x) for x in t) + '</' + art + '>\n'
+        ziel = os.path.join(HIER, '..', seite)
+        alt = io.open(ziel, encoding='utf-8').read() if os.path.exists(ziel) else None
+        if alt != out:
+            io.open(ziel, 'w', encoding='utf-8').write(out)
+    for ordner, _, dateien in os.walk(APP):
+        for d in dateien:
+            if d.startswith('.'):
+                continue
+            name = os.path.relpath(os.path.join(ordner, d), APP).replace(os.sep, '/')
+            if name not in benutzt:
+                sys.exit('bauen.py: app/' + name + ' steht nicht in SEITEN (web/bauen.py)')
+
+teile_bauen()
 
 s = io.open(os.path.join(HIER, '..', 'AppSeite.html'), encoding='utf-8').read()
 
