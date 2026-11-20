@@ -98,72 +98,9 @@
   .jetzt { padding: 8px 16px; border-radius: 12px; font-weight: 600; color: #fff; }
   .unter { font-size: 12px; color: var(--leise); text-align: right; margin-top: 4px; }
   .zuletzt { color: #D5A6BD; font-weight: 600; }
-  .ci-offen { margin-left: auto; font-size: 11px; font-weight: 600; color: #B0577F; text-transform: none; letter-spacing: 0; }
-  .koe-bald { opacity: .7; }
-  .koe-zeiten { font-size: 12px; color: var(--leise); text-align: right; margin-top: 4px; font-variant-numeric: tabular-nums; }
-  .koe-zusatz { display: block; font-size: 11px; color: var(--leise); margin: 1px 0 0 !important; padding: 0 !important; }
-  .woche-karte { cursor: pointer; }
-  .woche-karte .bereich { margin-bottom: 10px; }
-  .wk-schnitt { margin-left: auto; font-size: 13px; font-weight: 700; color: var(--text); text-transform: none; letter-spacing: 0; font-variant-numeric: tabular-nums; }
-  .wk-pfeil { margin-left: 8px; color: var(--leise); font-size: 18px; line-height: 1; text-transform: none; }
-  .wk-balken { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-  .wk-tag { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-  .wk-bahn { position: relative; width: 100%; max-width: 30px; height: 44px; border-radius: 6px; background: var(--chip); overflow: hidden; }
-  .wk-bahn i { position: absolute; left: 0; right: 0; bottom: 0; border-radius: 6px; transition: height .6s cubic-bezier(.2, .8, .2, 1); }
-  .wk-tag small { font-size: 11px; font-weight: 600; color: var(--leise); }
-  .wk-tag.heute small { color: var(--text); }
-  .wk-tag.heute .wk-bahn { box-shadow: inset 0 0 0 1.5px var(--kreis); }
-  .version { text-align: center; font-size: 11px; color: var(--leise); opacity: .7; padding: 6px 0 14px; font-variant-numeric: tabular-nums; }
-  /* Köö: Fokus und Kopf grau, nur Körper in Farbe */
-  body.koeansicht .ringe-svg [data-spur="0"], body.koeansicht .ringe-svg [data-spur="2"] { stroke: var(--kreis); opacity: .28; }
-  body.koeansicht .ringe-svg .ring[data-ring="0"], body.koeansicht .ringe-svg .ring[data-ring="2"] { stroke: var(--kreis); }
-  body.koeansicht .ringe-leg span:not(:nth-child(2)) { opacity: .55; }
-  body.koeansicht .ringe-leg span:not(:nth-child(2)) i { background: var(--kreis) !important; }
-  body.koeansicht .ringe-leg span:nth-child(2) { color: #0C9A6C; }
-  body.koeansicht .tageszahl .zahl { background: var(--chip) !important; color: var(--leise) !important; }
-  .ringe-leg span.pop { animation: hzpop .5s ease-out; }
-  .koe-zwei { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .koe-zwei > div { padding: 10px 12px; border-radius: 12px; background: var(--chip); text-align: center; }
-  .koe-zwei small { display: block; font-size: 11px; color: var(--leise); text-transform: uppercase; letter-spacing: .04em; }
-  .koe-zwei b { font-size: 20px; font-variant-numeric: tabular-nums; }
-  .koe-zwei span { display: block; font-size: 12px; color: var(--leise); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .feld + .koe-zwei, .koe-zwei + .koe-zwei { margin-top: 10px; }
-  .koe-sport b.sp-heute { color: #0C9A6C; }
-  .koe-sport b.sp-lange { color: #E07B1F; }
-  .ci-status { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 6px; font-size: 12px; font-weight: 600; }
-  .ci-status.offen { color: #B0577F; }
-  .ci-status.drin { color: var(--leise); font-weight: 500; }
-  .ci-punkt { width: 8px; height: 8px; border-radius: 4px; background: #D5A6BD; animation: ciatmen 1.6s ease-in-out infinite; }
-  @keyframes ciatmen { 0%, 100% { transform: scale(.8); opacity: .6; } 50% { transform: scale(1.3); opacity: 1; } }
-  .ci-haken { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 8px; background: #D5A6BD; color: #fff; font-size: 10px; }
-  .ci-status.frisch .ci-haken { animation: cihaken .5s cubic-bezier(.3, 1.6, .5, 1); }
-  .ci-status.frisch { animation: ciein .5s ease-out; }
-  @keyframes cihaken { 0% { transform: scale(0) rotate(-40deg); } 70% { transform: scale(1.35) rotate(8deg); } 100% { transform: scale(1) rotate(0); } }
-  @keyframes ciein { 0% { opacity: 0; transform: translateY(4px); } 100% { opacity: 1; transform: none; } }
   /* Jedes Antippen federt kurz nach, auch wenn die Ansicht dabei neu gezeichnet wird */
   .tipp { animation: tipp .32s cubic-bezier(.3, 1.5, .5, 1); }
   @keyframes tipp { 0% { transform: scale(.88); } 60% { transform: scale(1.06); } 100% { transform: scale(1); } }
-  .jetztwahl { display: flex; align-items: center; gap: 6px; }
-  .jetztwahl .jetzt { padding: 7px 14px; }
-  .nicht { font-size: 12px; color: var(--leise); text-decoration: underline; margin-top: 6px; }
-
-  .termin { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid var(--linie); }
-  .termin:first-child { border-top: 0; }
-  .termin .zeit { width: 44px; font-variant-numeric: tabular-nums; color: var(--leise); font-size: 14px; }
-  .termin .was { flex: 1; min-width: 0; }
-  .termin .was div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .termin .was small { color: var(--leise); font-size: 12px; }
-  .haken { width: 30px; height: 30px; border-radius: 15px; border: 2px solid var(--linie); display: grid; place-items: center; flex: none; }
-  .haken svg { opacity: 0; }
-  .haken.an svg { opacity: 1; }
-  .terminliste { margin-top: 6px; }
-  .hinweis { font-size: 13px; color: var(--leise); padding: 6px 0 2px; }
-
-  .tag-zeile { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--linie); width: 100%; text-align: left; }
-  .tag-zeile:first-child { border-top: 0; }
-  .tag-zeile .datum { width: 86px; font-weight: 600; white-space: nowrap; flex: none; }
-  .tag-zeile .mini { flex: 1; display: flex; flex-wrap: wrap; gap: 4px; }
-  .mini span { font-size: 12px; padding: 2px 7px; border-radius: 7px; background: var(--chip); font-variant-numeric: tabular-nums; }
 
   nav { position: fixed; left: 0; right: 0; bottom: 0; background: var(--karte); border-top: 1px solid var(--linie);
     display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 5; }
@@ -181,13 +118,83 @@
   .liste { margin-top: 8px; }
   .mac-balken { display: flex; gap: 2px; height: 6px; margin-top: 8px; border-radius: 3px; overflow: hidden; }
   .mac-balken span { min-width: 3px; }
+  .knopf { display: inline-block; margin-top: 10px; padding: 9px 14px; border-radius: 12px; background: var(--akzent); color: #fff; font-weight: 600; }
+
+  .koe-bald { opacity: .7; }
+  .koe-zeiten { font-size: 12px; color: var(--leise); text-align: right; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .koe-zusatz { display: block; font-size: 11px; color: var(--leise); margin: 1px 0 0 !important; padding: 0 !important; }
+  /* Köö: Fokus und Kopf grau, nur Körper in Farbe */
+  body.koeansicht .ringe-svg [data-spur="0"], body.koeansicht .ringe-svg [data-spur="2"] { stroke: var(--kreis); opacity: .28; }
+  body.koeansicht .ringe-svg .ring[data-ring="0"], body.koeansicht .ringe-svg .ring[data-ring="2"] { stroke: var(--kreis); }
+  body.koeansicht .ringe-leg span:not(:nth-child(2)) { opacity: .55; }
+  body.koeansicht .ringe-leg span:not(:nth-child(2)) i { background: var(--kreis) !important; }
+  body.koeansicht .ringe-leg span:nth-child(2) { color: #0C9A6C; }
+  body.koeansicht .tageszahl .zahl { background: var(--chip) !important; color: var(--leise) !important; }
+  .ringe-leg span.pop { animation: hzpop .5s ease-out; }
+  .koe-zwei { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .koe-zwei > div { padding: 10px 12px; border-radius: 12px; background: var(--chip); text-align: center; }
+  .koe-zwei small { display: block; font-size: 11px; color: var(--leise); text-transform: uppercase; letter-spacing: .04em; }
+  .koe-zwei b { font-size: 20px; font-variant-numeric: tabular-nums; }
+  .koe-zwei span { display: block; font-size: 12px; color: var(--leise); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .feld + .koe-zwei, .koe-zwei + .koe-zwei { margin-top: 10px; }
+  .koe-sport b.sp-heute { color: #0C9A6C; }
+  .koe-sport b.sp-lange { color: #E07B1F; }
+  /* V93: Check ins (Halsi, Migna) in Köö grün wie der Körperring statt Kopf Rosa */
+  body.koeansicht .ci-offen, body.koeansicht .ci-status.offen { color: #0C9A6C; }
+  body.koeansicht .ci-punkt, body.koeansicht .ci-haken { background: #7CC9A9; }
+  .woche-karte { cursor: pointer; }
+  .woche-karte .bereich { margin-bottom: 10px; }
+  .wk-schnitt { margin-left: auto; font-size: 13px; font-weight: 700; color: var(--text); text-transform: none; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+  .wk-pfeil { margin-left: 8px; color: var(--leise); font-size: 18px; line-height: 1; text-transform: none; }
+  .wk-balken { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+  .wk-tag { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .wk-bahn { position: relative; width: 100%; max-width: 30px; height: 44px; border-radius: 6px; background: var(--chip); overflow: hidden; }
+  .wk-bahn i { position: absolute; left: 0; right: 0; bottom: 0; border-radius: 6px; transition: height .6s cubic-bezier(.2, .8, .2, 1); }
+  .wk-tag small { font-size: 11px; font-weight: 600; color: var(--leise); }
+  .wk-tag.heute small { color: var(--text); }
+  .wk-tag.heute .wk-bahn { box-shadow: inset 0 0 0 1.5px var(--kreis); }
+  .tag-zeile { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--linie); width: 100%; text-align: left; }
+  .tag-zeile:first-child { border-top: 0; }
+  .tag-zeile .datum { width: 86px; font-weight: 600; white-space: nowrap; flex: none; }
+  .tag-zeile .mini { flex: 1; display: flex; flex-wrap: wrap; gap: 4px; }
+  .mini span { font-size: 12px; padding: 2px 7px; border-radius: 7px; background: var(--chip); font-variant-numeric: tabular-nums; }
   .posten { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 14px; border-top: 1px solid var(--linie); }
   .posten:first-child { border-top: 0; }
   .posten .pzeit { font-size: 12px; color: var(--leise); font-variant-numeric: tabular-nums; width: 38px; flex: none; }
   .posten .ppunkt { font-size: 10px; width: 14px; text-align: center; flex: none; }
   .posten .pname { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .posten .pbetrag { font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .knopf { display: inline-block; margin-top: 10px; padding: 9px 14px; border-radius: 12px; background: var(--akzent); color: #fff; font-weight: 600; }
+  /* Geld Karte: letzte 7 Tage, nach Tag */
+  .tag7 { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--leise); margin: 12px 0 2px; font-variant-numeric: tabular-nums; }
+  .liste .tag7:first-child { margin-top: 4px; }
+  .tag7 + .posten { border-top: 0; }
+  .ci-offen { margin-left: auto; font-size: 11px; font-weight: 600; color: #B0577F; text-transform: none; letter-spacing: 0; }
+  .version { text-align: center; font-size: 11px; color: var(--leise); opacity: .7; padding: 6px 0 14px; font-variant-numeric: tabular-nums; }
+  .ci-status { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 6px; font-size: 12px; font-weight: 600; }
+  .ci-status.offen { color: #B0577F; }
+  .ci-status.drin { color: var(--leise); font-weight: 500; }
+  .ci-punkt { width: 8px; height: 8px; border-radius: 4px; background: #D5A6BD; animation: ciatmen 1.6s ease-in-out infinite; }
+  @keyframes ciatmen { 0%, 100% { transform: scale(.8); opacity: .6; } 50% { transform: scale(1.3); opacity: 1; } }
+  .ci-haken { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 8px; background: #D5A6BD; color: #fff; font-size: 10px; }
+  .ci-status.frisch .ci-haken { animation: cihaken .5s cubic-bezier(.3, 1.6, .5, 1); }
+  .ci-status.frisch { animation: ciein .5s ease-out; }
+  @keyframes cihaken { 0% { transform: scale(0) rotate(-40deg); } 70% { transform: scale(1.35) rotate(8deg); } 100% { transform: scale(1) rotate(0); } }
+  @keyframes ciein { 0% { opacity: 0; transform: translateY(4px); } 100% { opacity: 1; transform: none; } }
+  .jetztwahl { display: flex; align-items: center; gap: 6px; }
+  .jetztwahl .jetzt { padding: 7px 14px; }
+  .nicht { font-size: 12px; color: var(--leise); text-decoration: underline; margin-top: 6px; }
+
+  .termin { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid var(--linie); }
+  .termin:first-child { border-top: 0; }
+  .termin .zeit { width: 44px; font-variant-numeric: tabular-nums; color: var(--leise); font-size: 14px; }
+  .termin .was { flex: 1; min-width: 0; }
+  .termin .was div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .termin .was small { color: var(--leise); font-size: 12px; }
+  .haken { width: 30px; height: 30px; border-radius: 15px; border: 2px solid var(--linie); display: grid; place-items: center; flex: none; }
+  .haken svg { opacity: 0; }
+  .haken.an svg { opacity: 1; }
+  .terminliste { margin-top: 6px; }
+  .hinweis { font-size: 13px; color: var(--leise); padding: 6px 0 2px; }
 
   /* Blöcke */
   .block { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--linie); }
@@ -411,10 +418,6 @@
   .planknopf .bonus { font-weight: 600; opacity: .85; margin-left: 8px; font-size: 14px; }
   .planknopf.fertig { background: #1D9E75; animation: hzpop .45s ease-out; }
 
-  /* Geld Karte: letzte 7 Tage, nach Tag */
-  .tag7 { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--leise); margin: 12px 0 2px; font-variant-numeric: tabular-nums; }
-  .liste .tag7:first-child { margin-top: 4px; }
-  .tag7 + .posten { border-top: 0; }
   /* Tasks vormerken: neu, umbenennen, löschen */
   .tw-kopf { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
   .tw-kopf .bereich { margin: 0; }
@@ -792,6 +795,7 @@
   .cos-uebernehmen { position: sticky; bottom: calc(-20px - env(safe-area-inset-bottom)); margin: 0 -16px calc(-20px - env(safe-area-inset-bottom)); padding: 10px 16px calc(16px + env(safe-area-inset-bottom)); background: var(--karte); border-top: 1px solid var(--linie); }
   .cos-uebernehmen button { width: 100%; height: 52px; border-radius: 16px; background: #073763; color: #fff; font-weight: 700; font-size: 16px; }
   .cos-uebernehmen button:disabled { opacity: .4; }
+  .cos-weiter-u { text-align: center; font-size: 13px; color: var(--leise); margin: -4px 0 14px; }
   /* ── V59 Fokus neu: Balken aus 6 Kästchen, Als Nächstes als Zeile, Heute vornehmen im Chief ── */
   /* V69: ein durchgehender Balken in einer Farbe. Kräftig geschafft, hell vorgenommen, voll ist 3:00 */
   .cos-fb { position: relative; height: 10px; margin: 14px 0 0; border-radius: 5px; background: var(--chip); }
@@ -1121,6 +1125,17 @@ function cosTageBis(von, bis) {
   const a = von.split('-').map(Number), b = bis.split('-').map(Number);
   return Math.round((Date.UTC(b[0], b[1] - 1, b[2]) - Date.UTC(a[0], a[1] - 1, a[2])) / 864e5);
 }
+/* V90: Arbeitstage sind Mo bis Fr, Sa und So haben 0 Kästchen */
+function cosArbeitstag(iso) { const t = iso.split('-').map(Number), w = new Date(Date.UTC(t[0], t[1] - 1, t[2])).getUTCDay(); return w >= 1 && w <= 5; }
+/* Arbeitstage nach von bis einschließlich bis. Von Montag bis Freitag sind es 4, mit heute also 5 */
+function cosArbeitstageBis(von, bis) {
+  const n = cosTageBis(von, bis);
+  let a = 0;
+  for (let i = 1; i <= n; i++) if (cosArbeitstag(tagPlus(von, i))) a++;
+  return a;
+}
+/* Arbeitstage von heute bis zur Deadline, heute mitgezählt, wenn es ein Arbeitstag ist. Mindestens 1 */
+function cosArbeitstageMit(von, bis) { return Math.max(1, cosArbeitstageBis(von, bis) + (cosArbeitstag(von) ? 1 : 0)); }
 function cosDatum(iso) { const t = iso.split('-'); return t[2] + '.' + t[1] + '.'; }
 function cosWt(iso) { const t = iso.split('-').map(Number); return COS_WT[new Date(Date.UTC(t[0], t[1] - 1, t[2])).getUTCDay()]; }
 function cosTagName(iso) {
@@ -1345,15 +1360,15 @@ function cosZahlen(name, alle) {
   });
   return { geschafft: geschafft, offen: offen, reserve: Math.max(0, plan + (p ? p.reserve : 0) - geschafft - offen) };
 }
-/* Was passt nicht mehr vor die Deadline: nach Deadline sortiert, Kapazität pro Woche auf Tage verteilt */
+/* Was passt nicht mehr vor die Deadline: nach Deadline sortiert, Kapazität pro Woche auf Mo bis Fr verteilt (V90) */
 function cosUeber(alle) {
   const out = {};
   if (!C) return out;
-  const h = heute(), proTag = (Number(C.kapazitaet) || COS_KAP) / 7;
+  const h = heute(), proTag = (Number(C.kapazitaet) || COS_KAP) / 5;
   let bedarf = 0, vergeben = 0;
   C.projekte.filter(p => p.status === 'aktiv' && p.deadline).map(p => ({ p: p, z: cosZahlen(p.name, alle) }))
     .sort((a, b) => a.p.deadline.localeCompare(b.p.deadline)).forEach(x => {
-      const platz = Math.floor(proTag * Math.max(0, cosTageBis(h, x.p.deadline) + 1));
+      const platz = x.p.deadline < h ? 0 : Math.floor(proTag * (cosArbeitstageBis(h, x.p.deadline) + (cosArbeitstag(h) ? 1 : 0)) + 1e-9);
       bedarf += x.z.offen;
       const u = Math.max(0, Math.min(x.z.offen, bedarf - platz - vergeben));
       vergeben += u; out[x.p.name] = u;
@@ -1547,23 +1562,27 @@ function cosLaufHtml(h, b, i, d, jm) {
       seitKnoepfe(h, i, 'Früher angefangen?');
   return { oben: oben, knoepfe: knoepfe };
 }
-/* Fertig an einem Block, der zu einem Schritt gehört: Block beenden und als gemacht werten, der Schritt bleibt offen */
-function cosFertig(i) {
+/* Fertig an einem Block, der zu einem Schritt gehört: Block beenden und als gemacht werten, der Schritt bleibt offen.
+   V92: nach der Meldung kommt Weiter bei (ohneWeiter: das macht der Aufrufer) */
+function cosFertig(i, ohneWeiter) {
   const h = heute(), b = bloeckeVon(h)[i];
   if (!b) return;
+  const s = cosSchrittVon(b);
   cosGruppe('Fertig', () => {   // V70: Rückgängig nimmt Ende und gemacht zusammen zurück
     blockFertig(i);
     const j = bloeckeVon(h).findIndex(x => x.key === b.key);
     if (j >= 0) blockSetzen(h, j, 'gemacht');
   });
+  if (s && !ohneWeiter) cosWeiterSpaeter(s.id, false);
 }
 function cosSchrittFertig(i) {
   const b = bloeckeVon(heute())[i], s = cosSchrittVon(b);
   if (!b) return;
   cosGruppe('Schritt fertig', () => {
-    cosFertig(i);
+    cosFertig(i, true);
     if (s) cosHakenSetzen(s.id, 'fertig');
   });
+  if (s) cosWeiterSpaeter(s.id, true);
 }
 
 /* ── Als Nächstes: wenn kein Block läuft und keiner auf Bewertung wartet ── */
@@ -1621,7 +1640,7 @@ function cosStart(id, k) {
   const key = 'lokal|' + Date.now();
   const erster = !bloeckeVon(h).some(x => x.gestartet);
   const b = { key: key, start: cosUhr(jm), ende: cosUhr(Math.min(jm + min, 23 * 60 + 59)), bereich: p && COS_FARBEN[p.bereich] ? p.bereich : 'Sonstiges',
-    titel: s.titel, min: min, status: '', geplant: false, punkte: 0, taskTitel: '', taskFertig: false, task: '', gestartet: cosUhr(jm), sammel: [],
+    titel: s.weiterBei || s.titel, min: min, status: '', geplant: false, punkte: 0, taskTitel: '', taskFertig: false, task: '', gestartet: cosUhr(jm), sammel: [],
     beendet: '', nach: false, lokal: true, schritt: s.id };
   if (!P.bloecke) P.bloecke = {};
   P.bloecke[h] = (P.bloecke[h] || []).concat([b]).sort((x, y) => x.start.localeCompare(y.start));
@@ -1882,11 +1901,12 @@ function cosNeuAnlegen() {
 
 /* ── Woche am Mac: die nächsten sieben Tage. Feste Schritte auf ihrem Tag, der Rest wie der Chief ihn verteilen würde ── */
 function cosWochePlan() {
-  const h = heute(), alle = cosAlleBloecke(), ueber = cosUeber(alle), proTag = (Number(C.kapazitaet) || COS_KAP) / 7;
+  const h = heute(), alle = cosAlleBloecke(), ueber = cosUeber(alle), kap = Number(C.kapazitaet) || COS_KAP;
   const tage = [];
-  for (let i = 0; i < 7; i++) {
-    const cap = Math.floor(proTag * (i + 1) + 1e-9) - Math.floor(proTag * i + 1e-9);
-    tage.push({ iso: tagPlus(h, i), cap: cap, k: 0, items: [], geschafft: 0 });
+  for (let i = 0; i < 7; i++) {   // V90: Sa und So 0, sonst Kapazität durch 5, der Rest geht an die ersten Tage der Woche
+    const iso = tagPlus(h, i), t = iso.split('-').map(Number), wt = new Date(Date.UTC(t[0], t[1] - 1, t[2])).getUTCDay();
+    const cap = wt >= 1 && wt <= 5 ? Math.floor(kap / 5) + (wt - 1 < kap % 5 ? 1 : 0) : 0;
+    tage.push({ iso: iso, cap: cap, k: 0, items: [], geschafft: 0 });
   }
   tage[0].geschafft = cosTag(h).farben.length;
   tage[0].cap = Math.max(0, tage[0].cap - tage[0].geschafft);
@@ -1932,7 +1952,7 @@ function cosWocheHtml() {
       '<div class="kr">' + (t.geschafft ? cosViele(t.geschafft, 'var(--gruen)', 'an', 12) : '') + t.items.map(x => cosViele(x.k, cosFarbe(x.p.bereich), '', 12)).join('') +
       (!t.k && !t.geschafft ? '<span class="cos-tag-t" style="margin:0">frei</span>' : '') + '</div>' +
       (t.items.length ? '<div class="cos-tag-t">' + t.items.map(x => x.fest ? '<b>' + esc(x.s.titel) + '</b>' : esc(x.s.titel)).join(' · ') + '</div>' : '') + '</div></div>').join('') +
-    '<div class="cos-legende" style="margin-top:6px">Der Chief verteilt nach Rang, fett ist fest. Schritt aus der Mitte auf einen Tag ziehen legt ihn fest.</div></div>';
+    '<div class="cos-legende" style="margin-top:6px">Mo bis Fr, Wochenende frei. Der Chief verteilt nach Rang, fett ist fest. Schritt aus der Mitte auf einen Tag ziehen legt ihn fest.</div></div>';
 }
 function cosDragStart(e) {
   const z = e.currentTarget;
@@ -1999,11 +2019,12 @@ function cosBlattZeichnen(neu) {
   if (!cosBlatt) { el.className = 'cos-blatt'; el.innerHTML = ''; return; }
   const art = cosBlatt.art;
   const inhalt = art === 'schritt' ? cosBlattSchritt() : art === 'projekt' ? cosBlattProjekt() : art === 'etappe' ? cosBlattEtappe() :
-    art === 'sitzung' ? cosBlattSitzung() : art === 'einplanen' ? cosBlattEinplanen() : art === 'taskwann' ? cosBlattTaskWann() : cosBlattZerlegen();
+    art === 'sitzung' ? cosBlattSitzung() : art === 'einplanen' ? cosBlattEinplanen() : art === 'taskwann' ? cosBlattTaskWann() : art === 'weiter' ? cosBlattWeiter() : cosBlattZerlegen();
   const nurZu = ['zerlegen', 'sitzung', 'einplanen', 'taskwann'].indexOf(art) >= 0;
   const alt = el.querySelector('.cos-blatt-in'), scroll = !neu && alt ? alt.scrollTop : 0;
   el.className = 'cos-blatt offen' + (neu ? ' neu' : '');
-  el.innerHTML = '<div class="cos-blatt-hg" onclick="' + (nurZu ? 'cosBlattZu()' : 'cosBlattFertig()') + '"></div>' +
+  const hg = art === 'weiter' ? '' : nurZu ? 'cosBlattZu()' : 'cosBlattFertig()';   // V92: Weiter bei geht nur über den Knopf zu
+  el.innerHTML = '<div class="cos-blatt-hg"' + (hg ? ' onclick="' + hg + '"' : '') + '></div>' +
     '<div class="cos-blatt-in" role="dialog" aria-modal="true" aria-label="' + esc(cosBlatt.titel || 'Bearbeiten') + '"><div class="cos-griffleiste"></div>' + inhalt + '</div>';
   const inn = el.querySelector('.cos-blatt-in');
   if (inn) inn.scrollTop = scroll;
@@ -2018,6 +2039,7 @@ function cosBlattZu() {
 function cosBlattFertig() {
   if (!cosBlatt) return;
   const art = cosBlatt.art;
+  if (art === 'weiter') return;   // V92: Pflichtfeld, kein Schließen über Hintergrund oder Escape
   if (art === 'schritt') cosSchrittSpeichern();
   else if (art === 'projekt') cosProjektSpeichern();
   else if (art === 'etappe') cosEtappeSpeichern();
@@ -2373,6 +2395,44 @@ function cosZerlegenUebernehmen() {
   melden('Zerlegt. ' + teile.length + (teile.length === 1 ? ' Schritt, ' : ' Schritte, ') + summe + ' Kästchen.');
 }
 
+/* ── V92: Weiter bei nach dem Haken. Erst die Belohnung, dann dieses Blatt: ein Satz, wo es das nächste Mal weitergeht.
+   Er steht in Schritte!J und wird der Titel des nächsten Blocks dieses Schritts. Ist der Schritt fertig, geht er an den nächsten offenen ── */
+let cosWeiterUhr = null;
+function cosWeiterSpaeter(sid, schrittFertig) {
+  clearTimeout(cosWeiterUhr);
+  cosWeiterUhr = setTimeout(() => { cosWeiterUhr = null; cosWeiterOeffnen(sid, schrittFertig); }, 1200);
+}
+function cosWeiterOeffnen(sid, schrittFertig) {
+  const s = C && C.schritte.find(x => x.id === sid), p = s && cosNachName(s.projekt);
+  if (!s || !p || cosBlatt || cosServerAlt()) return;
+  const ziel = schrittFertig || s.status === 'fertig' ? cosListe(p).find(x => x.id !== sid && cosOffen(x)) : s;
+  cosBlattAuf({ art: 'weiter', titel: 'Weiter bei', sid: sid, pid: p.id, zid: ziel ? ziel.id : null, text: '', fokus: ziel ? 'cbWeiterBei' : null });
+}
+function cosBlattWeiter() {
+  const b = cosBlatt, s = C.schritte.find(x => x.id === b.sid), p = cosPid(b.pid), z = b.zid ? C.schritte.find(x => x.id === b.zid) : null;
+  const kopf = '<div class="cos-bk"><span></span><b>Weiter bei</b><span></span></div>' +
+    '<div class="cos-weiter-u">' + esc(s ? s.titel : '') + (p ? ' · ' + esc(p.name) : '') + '</div>';
+  if (!z) return kopf + '<div class="hinweis">Kein offener Schritt mehr' + (p ? ' in ' + esc(p.name) : '') + '.</div>' +
+    '<div class="cos-unten"><button class="cos-primaer" onclick="cosWeiterFertig()">Projekt durch</button></div>';
+  return kopf + (z !== s ? '<div class="cos-tipp">Geht an den nächsten Schritt: ' + esc(z.titel) + '</div>' : '') +
+    '<div class="cos-feld"><label for="cbWeiterBei">Wo steigst du das nächste Mal ein?</label><textarea id="cbWeiterBei" rows="2" maxlength="200" enterkeyhint="done" ' +
+    'placeholder="Verb und Gegenstand, zum Beispiel Szene 14 ab Lara schneiden" oninput="cosWeiterTippen(this.value)" onkeydown="cosWeiterTaste(event)">' + esc(b.text) + '</textarea></div>' +
+    '<div class="cos-unten"><button class="cos-primaer" id="cbWeiterOk" onclick="cosWeiterFertig()"' + (b.text.trim() ? '' : ' disabled') + '>Weiter</button></div>';
+}
+function cosWeiterTippen(v) { if (!cosBlatt) return; cosBlatt.text = v; const k = $('cbWeiterOk'); if (k) k.disabled = !v.trim(); }
+function cosWeiterTaste(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); cosWeiterFertig(); } }
+function cosWeiterFertig() {
+  const b = cosBlatt;
+  if (!b || b.art !== 'weiter') return;
+  const p = cosPid(b.pid), z = b.zid && C.schritte.find(x => x.id === b.zid);
+  if (!p || !z) { cosBlattZu(); haptik(); return; }   // Projekt durch
+  const t = String(b.text || '').replace(/\s+/g, ' ').trim().slice(0, 200);
+  if (!t) { const f = $('cbWeiterBei'); if (f) f.focus(); return; }
+  cosBlattZu();
+  haptik();
+  cosSchritteAendern(p, cosListe(p).map(x => (x.id === z.id ? Object.assign({}, x, { weiterBei: t }) : x)), 'Weiter bei');
+  melden('Weiter bei: ' + t);
+}
 /* ── Ziehen: am Griff ziehen ordnet Projekte (Rang) und Schritte (auch über Etappen hinweg). Pfeiltasten gehen auch ── */
 function cosZiehElemente(art) {
   return Array.from($('inhalt').querySelectorAll(art === 's' ? '[data-zieh="s"], [data-etappe-kopf]' : '[data-zieh="p"]'));
@@ -2569,11 +2629,11 @@ function cosStarts(min, ohneKey, anzahl, extra) {
 function cosEmpfehlung() {
   const h = heute(), alle = cosAlleBloecke(), heuteMin = {};
   bloeckeVon(h).forEach(b => { const s = cosSchrittVon(b); if (s) heuteMin[s.projekt] = (heuteMin[s.projekt] || 0) + fokusMin(h, b); });
-  let summe = 0, rate = 0, treiber = null;
+  let summe = 0, rate = 0, treiber = null, tage = 0;
   C.projekte.filter(p => p.status === 'aktiv' && p.deadline && p.deadline >= h).sort((a, b) => a.deadline.localeCompare(b.deadline)).forEach(p => {
     summe += cosZahlen(p.name, alle).offen + Math.floor((heuteMin[p.name] || 0) / COS_MIN);
-    const r = summe / Math.max(1, cosTageBis(h, p.deadline) + 1);
-    if (r > rate + 1e-9) { rate = r; treiber = p; }
+    const at = cosArbeitstageMit(h, p.deadline), r = summe / at;   // V90: nur Mo bis Fr
+    if (r > rate + 1e-9) { rate = r; treiber = p; tage = at; }
   });
   const basis = Math.max(1, Math.round((Number(C.kapazitaet) || COS_KAP) / 5));
   const dringend = Math.ceil(rate - 1e-9);
@@ -2582,11 +2642,11 @@ function cosEmpfehlung() {
   const text = treiber && dringend >= basis ? treiber.name + ' braucht bis ' + bis + ' ' + dringend + ' pro Tag'
     : treiber && dringend ? 'davon ' + dringend + ' für ' + treiber.name + ' (bis ' + bis + ')' : 'nach deiner Zeit pro Woche';
   const kurz = treiber && dringend ? cosKurz(treiber.name, 22) + ' bis ' + cosWt(treiber.deadline) : '';   // V58: kurz für den Fokus
-  return { n: n, dringend: dringend, treiber: treiber, basis: basis, text: text, kurz: kurz };
+  return { n: n, dringend: dringend, treiber: treiber, basis: basis, text: text, kurz: kurz, tage: tage };
 }
 function cosGrund(p, ueber) {
   if (p.deadline && (ueber[p.name] || 0) > 0) return 'Deadline ' + cosWt(p.deadline) + ' ' + cosDatum(p.deadline) + (p.art === 'extern' ? ' extern' : '');
-  if (p.deadline && cosTageBis(heute(), p.deadline) <= 7) return 'bis ' + cosWt(p.deadline) + ' ' + cosDatum(p.deadline);
+  if (p.deadline && p.deadline >= heute() && cosArbeitstageBis(heute(), p.deadline) <= 5) return 'bis ' + cosWt(p.deadline) + ' ' + cosDatum(p.deadline);
   return 'Rang ' + (C.projekte.filter(x => x.status === 'aktiv').indexOf(p) + 1);
 }
 /* Der Plan für heute: Erledigtes, Laufendes, Eingeplantes, ohne Uhrzeit, Als Nächstes und Vorschläge bis zu n Kästchen */
@@ -2715,6 +2775,13 @@ function cosHeuteHtml(laufX) {
 }
 function cosTrKq(k, farbe, klasse) { let s = ''; for (let i = 0; i < Math.min(6, k); i++) s += cosKq(farbe, klasse); return '<span class="kr">' + s + '</span>'; }
 function cosTrTitel(x) { return x.s ? x.s.titel : (titelTeile(x.b).was || x.b.bereich); }
+/* V92: Weiter bei steht am nächsten eingeplanten Block desselben Schritts. Der Kalendereintrag wird nicht umbenannt */
+function cosTrWeiter(x) {
+  const s = x.s;
+  if (!s || !s.weiterBei || x.b.gestartet || x.b.status) return '';
+  const n = bloeckeVon(heute()).filter(y => !y.status && !y.gestartet && cosSchrittVon(y) === s).sort((a, b) => a.start.localeCompare(b.start))[0];
+  return n && n.key === x.b.key ? 'Weiter bei: ' + s.weiterBei : '';
+}
 function cosTrFarbe(x) { const p = x.s && cosNachName(x.s.projekt); return cosFarbe(p ? p.bereich : x.b.bereich); }
 function cosTrErledigt(x) {
   const b = x.b, p = x.s && cosNachName(x.s.projekt), fm = fokusMin(heute(), b), z = zaehlt(b);
@@ -2731,10 +2798,11 @@ function cosTrBlock(x, jm, dran) {
   if (dran) {
     const wann = a > jm ? 'in ' + (a - jm) + ' min' : a === jm ? 'jetzt' : 'seit ' + dauerText(jm - a);
     return '<div class="cos-tr dran" style="--pf:' + f + '"><button class="cos-tr-in"' + oeffnen + '><span class="cos-tr-zeit">' + esc(b.start) + '</span><span class="cos-tr-strich"></span>' +
-      '<span class="cos-tr-was"><b>' + esc(cosTrTitel(x)) + '</b><small>' + esc(wann + ' · ' + dauerText(b.min || 0) + (zw ? ' · Tag ' + zw : '')) + '</small></span></button>' +
+      '<span class="cos-tr-was"><b>' + esc(cosTrTitel(x)) + '</b>' + (cosTrWeiter(x) ? '<small class="cos-tr-weiter">' + esc(cosTrWeiter(x)) + '</small>' : '') +
+      '<small>' + esc(wann + ' · ' + dauerText(b.min || 0) + (zw ? ' · Tag ' + zw : '')) + '</small></span></button>' +
       '<button class="cos-anf" onclick="cosAnfangen(\'' + b.key + '\')" aria-label="Anfangen: ' + esc(cosTrTitel(x)) + '">Anfangen</button></div>';
   }
-  const unter = (s && p ? p.name : (b.bereich === 'Sonstiges' ? 'aus dem Kalender' : b.bereich + ' · aus dem Kalender')) + (b.lokal ? ' · wird angelegt …' : '');
+  const unter = (cosTrWeiter(x) ? cosTrWeiter(x) + ' · ' : '') + (s && p ? p.name : (b.bereich === 'Sonstiges' ? 'aus dem Kalender' : b.bereich + ' · aus dem Kalender')) + (b.lokal ? ' · wird angelegt …' : '');
   const frisch = cosFrischB && Date.now() - cosFrischB.t < 1200 && s && cosFrischB.ids.indexOf(s.id) >= 0;
   const ziehen = document.body.classList.contains('mac') && !b.lokal ? ' draggable="true" ondragstart="cosDragZeile(event,\'b\',\'' + b.key + '\',' + x.k + ')"' : '';
   return '<div class="cos-tr plan' + (frisch ? ' frisch' : '') + '" style="--pf:' + f + '"' + ziehen + '><button class="cos-tr-in"' + oeffnen + '><span class="cos-tr-zeit">' + esc(b.start) + '</span>' +
@@ -3522,6 +3590,41 @@ function cosRundeZeile() {
   const r = cosRundeFaellig();
   return r ? '<button class="cos-runde-z" onclick="cosRundeStart()">' + (r.art === 'so' ? 'Wochenrunde' : 'Mittwochsrunde') + ' fällig · mit Claude starten</button>' : '';
 }
+/* V90: Kalenderwoche eines Tages (ISO) */
+function cosKwVon(iso) {
+  const a = iso.split('-').map(Number), t = new Date(Date.UTC(a[0], a[1] - 1, a[2]));
+  t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7));
+  return Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7);
+}
+function cosZahlText(x) { return (Math.round(x * 10) / 10).toFixed(1).replace('.', ',').replace(/,0$/, ''); }
+/* V90: gemessene Kästchen der letzten 14 Tage bis basis, pro Kalenderwoche */
+function cosGemessenZeile(basis) {
+  const kw = {}, reihe = [], tage = (P && P.tage) || [];
+  tage.filter(iso => iso <= basis && cosTageBis(iso, basis) < 14).slice().sort().forEach(iso => {
+    const k = cosKwVon(iso);
+    if (kw[k] == null) { kw[k] = 0; reihe.push(k); }
+    kw[k] += cosTag(iso).farben.length;
+  });
+  return 'Gemessen: ' + (reihe.length ? reihe.map(k => 'KW ' + k + ' ' + kw[k]).join(', ') : 'noch nichts') + ' Kästchen, Budget ' + (Number(C.kapazitaet) || COS_KAP) + '.';
+}
+/* V90: Schätzfaktor je aktivem Projekt: gebrauchte Minuten durch geschätzte Kästchen mal 30, über Schritte mit Minuten */
+function cosFaktorZeile() {
+  const teile = C.projekte.filter(p => p.status === 'aktiv').map(p => {
+    const l = cosListe(p).filter(s => (Number(s.min) || 0) > 0);
+    if (l.length < 2) return p.name + ' noch keine Zahl';
+    const k = l.reduce((n, s) => n + (Number(s.k) || 0), 0), min = l.reduce((n, s) => n + (Number(s.min) || 0), 0);
+    return p.name + ' ' + cosZahlText(min / Math.max(1, k * COS_MIN)) + ' (geplant ' + k + ', gebraucht ' + cosZahlText(min / COS_MIN) + ' Kästchen)';
+  });
+  return 'Schätzfaktor: ' + (teile.length ? teile.join('; ') : 'kein aktives Projekt') + '.';
+}
+/* V91: Regeln der Runden, Sonntag (auch Montag früh) und Mittwoch */
+const COS_REGELN_SO = 'Regeln: Budget 30 Kästchen, Mo bis Fr, Sa und So 0, System höchstens 4.\n' +
+  'Pro aktivem Projekt nur die nächsten 1 bis 3 Kästchen fein: Verb, Gegenstand, Fertig wenn, als Blocktitel tauglich. Rest grob als Rest von.\n' +
+  'Externe Deadline, die nicht passt: Umfang kürzen und die Teilfassung benennen, nicht die Deadline, nicht das Wochenende.\n' +
+  'Ablauf 30 Minuten: Rückblick (gemessen gegen Budget, Verpasst, Verschoben), Rang, Mikroaufträge, dann die Zahl pro Tag und Projekt, ich setze das Raster in der App und plane die Woche ein.\n' +
+  'Frag mich eins nach dem anderen. Schreib die Schritte in die Tabelle.';
+const COS_REGELN_MI = '10 Minuten. Umplanen ist heute erlaubt und zählt nicht als verschoben.\n' +
+  'Was hat sich geändert, Verschobenes entscheiden (verkleinern, parken, streichen), Rest der Woche neu verteilen. Neue Projekte nur auf den Parkplatz.';
 function cosRundeText(r) {
   const h = heute(), alle = cosAlleBloecke(), ueber = cosUeber(alle), proj = {};
   const basis = r.art === 'so' && new Date().getDay() === 1 ? tagPlus(h, -1) : h;   // Montag früh: Rückblick auf die Woche bis gestern
@@ -3537,9 +3640,9 @@ function cosRundeText(r) {
   const eng = Object.keys(ueber).filter(n => ueber[n]).map(n => n + ': ' + ueber[n] + ' Kästchen passen nicht vor die Deadline');
   return (r.art === 'so' ? 'Wochenrunde für KW ' + (r.kw % 52 + 1) : 'Mittwochsrunde KW ' + r.kw) + '.\nLies bitte die Tabs Projekte, Schritte und Blöcke der Zentrale.\n' +
     (r.art === 'so' ? 'Woche davor: ' : 'Diese Woche bisher: ') + woche + ' von ' + (Number(C.kapazitaet) || COS_KAP) + ' Kästchen' + (teile.length ? ' (' + teile.join(', ') + ')' : '') + '.\n' +
+    cosGemessenZeile(basis) + '\n' + cosFaktorZeile() + '\n' +
     (versch.length ? 'Verschoben: ' + versch.join(', ') + '.\n' : '') + (eng.length ? 'Passt nicht: ' + eng.join(', ') + '.\n' : '') +
-    (r.art === 'so' ? 'Führ mich in 30 Minuten durch: Rückblick, Rang und Deadlines, nächste Etappen zerlegen, Woche grob verteilen. Frag mich eins nach dem anderen und schreib die Schritte danach in die Tabelle.'
-      : 'Höchstens 10 Minuten: was hat sich geändert, Verschobenes entscheiden, Rest der Woche neu verteilen. Neue Projekte nur auf den Parkplatz.');
+    (r.art === 'so' ? COS_REGELN_SO : COS_REGELN_MI);
 }
 function cosRundeStart() {
   const r = cosRundeFaellig() || { art: new Date().getDay() === 3 ? 'mi' : 'so', kw: cosKw() };
@@ -4231,8 +4334,8 @@ function senFilmWeg() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611182341';
-const PWA_NAME = "V87 Neuer Task mit Plus";
+const PWA_VERSION = '202611201519';
+const PWA_NAME = "V93 Köö Halsi und Migna mit Check ins";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -4257,7 +4360,7 @@ function schluesselFragen(falsch) {
   document.body.appendChild(d);
 }
 document.addEventListener('DOMContentLoaded', () => { if (!schluessel()) schluesselFragen(false); });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(() => {}));
 </script>
 <style>
   #schluessel { position: fixed; inset: 0; z-index: 99; background: var(--bg); display: grid; place-items: center; padding: 24px; }
@@ -4468,7 +4571,7 @@ function wechselAnim() {
    Was sonst noch in den Bereichen Schlaf, Körper oder Bewegung steht, kommt in die Karte seines Bereichs */
 const KOE_KARTEN = [
   ['Schlaf', ['aufwach', 'einschlaf', 'dauer', 'hrv']],
-  ['Körper', ['elvanse', 'ott', 'drinks', 'migna']],
+  ['Körper', ['elvanse', 'ott', 'drinks', 'migna', 'halsi']],   // V93 Halsi (Hals), Migna (Magen)
   ['Bewegung', ['sport', 'knieübung', 'schritte', 'bewegung']]
 ];
 const KOE_BEREICHE = ['schlaf', 'körper', 'bewegung'];
@@ -4528,124 +4631,13 @@ function koeBewegungHtml() {   // nur wenn es keine Felder für Bewegung gibt
 }
 function koeOeffnen() { ansicht = 'koe'; zeichnen(); window.scrollTo(0, 0); }
 function koeAnteil(iso) { const t = ringTeile(iso); return t ? Math.round(t[1] * 100) : null; }
-function koeOffen() {
-  return P.felder.filter(f => koeFeld(f) && ['kaestchen', 'mac', 'oben', 'wert'].indexOf(f.typ) === -1 && f.typ !== 'gross').filter(f => { const w = wertVon(f.spalte); return w == null || w === ''; }).length;
+function koeOffen() {   // V93: Check ins (Halsi, Migna) zählen offen, solange das laufende Fenster fehlt
+  return P.felder.filter(f => koeFeld(f) && ['kaestchen', 'mac', 'oben', 'wert'].indexOf(f.typ) === -1 && f.typ !== 'gross')
+    .filter(f => { if (istCheckin(f)) return checkinFehlt(f); const w = wertVon(f.spalte); return w == null || w === ''; }).length;
 }
 const KOE_BALD = [];   // Platzhalter für später: [['Name', 'Kommt bald.']]
 function koeBaldHtml() {
   return koeBewegungHtml() + koeRauchenHtml() + KOE_BALD.map(b => '<div class="karte koe-bald"><div class="bereich"><span class="punkt" style="background:var(--leise)"></span>' + esc(b[0]) + '</div><div class="hinweis">' + esc(b[1]) + '</div></div>').join('');
-}
-
-function zeichneTag() {
-  const h = heute(), liste = tageListe(), i = liste.indexOf(tagIso), koe = ansicht === 'koe';
-  $('kopfTitel').textContent = tagIso === h ? 'Heute' : tagIso === tagPlus(h, -1) ? 'Gestern' : label(tagIso);
-  $('kopfDatum').textContent = (koe ? 'Köö · ' : '') + label(tagIso);
-  $('zurueck').disabled = i <= 0;
-  $('vor').disabled = i === -1 || i >= liste.length - 1;
-
-  if (!werteVon()) {
-    $('inhalt').innerHTML = '<div class="karte"><b>Noch keine Zeile für diesen Tag.</b>' +
-      '<div class="hinweis">Die Zeile entsteht, wenn die Skripte laufen.</div>' +
-      '<button class="knopf" onclick="aktualisieren()">Jetzt aktualisieren</button></div>';
-    return;
-  }
-
-  let html = '';
-  const oben = P.felder.filter(f => f.typ === 'oben' && koeFeld(f) === koe);
-  P.felder.filter(f => f.typ === 'gross').forEach(f => {
-    const live = tagLive(tagIso), w = live != null ? live : wertVon(f.spalte), s = stufe(f, w);
-    html += '<div class="tageszahl"><div class="neben links">' + nebenWerte(f, 'l') + '</div><div class="ringe"><div class="ringe-kreis" id="tagRinge">' + ringeSvg(tagIso) + '<div class="zahl" id="tagZahl" style="' + (ton(f, s) || 'background:var(--chip)') + '">' +
-      (live != null ? live.toFixed(1).replace('.', ',') : esc(anzeigeVon(f.spalte)) || '–') + '</div></div>' + ringeLegende() + (typeof cosReiheHtml === 'function' ? (koe ? koeReiheHtml() : cosReiheHtml(tagIso)) : '') + '</div><div class="neben">' + (koe ? koeNeben() : nebenWerte(f, 'r')) +
-      oben.map(o => '<div' + (o.liste ? ' class="klappbar' + (auf.has(o.spalte) ? ' auf' : '') + '" onclick="umklappen(' + P.felder.indexOf(o) + ')"' : '') +
-        '><small>' + esc(o.spalte) + (o.liste ? '<span class="pfeil">▸</span>' : '') + '</small><b style="' + ton(o, stufe(o, wertVon(o.spalte))) + '">' +
-        (esc(anzeigeVon(o.spalte)) || '–') + '</b></div>').join('') + '</div></div>';
-  });
-
-  let listen = '';
-  oben.filter(o => o.liste && auf.has(o.spalte)).forEach(o => {
-    listen += '<div class="karte klappbar auf" onclick="umklappen(' + P.felder.indexOf(o) + ')"><div class="bereich"><span class="punkt" style="background:' +
-      o.farbe + '"></span>' + esc(o.spalte) + '</div>' + listeHtml(o) + '</div>';
-  });
-
-  const bereiche = [];
-  P.felder.filter(f => f.typ !== 'gross' && f.typ !== 'oben' && f.typ !== 'termine' && koeFeld(f) === koe && !sensiFeld(f)).forEach(f => {   // V84: Termine stehen schon im Fokus
-    const name = f.typ === 'mac' ? 'Bildschirm' : koe ? koeKarte(f) : f.bereich;   // V68: Bildschirmzeit immer als eigene Karte, auch wenn sie in der Tabelle beim Fokus steht
-    let b = bereiche.find(x => x.name === name);
-    const farbe = (P.felder.find(x => x.bereich === name) || (koe && name === 'Bewegung' ? { farbe: RINGE[1][2] } : f)).farbe;
-    if (!b) bereiche.push(b = { name: name, farbe: farbe, felder: [] });
-    b.felder.push(f);
-  });
-  const karten = bereiche.filter(b => b.felder.some(f => f.typ === 'bloecke') || b.felder.some(f => feldHtml(f) !== '')).map(b => {   // V84: leere Karten (Struktur ohne Termine) fallen weg
-    const bloecke = b.felder.some(f => f.typ === 'bloecke');
-    const kopfZeile = bloecke ? '' :
-      '<div class="bereich"><span class="punkt" style="background:' + b.farbe + '"></span>' + esc(b.name) +
-      (b.felder.some(f => CHECKIN_FELDER.indexOf(f.spalte) !== -1) && checkinOffen() ? '<span class="ci-offen">' + checkinOffen() + ' offen</span>' : '') + '</div>';
-    const ruhig = String(b.name || '').toLowerCase() === 'geld';   // Geld: keine Animation, soll sofort reagieren
-    const tasks = bloecke && typeof cosTasksKarte === 'function' ? cosTasksKarte() : '';   // V4: Tasks als eigene Karte unter dem Fokus
-    return { name: b.name, bloecke: bloecke, unten: b.felder.some(f => f.typ === 'mac'),
-      html: '<div class="karte' + (ruhig ? ' ruhig' : '') + '">' + kopfZeile + b.felder.map(f => feldHtml(f) + (koe ? koeDrinkZusatz(f) : '')).join('') + (koe && b.name === 'Bewegung' ? koeSchritteHtml() + koeSportHtml() : '') + '</div>' + tasks };
-  });
-  // V68: Fokus mit Tasks zuerst, Bildschirmzeit ganz unten, sonst wie in der Tabelle
-  const fokus = karten.filter(k => k.bloecke), unten = karten.filter(k => k.unten && !k.bloecke);
-  karten.splice(0, karten.length, ...karten.filter(k => !k.bloecke && !(k.unten && !k.bloecke)));
-  const n = macSpalten();
-  if (koe) {   // Köö: Schlaf, Körper, Bewegung, dann was noch kommt. Am Mac nebeneinander
-    koeLaden(tagIso, false); spLaden(false);
-    const rang = k => { const i = KOE_KARTEN.findIndex(x => x[0] === k.name); return i === -1 ? 99 : i; };
-    karten.sort((a, b) => rang(a) - rang(b));
-    const teile = karten.concat(unten).map(k => k.html).concat(koeBaldHtml());
-    if (n < 2) $('inhalt').innerHTML = html + listen + teile.join('');
-    else {
-      const sp = Array.from({ length: n }, () => '');
-      teile.forEach((t, j) => { sp[Math.min(j, n - 1)] += t; });
-      sp[0] += listen;
-      $('inhalt').innerHTML = html + '<div class="mac-spalten">' + sp.map(x => '<div class="mac-spalte">' + x + '</div>').join('') + '</div>';
-    }
-    nachTag(); return;
-  }
-  // V82: keine Zeile Köö mehr im Tag. Am Handy Geld vor Kopf
-  const geldZuerst = k => String(k.name || '').toLowerCase() === 'geld' ? 0 : 1;
-  karten.sort((a, b) => geldZuerst(a) - geldZuerst(b));
-  const woche = { html: wocheKarteHtml() };
-  if (n < 2) { $('inhalt').innerHTML = html + listen + fokus.concat(woche, karten, unten).map(k => k.html).join('') + versionHtml(); nachTag(); return; }
-  /* Mac (V86): links breit der Fokus mit Tasks und Kalender. Daneben Kopf und Notiz (höher).
-     Drei Spalten: rechts Woche und Geld. Zwei Spalten: Woche unter den Fokus, Geld unter die Notiz */
-  const sp = Array.from({ length: n }, () => '');
-  const name = k => String(k.name || '').toLowerCase();
-  const kopfK = karten.filter(k => name(k) === 'kopf'), notizK = karten.filter(k => name(k) === 'notiz');
-  const rest = karten.filter(k => kopfK.indexOf(k) === -1 && notizK.indexOf(k) === -1);
-  fokus.forEach(k => { sp[0] += k.html; });
-  if (typeof cosLeisteKarte === 'function') sp[0] += cosLeisteKarte();
-  kopfK.concat(notizK).forEach(k => { sp[1] += k.html; });
-  sp[1] += listen;
-  const rechts = n === 3 ? 2 : 1;
-  if (n === 3) sp[2] += woche.html; else sp[0] += woche.html;
-  rest.concat(unten).forEach(k => { sp[rechts] += k.html; });
-  $('inhalt').innerHTML = html + '<div class="mac-spalten tag-spalten">' + sp.map(s => '<div class="mac-spalte">' + s + '</div>').join('') + '</div>' + versionHtml();
-  nachTag();
-}
-/* V84: Karte Woche im Tag statt Reiter. Sieben Balken Mo bis So mit dem Tageswert, Ø der Woche, Antippen öffnet die Woche */
-function wocheOeffnen() { ansicht = 'woche'; zeichnen(); window.scrollTo(0, 0); }
-function wocheKarteHtml() {
-  const f = P.felder.find(x => x.typ === 'gross');
-  if (!f) return '';
-  const t = tagIso.split('-').map(Number), tagNr = (new Date(t[0], t[1] - 1, t[2]).getDay() + 6) % 7, mo = tagPlus(tagIso, -tagNr);
-  const tage = [0, 1, 2, 3, 4, 5, 6].map(k => tagPlus(mo, k));
-  const werte = tage.map(iso => { const l = tagLive(iso), w = l != null ? l : wertVon(f.spalte, iso); return typeof w === 'number' ? w : null; });
-  const da = werte.filter(w => w != null), schnitt = da.length ? Math.round(da.reduce((a, b) => a + b, 0) / da.length * 10) / 10 : null;
-  const balken = werte.map((w, i) => '<div class="wk-tag' + (tage[i] === tagIso ? ' heute' : '') + '"><span class="wk-bahn"><i style="height:' + (w == null ? 0 : Math.max(8, w * 10)) + '%;' +
-    (w == null ? '' : 'background:' + (stufeFarbe(f, w) || f.farbe)) + '"></i></span><small>' + 'MDMDFSS'[i] + '</small></div>').join('');
-  return '<div class="karte woche-karte" onclick="wocheOeffnen()"><div class="bereich"><span class="punkt" style="background:' + f.farbe + '"></span>Woche' +
-    '<span class="wk-schnitt">' + (schnitt == null ? '' : 'Ø ' + komma(schnitt.toFixed(1))) + '</span><span class="wk-pfeil">›</span></div><div class="wk-balken">' + balken + '</div></div>';
-}
-/* Farbe der Stufe aus ton(), nur der Hintergrund */
-function stufeFarbe(f, w) { const m = String(ton(f, stufe(f, w)) || '').match(/background:\s*([^;]+)/); return m ? m[1].trim() : ''; }
-/* V80: ganz unten im Tag, welche Version läuft (Name aus bereitstellen.sh, Zeit aus bauen.py) */
-function versionHtml() {
-  if (typeof PWA_VERSION === 'undefined') return '';
-  const v = String(PWA_VERSION), zeit = v.length === 12 ? Number(v.slice(6, 8)) + '.' + Number(v.slice(4, 6)) + '. ' + v.slice(8, 10) + ':' + v.slice(10, 12) : v;
-  const name = typeof PWA_NAME !== 'undefined' && PWA_NAME ? PWA_NAME : '';
-  return '<div class="version">' + esc([name, zeit].filter(Boolean).join(' · ')) + '</div>';
 }
 
 /* Neben der großen Zahl: nur der Schnitt Tag 1/10 der letzten 4 Tage, heute zählt mit. Links bleibt leer, damit die Zahl mittig steht.
@@ -4739,6 +4731,138 @@ function koeReiheHtml() {
   const offen = tagIso === heute() ? koeOffen() : 0;
   return '<div class="cos-reihe koe-reihe">' + (offen ? offen + ' noch offen' : '') + '</div>';
 }
+function zeichneTag() {
+  const h = heute(), liste = tageListe(), i = liste.indexOf(tagIso), koe = ansicht === 'koe';
+  $('kopfTitel').textContent = tagIso === h ? 'Heute' : tagIso === tagPlus(h, -1) ? 'Gestern' : label(tagIso);
+  $('kopfDatum').textContent = (koe ? 'Köö · ' : '') + label(tagIso);
+  $('zurueck').disabled = i <= 0;
+  $('vor').disabled = i === -1 || i >= liste.length - 1;
+
+  if (!werteVon()) {
+    $('inhalt').innerHTML = '<div class="karte"><b>Noch keine Zeile für diesen Tag.</b>' +
+      '<div class="hinweis">Die Zeile entsteht, wenn die Skripte laufen.</div>' +
+      '<button class="knopf" onclick="aktualisieren()">Jetzt aktualisieren</button></div>';
+    return;
+  }
+
+  let html = '';
+  const oben = P.felder.filter(f => f.typ === 'oben' && koeFeld(f) === koe);
+  P.felder.filter(f => f.typ === 'gross').forEach(f => {
+    const live = tagLive(tagIso), w = live != null ? live : wertVon(f.spalte), s = stufe(f, w);
+    html += '<div class="tageszahl"><div class="neben links">' + nebenWerte(f, 'l') + '</div><div class="ringe"><div class="ringe-kreis" id="tagRinge">' + ringeSvg(tagIso) + '<div class="zahl" id="tagZahl" style="' + (ton(f, s) || 'background:var(--chip)') + '">' +
+      (live != null ? live.toFixed(1).replace('.', ',') : esc(anzeigeVon(f.spalte)) || '–') + '</div></div>' + ringeLegende() + (typeof cosReiheHtml === 'function' ? (koe ? koeReiheHtml() : cosReiheHtml(tagIso)) : '') + '</div><div class="neben">' + (koe ? koeNeben() : nebenWerte(f, 'r')) +
+      oben.map(o => '<div' + (o.liste ? ' class="klappbar' + (auf.has(o.spalte) ? ' auf' : '') + '" onclick="umklappen(' + P.felder.indexOf(o) + ')"' : '') +
+        '><small>' + esc(o.spalte) + (o.liste ? '<span class="pfeil">▸</span>' : '') + '</small><b style="' + ton(o, stufe(o, wertVon(o.spalte))) + '">' +
+        (esc(anzeigeVon(o.spalte)) || '–') + '</b></div>').join('') + '</div></div>';
+  });
+
+  let listen = '';
+  oben.filter(o => o.liste && auf.has(o.spalte)).forEach(o => {
+    listen += '<div class="karte klappbar auf" onclick="umklappen(' + P.felder.indexOf(o) + ')"><div class="bereich"><span class="punkt" style="background:' +
+      o.farbe + '"></span>' + esc(o.spalte) + '</div>' + listeHtml(o) + '</div>';
+  });
+
+  const bereiche = [];
+  P.felder.filter(f => f.typ !== 'gross' && f.typ !== 'oben' && f.typ !== 'termine' && koeFeld(f) === koe && !sensiFeld(f)).forEach(f => {   // V84: Termine stehen schon im Fokus
+    const name = f.typ === 'mac' ? 'Bildschirm' : koe ? koeKarte(f) : f.bereich;   // V68: Bildschirmzeit immer als eigene Karte, auch wenn sie in der Tabelle beim Fokus steht
+    let b = bereiche.find(x => x.name === name);
+    const farbe = (P.felder.find(x => x.bereich === name) || (koe && name === 'Bewegung' ? { farbe: RINGE[1][2] } : f)).farbe;
+    if (!b) bereiche.push(b = { name: name, farbe: farbe, felder: [] });
+    b.felder.push(f);
+  });
+  const karten = bereiche.filter(b => b.felder.some(f => f.typ === 'bloecke') || b.felder.some(f => feldHtml(f) !== '')).map(b => {   // V84: leere Karten (Struktur ohne Termine) fallen weg
+    const bloecke = b.felder.some(f => f.typ === 'bloecke');
+    const kopfZeile = bloecke ? '' :
+      '<div class="bereich"><span class="punkt" style="background:' + b.farbe + '"></span>' + esc(b.name) +
+      (checkinOffen(b.felder) ? '<span class="ci-offen">' + checkinOffen(b.felder) + ' offen</span>' : '') + '</div>';
+    const ruhig = String(b.name || '').toLowerCase() === 'geld';   // Geld: keine Animation, soll sofort reagieren
+    const tasks = bloecke && typeof cosTasksKarte === 'function' ? cosTasksKarte() : '';   // V4: Tasks als eigene Karte unter dem Fokus
+    return { name: b.name, bloecke: bloecke, unten: b.felder.some(f => f.typ === 'mac'),
+      html: '<div class="karte' + (ruhig ? ' ruhig' : '') + '">' + kopfZeile + b.felder.map(f => feldHtml(f) + (koe ? koeDrinkZusatz(f) : '')).join('') + (koe && b.name === 'Bewegung' ? koeSchritteHtml() + koeSportHtml() : '') + '</div>' + tasks };
+  });
+  // V68: Fokus mit Tasks zuerst, Bildschirmzeit ganz unten, sonst wie in der Tabelle
+  const fokus = karten.filter(k => k.bloecke), unten = karten.filter(k => k.unten && !k.bloecke);
+  karten.splice(0, karten.length, ...karten.filter(k => !k.bloecke && !(k.unten && !k.bloecke)));
+  const n = macSpalten();
+  if (koe) {   // Köö: Schlaf, Körper, Bewegung, dann was noch kommt. Am Mac nebeneinander
+    koeLaden(tagIso, false); spLaden(false);
+    const rang = k => { const i = KOE_KARTEN.findIndex(x => x[0] === k.name); return i === -1 ? 99 : i; };
+    karten.sort((a, b) => rang(a) - rang(b));
+    const teile = karten.concat(unten).map(k => k.html).concat(koeBaldHtml());
+    if (n < 2) $('inhalt').innerHTML = html + listen + teile.join('');
+    else {
+      const sp = Array.from({ length: n }, () => '');
+      teile.forEach((t, j) => { sp[Math.min(j, n - 1)] += t; });
+      sp[0] += listen;
+      $('inhalt').innerHTML = html + '<div class="mac-spalten">' + sp.map(x => '<div class="mac-spalte">' + x + '</div>').join('') + '</div>';
+    }
+    nachTag(); return;
+  }
+  // V82: keine Zeile Köö mehr im Tag. Am Handy Geld vor Kopf
+  const geldZuerst = k => String(k.name || '').toLowerCase() === 'geld' ? 0 : 1;
+  karten.sort((a, b) => geldZuerst(a) - geldZuerst(b));
+  const woche = { html: wocheKarteHtml() };
+  if (n < 2) { $('inhalt').innerHTML = html + listen + fokus.concat(woche, karten, unten).map(k => k.html).join('') + versionHtml(); nachTag(); return; }
+  /* Mac (V86): links breit der Fokus mit Tasks und Kalender. Daneben Kopf und Notiz (höher).
+     Drei Spalten: rechts Woche und Geld. Zwei Spalten: Woche unter den Fokus, Geld unter die Notiz */
+  const sp = Array.from({ length: n }, () => '');
+  const name = k => String(k.name || '').toLowerCase();
+  const kopfK = karten.filter(k => name(k) === 'kopf'), notizK = karten.filter(k => name(k) === 'notiz');
+  const rest = karten.filter(k => kopfK.indexOf(k) === -1 && notizK.indexOf(k) === -1);
+  fokus.forEach(k => { sp[0] += k.html; });
+  if (typeof cosLeisteKarte === 'function') sp[0] += cosLeisteKarte();
+  kopfK.concat(notizK).forEach(k => { sp[1] += k.html; });
+  sp[1] += listen;
+  const rechts = n === 3 ? 2 : 1;
+  if (n === 3) sp[2] += woche.html; else sp[0] += woche.html;
+  rest.concat(unten).forEach(k => { sp[rechts] += k.html; });
+  $('inhalt').innerHTML = html + '<div class="mac-spalten tag-spalten">' + sp.map(s => '<div class="mac-spalte">' + s + '</div>').join('') + '</div>' + versionHtml();
+  nachTag();
+}
+/* V80: ganz unten im Tag, welche Version läuft (Name aus bereitstellen.sh, Zeit aus bauen.py) */
+function versionHtml() {
+  if (typeof PWA_VERSION === 'undefined') return '';
+  const v = String(PWA_VERSION), zeit = v.length === 12 ? Number(v.slice(6, 8)) + '.' + Number(v.slice(4, 6)) + '. ' + v.slice(8, 10) + ':' + v.slice(10, 12) : v;
+  const name = typeof PWA_NAME !== 'undefined' && PWA_NAME ? PWA_NAME : '';
+  return '<div class="version">' + esc([name, zeit].filter(Boolean).join(' · ')) + '</div>';
+}
+
+/* V84: Karte Woche im Tag statt Reiter. Sieben Balken Mo bis So mit dem Tageswert, Ø der Woche, Antippen öffnet die Woche */
+function wocheOeffnen() { ansicht = 'woche'; zeichnen(); window.scrollTo(0, 0); }
+function wocheKarteHtml() {
+  const f = P.felder.find(x => x.typ === 'gross');
+  if (!f) return '';
+  const t = tagIso.split('-').map(Number), tagNr = (new Date(t[0], t[1] - 1, t[2]).getDay() + 6) % 7, mo = tagPlus(tagIso, -tagNr);
+  const tage = [0, 1, 2, 3, 4, 5, 6].map(k => tagPlus(mo, k));
+  const werte = tage.map(iso => { const l = tagLive(iso), w = l != null ? l : wertVon(f.spalte, iso); return typeof w === 'number' ? w : null; });
+  const da = werte.filter(w => w != null), schnitt = da.length ? Math.round(da.reduce((a, b) => a + b, 0) / da.length * 10) / 10 : null;
+  const balken = werte.map((w, i) => '<div class="wk-tag' + (tage[i] === tagIso ? ' heute' : '') + '"><span class="wk-bahn"><i style="height:' + (w == null ? 0 : Math.max(8, w * 10)) + '%;' +
+    (w == null ? '' : 'background:' + (stufeFarbe(f, w) || f.farbe)) + '"></i></span><small>' + 'MDMDFSS'[i] + '</small></div>').join('');
+  return '<div class="karte woche-karte" onclick="wocheOeffnen()"><div class="bereich"><span class="punkt" style="background:' + f.farbe + '"></span>Woche' +
+    '<span class="wk-schnitt">' + (schnitt == null ? '' : 'Ø ' + komma(schnitt.toFixed(1))) + '</span><span class="wk-pfeil">›</span></div><div class="wk-balken">' + balken + '</div></div>';
+}
+/* Farbe der Stufe aus ton(), nur der Hintergrund */
+function stufeFarbe(f, w) { const m = String(ton(f, stufe(f, w)) || '').match(/background:\s*([^;]+)/); return m ? m[1].trim() : ''; }
+function zeichneWoche() {
+  $('kopfTitel').textContent = 'Letzte 14 Tage';
+  $('kopfDatum').textContent = '';
+  const h = heute();
+  const gross = P.felder.find(f => f.typ === 'gross');
+  const mini = P.felder.filter(f => f.uebersicht && f.typ !== 'gross');
+  const zeilen = P.tage.filter(t => t <= h).slice(-14).reverse().map(iso => {
+    const gw = gross ? wertVon(gross.spalte, iso) : null;
+    return '<button class="tag-zeile" onclick="oeffnen(\'' + iso + '\')"><span class="datum">' + esc(label(iso)) + '</span>' +
+      (gross ? '<span class="pille" style="' + ton(gross, stufe(gross, gw)) + '">' + (esc(anzeigeVon(gross.spalte, iso)) || '–') + '</span>' : '') +
+      '<span class="mini">' + mini.map(f => {
+        if (f.typ === 'bloecke' && P.bloecke && P.bloecke[iso]) { const m = fokusTagMin(iso); return m > 0 ? '<span>Fokus ' + hm(m) + '</span>' : ''; }
+        const a = anzeigeVon(f.spalte, iso);
+        if (!a && a !== 0) return '';
+        return '<span style="' + ton(f, stufe(f, wertVon(f.spalte, iso))) + '">' + esc(f.spalte.replace(' 1/10', '')) + ' ' + esc(a) + '</span>';
+      }).join('') + '</span></button>';
+  }).join('');
+  $('inhalt').innerHTML = '<div class="karte">' + (zeilen || '<div class="hinweis">Noch keine Tage.</div>') + '</div>';
+}
+
 function nebenWerte(f, seite) {
   if (seite === 'l') return '';
   const tage = [0, -1, -2, -3].map(n => wertVon(f.spalte, tagPlus(tagIso, n))).filter(x => typeof x === 'number');
@@ -4843,7 +4967,9 @@ function macListe(l, anz) {
     esc(x.bereich) + '</span><span class="pbetrag">' + hm(x.min) + '</span></div>').join('') + '</div>';
 }
 /* Check ins: drei Fenster pro Tag. Unter der Skala steht, welche schon eingetragen sind, das laufende ist markiert */
-const CHECKIN_FELDER = ['Stimmung 1/10', 'Energie 1/10', 'Konzentration 1/10'];
+/* V93: auch Halsi und Migna in Köö (Karte Körper), gleicher Aufbau wie Stimmung */
+const CHECKIN_FELDER = ['Stimmung 1/10', 'Energie 1/10', 'Konzentration 1/10', 'Halsi 1/10', 'Migna 1/10'];
+const istCheckin = f => !!f && f.mehrfach && CHECKIN_FELDER.indexOf(f.spalte) !== -1;
 const CHECKIN = [['Morgens', 0, 12 * 60], ['Mittags', 12 * 60, 17 * 60], ['Abends', 17 * 60, 24 * 60]];
 function checkinFenster(liste) {
   return CHECKIN.map(([name, von, bis]) => {
@@ -4862,15 +4988,16 @@ function checkinHtml(f, liste) {
     ? '<div class="ci-status drin' + (frisch ? ' frisch' : '') + '"><span class="ci-haken">✓</span>' + c.name + ' drin</div>'
     : '<div class="ci-status offen"><span class="ci-punkt"></span>' + c.name + ' noch offen</div>';
 }
-/* Kopf Karte: wie viele Check ins im laufenden Fenster noch fehlen */
-function checkinOffen() {
-  if (tagIso !== heute() || !P) return 0;
+/* Karte (Kopf, in Köö Körper): wie viele Check ins im laufenden Fenster noch fehlen. Ohne Liste: alle Felder */
+function checkinFehlt(f) {
+  if (tagIso !== heute() || !istCheckin(f)) return false;
   const jm = jetztMin(), c = CHECKIN.find(([, von, bis]) => jm >= von && jm < bis);
-  if (!c) return 0;
-  return CHECKIN_FELDER.filter(sp => {
-    const liste = (zelle(sp) || {}).eintraege || [];
-    return !checkinFenster(liste).some(x => x.name === c[0] && x.wert != null);
-  }).length;
+  if (!c) return false;
+  return !checkinFenster((zelle(f.spalte) || {}).eintraege || []).some(x => x.name === c[0] && x.wert != null);
+}
+function checkinOffen(felder) {
+  if (!P) return 0;
+  return (felder || P.felder).filter(checkinFehlt).length;
 }
 
 /* Mehrfach: jedes Antippen ist ein neuer Eintrag, oben steht der Schnitt */
@@ -4891,8 +5018,34 @@ function mehrfachHtml(f, id, w, s, kopf, pille) {
   // Rechts steht der Schnitt des Tages, wie in der Tabelle
   return kopf(pille(typeof w === 'number' ? komma(w) : '')) +
     '<div class="skala">' + k + '</div>' +
-    (CHECKIN_FELDER.indexOf(f.spalte) !== -1 ? checkinHtml(f, liste)
+    (istCheckin(f) ? checkinHtml(f, liste)
       : (zeit ? '<div class="unter"><span class="zuletzt">zuletzt</span> ' + esc(zeit) + '</div>' : '')) + '</div>';
+}
+
+function umklappen(i) {
+  const f = P.felder[i];
+  if (!f) return;
+  if (auf.has(f.spalte)) auf.delete(f.spalte); else auf.add(f.spalte);
+  zeichnen();
+}
+
+function termineHtml(f) {
+  const t = P.termine[tagIso] || [];
+  if (!t.length) return '<div class="hinweis">Keine Termine im Kalender.</div>';
+  return '<div class="terminliste">' + t.map(x =>
+    '<div class="termin"><span class="zeit">' + esc(x.zeit) + '</span>' +
+    '<div class="was"><div>' + esc(x.titel) + '</div><small>' + esc(x.kalender) + '</small></div></div>'
+  ).join('') + '</div>';
+}
+
+function tasksHtml(f) {
+  const t = (zelle(f.spalte) || {}).tasks || [];
+  if (!t.length) return '<div class="hinweis">Noch keine Tasks abgehakt.</div>';
+  return '<div class="terminliste">' + t.map(x =>
+    '<div class="termin"><span class="zeit">' + esc(x.zeit) + '</span>' +
+    '<div class="was"><div>' + esc(x.titel) + '</div>' + (x.liste ? '<small>' + esc(x.liste) + '</small>' : '') + '</div>' +
+    (x.stufe ? '<span class="er-pkt s' + x.stufe + '">+' + taskPunkte(x) + '</span>' : '') + '</div>'
+  ).join('') + '</div>';
 }
 
 /* Liste aus der Notiz der Zelle, z.B. Abbuchungen oder Konten */
@@ -4930,32 +5083,6 @@ function siebenHtml(f) {
     '<span class="pille' + (werte.length ? '' : ' leer') + '" style="' + (schnitt == null ? '' : ton(f, stufe(f, schnitt))) + '">' + (werte.length ? esc(geld(summe)) : '–') + '</span></div>' + liste + '</div>';
 }
 function siebenKlappen() { if (auf.has(SIEBEN)) auf.delete(SIEBEN); else auf.add(SIEBEN); zeichnen(); }
-function umklappen(i) {
-  const f = P.felder[i];
-  if (!f) return;
-  if (auf.has(f.spalte)) auf.delete(f.spalte); else auf.add(f.spalte);
-  zeichnen();
-}
-
-function termineHtml(f) {
-  const t = P.termine[tagIso] || [];
-  if (!t.length) return '<div class="hinweis">Keine Termine im Kalender.</div>';
-  return '<div class="terminliste">' + t.map(x =>
-    '<div class="termin"><span class="zeit">' + esc(x.zeit) + '</span>' +
-    '<div class="was"><div>' + esc(x.titel) + '</div><small>' + esc(x.kalender) + '</small></div></div>'
-  ).join('') + '</div>';
-}
-
-function tasksHtml(f) {
-  const t = (zelle(f.spalte) || {}).tasks || [];
-  if (!t.length) return '<div class="hinweis">Noch keine Tasks abgehakt.</div>';
-  return '<div class="terminliste">' + t.map(x =>
-    '<div class="termin"><span class="zeit">' + esc(x.zeit) + '</span>' +
-    '<div class="was"><div>' + esc(x.titel) + '</div>' + (x.liste ? '<small>' + esc(x.liste) + '</small>' : '') + '</div>' +
-    (x.stufe ? '<span class="er-pkt s' + x.stufe + '">+' + taskPunkte(x) + '</span>' : '') + '</div>'
-  ).join('') + '</div>';
-}
-
 /* ── Blöcke: Fokuspunkte. Gezählt wird das Anfangen. Dieselben Zahlen stehen in Bloecke.gs (BLK.PUNKTE) ── */
 const BLOCK_FAKTOR = { gemacht: 1, teils: 0.5, nicht: 0 };
 const ZAEHLT_NICHT = ['System'];   // wie BLK.ZAEHLT_NICHT: sichtbar, aber nicht in der Fokuszeit
@@ -5315,6 +5442,12 @@ function blockFertig(i) {
   zeichnen();
   nacheinander('appBlockBeenden', b.key, true);
 }
+/* V92: Fertig am Blockende. Gehört der Block zu einem Schritt, kommt nach der Meldung Weiter bei (ChiefSeite) */
+function blockFertigWeiter(i) {
+  const b = bloeckeVon(heute())[i], s = b && typeof cosSchrittVon === 'function' ? cosSchrittVon(b) : null;
+  blockFertig(i);
+  if (s && typeof cosWeiterSpaeter === 'function') cosWeiterSpaeter(s.id, false);
+}
 /* Los: ab jetzt läuft die Uhr. Der erste Start des Tages bekommt den großen Moment */
 function blockStarten(iso, i, ohneVerlauf, zurueck) {
   const b = bloeckeVon(iso)[i];
@@ -5410,7 +5543,7 @@ function heuteHtml(f) {
         '<div class="hz-bar"><i style="width:' + p + '%"></i></div>') +
         (lauf < 5 ? schritt : '') + terminZeile + meldHtml + (cosT && meld && meld.ja && typeof cosDochNichtHtml === 'function' && Date.now() - meld.t < 12000 ? cosDochNichtHtml(b) : '') +
         (kb ? kb.knoepfe : '<div class="hz-knoepfe"><button class="hz-dran' + (jm - dranBasis(b, d) >= 25 ? ' puls' : '') + '" onclick="dranTippen(' + i + ',true)">Dran</button>' +
-        '<button onclick="dranTippen(' + i + ',false)">Abgedriftet</button><button onclick="blockFertig(' + i + ')">Fertig</button></div>' +
+        '<button onclick="dranTippen(' + i + ',false)">Abgedriftet</button><button onclick="blockFertigWeiter(' + i + ')">Fertig</button></div>' +
         seitKnoepfe(h, i, 'Früher angefangen?'));
       feier = !!(meld && meld.erster && Date.now() - meld.t < 3000);
     } else if (istLauf) {
@@ -6200,26 +6333,6 @@ function taskFertig(iso, i) {
   nacheinander('appTaskErledigt', b.key);
 }
 
-function zeichneWoche() {
-  $('kopfTitel').textContent = 'Letzte 14 Tage';
-  $('kopfDatum').textContent = '';
-  const h = heute();
-  const gross = P.felder.find(f => f.typ === 'gross');
-  const mini = P.felder.filter(f => f.uebersicht && f.typ !== 'gross');
-  const zeilen = P.tage.filter(t => t <= h).slice(-14).reverse().map(iso => {
-    const gw = gross ? wertVon(gross.spalte, iso) : null;
-    return '<button class="tag-zeile" onclick="oeffnen(\'' + iso + '\')"><span class="datum">' + esc(label(iso)) + '</span>' +
-      (gross ? '<span class="pille" style="' + ton(gross, stufe(gross, gw)) + '">' + (esc(anzeigeVon(gross.spalte, iso)) || '–') + '</span>' : '') +
-      '<span class="mini">' + mini.map(f => {
-        if (f.typ === 'bloecke' && P.bloecke && P.bloecke[iso]) { const m = fokusTagMin(iso); return m > 0 ? '<span>Fokus ' + hm(m) + '</span>' : ''; }
-        const a = anzeigeVon(f.spalte, iso);
-        if (!a && a !== 0) return '';
-        return '<span style="' + ton(f, stufe(f, wertVon(f.spalte, iso))) + '">' + esc(f.spalte.replace(' 1/10', '')) + ' ' + esc(a) + '</span>';
-      }).join('') + '</span></button>';
-  }).join('');
-  $('inhalt').innerHTML = '<div class="karte">' + (zeilen || '<div class="hinweis">Noch keine Tage.</div>') + '</div>';
-}
-
 /* ── Aktionen ── */
 function feldVon(id) { return P.felder[Number(id.slice(1))]; }
 function lokal(f, wert) {
@@ -6392,7 +6505,7 @@ function eintragNeu(id, n) {
   const liste = ((zelle(f.spalte) || {}).eintraege || []).slice();
   // Check ins: pro Fenster (morgens, mittags, abends) nur ein Wert. Nochmal tippen ersetzt ihn
   let ersetzt = -1, fenster = null;
-  if (CHECKIN_FELDER.indexOf(f.spalte) !== -1 && tagIso === heute()) {
+  if (istCheckin(f) && tagIso === heute()) {
     const jm = jetztMin();
     fenster = CHECKIN.find(([, von, bis]) => jm >= von && jm < bis);
     if (fenster) for (let i = liste.length - 1; i >= 0; i--) {
