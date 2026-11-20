@@ -139,6 +139,9 @@
   .feld + .koe-zwei, .koe-zwei + .koe-zwei { margin-top: 10px; }
   .koe-sport b.sp-heute { color: #0C9A6C; }
   .koe-sport b.sp-lange { color: #E07B1F; }
+  /* V93: Check ins (Halsi, Migna) in Köö grün wie der Körperring statt Kopf Rosa */
+  body.koeansicht .ci-offen, body.koeansicht .ci-status.offen { color: #0C9A6C; }
+  body.koeansicht .ci-punkt, body.koeansicht .ci-haken { background: #7CC9A9; }
   .woche-karte { cursor: pointer; }
   .woche-karte .bereich { margin-bottom: 10px; }
   .wk-schnitt { margin-left: auto; font-size: 13px; font-weight: 700; color: var(--text); text-transform: none; letter-spacing: 0; font-variant-numeric: tabular-nums; }
@@ -4331,7 +4334,7 @@ function senFilmWeg() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611191157';
+const PWA_VERSION = '202611201514';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -4664,9 +4667,9 @@ function paket(m, H, tagPlus, aenderungen) {
     feld('Struktur', 'Fokus', 'bloecke', 'Fokus', '#C2507F', { uebersicht: true }),
     feld('Struktur', 'Tasks', 'tasks', '', '#B8860B'),
     feld('Struktur', 'Termine', 'termine', 'Termine', '#B8860B'),
-    feld('Kopf', 'Stimmung 1/10', 'skala', 'Stimmung', '#D4537E'),
-    feld('Kopf', 'Energie 1/10', 'skala', 'Energie', '#D4537E'),
-    feld('Kopf', 'Konzentration 1/10', 'skala', 'Konzentration', '#D4537E'),
+    feld('Kopf', 'Stimmung 1/10', 'skala', 'Stimmung', '#D4537E', { mehrfach: true }),
+    feld('Kopf', 'Energie 1/10', 'skala', 'Energie', '#D4537E', { mehrfach: true }),
+    feld('Kopf', 'Konzentration 1/10', 'skala', 'Konzentration', '#D4537E', { mehrfach: true }),
     feld('Kopf', 'Vb', 'wahl', '', '#D4537E'),
     feld('Kopf', 'X Handy Frühstück', 'kaestchen', '', '#D4537E'),
     feld('Schlaf', 'Aufwach', 'uhrzeit', 'Aufwach', '#3D85C6'),
@@ -4677,6 +4680,8 @@ function paket(m, H, tagPlus, aenderungen) {
     feld('Körper', 'Knieübung', 'kaestchen', '', '#2E9E6A'),
     feld('Körper', 'Drinks', 'zahl', 'Drinks', '#2E9E6A'),
     feld('Körper', 'Ott', 'kaestchen', '', '#2E9E6A', { gutWenn: 'leer' }),
+    feld('Körper', 'Migna 1/10', 'skala', 'Migna', '#2E9E6A', { mehrfach: true }),   // V93: Check ins wie Stimmung
+    feld('Körper', 'Halsi 1/10', 'skala', 'Halsi', '#2E9E6A', { mehrfach: true }),
     feld('Kopf', 'Schritte', 'wert', '', '#D4537E'),   // V77: steht live nicht im Bereich Körper, muss trotzdem nach Köö
     feld('Struktur', 'Mac', 'mac', '', '#6D6A8A'),
     feld('Geld', 'Ausgaben', 'zahl', 'Ausgaben', '#3B6D11'),
@@ -4696,6 +4701,7 @@ function paket(m, H, tagPlus, aenderungen) {
   gw(20, 22 / 24);
   const ziele = { Tag: [7, 10, 5, 7], Fokus: [0.125, 1, 0.04, 0.125] };
   Object.keys(grenzen).forEach(n => { const [a, ...g] = grenzen[n]; g.forEach((x, i) => gw(a + i, x)); ziele[n] = g; });
+  ziele.Migna = [7, 10, 5, 7]; ziele.Halsi = [7, 10, 5, 7];   // V93: nur Farben, keine Punkte
   gw(73, 2); gw(105, 0.125); gw(109, 20); gw(110, 10); gw(111, 7); gw(112, 1); gw(113, 2 / 24); gw(114, 1); gw(115, 10); gw(116, 6);
 
   // Werte: eine Woche Verlauf, heute halb ausgefüllt (der Rest zum Ausprobieren)
@@ -4714,6 +4720,10 @@ function paket(m, H, tagPlus, aenderungen) {
       'Ausgaben': z(alt ? [18, 42, 9, 27, 64, 15][i] : 20), 'Mac': mac(40 + 10 * k, 90 + 30 * k, 35),
       'Kontostand': { wert: 1240 - 30 * i, anzeige: String(1240 - 30 * i), liste: [{ punkt: '●', name: 'Girokonto', betrag: String(1240 - 30 * i) + ',00' }, { punkt: '●', name: 'Tagesgeld', betrag: '800,00' }] }
     };
+    const ein = l => ({ wert: Math.round(l.reduce((a, e) => a + e.wert, 0) / l.length * 10) / 10, anzeige: '', eintraege: l });
+    r['Halsi 1/10'] = ein(alt ? [{ zeit: '09:10', wert: 6 + k }, { zeit: '13:40', wert: 7 }, { zeit: '20:15', wert: 5 + k }] : [{ zeit: '08:45', wert: 4 }]);
+    r['Halsi 1/10'].anzeige = String(r['Halsi 1/10'].wert).replace('.', ',');
+    if (alt) { r['Migna 1/10'] = ein([{ zeit: '08:50', wert: 8 }, { zeit: '14:00', wert: 6 + k }]); r['Migna 1/10'].anzeige = String(r['Migna 1/10'].wert).replace('.', ','); }
     if (alt) Object.assign(r, {
       'Energie 1/10': z(4 + k), 'Konzentration 1/10': z(6 + k % 2), 'Vb': z(['si', 'hmm', 'si'][k]), 'X Handy Frühstück': z(k !== 1), 'Elvanse': zt(t(7, 30 + 10 * k)),
       'Einschlaf': zt(t(23, 10 + 15 * k)), 'X Handy Schlafen': z(k === 0), 'Sport': z(k === 2), 'Knieübung': z(k !== 0), 'Drinks': z(k === 1 ? 2 : 0), 'Ott': z(false),
@@ -4770,6 +4780,15 @@ exports.welt = function (H, tagPlus, quelle, sensiQuelle, sensiOpt) {
         const anzeige = typ === 'notiz' || typ === 'text' ? String(wert) : wert === 'nein' ? 'nein' :
           (typ === 'uhrzeit' || typ === 'jetzt') && typeof wert === 'number' ? zeit(wert) : String(wert).replace('.', ',');
         (aenderungen[tag] || (aenderungen[tag] = {}))[sp] = wert === '' || wert == null ? null : { wert, anzeige };
+      }
+      else if (q.fn === 'appEintrag') {   // V93: (tag, spalte, aktion, x) wie App.js, Uhrzeit: extra.uhr (feste Uhr im Test), sonst die des Rechners
+        const [tag, sp, aktion, x] = q.args;
+        const alt = ((aenderungen[tag] || {})[sp]) || ((paket(m, H, tagPlus, aenderungen).werte[tag] || {})[sp]) || {};
+        const liste = (alt.eintraege || []).slice();
+        if (aktion === 'neu') liste.push({ zeit: extra.uhr || uhr(new Date().getHours() * 60 + new Date().getMinutes()), wert: Number(x) });
+        else if (aktion === 'weg') liste.splice(Number(x), 1);
+        const w = liste.length ? Math.round(liste.reduce((a, e) => a + e.wert, 0) / liste.length * 10) / 10 : null;
+        (aenderungen[tag] || (aenderungen[tag] = {}))[sp] = w == null ? null : { wert: w, anzeige: String(w).replace('.', ','), eintraege: liste };
       }
       else if (/^appSensi|^appKoerper/.test(q.fn)) {   // Sensi und Körper (V81): echter Sensi.js und Koerper.js auf nachgebauten Tabs
         if (extra.alt || extra.ohneSensi || (extra.ohneKoerper && /^appKoerper/.test(q.fn))) throw new Error('Unbekannte Funktion: ' + q.fn);
@@ -5062,7 +5081,7 @@ function wechselAnim() {
    Was sonst noch in den Bereichen Schlaf, Körper oder Bewegung steht, kommt in die Karte seines Bereichs */
 const KOE_KARTEN = [
   ['Schlaf', ['aufwach', 'einschlaf', 'dauer', 'hrv']],
-  ['Körper', ['elvanse', 'ott', 'drinks', 'migna']],
+  ['Körper', ['elvanse', 'ott', 'drinks', 'migna', 'halsi']],   // V93 Halsi (Hals), Migna (Magen)
   ['Bewegung', ['sport', 'knieübung', 'schritte', 'bewegung']]
 ];
 const KOE_BEREICHE = ['schlaf', 'körper', 'bewegung'];
@@ -5122,8 +5141,9 @@ function koeBewegungHtml() {   // nur wenn es keine Felder für Bewegung gibt
 }
 function koeOeffnen() { ansicht = 'koe'; zeichnen(); window.scrollTo(0, 0); }
 function koeAnteil(iso) { const t = ringTeile(iso); return t ? Math.round(t[1] * 100) : null; }
-function koeOffen() {
-  return P.felder.filter(f => koeFeld(f) && ['kaestchen', 'mac', 'oben', 'wert'].indexOf(f.typ) === -1 && f.typ !== 'gross').filter(f => { const w = wertVon(f.spalte); return w == null || w === ''; }).length;
+function koeOffen() {   // V93: Check ins (Halsi, Migna) zählen offen, solange das laufende Fenster fehlt
+  return P.felder.filter(f => koeFeld(f) && ['kaestchen', 'mac', 'oben', 'wert'].indexOf(f.typ) === -1 && f.typ !== 'gross')
+    .filter(f => { if (istCheckin(f)) return checkinFehlt(f); const w = wertVon(f.spalte); return w == null || w === ''; }).length;
 }
 const KOE_BALD = [];   // Platzhalter für später: [['Name', 'Kommt bald.']]
 function koeBaldHtml() {
@@ -5264,7 +5284,7 @@ function zeichneTag() {
     const bloecke = b.felder.some(f => f.typ === 'bloecke');
     const kopfZeile = bloecke ? '' :
       '<div class="bereich"><span class="punkt" style="background:' + b.farbe + '"></span>' + esc(b.name) +
-      (b.felder.some(f => CHECKIN_FELDER.indexOf(f.spalte) !== -1) && checkinOffen() ? '<span class="ci-offen">' + checkinOffen() + ' offen</span>' : '') + '</div>';
+      (checkinOffen(b.felder) ? '<span class="ci-offen">' + checkinOffen(b.felder) + ' offen</span>' : '') + '</div>';
     const ruhig = String(b.name || '').toLowerCase() === 'geld';   // Geld: keine Animation, soll sofort reagieren
     const tasks = bloecke && typeof cosTasksKarte === 'function' ? cosTasksKarte() : '';   // V4: Tasks als eigene Karte unter dem Fokus
     return { name: b.name, bloecke: bloecke, unten: b.felder.some(f => f.typ === 'mac'),
@@ -5457,7 +5477,9 @@ function macListe(l, anz) {
     esc(x.bereich) + '</span><span class="pbetrag">' + hm(x.min) + '</span></div>').join('') + '</div>';
 }
 /* Check ins: drei Fenster pro Tag. Unter der Skala steht, welche schon eingetragen sind, das laufende ist markiert */
-const CHECKIN_FELDER = ['Stimmung 1/10', 'Energie 1/10', 'Konzentration 1/10'];
+/* V93: auch Halsi und Migna in Köö (Karte Körper), gleicher Aufbau wie Stimmung */
+const CHECKIN_FELDER = ['Stimmung 1/10', 'Energie 1/10', 'Konzentration 1/10', 'Halsi 1/10', 'Migna 1/10'];
+const istCheckin = f => !!f && f.mehrfach && CHECKIN_FELDER.indexOf(f.spalte) !== -1;
 const CHECKIN = [['Morgens', 0, 12 * 60], ['Mittags', 12 * 60, 17 * 60], ['Abends', 17 * 60, 24 * 60]];
 function checkinFenster(liste) {
   return CHECKIN.map(([name, von, bis]) => {
@@ -5476,15 +5498,16 @@ function checkinHtml(f, liste) {
     ? '<div class="ci-status drin' + (frisch ? ' frisch' : '') + '"><span class="ci-haken">✓</span>' + c.name + ' drin</div>'
     : '<div class="ci-status offen"><span class="ci-punkt"></span>' + c.name + ' noch offen</div>';
 }
-/* Kopf Karte: wie viele Check ins im laufenden Fenster noch fehlen */
-function checkinOffen() {
-  if (tagIso !== heute() || !P) return 0;
+/* Karte (Kopf, in Köö Körper): wie viele Check ins im laufenden Fenster noch fehlen. Ohne Liste: alle Felder */
+function checkinFehlt(f) {
+  if (tagIso !== heute() || !istCheckin(f)) return false;
   const jm = jetztMin(), c = CHECKIN.find(([, von, bis]) => jm >= von && jm < bis);
-  if (!c) return 0;
-  return CHECKIN_FELDER.filter(sp => {
-    const liste = (zelle(sp) || {}).eintraege || [];
-    return !checkinFenster(liste).some(x => x.name === c[0] && x.wert != null);
-  }).length;
+  if (!c) return false;
+  return !checkinFenster((zelle(f.spalte) || {}).eintraege || []).some(x => x.name === c[0] && x.wert != null);
+}
+function checkinOffen(felder) {
+  if (!P) return 0;
+  return (felder || P.felder).filter(checkinFehlt).length;
 }
 
 /* Mehrfach: jedes Antippen ist ein neuer Eintrag, oben steht der Schnitt */
@@ -5505,7 +5528,7 @@ function mehrfachHtml(f, id, w, s, kopf, pille) {
   // Rechts steht der Schnitt des Tages, wie in der Tabelle
   return kopf(pille(typeof w === 'number' ? komma(w) : '')) +
     '<div class="skala">' + k + '</div>' +
-    (CHECKIN_FELDER.indexOf(f.spalte) !== -1 ? checkinHtml(f, liste)
+    (istCheckin(f) ? checkinHtml(f, liste)
       : (zeit ? '<div class="unter"><span class="zuletzt">zuletzt</span> ' + esc(zeit) + '</div>' : '')) + '</div>';
 }
 
@@ -6992,7 +7015,7 @@ function eintragNeu(id, n) {
   const liste = ((zelle(f.spalte) || {}).eintraege || []).slice();
   // Check ins: pro Fenster (morgens, mittags, abends) nur ein Wert. Nochmal tippen ersetzt ihn
   let ersetzt = -1, fenster = null;
-  if (CHECKIN_FELDER.indexOf(f.spalte) !== -1 && tagIso === heute()) {
+  if (istCheckin(f) && tagIso === heute()) {
     const jm = jetztMin();
     fenster = CHECKIN.find(([, von, bis]) => jm >= von && jm < bis);
     if (fenster) for (let i = liste.length - 1; i >= 0; i--) {
@@ -7177,7 +7200,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 11:57</div>
+<div id="testband">TEST 15:14</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
