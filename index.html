@@ -1084,6 +1084,57 @@
   @media (prefers-reduced-motion: reduce) { .cos-anf, .cos-tr.rein, .cos-morgen.rein, .cos-tr.frisch .kq, .cos-fb.laeuft .cos-fb-voll::after { animation: none; } .cos-morgen, .cos-fb-plan, .cos-fb-voll { transition: none; } }
   @media (prefers-reduced-motion: reduce) { .cos-box.voll, .cos-reihe.reif .kq.neu, .cos-reihe .kq.landet, .cos-haken.neu span, .cos-srow.frisch,
     .cos-blatt.neu .cos-blatt-in, .cos-blatt.neu .cos-blatt-hg { animation: none; } }
+  /* ── V95 Heute vornehmen und Woche als Raster. Maße aus entwuerfe/kaestchen/Chief.dc.html ── */
+  :root { --ras-blau: #E7EEFB; --ras-we: #F7F6F2; --ras-we-text: #BDB9B0; --ras-tag-we: #9A968C; --ras-heute: #073763;
+    --ras-gruen: #2E7D32; --ras-gruen-hell: #E3F1E4; --ras-warn: #9A5B00; --ras-warn-hell: #FFF4E5; --ras-rot: #C62828; --ras-rot-hell: #FDE7E5; }
+  @media (prefers-color-scheme: dark) { :root { --ras-blau: rgba(123,164,240,.18); --ras-we: #1A1A18; --ras-we-text: #6A6862; --ras-tag-we: #85827A; --ras-heute: #2B5BA8;
+    --ras-gruen: #97C459; --ras-gruen-hell: rgba(151,196,89,.16); --ras-warn: #E9B46A; --ras-warn-hell: rgba(233,180,106,.16); --ras-rot: #F28B82; --ras-rot-hell: rgba(242,139,130,.16); } }
+  .ras-karte { padding: 16px; }
+  .ras-karte .leise { color: var(--leise); }
+  .ras-h2 { margin: 0; font-size: 13px; font-weight: 800; color: var(--titel); }
+  .ras-karte .cos-vn-k b { font-size: 20px; }
+  .ras-start { display: flex; align-items: center; gap: 8px; margin: 10px 0 4px; font-size: 14px; }
+  .ras-start svg { flex: none; color: var(--akzent); }
+  .cos-pl.cos-hv { display: grid; grid-template-columns: 4px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--linie); }
+  .cos-pl.cos-hv .cos-streif { min-height: 0; }
+  .cos-pl.cos-hv .cos-pl-t b { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cos-pl.cos-hv.null .cos-pl-t b { font-weight: 600; }
+  .ras-st { display: flex; align-items: center; gap: 8px; flex: none; }
+  .ras-st button { width: 36px; height: 36px; border-radius: 18px; background: var(--ras-blau); color: var(--akzent); font-size: 20px; font-weight: 600; line-height: 1; padding: 0; }
+  .ras-st button:disabled { opacity: .35; }
+  .ras-st b { width: 16px; text-align: center; font-size: 17px; font-variant-numeric: tabular-nums; }
+  .cos-pl.cos-hv.pop .ras-st b { animation: cosfeder .45s cubic-bezier(.3, 1.6, .5, 1); display: inline-block; }
+  .ras-vn-t { font-size: 13px; color: var(--leise); margin-top: 6px; }
+  .ras-hinweis { margin-top: 8px; padding: 8px 10px; border-radius: 10px; background: var(--ras-warn-hell); color: var(--ras-warn); font-size: 13px; }
+
+  .ras-k { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .ras-tabs { display: flex; padding: 3px; border-radius: 10px; background: var(--chip); }
+  .ras-tabs button { padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 700; color: var(--leise); }
+  .ras-tabs button.an { background: var(--karte); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .ras-gitter { display: grid; grid-template-columns: 66px repeat(7, minmax(0, 1fr)); gap: 3px; margin-top: 12px; font-size: 13px; font-variant-numeric: tabular-nums; }
+  .ras-tag { text-align: center; font-size: 12px; font-weight: 700; padding: 4px 0; border-radius: 6px; color: var(--titel); }
+  .ras-tag.we { color: var(--ras-tag-we); }
+  .ras-tag.heute { background: var(--ras-heute); color: #FFFFFF; }
+  .ras-name { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--titel); overflow: hidden; white-space: nowrap; min-width: 0; }
+  .ras-name i { width: 6px; height: 6px; border-radius: 3px; flex: none; }
+  .ras-name span { overflow: hidden; text-overflow: ellipsis; }
+  .ras-z { height: 34px; border-radius: 8px; font-weight: 700; font-size: 14px; padding: 0; min-width: 0; overflow: hidden; white-space: nowrap; }
+  .ras-z.fest { cursor: default; }
+  .ras-wahl { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: var(--bg); font-size: 14px; }
+  .ras-wahl .ras-st b { width: auto; min-width: 44px; font-size: 16px; }
+  .ras-fuss { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-top: 12px; font-size: 13px; }
+  .ras-kap { text-align: left; font-size: 13px; padding: 0; flex: none; white-space: nowrap; }
+  .ras-kap b { font-size: 15px; }
+  .ras-sys { color: var(--leise); text-align: right; }
+  .ras-sys.rot { color: var(--ras-rot); }
+  .ras-text { font-size: 12px; color: var(--leise); margin-top: 4px; }
+  .ras-verteilen { display: block; font-size: 13px; padding: 8px 0 0; }
+  /* Mac drei Spalten: rechte Spalte ist schmal, bis S4 sie neu ordnet */
+  .cos-drei.mit-raster { grid-template-columns: minmax(250px, .85fr) minmax(0, 1.4fr) minmax(340px, 1fr); }
+  .cos-drei .ras-gitter { grid-template-columns: 62px repeat(7, minmax(0, 1fr)); }
+  .cos-drei .ras-name { font-size: 11px; }
+  .cos-drei .ras-gitter .ras-z.start { font-size: 10px !important; }
+  .cos-drei .ras-gitter .null0 { display: none; }
 </style>
 <div id="cosBlatt" class="cos-blatt"></div>
 <script>
@@ -1695,6 +1746,46 @@ function cosHakenSetzen(id, neu, ohneVerlauf) {
   cosNach('appChiefHaken', id, neu === 'fertig').then(() => { cosAusstehend--; cosGeladen = 0; });
 }
 
+
+/* ── V95 Startzeit und Gehalten ── */
+const COS_START = 570, COS_START_TOL = 10;   // Standard 09:30, "Start gehalten" bis 10 Minuten danach
+/* Startzeit eines Tages in Minuten aus st|Datum. 0 heißt frei. Ohne Eintrag Mo bis Fr 09:30, Sa und So frei */
+function cosStartVon(iso) {
+  const v = cosMerk('st|' + iso);
+  if (typeof v === 'number' && v >= 0) return v;
+  return cosArbeitstag(iso) ? COS_START : 0;
+}
+/* Gehalten an einem Tag: pro Projekt (ohne System) geschaffte Kästchen (Fokusminuten der Blöcke am Schritt durch 30)
+   gegen pt minus jt. tag: alle gehalten (null, wenn nichts geplant), start: erster Los höchstens 10 Minuten nach st
+   (null, wenn nichts geplant oder noch offen). soll, ist (gekappt pro Projekt) und joker für die Anzeige */
+function cosGehalten(iso) {
+  const pt = cosPlanLesen(iso) || {}, jtRoh = cosMerk('jt|' + iso), jt = jtRoh && typeof jtRoh === 'object' ? jtRoh : {};
+  const min = {}, proP = {};
+  let erster = null;
+  bloeckeVon(iso).forEach(b => {
+    if (!zaehlt(b)) return;
+    if (b.gestartet && (erster === null || minVon(b.gestartet) < erster)) erster = minVon(b.gestartet);
+    const s = cosSchrittVon(b), p = s && cosNachName(s.projekt);
+    if (p) min[p.id] = (min[p.id] || 0) + fokusMin(iso, b);
+  });
+  let soll = 0, ist = 0, joker = 0, ok = true;
+  ((C && C.projekte) || []).forEach(p => {
+    if (p.bereich === 'System') return;
+    const geplant = Math.max(0, Number(pt[p.id]) || 0), j = Math.max(0, Number(jt[p.id]) || 0);
+    const s = Math.max(0, geplant - j), k = Math.floor((min[p.id] || 0) / COS_MIN + 0.01);
+    if (!geplant && !k) return;
+    proP[p.id] = { soll: s, ist: k, joker: Math.min(j, geplant), ok: k >= s };
+    soll += s; ist += Math.min(k, s); joker += Math.min(j, geplant);
+    if (k < s) ok = false;
+  });
+  const geplantTag = soll + joker > 0, st = cosStartVon(iso), h = heute();
+  let start = null;
+  if (geplantTag && st) {
+    if (erster !== null) start = erster <= st + COS_START_TOL;
+    else if (iso < h || (iso === h && jetztMin() > st + COS_START_TOL)) start = false;
+  }
+  return { proP: proP, tag: geplantTag ? ok : null, start: start, soll: soll, ist: ist, joker: joker, erster: erster };
+}
 /* ── Seite Chief: Übersicht ── */
 function cosWocheJetzt() {
   const h = heute(), t = h.split('-').map(Number), wt = (new Date(Date.UTC(t[0], t[1] - 1, t[2])).getUTCDay() + 6) % 7;
@@ -1739,7 +1830,7 @@ function cosProjektZeile(p, rang, alle, ueber, an) {
 }
 function cosUebersicht(alle, ueber, mac) {
   const aktiv = C.projekte.filter(p => p.status === 'aktiv');
-  let html = cosWocheKarte();
+  let html = cosRasterAn() ? '' : cosWocheKarte();   // V95: mit Ablage steht die Woche als Raster über der Liste
   // V63: keine Karten passt nicht und verschoben mehr
   html += '<div class="cos-kopfzeile"><span class="cos-ab">Aktiv · ' + aktiv.length + ' von ' + COS_AKTIV_MAX + '</span><button class="cos-link" onclick="cosProjektNeu()">+ Projekt</button></div>';
   html += '<div class="karte cos-liste">' + (aktiv.length ? aktiv.map((p, i) => cosProjektZeile(p, i + 1, alle, ueber, mac && cosProjekt === p.id)).join('')
@@ -1899,18 +1990,21 @@ function cosNeuAnlegen() {
   cosNeuFokus();
 }
 
-/* ── Woche am Mac: die nächsten sieben Tage. Feste Schritte auf ihrem Tag, der Rest wie der Chief ihn verteilen würde ── */
-function cosWochePlan() {
+/* ── Woche: sieben Tage ab heute (oder ab). Feste Schritte auf ihrem Tag, der Rest wie der Chief ihn verteilen würde.
+   V95: ab und ohneSystem für Chief verteilen im Raster ── */
+function cosWochePlan(ab, ohneSystem) {
   const h = heute(), alle = cosAlleBloecke(), ueber = cosUeber(alle), kap = Number(C.kapazitaet) || COS_KAP;
   const tage = [];
   for (let i = 0; i < 7; i++) {   // V90: Sa und So 0, sonst Kapazität durch 5, der Rest geht an die ersten Tage der Woche
-    const iso = tagPlus(h, i), t = iso.split('-').map(Number), wt = new Date(Date.UTC(t[0], t[1] - 1, t[2])).getUTCDay();
+    const iso = tagPlus(ab || h, i), t = iso.split('-').map(Number), wt = new Date(Date.UTC(t[0], t[1] - 1, t[2])).getUTCDay();
     const cap = wt >= 1 && wt <= 5 ? Math.floor(kap / 5) + (wt - 1 < kap % 5 ? 1 : 0) : 0;
     tage.push({ iso: iso, cap: cap, k: 0, items: [], geschafft: 0 });
   }
-  tage[0].geschafft = cosTag(h).farben.length;
-  tage[0].cap = Math.max(0, tage[0].cap - tage[0].geschafft);
-  const aktiv = C.projekte.filter(p => p.status === 'aktiv');
+  if (tage[0].iso === h) {
+    tage[0].geschafft = cosTag(h).farben.length;
+    tage[0].cap = Math.max(0, tage[0].cap - tage[0].geschafft);
+  }
+  const aktiv = C.projekte.filter(p => p.status === 'aktiv' && !(ohneSystem && p.bereich === 'System'));
   const warte = {};
   aktiv.forEach(p => {
     warte[p.id] = [];
@@ -1944,7 +2038,9 @@ function cosWochePlan() {
   });
   return tage;
 }
-function cosWocheHtml() {
+/* V95: mit Ablage ist die Woche das Raster (woche.js), sonst wie bisher die nächsten 7 Tage */
+function cosWocheHtml() { return cosRasterAn() ? cosWocheRasterHtml() : cosWocheAltHtml(); }
+function cosWocheAltHtml() {
   const tage = cosWochePlan(), kap = Number(C.kapazitaet) || COS_KAP;
   const summe = tage.reduce((n, t) => n + t.k + t.geschafft, 0);
   return '<div class="karte"><div class="cos-woche-k"><span class="cos-ab">Nächste 7 Tage</span><b>' + summe + ' von ' + kap + '</b></div>' +
@@ -2001,13 +2097,198 @@ function zeichneChief() {
   const alt = cosServerAlt() ? '<div class="karte cos-hinweis"><span>Der Server ist noch alt, Bearbeiten geht erst danach. Einmal: ./bereitstellen.sh server</span></div>' : '';
   const alle = cosAlleBloecke(), ueber = cosUeber(alle), spalten = macSpalten();
   let offenP = cosProjekt ? cosPid(cosProjekt) : null;
-  if (spalten < 2) { box.innerHTML = alt + (offenP ? cosProjektHtml(offenP, true, false) : cosVornehmenKarte() + cosRundeKarte() + cosUebersicht(alle, ueber, false)); return; }
+  if (spalten < 2) { box.innerHTML = alt + (offenP ? cosProjektHtml(offenP, true, false) : cosVornehmenKarte() + (cosRasterAn() ? cosWocheRasterHtml() : '') + cosRundeKarte() + cosUebersicht(alle, ueber, false)); return; }
   if (!offenP) { offenP = C.projekte.find(p => p.status === 'aktiv') || C.projekte[0] || null; cosProjekt = offenP ? offenP.id : null; }
   const links = cosVornehmenKarte() + cosRundeKarte() + cosUebersicht(alle, ueber, true), mitte = offenP ? cosProjektHtml(offenP, false, true) : '<div class="karte"><b>Noch kein Projekt.</b></div>', woche = cosWocheHtml();
-  box.innerHTML = alt + (spalten >= 3 ? '<div class="cos-drei"><div>' + links + '</div><div>' + mitte + '</div><div>' + woche + '</div></div>'
+  box.innerHTML = alt + (spalten >= 3 ? '<div class="cos-drei' + (cosRasterAn() ? ' mit-raster' : '') + '"><div>' + links + '</div><div>' + mitte + '</div><div>' + woche + '</div></div>'
     : '<div class="cos-zwei"><div>' + links + woche + '</div><div>' + mitte + '</div></div>');
 }
 
+/* ── V95 Woche als Raster: Spalten Mo bis So, Zeilen Start, aktive Projekte ohne System, Summe, Gehalten (laufende Woche).
+   Mengen in cos_merk pt|Datum = { ProjektID: n }, Startzeit st|Datum = Minuten (0 frei). Vergangene Tage nur ansehen,
+   heute Start gesperrt und Mengen nur Plus (weniger geht über den Joker im Fokus). Vorlage: entwuerfe/kaestchen/Chief.dc.html ── */
+const COS_RAS_KURZ = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+const COS_SYSTEM_MAX = 4;
+const COS_HINWEIS_JOKER = 'Weniger geht am Tag nur über den Joker im Fokus.';
+let cosRasWoche = 'jetzt';      // 'jetzt' oder 'naechste'
+let cosRasWahl = null;          // gewählte Zelle { w, z: 'start' | 'kap' | ProjektID, iso }
+const cosAnkerUhr = {};         // Startzeit zum Server, kurz gesammelt pro Tag
+
+function cosRasterAn() { return !!(P && C && !C.fehlt && C.merk && typeof C.merk === 'object' && !cosServerAlt()); }
+function cosKann(was) { return !!(C && Array.isArray(C.kann) && C.kann.indexOf(was) >= 0); }
+function cosMontag(iso) { const t = iso.split('-').map(Number), wt = (new Date(Date.UTC(t[0], t[1] - 1, t[2])).getUTCDay() + 6) % 7; return tagPlus(iso, -wt); }
+function cosRasTage(w) { const mo = tagPlus(cosMontag(heute()), w === 'naechste' ? 7 : 0), out = []; for (let i = 0; i < 7; i++) out.push(tagPlus(mo, i)); return out; }
+function cosRasProjekte() { return C.projekte.filter(p => p.status === 'aktiv' && p.bereich !== 'System'); }
+/* Menge eines Projekts an einem Tag. Heute ohne pt: der Vorschlag (wie Heute vornehmen) */
+function cosRasMenge(iso, pid) {
+  const pt = cosPlanLesen(iso);
+  if (pt) return Math.max(0, Number(pt[pid]) || 0);
+  return iso === heute() ? (cosPlanAktuell()[pid] || 0) : 0;
+}
+function cosRasSumme(iso) { return cosRasProjekte().reduce((a, p) => a + cosRasMenge(iso, p.id), 0); }
+/* Name in der Zeile: erstes Wort. Ist es lang und der Bereich kurz und eindeutig (FW), der Bereich wie im Entwurf */
+function cosRasKurzName(p) {
+  const w = String(p.name || '').split(/\s+/)[0], b = String(p.bereich || '');
+  if (w.length > 7 && b && b.length <= 4 && cosRasProjekte().filter(x => x.bereich === b).length === 1) return b;
+  return w;
+}
+/* Uhrzeit in der Zelle, die führende Null lässt sich in schmalen Spalten ausblenden */
+function cosRasUhr(m) { const u = cosUhr(m); return u.charAt(0) === '0' ? '<span class="null0">0</span>' + u.slice(1) : u; }
+/* Zentrale (Bereich System): Kästchen aus den Blöcken der laufenden Woche, höchstens 4, frei, nicht im Tag */
+function cosSystemWoche() {
+  const min = cosRasTage('jetzt').filter(iso => iso <= heute()).reduce((n, iso) => n + bloeckeVon(iso).filter(b => b.bereich === 'System').reduce((m, b) => m + fokusMin(iso, b), 0), 0);
+  return Math.floor(min / COS_MIN + 0.01);
+}
+/* Gemessen: Kästchen der Vorwoche und der laufenden Woche bis heute */
+function cosRasGemessen() {
+  const mo = cosMontag(heute()), h = heute();
+  let vor = 0, jetzt = 0;
+  for (let i = -7; i < 7; i++) { const iso = tagPlus(mo, i); if (iso > h) break; const n = cosTag(iso).farben.length; if (i < 0) vor += n; else jetzt += n; }
+  return 'Gemessen: KW ' + cosKwVon(tagPlus(mo, -7)) + ' ' + vor + ', KW ' + cosKwVon(mo) + ' bisher ' + jetzt + '.';
+}
+function cosRasEditierbar(iso, z) {
+  const h = heute();
+  if (z === 'kap') return true;
+  if (iso < h) return false;
+  return !(iso === h && z === 'start');
+}
+
+function cosRasZelle(stil, text, label, klick, groesse, kl) {
+  return '<button class="ras-z' + (kl ? ' ' + kl : '') + (klick ? '' : ' fest') + '" style="' + stil + (groesse ? ';font-size:' + groesse : '') + '" aria-label="' + esc(label) + '"' +
+    (klick ? ' onclick="' + klick + '"' : ' tabindex="-1"') + '>' + text + '</button>';
+}
+function cosWocheRasterHtml() {
+  const w = cosRasWoche, diese = w === 'jetzt', tage = cosRasTage(w), h = heute(), kap = Number(C.kapazitaet) || COS_KAP;
+  const proj = cosRasProjekte(), sel = cosRasWahl && cosRasWahl.w === w ? cosRasWahl : null;
+  const istWahl = (z, iso) => sel && sel.z === z && sel.iso === iso;
+  const zelle = (z, iso, i, text, extra, groesse, label) => {
+    const we = i > 4;
+    let stil = extra || (we ? 'background:var(--ras-we);color:var(--ras-we-text)' : 'background:var(--chip);color:var(--text)');
+    if (istWahl(z, iso)) stil += ';box-shadow:inset 0 0 0 2px var(--akzent)';
+    const klick = z === 'summe' || z === 'erg' ? '' : 'cosRasWaehle(\'' + z + '\',\'' + iso + '\')';
+    return cosRasZelle(stil, text, label + ' ' + COS_RAS_KURZ[i] + ' ' + cosDatum(iso), klick, groesse, z === 'start' ? 'start' : z === 'summe' || z === 'erg' ? z : 'menge');
+  };
+  const kopf = '<span></span>' + tage.map((iso, i) => '<span class="ras-tag' + (diese && iso === h ? ' heute' : i > 4 ? ' we' : '') + '">' + COS_RAS_KURZ[i] + '</span>').join('');
+  const zeile = (name, farbe, zellen, titel) => '<span class="ras-name"' + (titel ? ' title="' + esc(titel) + '"' : '') + '><i style="background:' + farbe + '"></i><span>' + esc(name) + '</span></span>' + zellen;
+  let html = kopf;
+  html += zeile('Start', 'var(--akzent)', tage.map((iso, i) => {
+    const m = cosStartVon(iso), gesperrt = iso === h;
+    return zelle('start', iso, i, m ? cosRasUhr(m) : '', gesperrt && diese ? 'background:var(--ras-blau);color:var(--akzent)' : null, '11px', 'Start');
+  }).join(''));
+  proj.forEach(p => {
+    html += zeile(cosRasKurzName(p), cosFarbe(p.bereich), tage.map((iso, i) => {
+      const n = cosRasMenge(iso, p.id), we = i > 4;
+      return zelle(p.id, iso, i, n ? String(n) : (we ? '' : '0'), n || we ? null : 'background:var(--karte);color:var(--ras-we-text);box-shadow:inset 0 0 0 1px var(--linie)', '14px', p.name);
+    }).join(''), p.name);
+  });
+  html += zeile('Summe', 'var(--titel)', tage.map((iso, i) => {
+    const n = cosRasSumme(iso);
+    return zelle('summe', iso, i, n ? String(n) : '', n > COS_FB_N ? 'background:var(--ras-rot-hell);color:var(--ras-rot)' : 'background:var(--karte);color:var(--titel);font-weight:800', '14px', 'Summe');
+  }).join(''));
+  if (diese) html += zeile('Gehalten', 'var(--ras-gruen)', tage.map((iso, i) => {
+    if (iso > h) return zelle('erg', iso, i, '', 'background:transparent', '', 'Gehalten');
+    const g = cosGehalten(iso);
+    if (g.tag === null) return zelle('erg', iso, i, '', 'background:transparent', '', 'Gehalten');
+    if (g.tag) return zelle('erg', iso, i, '✓', 'background:var(--ras-gruen-hell);color:var(--ras-gruen)', '15px', 'Gehalten');
+    if (iso === h) return zelle('erg', iso, i, 'läuft', 'background:var(--ras-blau);color:var(--akzent)', '10px', 'Gehalten');
+    return zelle('erg', iso, i, g.ist + ' v ' + g.soll, 'background:var(--ras-warn-hell);color:var(--ras-warn)', '10px', 'Gehalten');
+  }).join(''));
+  let auswahl = '';
+  if (sel) {
+    const p = cosPid(sel.z), i = tage.indexOf(sel.iso);
+    const name = sel.z === 'start' ? 'Startzeit' : sel.z === 'kap' ? 'Kästchen pro Woche' : p ? p.name : '';
+    const tag = sel.z === 'kap' ? 'Budget' : COS_RAS_KURZ[i] + ' ' + cosDatum(sel.iso);
+    const wert = sel.z === 'start' ? (cosStartVon(sel.iso) ? cosUhr(cosStartVon(sel.iso)) : 'frei') : sel.z === 'kap' ? String(kap) : String(cosRasMenge(sel.iso, sel.z));
+    auswahl = '<div class="ras-wahl"><span><b>' + esc(name) + '</b> <span class="leise">' + esc(tag) + '</span></span><span class="ras-st">' +
+      '<button onclick="cosRasAendern(-1)" aria-label="Weniger">−</button><b>' + esc(wert) + '</b><button onclick="cosRasAendern(1)" aria-label="Mehr">+</button></span></div>';
+  }
+  const summe = tage.reduce((a, iso) => a + cosRasSumme(iso), 0), sys = diese ? cosSystemWoche() : 0;
+  const leer = tage.filter((iso, i) => i < 5 && iso > h && !cosPlanLesen(iso)).length;
+  const text = diese ? cosRasGemessen() + ' Start von heute ist gesperrt, ändern geht bis zum Vorabend.' : 'Gesetzt in der Wochenrunde. Zelle antippen, dann Plus oder Minus. Sa und So bleiben frei.';
+  return '<section class="karte ras-karte" id="cosRaster"><div class="ras-k"><h2 class="ras-h2">2 · Woche</h2><span class="ras-tabs">' +
+    '<button class="' + (diese ? 'an' : '') + '" onclick="cosRasZeig(\'jetzt\')" aria-pressed="' + diese + '">KW ' + cosKwVon(cosRasTage('jetzt')[0]) + '</button>' +
+    '<button class="' + (diese ? '' : 'an') + '" onclick="cosRasZeig(\'naechste\')" aria-pressed="' + !diese + '">KW ' + cosKwVon(cosRasTage('naechste')[0]) + ' planen</button></span></div>' +
+    '<div class="ras-gitter">' + html + '</div>' + auswahl +
+    '<div class="ras-fuss"><button class="ras-kap" onclick="cosRasWaehle(\'kap\',\'\')" aria-label="Kästchen pro Woche ändern"><b>' + summe + ' von ' + kap + '</b> <span class="leise">geplant</span></button>' +
+    '<span class="ras-sys' + (sys > COS_SYSTEM_MAX ? ' rot' : '') + '">Zentrale ' + (diese ? sys + ' von ' + COS_SYSTEM_MAX : 'höchstens ' + COS_SYSTEM_MAX) + ' · frei, nicht im Tag</span></div>' +
+    '<div class="ras-text">' + esc(text) + '</div>' +
+    (leer ? '<button class="cos-link ras-verteilen" onclick="cosRasVerteilen()">Chief verteilen · ' + (leer === 1 ? '1 leerer Tag' : leer + ' leere Tage') + '</button>' : '') + '</section>';
+}
+
+function cosRasZeig(w) { if (cosRasWoche === w) return; cosRasWoche = w; cosRasWahl = null; haptik(); zeichnen(); }
+function cosRasWaehle(z, iso) {
+  if (!cosRasEditierbar(iso, z)) {
+    melden(iso === heute() ? 'Start von heute ist gesperrt. Ändern geht bis zum Vorabend.' : 'Vergangene Tage sind nur zum Ansehen.');
+    return;
+  }
+  const gleich = cosRasWahl && cosRasWahl.w === cosRasWoche && cosRasWahl.z === z && cosRasWahl.iso === iso;
+  cosRasWahl = gleich ? null : { w: cosRasWoche, z: z, iso: iso };
+  haptik();
+  zeichnen();
+}
+function cosRasAendern(d) {
+  const s = cosRasWahl;
+  if (!s) return;
+  if (s.z === 'kap') { cosKapazitaet(d); return; }
+  if (!cosRasEditierbar(s.iso, s.z)) return;
+  if (s.z === 'start') {
+    const v = cosStartVon(s.iso);
+    let neu = !v ? (d > 0 ? COS_START : 0) : v + d * 15;
+    if (neu && neu < 8 * 60) neu = 0;           // unter 08:00 heißt frei
+    neu = Math.min(13 * 60, neu);
+    if (neu === v) return;
+    haptik();
+    cosMerkSetzen('st|' + s.iso, neu);
+    cosAnkerSetzen(s.iso);
+    zeichnen();
+    return;
+  }
+  cosMengeSetzen(s.iso, s.z, d);
+}
+/* Menge eines Projekts an einem Tag. Heute nur Plus, Minus zeigt den Joker Hinweis */
+function cosMengeSetzen(iso, pid, d) {
+  if (iso === heute()) {
+    if (d < 0 && cosPlanLesen(iso)) { cosVnHinweis = Date.now(); haptik(); melden(COS_HINWEIS_JOKER); zeichnen(); return; }
+    cosPlanSetzen(pid, d);
+    return;
+  }
+  const pt = Object.assign({}, cosPlanLesen(iso) || {}), vor = Math.max(0, Number(pt[pid]) || 0);
+  cosRasProjekte().forEach(p => { if (pt[p.id] == null) pt[p.id] = 0; });
+  pt[pid] = Math.max(0, Math.min(8, vor + d));
+  if (pt[pid] === vor) return;
+  haptik();
+  cosMerkSetzen('pt|' + iso, pt);
+  zeichnen();
+}
+/* Startzeit als Termin "Start" mit Erinnerung (Server ab V94). Kurz gesammelt, damit mehrere Tipps ein Aufruf sind */
+function cosAnkerSetzen(iso) {
+  if (!cosKann('anker') || iso < heute()) return;
+  clearTimeout(cosAnkerUhr[iso]);
+  cosAnkerUhr[iso] = setTimeout(() => {
+    delete cosAnkerUhr[iso];
+    const m = cosStartVon(iso);
+    cosNach('appChiefAnker', iso, m || '');
+  }, 1200);
+}
+/* Chief verteilen: leere Arbeitstage der gezeigten Woche (ab morgen) aus dem Vorschlag füllen. Jeder kommende Arbeitstag ohne
+   eigene Startzeit bekommt 09:30 und seinen Termin Start. Ein Rückgängig */
+function cosRasVerteilen() {
+  const tage = cosRasTage(cosRasWoche), h = heute(), leer = tage.filter((iso, i) => i < 5 && iso > h && !cosPlanLesen(iso));
+  if (!leer.length) return;
+  const plan = cosWochePlan(leer[0], true), proj = cosRasProjekte();
+  let n = 0;
+  cosGruppe('Chief verteilt', () => {
+    leer.forEach(iso => {
+      const t = plan.find(x => x.iso === iso), pt = {};
+      proj.forEach(p => { pt[p.id] = t ? t.items.filter(x => x.p.id === p.id).reduce((a, x) => a + x.k, 0) : 0; n += pt[p.id]; });
+      cosMerkSetzen('pt|' + iso, pt);
+    });
+    tage.filter((iso, i) => i < 5 && iso > h && typeof cosMerk('st|' + iso) !== 'number').forEach(iso => { cosMerkSetzen('st|' + iso, COS_START); cosAnkerSetzen(iso); });
+  });
+  haptik();
+  melden(n ? 'Chief hat ' + n + ' Kästchen auf ' + leer.length + (leer.length === 1 ? ' Tag' : ' Tage') + ' verteilt. Oben geht Rückgängig.' : 'Nichts offen zum Verteilen.');
+  zeichnen();
+}
 /* ── Blätter ── */
 function cosBlattAuf(b) {
   cosBlatt = b;
@@ -2984,9 +3265,31 @@ function cosPlanPasstJetzt() {
   if (ansicht === 'tag') heuteNeu(); else zeichnen();
 }
 let cosPlanPop = null, cosReinT = 0;   // V67: zuletzt geändertes Projekt (federt), Zeit des Passt (Zeilen gleiten herein)
+let cosVnHinweis = 0;                  // V95: Zeitpunkt von Minus am Tag, dann steht der Joker Hinweis da
+const COS_GLOCKE = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>';
+/* V95: Heute aus dem Raster (pt|heute). Plus schreibt ins Raster, Minus zeigt den Joker Hinweis, Start fest aus der Woche */
+function cosVornehmenRaster(pop) {
+  const h = heute(), proj = cosRasProjekte(), minP = {};
+  cosHeuteBloecke().forEach(x => { if (x.s) minP[x.s.projekt] = (minP[x.s.projekt] || 0) + fokusMin(h, x.b); });
+  const summe = proj.reduce((a, p) => a + cosRasMenge(h, p.id), 0), st = cosStartVon(h);
+  const zeilen = proj.map(p => {
+    const s = C.schritte.find(x => x.projekt === p.name && cosOffen(x)), k = cosRasMenge(h, p.id), gp = Math.floor((minP[p.name] || 0) / COS_MIN + 0.01);
+    const unter = (gp ? gp + ' geschafft · ' : '') + (s ? cosKurz(s.titel, 30) : 'nichts offen') + (p.deadline ? ' · bis ' + cosWt(p.deadline) + ' ' + cosDatum(p.deadline) + (p.art === 'extern' ? ' extern' : '') : '');
+    return '<div class="cos-pl cos-hv' + (k ? '' : ' null') + (pop && pop.pid === p.id ? ' pop' : '') + '" style="--pf:' + cosFarbe(p.bereich) + '"><span class="cos-streif"></span><span class="cos-pl-t"><b>' + esc(p.name) + '</b><small>' + esc(unter) + '</small></span>' +
+      '<span class="ras-st"><button onclick="cosMengeSetzen(\'' + h + '\',\'' + p.id + '\',-1)" aria-label="Weniger ' + esc(p.name) + '">−</button><b>' + k + '</b>' +
+      '<button onclick="cosMengeSetzen(\'' + h + '\',\'' + p.id + '\',1)" aria-label="Mehr ' + esc(p.name) + '"' + (k >= 8 ? ' disabled' : '') + '>+</button></span></div>';
+  }).join('');
+  const hinweis = Date.now() - cosVnHinweis < 8000;
+  return '<div class="cos-vn-k"><h2 class="ras-h2">1 · Heute vornehmen</h2><b' + (pop ? ' class="pop"' : '') + '>' + summe + '</b></div>' +
+    '<div class="ras-start">' + COS_GLOCKE + '<span><b>' + (st ? 'Start ' + cosUhr(st) : 'Ohne Startzeit') + '</b> <span class="leise">' + (st ? 'fest, aus der Woche' : 'heute frei') + '</span></span></div>' +
+    (zeilen || '<div class="cos-tipp">Kein aktives Projekt.</div>') +
+    '<div class="ras-vn-t">Übernommen aus dem Raster ✓ · mehr geht immer</div>' +
+    (hinweis ? '<div class="ras-hinweis" role="status">' + COS_HINWEIS_JOKER + '</div>' : '');
+}
 function cosVornehmenInnen(imTag) {
   const pop = cosPlanPop && Date.now() - cosPlanPop.t < 700 ? cosPlanPop : null;
   if (!pop) cosPlanPop = null;
+  if (!imTag && cosPlanLesen(heute()) && cosRasterAn()) return cosVornehmenRaster(pop);
   const pl = cosPlanAktuell(), da = !!cosPlanLesen(heute()), g = cosTag(heute()).farben.length;
   const aktiv = C.projekte.filter(p => p.status === 'aktiv'), summe = aktiv.reduce((a, p) => a + pl[p.id], 0), minP = {};
   cosHeuteBloecke().forEach(x => { if (x.s) minP[x.s.projekt] = (minP[x.s.projekt] || 0) + fokusMin(heute(), x.b); });
@@ -3003,7 +3306,7 @@ function cosVornehmenInnen(imTag) {
 }
 function cosVornehmenKarte() {
   if (!cosTagAn()) return '';
-  return '<div class="karte cos-vn-karte">' + cosVornehmenInnen(false) + '</div>';
+  return '<div class="karte cos-vn-karte' + (cosPlanLesen(heute()) ? ' ras-karte' : '') + '">' + cosVornehmenInnen(false) + '</div>';
 }
 /* ── V64 Vergessen zu starten: geplanter Block ist vorbei, ohne Los. Ein Tipp trägt ihn halb nach, am selben Schritt ── */
 function cosVergessen(iso) {
@@ -3168,7 +3471,12 @@ function cosZuordnen(key, sid, ohneVerlauf) {
 /* Rückgängig für den Tag (aus cosRueck) */
 function cosRueckTag(a) {
   const lokal = k => { const b = bloeckeVon(heute()).find(x => x.key === k); return !!(b && b.lokal) || String(k).indexOf('lokal|') === 0; };
-  if (a.art === 'cosMerk') { cosMerkSetzen(a.k, a.alt, true); heuteNeu(); return true; }
+  if (a.art === 'cosMerk') {
+    cosMerkSetzen(a.k, a.alt, true);
+    if (/^st\|/.test(a.k)) cosAnkerSetzen(a.k.slice(3));   // V95: Termin Start zieht mit
+    if (ansicht === 'tag') heuteNeu(); else zeichnen();
+    return true;
+  }
   if (a.art === 'cosPlan') { if (a.keys.some(lokal)) return 'warte'; a.keys.forEach(k => cosAusplanen(k, true)); return true; }
   if (a.art === 'cosPlanZeit') { if (lokal(a.key)) return 'warte'; cosVerschieben(a.key, a.alt, a.altK, true); return true; }
   if (a.art === 'cosZuord') { if (lokal(a.key)) return 'warte'; cosZuordnen(a.key, a.alt, true); return true; }
@@ -3621,10 +3929,33 @@ function cosFaktorZeile() {
 const COS_REGELN_SO = 'Regeln: Budget 30 Kästchen, Mo bis Fr, Sa und So 0, System höchstens 4.\n' +
   'Pro aktivem Projekt nur die nächsten 1 bis 3 Kästchen fein: Verb, Gegenstand, Fertig wenn, als Blocktitel tauglich. Rest grob als Rest von.\n' +
   'Externe Deadline, die nicht passt: Umfang kürzen und die Teilfassung benennen, nicht die Deadline, nicht das Wochenende.\n' +
-  'Ablauf 30 Minuten: Rückblick (gemessen gegen Budget, Verpasst, Verschoben), Rang, Mikroaufträge, dann die Zahl pro Tag und Projekt, ich setze das Raster in der App und plane die Woche ein.\n' +
+  'Ablauf 30 Minuten: Rückblick (gemessen gegen Budget, Verpasst, Verschoben), Rang, Mikroaufträge, dann die Zahl pro Tag und Projekt, ich setze das Raster in der App.\n' +
   'Frag mich eins nach dem anderen. Schreib die Schritte in die Tabelle.';
 const COS_REGELN_MI = '10 Minuten. Umplanen ist heute erlaubt und zählt nicht als verschoben.\n' +
   'Was hat sich geändert, Verschobenes entscheiden (verkleinern, parken, streichen), Rest der Woche neu verteilen. Neue Projekte nur auf den Parkplatz.';
+/* V95: Raster der Woche von basis, pro Tag Start, Mengen und Gehalten. Sa und So nur mit Plan */
+function cosRasterZeilen(basis) {
+  const mo = cosMontag(basis), h = heute(), proj = C.projekte.filter(p => p.bereich !== 'System'), out = [];
+  for (let i = 0; i < 7; i++) {
+    const iso = tagPlus(mo, i), pt = cosPlanLesen(iso) || {};
+    const teile = proj.filter(p => Number(pt[p.id]) > 0).map(p => p.name + ' ' + Number(pt[p.id]));
+    if (!teile.length && i > 4) continue;
+    const st = cosStartVon(iso), g = cosGehalten(iso);
+    let z = COS_RAS_KURZ[i] + ' ' + cosDatum(iso) + ' ' + (st ? 'Start ' + cosUhr(st) : 'ohne Start') + ': ' + (teile.length ? teile.join(', ') : 'nichts geplant');
+    if (iso <= h && g.tag !== null) {
+      z += ' · ' + (g.tag ? 'gehalten' : iso === h ? 'läuft, ' + g.ist + ' von ' + g.soll : 'nicht gehalten, ' + g.ist + ' von ' + g.soll) + (g.joker ? ', Joker ' + g.joker : '');
+      if (g.start !== null) z += ', Start ' + (g.start ? 'gehalten' : g.erster === null ? 'verpasst (kein Los)' : 'verpasst (erster Los ' + cosUhr(g.erster) + ')');
+    }
+    out.push(z);
+  }
+  return 'Raster KW ' + cosKwVon(mo) + ' (Kästchen pro Tag und Projekt):\n' + out.join('\n');
+}
+/* V95: aktuelle Notizen der Projekte (Projekte!I), mit Server ab V94 */
+function cosNotizZeile() {
+  if (!cosKann('notiz')) return '';
+  const l = C.projekte.filter(p => p.status !== 'fertig' && String(p.notiz || '').trim()).map(p => p.name + ': ' + String(p.notiz).trim().replace(/\s*\n+\s*/g, ' / '));
+  return l.length ? 'Notizen: ' + l.join('; ') + '.\n' : '';
+}
 function cosRundeText(r) {
   const h = heute(), alle = cosAlleBloecke(), ueber = cosUeber(alle), proj = {};
   const basis = r.art === 'so' && new Date().getDay() === 1 ? tagPlus(h, -1) : h;   // Montag früh: Rückblick auf die Woche bis gestern
@@ -3640,7 +3971,7 @@ function cosRundeText(r) {
   const eng = Object.keys(ueber).filter(n => ueber[n]).map(n => n + ': ' + ueber[n] + ' Kästchen passen nicht vor die Deadline');
   return (r.art === 'so' ? 'Wochenrunde für KW ' + (r.kw % 52 + 1) : 'Mittwochsrunde KW ' + r.kw) + '.\nLies bitte die Tabs Projekte, Schritte und Blöcke der Zentrale.\n' +
     (r.art === 'so' ? 'Woche davor: ' : 'Diese Woche bisher: ') + woche + ' von ' + (Number(C.kapazitaet) || COS_KAP) + ' Kästchen' + (teile.length ? ' (' + teile.join(', ') + ')' : '') + '.\n' +
-    cosGemessenZeile(basis) + '\n' + cosFaktorZeile() + '\n' +
+    cosGemessenZeile(basis) + '\n' + cosFaktorZeile() + '\n' + (cosRasterAn() ? cosRasterZeilen(basis) + '\n' : '') + cosNotizZeile() +
     (versch.length ? 'Verschoben: ' + versch.join(', ') + '.\n' : '') + (eng.length ? 'Passt nicht: ' + eng.join(', ') + '.\n' : '') +
     (r.art === 'so' ? COS_REGELN_SO : COS_REGELN_MI);
 }
@@ -4334,8 +4665,8 @@ function senFilmWeg() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611201519';
-const PWA_NAME = "V93 Köö Halsi und Migna mit Check ins";
+const PWA_VERSION = '202611201806';
+const PWA_NAME = "V95 Raster der Woche";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
