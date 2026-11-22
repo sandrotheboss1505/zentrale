@@ -36,7 +36,9 @@ SEITEN = [
             'basis/mac.css',              # Mac: breites Layout, Wechsel der Ansicht
             'tag/erledigt.css',           # Ringe, Erledigt, Taskpunkte, Plus fliegt
         ],
+        'ui:css',                         # Stufe 3: React Teil, Hilfsklassen (Tailwind aus ui/, nach dem CSS der App, damit sie gewinnen)
         'basis/seite.html',               # Gerüst: Kopfleiste, Inhalt, Leiste, Chief und Sensi (Apps Script Einschub)
+        'ui:js',                          # Stufe 3: React Teil (ui/, window.ZentraleUI): Köö. Läuft vor dem Hauptteil, zeichnet erst auf Zuruf
         [
             'basis/kern.js',              # Einstellungen, Zustand, kleine Hilfen, Serveraufruf, Abfragen
             'basis/hilfen.js',            # Farben aus Ziele, Hilfen, Zeichnen, Tipp Animation, Wechsel
@@ -93,6 +95,32 @@ SEITEN = [
 
 APP = os.path.join(HIER, '..', 'app')
 
+# ── Stufe 3: React Teil aus ui/ (Vite, React, Tailwind) zu einer JS und einer CSS Datei bauen ──
+# In SEITEN stehen dafür 'ui:css' und 'ui:js'. Einmalig vorher: cd ui && npm install
+UI = os.path.join(HIER, '..', 'ui')
+UI_TEILE = {}
+def ui_bauen():
+    import subprocess
+    # web/ ist ein eigenes Repository ohne Branches: auf einem Stand ohne ui/src (zum Beispiel main vor Stufe 3) fällt der React Teil weg
+    if not os.path.isfile(os.path.join(UI, 'src', 'start.jsx')):
+        for _, liste in SEITEN:
+            liste[:] = [t for t in liste if not (isinstance(t, str) and t.startswith('ui:'))]
+        return
+    if not os.path.isdir(os.path.join(UI, 'node_modules')):
+        sys.exit('bauen.py: React Teil nicht eingerichtet. Einmal: cd ui && npm install')
+    r = subprocess.run(['npm', 'run', 'bauen'], cwd=UI, capture_output=True, text=True)
+    if r.returncode != 0:
+        sys.exit('bauen.py: React Teil (ui/) baut nicht:\n' + r.stdout[-3000:] + r.stderr[-3000:])
+    for art, datei in (('js', 'zentrale-ui.js'), ('css', 'zentrale-ui.css')):
+        t = io.open(os.path.join(UI, 'dist', datei), encoding='utf-8').read()
+        # Die Seite geht auch als Apps Script Vorlage zu Google: <? wäre dort Vorlagen Code, </script beendet den Block
+        for verboten in ('</script', '</style', '<?'):
+            if verboten in t:
+                sys.exit('bauen.py: ' + verboten + ' im React Teil (ui/dist/' + datei + ')')
+        UI_TEILE['ui:' + art] = ('<script>\n/* ── React Teil (ui/, gebaut von web/bauen.py) ── */\n' if art == 'js' else '<style>\n') + t.rstrip('\n') + '\n' + ('</script>\n' if art == 'js' else '</style>\n')
+
+ui_bauen()
+
 def teile_bauen():
     benutzt = set()
     def lies(name):
@@ -107,6 +135,9 @@ def teile_bauen():
     for seite, liste in SEITEN:
         out = ''
         for t in liste:
+            if isinstance(t, str) and t in UI_TEILE:
+                out += UI_TEILE[t]
+                continue
             if isinstance(t, str):
                 out += lies(t)
                 continue
@@ -289,7 +320,7 @@ if TEST:
     for _, liste in SEITEN:
         for t in liste:
             for n in ([t] if isinstance(t, str) else t):
-                if not n.endswith('.html'):
+                if not n.endswith('.html') and not n.startswith('ui:'):
                     quellen[n] = io.open(os.path.join(APP, n), encoding='utf-8').read()
     qjs = json.dumps(quellen, ensure_ascii=False).replace('</', '<\\/')
     # Teil 2: Vorher Nachher, Bilder aus tests/bilder/vergleich (basis, neu) verkleinert als JPEG (braucht Pillow, sonst ohne)
