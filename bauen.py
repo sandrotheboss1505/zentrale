@@ -60,12 +60,14 @@ SEITEN = [
             'chief/chief.css',            # Kästchen, Seite Chief, Projekt, Ziehen, Woche am Mac, Blätter
             'chief/fokus.css',            # Fokus im Tag: Balken, Liste nach Uhrzeit, Tasks, Leiste am Mac
             'chief/woche.css',            # V95 Heute vornehmen und Woche als Raster
+            'chief/projekt.css',          # V98 Projektseite, Projektliste, Mac Reiter
         ],
         'chief/blatt.html',               # Platz für das Blatt
         [
             'chief/zustand.js',           # Zustand, Laden, Ändern mit Rückweg
             'chief/rechnen.js',           # Rechnen, Kästchen, Block läuft, Als Nächstes
-            'chief/seite.js',             # Seite Chief: Übersicht, Projekt, Woche am Mac
+            'chief/seite.js',             # Seite Chief: Übersicht, Liste, zwei Spalten am Mac
+            'chief/projekt.js',           # V98 Projektseite: Kopf, Notiz, Offen, frei, grob, Erledigt, Reiter
             'chief/woche.js',             # V95 Woche als Raster: Start, Mengen, Summe, Gehalten
             'chief/blaetter.js',          # Blätter: Schritt, Projekt, Etappe, Zerlegen
             'chief/ziehen.js',            # Ziehen am Griff (Rang, Schritte)
