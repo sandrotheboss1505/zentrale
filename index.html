@@ -112,6 +112,8 @@
   input[type=time] { min-width: 96px; text-align: center; }
   input[type=text] { width: 140px; text-align: right; }
   textarea { width: 100%; min-height: 84px; margin-top: var(--abstand-4); resize: vertical; }
+  /* Notizfelder: genau so hoch wie der Inhalt, mindestens eine Zeile. Ohne field-sizing hilft notizHoehe() in hilfen.js */
+  textarea.notizfeld, body.mac .tag-spalten textarea.notizfeld, .pj-notiz textarea.notizfeld, .pj-notiz-r textarea.notizfeld { min-height: 0; field-sizing: content; overflow: hidden; resize: none; }
   .loeschen { font-size: var(--schrift-klein); color: var(--leise); margin-left: var(--abstand-3); }
   .jetzt { padding: var(--abstand-4) var(--abstand-7); border-radius: var(--radius-gross); font-weight: 600; color: var(--weiss); }
   .unter { font-size: var(--schrift-klein); color: var(--leise); text-align: right; margin-top: var(--abstand-2); }
@@ -2060,7 +2062,7 @@ function pjNotiz(p, mac) {
   if (!cosKann('notiz')) return '';
   const t = String(p.notiz || ''), archiv = Array.isArray(p.archiv) ? p.archiv : [];
   const frisch = cosNotizMeldung && cosNotizMeldung.pid === p.id && Date.now() - cosNotizMeldung.t < 4000;
-  const feld = '<textarea id="pjNotiz" placeholder="Gedanken zum Projekt, frei" oninput="pjNotizTippen(\'' + p.id + '\',this.value)" onblur="pjNotizRaus(\'' + p.id + '\')">' + esc(t) + '</textarea>';
+  const feld = '<textarea id="pjNotiz" class="notizfeld" rows="1" placeholder="Gedanken zum Projekt, frei" oninput="pjNotizTippen(\'' + p.id + '\',this.value)" onblur="pjNotizRaus(\'' + p.id + '\')">' + esc(t) + '</textarea>';
   const knopf = '<button class="pj-sichern" id="pjSichern" onclick="pjNotizSichern(\'' + p.id + '\')"' + (t.trim() ? '' : ' disabled') + '>Sichern und leeren</button>';
   return '<section class="karte pj-notiz"><div class="pj-k"><label for="pjNotiz">Notiz</label>' +
     '<button class="pj-link" onclick="pjArchivKlappen()" aria-expanded="' + cosArchivAuf + '">Archiv · ' + archiv.length + '</button></div>' +
@@ -4933,8 +4935,8 @@ function senFilmWeg() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611222209';
-const PWA_NAME = "V99 Minus nimmt Plus am Tag zurück";
+const PWA_VERSION = '202611222235';
+const PWA_NAME = "V100 Notizfelder wachsen mit dem Inhalt";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -5164,6 +5166,27 @@ function wechselAnim() {
   clearTimeout(wechselT); wechselT = setTimeout(() => el.classList.remove('wechsel'), 800);
 }
 
+
+/* ── Notizfelder wachsen mit dem Inhalt. CSS field-sizing reicht, sonst misst das hier nach (Tippen, neu gezeichnet, sichtbar geworden, Fenster) ── */
+const NOTIZ_CSS = !!(window.CSS && CSS.supports && CSS.supports('field-sizing', 'content'));
+function notizHoehe(t) {
+  if (NOTIZ_CSS || !t.getClientRects().length) return;   // versteckt: scrollHeight wäre 0, ResizeObserver misst beim Aufklappen
+  const y = window.scrollY;
+  t.style.height = 'auto';
+  t.style.height = t.scrollHeight + 'px';
+  if (window.scrollY !== y) window.scrollTo(0, y);   // iPhone: Seite springt nicht
+}
+if (!NOTIZ_CSS) {
+  const breite = new WeakMap();
+  const ro = window.ResizeObserver ? new ResizeObserver(l => l.forEach(e => {
+    const w = Math.round(e.contentRect.width);
+    if (breite.get(e.target) !== w) { breite.set(e.target, w); notizHoehe(e.target); }
+  })) : null;
+  const neu = t => { if (!breite.has(t)) { breite.set(t, -1); if (ro) ro.observe(t); } notizHoehe(t); };
+  document.addEventListener('input', e => { if (e.target.matches && e.target.matches('textarea.notizfeld')) notizHoehe(e.target); });
+  new MutationObserver(() => document.querySelectorAll('textarea.notizfeld').forEach(neu)).observe(document.documentElement, { childList: true, subtree: true });
+  window.addEventListener('resize', () => document.querySelectorAll('textarea.notizfeld').forEach(notizHoehe));
+}
 /* V75 Reiter Köö: die Bereiche Schlaf und Körper aus der Tabelle stehen dort statt im Tag. Daten und Tageswert bleiben gleich */
 /* V77: Zuordnung nach dem Namen der Spalte (Anfang reicht), egal in welchem Bereich sie in der Tabelle steht.
    Was sonst noch in den Bereichen Schlaf, Körper oder Bewegung steht, kommt in die Karte seines Bereichs */
@@ -5519,7 +5542,7 @@ function feldHtml(f) {
       return kopf('<input type="text" value="' + esc(w == null ? '' : w) + '" onblur="textSetzen(\'' + id + '\', this.value)">') + '</div>';
     case 'notiz':
       return '<div class="feld"><div class="zeile"><span class="name">' + esc(f.spalte) + '</span></div>' +
-        '<textarea onblur="textSetzen(\'' + id + '\', this.value)" placeholder="Was war heute?">' + esc(w == null ? '' : w) + '</textarea></div>';
+        '<textarea class="notizfeld" rows="1" onblur="textSetzen(\'' + id + '\', this.value)" placeholder="Was war heute?">' + esc(w == null ? '' : w) + '</textarea></div>';
     case 'termine':
       return kopf(pille(anzeigeVon(f.spalte))) + termineHtml(f) + '</div>';
     case 'tasks':
