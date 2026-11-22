@@ -290,7 +290,23 @@ if TEST:
                 if not n.endswith('.html'):
                     quellen[n] = io.open(os.path.join(APP, n), encoding='utf-8').read()
     qjs = json.dumps(quellen, ensure_ascii=False).replace('</', '<\\/')
-    wers('</body>', '<style id="wbStil">\n' + wl('werkbank/werkbank.css') + '</style>\n<script>\nwindow.__wbQuellen = ' + qjs + ';\n' +
+    # Teil 2: Vorher Nachher, Bilder aus tests/bilder/vergleich (basis, neu) verkleinert als JPEG (braucht Pillow, sonst ohne)
+    vergleich = []
+    try:
+        from PIL import Image
+        vq = os.path.join(T, 'bilder', 'vergleich')
+        namen = [n[:-4] for n in os.listdir(os.path.join(vq, 'basis')) if n.endswith('.png') and os.path.exists(os.path.join(vq, 'neu', n))]
+        rang = lambda l, x: l.index(x) if x in l else 9
+        for teil in ('basis', 'neu'):
+            os.makedirs(os.path.join(ZIEL, 'werkbank', 'vergleich', teil), exist_ok=True)
+            for n in namen:
+                im = Image.open(os.path.join(vq, teil, n + '.png')).convert('RGB')
+                b = 390 if im.size[0] <= 800 else 700
+                im.resize((b, round(im.size[1] * b / im.size[0]))).save(os.path.join(ZIEL, 'werkbank', 'vergleich', teil, n + '.jpg'), quality=72)
+        vergleich = sorted(namen, key=lambda n: (rang(['handy', 'mac', 'dunkel'], n.split('-')[0]), rang(['tag', 'chief', 'koe', 'sensi', 'woche'], n.split('-')[-1])))
+    except Exception:
+        vergleich = []
+    wers('</body>', '<style id="wbStil">\n' + wl('werkbank/werkbank.css') + '</style>\n<script>\nwindow.__wbQuellen = ' + qjs + ';\nwindow.__wbVergleich = ' + json.dumps(vergleich) + ';\n' +
          ''.join(wl(n) for n in WERKBANK if n.endswith('.js') and n != 'werkbank/uhr.js') + '</script>\n</body>')
     os.makedirs(os.path.join(ZIEL, 'werkbank'), exist_ok=True)
     io.open(os.path.join(ZIEL, 'werkbank', 'index.html'), 'w', encoding='utf-8').write(w)
