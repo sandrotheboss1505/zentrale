@@ -208,9 +208,6 @@
   .termin .was { flex: 1; min-width: 0; }
   .termin .was div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .termin .was small { color: var(--leise); font-size: var(--schrift-klein); }
-  .haken { width: 30px; height: 30px; border-radius: var(--radius-rund); border: 2px solid var(--linie); display: grid; place-items: center; flex: none; }
-  .haken svg { opacity: 0; }
-  .haken.an svg { opacity: 1; }
   .terminliste { margin-top: var(--abstand-3); }
   .hinweis { font-size: var(--schrift-klein); color: var(--leise); padding: var(--abstand-3) 0 var(--abstand-1); }
 
@@ -234,23 +231,13 @@
   .unterkopf { font-size: var(--schrift-mini); font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--titel); margin: var(--abstand-6) 0 0; }
   @keyframes hops { 0% { transform: scale(1); } 40% { transform: scale(1.5); } 100% { transform: scale(1); } }
   .hops { animation: hops .4s ease-out; display: inline-block; }
-  /* Heute Karte */
-  .lbl { font-size: var(--schrift-klein); color: var(--leise); margin: var(--abstand-6) 0 var(--abstand-3); }
-  .jetztbox { background: var(--chip); border-radius: var(--radius-gross); padding: var(--abstand-6) var(--abstand-6); }
-  .jtitel { font-size: var(--schrift-text); font-weight: 700; line-height: 1.35; }
-  .jmeta { font-size: var(--schrift-klein); color: var(--leise); margin-top: var(--abstand-1); }
   .balken { height: 6px; border-radius: var(--radius-klein); background: var(--linie); margin: var(--abstand-5) 0 var(--abstand-3); overflow: hidden; }
   .balken i { display: block; height: 100%; background: var(--akzent); }
-  .jzeit { display: flex; justify-content: space-between; font-size: var(--schrift-klein); color: var(--leise); }
-  .jzeit b { color: var(--text); }
-  .dranbox { border-top: 1px solid var(--linie); margin-top: var(--abstand-5); padding-top: var(--abstand-5); font-size: var(--schrift-klein); }
   .reihe { display: grid; gap: var(--abstand-4); margin-top: var(--abstand-4); }
   .reihe.zwei { grid-template-columns: 1fr 1fr; }
   .reihe.drei { grid-template-columns: repeat(3, 1fr); }
   .reihe button { height: 42px; border-radius: var(--radius-gross); background: var(--karte); font-weight: 600; }
   .reihe button:active { transform: scale(.96); }
-  .jfuss { display: flex; justify-content: space-between; align-items: center; font-size: var(--schrift-klein); color: var(--leise); margin-top: var(--abstand-3); }
-  .jfuss .nicht { margin-top: 0; }
   .lob { color: var(--gruen-gut); font-weight: 600; }
   .erl { display: flex; gap: var(--abstand-5); align-items: baseline; font-size: var(--schrift-klein); padding: var(--abstand-3) 0; }
   .erl .z { width: 40px; flex: none; color: var(--leise); font-size: var(--schrift-klein); font-variant-numeric: tabular-nums; }
@@ -259,22 +246,7 @@
   .erl.task { color: var(--leise); }
   .aendern { font-size: var(--schrift-mini); color: var(--leise); font-weight: 400; margin-left: var(--abstand-3); }
   .ok { color: var(--gruen-gut); } .halb { color: var(--halb); } .weg { color: var(--leise); }
-  .trenn { border-top: 1px solid var(--linie); margin-top: var(--abstand-6); }
-  /* Heute Karte, Variante B */
-  .hkopf { display: flex; align-items: center; gap: var(--abstand-5); }
-  .hkopf .name { flex: 1; }
   .plus { width: 34px; height: 34px; border-radius: var(--radius-rund); background: var(--chip); font-size: var(--schrift-titel); line-height: 1; }
-  .tbar { height: 5px; border-radius: var(--radius-klein); background: var(--chip); overflow: hidden; margin: var(--abstand-5) 0 var(--abstand-1); }
-  .tbar i { display: block; height: 100%; background: var(--akzent); border-radius: var(--radius-klein); }
-  .tlegende { display: flex; justify-content: space-between; font-size: var(--schrift-mini); color: var(--leise); }
-  .jetztbox { margin-top: var(--abstand-6); padding: var(--abstand-5) var(--abstand-6); }
-  .jtitel { font-size: var(--schrift-text); }
-  .jvor { font-size: var(--schrift-klein); color: var(--leise); margin-bottom: var(--abstand-1); }
-  .pillen { display: flex; gap: var(--abstand-3); align-items: center; margin-top: var(--abstand-5); }
-  .pillen button { padding: var(--abstand-3) var(--abstand-6); border-radius: var(--radius-rund); background: var(--karte); font-size: var(--schrift-klein); font-weight: 600; }
-  .pillen button:active { transform: scale(.95); }
-  .pillen .zahl { margin-left: auto; font-size: var(--schrift-klein); color: var(--leise); }
-  .jmeld { font-size: var(--schrift-klein); margin-top: var(--abstand-4); }
   .wahl .dauerfrei { min-width: 0; width: 100px; height: 36px; padding: 0 var(--abstand-5); border-radius: var(--radius-gross);
     background: var(--rosa-hell); color: var(--rosa); font-weight: 600; font-variant-numeric: tabular-nums; }
   .wahl .dauerfrei.an { box-shadow: inset 0 0 0 2px var(--rosa); }
@@ -315,8 +287,6 @@
   .hz-titel { font-size: var(--schrift-text); font-weight: 500; line-height: 1.35; }
   .hz-bar { height: 6px; border-radius: var(--radius-klein); background: var(--karte); overflow: hidden; margin: var(--abstand-4) 0 var(--abstand-3); }
   .hz-bar i { display: block; height: 100%; background: var(--akzent); }
-  .hz-zeile { display: flex; justify-content: space-between; font-size: var(--schrift-klein); color: var(--leise); }
-  .hz-zeile b { font-weight: 500; color: var(--text); }
   .hz-meta { font-size: var(--schrift-klein); color: var(--leise); margin-top: var(--abstand-1); }
   .hz-melde { font-size: var(--schrift-klein); margin-top: var(--abstand-4); }
   .hz-melde.lob { color: var(--gruen); font-weight: 500; }
@@ -329,7 +299,6 @@
   .hz-k2 { display: flex; justify-content: space-between; align-items: baseline; margin: var(--abstand-7) 0 var(--abstand-1); }
   .hz-k2 .h { font-size: var(--schrift-klein); font-weight: 500; }
   .hz-k2 .s { font-size: var(--schrift-klein); color: var(--leise); }
-  .hz-row { display: grid; grid-template-columns: 22px 1fr auto 40px; gap: var(--abstand-5); align-items: center; padding: var(--abstand-3) 0; font-size: var(--schrift-text); width: 100%; text-align: left; }
   .hz-next { display: grid; grid-template-columns: 22px 1fr auto 40px; gap: var(--abstand-5); align-items: center; padding: var(--abstand-3) 0; font-size: var(--schrift-text); margin-top: var(--abstand-2); }
   .hz-row2 { display: grid; grid-template-columns: 22px 1fr; gap: var(--abstand-5); align-items: center; padding: var(--abstand-3) 0; font-size: var(--schrift-text); width: 100%; text-align: left; }
   .hz-t { font-size: var(--schrift-klein); color: var(--leise); font-variant-numeric: tabular-nums; }
@@ -343,7 +312,7 @@
   .hz-seit { display: flex; justify-content: center; align-items: center; gap: var(--abstand-3); margin-top: var(--abstand-4); font-size: var(--schrift-klein); color: var(--leise); }
   .hz-seit input[type=time] { font-size: var(--schrift-klein); color: var(--leise); background: transparent; border: 0; border-bottom: 1px dashed var(--kreis); padding: 0 var(--abstand-1); width: auto; min-width: 54px; }
   .hz-ic.gold { background: var(--gold-hell); color: var(--gold); }
-  .hz-row .hz-t, .hz-next .hz-t { text-align: right; }
+  .hz-next .hz-t { text-align: right; }
   .wahl.raster { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--abstand-3); }
   .wahl.raster.zwei { grid-template-columns: 1fr 1fr; }
   .wahl.raster button, .wahl.raster .dauerfrei { width: 100%; padding-left: 0; padding-right: 0; text-align: center; }
@@ -351,12 +320,6 @@
   .slotinfo b { color: var(--text); font-weight: 600; }
   .slotinfo .nicht { margin-top: 0; }
   .hz-klein { font-size: var(--schrift-mini); color: var(--leise); opacity: .75; margin-top: var(--abstand-2); }
-  .hz-drei { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--abstand-4); margin-top: var(--abstand-5); }
-  .hz-drei button { height: 40px; border-radius: var(--radius-gross); background: var(--karte); font-size: var(--schrift-klein); font-weight: 500; }
-  .hz-opt { display: flex; gap: var(--abstand-6); align-items: center; padding: var(--abstand-6); border-radius: var(--radius-gross); background: var(--karte); margin-top: var(--abstand-5); width: 100%; text-align: left; }
-  .hz-opt .hz-ic { width: 34px; height: 34px; border-radius: var(--radius-rund); font-size: var(--schrift-text); }
-  .hz-opt b { display: block; font-size: var(--schrift-klein); font-weight: 500; }
-  .hz-opt small { font-size: var(--schrift-klein); color: var(--leise); }
 
   /* Planen */
   #planen { position: fixed; inset: 0; z-index: 8; background: var(--bg); overflow-y: auto; display: none;
@@ -390,21 +353,7 @@
   .neu-tabs button:active { transform: scale(.95); }
   .neu-tabs button.an { background: var(--karte); color: var(--text); box-shadow: 0 1px 3px var(--schatten-tab); }
   .neu-tabs .ic { font-size: var(--schrift-klein); opacity: .8; }
-  .nz-kopf { display: flex; align-items: center; justify-content: space-between; gap: var(--abstand-5); margin-top: var(--abstand-1); }
-  .nz-kopf b { font-size: var(--schrift-titel); font-weight: 600; font-variant-numeric: tabular-nums; }
-  .nz-kopf b small { font-size: var(--schrift-klein); font-weight: 500; color: var(--leise); }
-  .nz-bonus { font-size: var(--schrift-klein); font-weight: 600; color: var(--gruen); background: var(--gruen-hell); padding: var(--abstand-2) var(--abstand-5); border-radius: var(--radius-rund); white-space: nowrap; }
-  .nz-bonus.leise { color: var(--leise); background: var(--chip); }
-  .nz-seg { display: flex; gap: var(--abstand-1); height: 10px; margin: var(--abstand-5) 0 var(--abstand-3); }
-  .nz-seg span { min-width: 4px; border-radius: var(--radius-klein); }
-  .nz-seg .fertig { background: var(--rosa-voll); }
-  .nz-seg .geplant { background: var(--rosa-hell); }
-  .nz-seg .sneu { background: repeating-linear-gradient(135deg, var(--gold) 0 4px, var(--gold-hell) 4px 8px); animation: nzatmen 1.6s ease-in-out infinite; }
-  .nz-seg .rest { background: var(--chip); }
   @keyframes nzatmen { 0%, 100% { opacity: .6; } 50% { opacity: 1; } }
-  .nz-text { font-size: var(--schrift-klein); color: var(--leise); }
-  .nz-text b { color: var(--text); font-weight: 600; }
-  .nz-voll { color: var(--gruen); font-weight: 600; }
   .leiste { position: relative; height: 42px; margin: var(--abstand-6) 0 var(--abstand-1); border-radius: var(--radius-gross); background: var(--chip); cursor: pointer; overflow: hidden; }
   .leiste .lvorbei { position: absolute; left: 0; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, transparent 0 5px, var(--linie) 5px 6px); opacity: .7; }
   .leiste .bl { position: absolute; top: 7px; bottom: 7px; border-radius: var(--radius-klein); background: var(--rosa-hell); box-shadow: inset 0 0 0 1px var(--rosa-voll); }
@@ -477,9 +426,7 @@
   body.mac #meldung { bottom: 76px; }
   body.mac #planen { background: var(--abdunkeln-mac); padding: 48px var(--abstand-8); }
   body.mac .planinnen { background: var(--bg); border-radius: var(--radius-karte); padding: var(--abstand-8) var(--abstand-9) var(--abstand-9); box-shadow: 0 24px 64px var(--schatten-blatt); }
-  body.mac .rund:not(:disabled):hover, body.mac .skala button:hover, body.mac .stat button:hover, body.mac .wahl button:hover,
-  body.mac .zaehler button:hover, body.mac .hz-knoepfe button:hover, body.mac .reihe button:hover, body.mac .hz-drei button:hover,
-  body.mac nav button:not(.aktiv):hover { box-shadow: inset 0 0 0 1.5px var(--kreis); }
+  body.mac .rund:not(:disabled):hover, body.mac .skala button:hover, body.mac .stat button:hover, body.mac .wahl button:hover, body.mac .zaehler button:hover, body.mac .hz-knoepfe button:hover, body.mac .reihe button:hover, body.mac nav button:not(.aktiv):hover { box-shadow: inset 0 0 0 1.5px var(--kreis); }
   body.mac .tag-zeile:hover .datum { color: var(--akzent); }
   #inhalt.wechsel > *, #inhalt.wechsel .mac-spalte > *, #inhalt.wechsel .cos-zwei > div > * { animation: neuein .38s cubic-bezier(.2, .8, .2, 1) both; }
   #inhalt.wechsel > :nth-child(2), #inhalt.wechsel .mac-spalte > :nth-child(2), #inhalt.wechsel .cos-zwei > div > :nth-child(2) { animation-delay: .05s; }
@@ -591,16 +538,6 @@
   @keyframes cospuls { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.28); } }
   @keyframes cosland { 0% { transform: scale(.4); } 55% { transform: scale(1.5); } 100% { transform: scale(1); } }
 
-  /* Block läuft: das große Kästchen */
-  .cos-lauf { display: flex; align-items: center; gap: var(--abstand-6); margin-top: var(--abstand-5); }
-  .cos-box { position: relative; flex: none; width: 92px; height: 92px; box-sizing: border-box; border-radius: var(--radius-karte); overflow: hidden;
-    border: 3px solid var(--kf, var(--akzent)); background: var(--karte); }
-  .cos-box i { position: absolute; left: 0; right: 0; bottom: 0; background: var(--kf, var(--akzent)); transition: height .8s ease-out; }
-  .cos-box.voll { animation: cosatmen 1.1s ease-in-out infinite; }
-  @keyframes cosatmen { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-  .cos-lauf-r { flex: 1; min-width: 0; }
-  .cos-lauf-t { font-size: var(--schrift-gross); font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums; }
-  .cos-lauf-r .kr { margin-top: var(--abstand-3); }
   .hz-knoepfe .hz-dran.reif { background: var(--gold); color: var(--karte); font-weight: 700; }
   .hz-knoepfe button:disabled { opacity: .45; }
   .cos-schritt-fertig { width: 100%; height: 40px; margin-top: var(--abstand-4); border-radius: var(--radius-gross); background: var(--karte); font-size: var(--schrift-klein); font-weight: 600; color: var(--gruen); }
@@ -610,7 +547,6 @@
   .cos-vor { display: flex; align-items: center; gap: var(--abstand-3); font-size: var(--schrift-klein); font-weight: 600; color: var(--leise); }
   .cos-vor .punkt { flex: none; }
   .cos-vor span.n { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cos-tausch { font-size: var(--schrift-klein); font-weight: 600; color: var(--akzent); padding: var(--abstand-3) var(--abstand-1) var(--abstand-3) var(--abstand-5); margin: calc(-1 * var(--abstand-3)) 0; }
   .cos-gross { font-size: var(--schrift-titel); font-weight: 800; line-height: 1.15; margin: var(--abstand-2) 0 var(--abstand-4); }
   .cos-masse { display: flex; align-items: center; gap: var(--abstand-4); font-size: var(--schrift-klein); color: var(--leise); }
   .cos-danach { display: flex; align-items: center; gap: var(--abstand-5); width: 100%; min-height: 44px; padding: var(--abstand-2) 0; text-align: left; font-size: var(--schrift-text); border-top: 1px solid var(--linie); }
@@ -713,7 +649,6 @@
   .cos-bereiche { display: flex; flex-wrap: wrap; gap: var(--abstand-3); }
   .cos-bereiche button { height: 40px; padding: 0 var(--abstand-6); border-radius: var(--radius-gross); box-shadow: inset 0 0 0 1.5px var(--linie); display: flex; align-items: center; gap: var(--abstand-3); }
   .cos-bereiche button.an { box-shadow: inset 0 0 0 2px var(--kf); background: var(--chip); font-weight: 700; }
-  .cos-auswahl { display: flex; align-items: center; width: 100%; min-height: 48px; text-align: left; border-top: 1px solid var(--linie); border-bottom: 1px solid var(--linie); }
   .cos-info { background: var(--gold-hell); color: var(--gold); border-radius: var(--radius-gross); padding: var(--abstand-5) var(--abstand-6); font-size: var(--schrift-klein); }
   .cos-info.rosa { background: var(--rosa-hell); color: var(--rosa); }
   .cos-info .knoepfe { display: flex; flex-wrap: wrap; gap: var(--abstand-3); margin-top: var(--abstand-4); }
@@ -757,7 +692,6 @@
   .cos-fb-funken span { position: absolute; top: 50%; width: 5px; height: 5px; border-radius: var(--radius-rund); background: var(--gold-funken); opacity: 0;
     animation: cosfunke var(--d, 900ms) ease-out var(--w, 0ms) forwards; }
   @keyframes cosatmen { 50% { filter: brightness(1.25); } }
-  @keyframes cosfbpop { 40% { transform: scaleY(1.7); } 100% { transform: scaleY(1); } }
   @keyframes cosglanz { to { background-position: -200% 0; } }
   @keyframes cosfunke { 0% { opacity: 1; transform: translate(0, 0) scale(1); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.4); } }
   .cos-nx { display: flex; align-items: center; gap: var(--abstand-5); background: var(--chip); border-radius: var(--radius-gross); padding: var(--abstand-4) var(--abstand-4) var(--abstand-4) var(--abstand-6); margin-top: var(--abstand-5); }
@@ -771,13 +705,6 @@
   .cos-lauf-m { font-size: var(--schrift-klein); color: var(--leise); margin-top: var(--abstand-1); }
   .cos-vn-k { display: flex; justify-content: space-between; align-items: baseline; }
   .cos-vn-k b { font-size: var(--schrift-titel); font-weight: 800; }
-  .cos-vn { display: flex; gap: var(--abstand-1); margin: var(--abstand-5) 0 var(--abstand-3); flex-wrap: wrap; }
-  .cos-vn button { width: 34px; height: 34px; display: grid; place-items: center; background: none; padding: 0; border-radius: var(--radius-mittel); }
-  .cos-vn button i { width: 22px; height: 22px; border-radius: var(--radius-klein); border: 1.5px solid var(--vornehmen-lila); box-sizing: border-box; position: relative; }
-  .cos-vn button.an i { background: var(--vornehmen-lila); }
-  .cos-vn button.g i { background: var(--rosa-voll); border-color: var(--rosa-voll); }
-  .cos-vn button.ueber i { opacity: .45; }
-  .cos-vn button.empf i::after { content: ""; position: absolute; left: 50%; bottom: -7px; width: 4px; height: 4px; margin-left: calc(-1 * var(--abstand-1)); border-radius: var(--radius-rund); background: var(--leise); }
   .cos-vn-t { font-size: var(--schrift-klein); color: var(--leise); }
   .cos-vg { display: flex; align-items: center; gap: var(--abstand-5); width: 100%; padding: var(--abstand-5) 0; border-top: 1px solid var(--linie); text-align: left; background: none; }
   .cos-vg-karte .bereich + .cos-vg { border-top: 0; }
@@ -790,14 +717,10 @@
   .cos-chips.nx { padding: var(--abstand-4) 0 var(--abstand-2); }
   .cos-streif { flex: none; align-self: stretch; width: 4px; min-height: 28px; border-radius: var(--radius-rund); background: var(--pf, var(--leise)); }
   .cos-pl.null .cos-streif { opacity: .35; }
-  .cos-hz[style*="--pf"] { box-shadow: inset 3px 0 0 var(--pf); padding-left: var(--abstand-5); border-radius: var(--radius-klein); }
   .cos-pl.pop .cos-st b, .cos-vn-k b.pop { animation: cosfeder .45s cubic-bezier(.3, 1.6, .5, 1); display: inline-block; }
   @keyframes cosfeder { 0% { transform: scale(1); } 35% { transform: scale(1.45); color: var(--akzent); } 100% { transform: scale(1); } }
-  .cos-vn-tag { transition: max-height .28s ease, opacity .22s ease, transform .28s ease; overflow: hidden; }
-  .cos-vn-tag.zu { max-height: 0 !important; opacity: 0; transform: scale(.97); }
-  .cos-hz.rein, .cos-nx.rein { animation: cosrein .42s cubic-bezier(.2, .8, .2, 1) both; }
-  .cos-heute .cos-hz.rein:nth-child(3) { animation-delay: .06s; } .cos-heute .cos-hz.rein:nth-child(4) { animation-delay: .12s; } .cos-heute .cos-hz.rein:nth-child(n+5) { animation-delay: .18s; }
-  @media (prefers-reduced-motion: reduce) { .cos-pl.pop .cos-st b, .cos-vn-k b.pop, .cos-hz.rein, .cos-nx.rein { animation: none; } .cos-vn-tag { transition: none; } }
+  .cos-nx.rein { animation: cosrein .42s cubic-bezier(.2, .8, .2, 1) both; }
+  @media (prefers-reduced-motion: reduce) { .cos-pl.pop .cos-st b, .cos-vn-k b.pop, .cos-nx.rein { animation: none; } }
   .cos-pl { display: flex; align-items: center; gap: var(--abstand-5); padding: var(--abstand-3) 0; border-top: 1px solid var(--linie); }
   .cos-vn-k + .cos-pl { border-top: 0; }
   .cos-pl.null .cos-pl-t b { color: var(--leise); font-weight: 500; }
@@ -808,60 +731,19 @@
   .cos-st b { min-width: 22px; text-align: center; font-size: var(--schrift-gross); font-weight: 800; }
   .cos-st button { width: 32px; height: 32px; border-radius: var(--radius-rund); background: var(--akzent-hell); color: var(--akzent); font-size: var(--schrift-gross); line-height: 1; padding: 0; }
   .cos-st button:disabled { opacity: .35; }
-  .cos-vn-karte .cos-vn-k, .cos-vn-tag .cos-vn-k { margin-bottom: var(--abstand-2); }
-  .cos-vn-tag .cos-vn-t { margin-top: var(--abstand-3); }
+  .cos-vn-karte .cos-vn-k { margin-bottom: var(--abstand-2); }
   .cos-passt { width: 100%; margin-top: var(--abstand-5); padding: var(--abstand-5); border-radius: var(--radius-gross); background: var(--akzent); color: var(--weiss); font-weight: 700; font-size: var(--schrift-text); }
   .cos-uhr { display: inline-flex; gap: var(--abstand-2); align-items: center; }
   .cos-uhr-ok { font-weight: 700; color: var(--akzent); }
   .cos-uhr-in { font: inherit; font-size: var(--schrift-klein); padding: var(--abstand-2) var(--abstand-4); border-radius: var(--radius-gross); border: 1px solid var(--linie); background: none; color: inherit; }
   @media (prefers-reduced-motion: reduce) { .cos-fb i::after { transition: none; } .cos-fb i.laeuft::after, .cos-fb.voll i::after, .cos-fb i.pop, .cos-fb-funken span { animation: none; } }
   /* ── Tag (V4): Zeitleiste, Kästchen des Tages, Heute mit Uhrzeiten, Tasks, Leiste am Mac ── */
-  .cos-zl { position: relative; height: 26px; margin-top: var(--abstand-6); border-radius: var(--radius-mittel); background: var(--chip); overflow: hidden; }
-  .cos-zl-t { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, var(--linie) 0 4px, transparent 4px 8px); box-shadow: inset 0 0 0 1px var(--linie); }
-  .cos-zl-b { position: absolute; top: 4px; bottom: 4px; border-radius: var(--radius-klein); min-width: 4px; padding: 0; }
-  .cos-zl-b.voll { background: var(--kf); }
-  .cos-zl-b.nicht { background: var(--chip); box-shadow: inset 0 0 0 1.5px var(--linie); }
-  .cos-zl-b.plan { background: var(--karte); box-shadow: inset 0 0 0 2px var(--kf); cursor: pointer; }
-  .cos-zl-b.lauf { background: linear-gradient(90deg, var(--kf) var(--teil, 0%), var(--karte) var(--teil, 0%)); box-shadow: inset 0 0 0 2px var(--kf); }
-  .cos-zl-task { position: absolute; top: 9px; bottom: 9px; border-radius: var(--radius-klein); background: var(--gold); min-width: 4px; }
-  .cos-zl-jetzt { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: calc(-1 * var(--abstand-1)); background: var(--jetzt-linie-mac); }
-  .cos-zl-skala { position: relative; height: 16px; font-size: var(--schrift-mini); color: var(--leise); font-variant-numeric: tabular-nums; }
-  .cos-zl-skala span { position: absolute; top: 2px; transform: translateX(-50%); }
-  .cos-zl-skala span:first-child { transform: none; }
-  .cos-zl-leg { font-size: var(--schrift-klein); color: var(--leise); margin-top: var(--abstand-1); }
 
-  .cos-heute { margin-top: var(--abstand-6); }
-  .cos-heute-k { display: flex; align-items: baseline; gap: var(--abstand-4); }
-  .cos-heute-k .cos-ab { flex: 1; }
-  .cos-heute-k .s { font-size: var(--schrift-klein); color: var(--leise); font-variant-numeric: tabular-nums; }
-  .cos-wahl { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: var(--abstand-2); margin-top: var(--abstand-4); }
-  .cos-wahl button { position: relative; height: 40px; border-radius: var(--radius-gross); background: var(--chip); font-weight: 600; font-variant-numeric: tabular-nums; }
-  .cos-wahl button.an { background: var(--akzent); color: var(--weiss); font-weight: 800; }
-  .cos-wahl button.empf::after { content: ''; position: absolute; left: 50%; bottom: 4px; width: 4px; height: 4px; margin-left: calc(-1 * var(--abstand-1)); border-radius: var(--radius-rund); background: currentColor; opacity: .7; }
-  .cos-wahl button.ziel { box-shadow: inset 0 -3px 0 var(--rosa-voll); }
-  .cos-wahl-t { font-size: var(--schrift-klein); color: var(--leise); margin: var(--abstand-3) 0 var(--abstand-2); line-height: 1.35; }
-  .cos-wahl-t b { color: var(--text); font-weight: 600; }
-  .cos-hz { display: flex; align-items: center; gap: var(--abstand-3); border-top: 1px solid var(--linie); }
-  .cos-hz:first-of-type { border-top: 0; }
-  .cos-hz-in { flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--abstand-5); min-height: 52px; padding: var(--abstand-3) 0; text-align: left; }
-  .cos-hz-zeit { flex: none; width: 58px; font-size: var(--schrift-klein); font-weight: 700; font-variant-numeric: tabular-nums; }
-  .cos-hz-zeit.leise { font-size: var(--schrift-klein); font-weight: 600; color: var(--leise); }
-  .cos-hz-was { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .cos-hz-was b { font-weight: 600; font-size: var(--schrift-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cos-hz-was small { font-size: var(--schrift-klein); color: var(--leise); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cos-hz .kr { flex: none; flex-wrap: nowrap; }
-  .cos-hz-knopf { flex: none; height: 36px; padding: 0 var(--abstand-6); border-radius: var(--radius-gross); background: var(--akzent-hell); color: var(--akzent); font-weight: 700; font-size: var(--schrift-klein); }
-  .cos-hz-knopf.leise { background: var(--chip); color: var(--text); font-weight: 600; }
-  .cos-hz.vor .cos-hz-was b { font-weight: 500; }
-  .cos-hz.vor .kq { opacity: .55; }
-  body.mac .cos-hz[draggable=true] { cursor: grab; }
   .cos-chips { display: flex; flex-wrap: wrap; gap: var(--abstand-3); padding: 0 0 var(--abstand-5) 68px; }
   .cos-chips button { height: 36px; padding: 0 var(--abstand-6); border-radius: var(--radius-gross); background: var(--akzent-hell); color: var(--akzent); font-weight: 700; font-size: var(--schrift-klein); transition: transform .1s; }
   .cos-chips > button:first-child { background: var(--akzent); color: var(--weiss); }
   .cos-chips button:active { transform: scale(.95); }
   .cos-chips button.grau { background: var(--chip); color: var(--text); }
-  .cos-alle { width: 100%; height: 44px; margin-top: var(--abstand-3); border-radius: var(--radius-gross); border: 1.5px dashed var(--akzent); color: var(--akzent); font-weight: 700; }
-  .cos-runde-z { display: block; width: 100%; margin-top: var(--abstand-5); height: 40px; border-radius: var(--radius-gross); background: var(--gold-hell); color: var(--gold); font-weight: 700; font-size: var(--schrift-klein); }
   .cos-runde-karte { display: flex; gap: var(--abstand-3); align-items: center; margin: 0 0 var(--abstand-6); font-size: var(--schrift-klein); }
   .cos-runde-los { flex: 1; display: flex; justify-content: space-between; align-items: center; padding: var(--abstand-4) var(--abstand-6); border-radius: var(--radius-gross); background: var(--gold-hell); color: var(--gold); text-align: left; }
   .cos-runde-los b, .cos-runde-los span { font-size: var(--schrift-klein); white-space: nowrap; }
@@ -938,13 +820,13 @@
   .cos-ls-drop { display: none; position: absolute; left: 6px; right: 6px; height: 30px; border-radius: var(--radius-mittel); border: 2px dashed var(--akzent); background: var(--akzent-hell); color: var(--akzent);
     font-size: var(--schrift-klein); font-weight: 700; padding: var(--abstand-2) var(--abstand-4); z-index: 5; pointer-events: none; }
   .cos-paar .voll { background: var(--knopf-blau); color: var(--weiss); }
-  @media (prefers-color-scheme: dark) { .cos-paar .voll, .cos-primaer, .cos-wahl button.an, .cos-chips > button:first-child, .cos-zeiten button.an, .cos-andere.an { background: var(--knopf-blau-dunkel); } }
-  @media (prefers-color-scheme: dark) { .cos-rang.eins, .cos-zerl-gross, .cos-aktionen button.blau, .cos-uebernehmen button { background: var(--knopf-blau-dunkel); } }
+  @media (prefers-color-scheme: dark) { .cos-paar .voll, .cos-primaer, .cos-chips > button:first-child, .cos-zeiten button.an, .cos-andere.an { background: var(--knopf-blau-dunkel); } }
+  @media (prefers-color-scheme: dark) { .cos-aktionen button.blau, .cos-uebernehmen button { background: var(--knopf-blau-dunkel); } }
 
   /* ── V69 Fokus: eine Liste nach Uhrzeit. Spalte Zeit, Strich in der Projektfarbe, Was, rechts Kästchen oder Knopf ── */
   .cos-tl { margin-top: var(--abstand-5); }
   .cos-tr { position: relative; display: flex; align-items: center; gap: var(--abstand-5); min-height: 54px; border-top: 1px solid var(--linie); }
-  .cos-tl > .cos-tr:first-child, .cos-tl-ab + .cos-tr, .cos-jetzt + .cos-tr, .cos-morgen + .cos-tr, .cos-tr.dran + .cos-tr, .cos-chips + .cos-tr { border-top-color: transparent; }
+  .cos-tl > .cos-tr:first-child, .cos-jetzt + .cos-tr, .cos-morgen + .cos-tr, .cos-tr.dran + .cos-tr, .cos-chips + .cos-tr { border-top-color: transparent; }
   .cos-tr-in { flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--abstand-6); min-height: 54px; padding: var(--abstand-3) 0; text-align: left; background: none; color: inherit; }
   .cos-tr-zeit { flex: none; width: 52px; font-size: var(--schrift-text); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
   .cos-tr-strich { flex: none; align-self: stretch; width: 3px; margin: var(--abstand-1) 0; border-radius: var(--radius-rund); background: var(--pf, var(--linie)); }
@@ -954,7 +836,6 @@
   .cos-tr .kr { flex: none; flex-wrap: nowrap; gap: var(--abstand-2); }
   .cos-tr .kq { width: 15px; height: 15px; border-radius: var(--radius-klein); }
   .kq.pl::before { content: ""; position: absolute; inset: 0; background: var(--kf); opacity: .2; }
-  .kq.oz { border-style: dashed; }
   /* geschafft: ruhig, rechts die echte Zeit mit Haken */
   .cos-tr.erl .cos-tr-zeit { color: var(--leise); font-weight: 600; }
   .cos-tr.erl .cos-tr-was b { font-weight: 500; }
@@ -995,10 +876,6 @@
   .cos-jetzt span { width: 52px; }
   .cos-jetzt::before { content: ""; position: relative; left: 0; width: 7px; height: 7px; margin-right: calc(-1 * var(--abstand-2)); border-radius: var(--radius-rund); background: var(--jetzt-linie); order: 2; }
   .cos-jetzt::after { content: ""; flex: 1; height: 1.5px; border-radius: var(--radius-klein); background: var(--jetzt-linie); opacity: .45; order: 3; }
-  .cos-tl-ab { display: flex; align-items: baseline; justify-content: space-between; gap: var(--abstand-4); margin: var(--abstand-7) 0 var(--abstand-1); }
-  .cos-tl-ab .cos-ab { white-space: nowrap; }
-  .cos-tl-ab .cos-link, .cos-tl-ab .cos-alle { width: auto; height: auto; margin: 0; padding: var(--abstand-2) 0; border: 0; border-radius: 0; background: none; font-size: var(--schrift-klein); font-weight: 700; color: var(--akzent); text-align: right; }
-  .cos-tl-leer { font-size: var(--schrift-klein); color: var(--leise); padding: var(--abstand-5) 0 var(--abstand-1); }
   /* Morgens ohne Plan: eine Zeile mit Vorschlag */
   .cos-morgen { display: flex; align-items: center; gap: var(--abstand-6); margin: var(--abstand-2) 0 var(--abstand-4); padding: var(--abstand-6) var(--abstand-6) var(--abstand-5) var(--abstand-6); border-radius: var(--radius-karte); background: var(--chip);
     transition: max-height .28s ease, opacity .22s ease, transform .28s ease, margin .28s ease, padding .28s ease; overflow: hidden; }
@@ -1024,8 +901,7 @@
     @keyframes cosanf { 0%, 100% { box-shadow: 0 0 0 0 var(--anf-puls-dunkel); } 50% { box-shadow: 0 0 0 7px var(--anf-puls-dunkel-aus); } }
   }
   @media (prefers-reduced-motion: reduce) { .cos-anf, .cos-tr.rein, .cos-morgen.rein, .cos-tr.frisch .kq, .cos-fb.laeuft .cos-fb-voll::after { animation: none; } .cos-morgen, .cos-fb-plan, .cos-fb-voll { transition: none; } }
-  @media (prefers-reduced-motion: reduce) { .cos-box.voll, .cos-reihe.reif .kq.neu, .cos-reihe .kq.landet, .cos-haken.neu span, .cos-srow.frisch,
-    .cos-blatt.neu .cos-blatt-in, .cos-blatt.neu .cos-blatt-hg { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .cos-reihe.reif .kq.neu, .cos-reihe .kq.landet, .cos-blatt.neu .cos-blatt-in, .cos-blatt.neu .cos-blatt-hg { animation: none; } }
 
   /* ── V96 Tag mit Plätzen aus dem Raster. Maße aus entwuerfe/kaestchen/Tag.dc.html, hell = Projektfarbe auf der Karte ── */
   :root { --tg-start: #EEF3FC; --tg-joker: #D8D5CD; --tg-fertig-zeit: #9A968C; }
@@ -1327,11 +1203,7 @@ const COS_FARBEN = { FW: stilWert('--bereich-fw'), Projekte: stilWert('--bereich
 const COS_FARBE_OHNE = stilWert('--bereich-ohne');
 const COS_BEREICHE = ['FW', 'Projekte', 'HFBK', 'Admin', 'Sport', 'System'];
 const COS_WT = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
-const COS_FAHNE = voll => '<svg width="12" height="15" viewBox="0 0 13 16" aria-hidden="true"><path d="M2 1.5v13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
-  '<path d="M3 2h8.5L9 5l2.5 3H3z" ' + (voll ? 'fill="currentColor"' : 'fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"') + '/></svg>';
 const COS_HAKEN = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
-const COS_GRIFF = '<svg viewBox="0 0 12 18" aria-hidden="true"><g fill="currentColor"><circle cx="3" cy="3" r="1.6"/><circle cx="9" cy="3" r="1.6"/><circle cx="3" cy="9" r="1.6"/><circle cx="9" cy="9" r="1.6"/><circle cx="3" cy="15" r="1.6"/><circle cx="9" cy="15" r="1.6"/></g></svg>';
-const COS_PUNKTE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>';
 
 let C = null;                 // Chief Paket vom Server
 let cosGeladen = 0, cosLaedt = false, cosFehlt = false;
@@ -1339,14 +1211,10 @@ let cosProjekt = null;        // offenes Projekt (ID)
 let cosWahl = null;           // per Tauschen gewählter Schritt
 let cosStartet = null;        // Schlüssel des Blocks, der gerade beim Server angelegt wird
 let cosAuf = { fertig: false, geparkt: false };
-let cosNeuHaken = null;       // gerade abgehakt, für die Animation
 const cosKeys = {};           // Block Schlüssel → Schritt ID, bis der Server es kennt
 let cosAusstehend = 0, cosAenderung = 0;   // Änderungen unterwegs zum Server, Zeitpunkt der letzten
 let cosBlatt = null;          // offenes Blatt (Schritt, Projekt, Etappe, Zerlegen)
-let cosNeuZeile = null;       // hier wird gerade ein neuer Schritt getippt: { pid, etappe }
-const cosEntwurf = { t: '', k: 1 };
 const cosFrisch = {};         // gerade entstandene Schritte, für die Einblendung
-const cosZu = {};             // auf und zu geklappte fertige Etappen
 let cosZieh = null;           // laufendes Ziehen
 try { C = JSON.parse(localStorage.getItem(COS_SPEICHER) || 'null'); } catch (e) { C = null; }
 
@@ -1856,7 +1724,6 @@ function cosNaechstesHtml(jetzt, laeuft, kommend, jm) {
   }).join('');
   return html + (danach ? '<div class="cos-dl">' + danach + '</div>' : '') + '</div>';
 }
-function cosTauschen() { const l = cosKandidatenJetzt(); if (l.length > 1) { cosWahl = l[1].s.id; haptik(); heuteNeu(); } }
 function cosWaehlen(id) { cosWahl = id; haptik(); if (ansicht === 'tag') heuteNeu(); else zeichnen(); }
 
 /* Los an einem Schritt: sofort als laufender Block anzeigen, der Server legt ihn im Kalender an */
@@ -1914,7 +1781,7 @@ function cosHakenSetzen(id, neu, ohneVerlauf) {
   if (!s) return;
   if (!ohneVerlauf) merken({ art: 'cosHaken', tag: tagIso, id: id, alt: s.status, name: s.titel });
   s.status = neu;
-  if (neu === 'fertig') { cosNeuHaken = { id: id, t: Date.now() }; haptik(); if (cosWahl === id) cosWahl = null; }
+  if (neu === 'fertig') { haptik(); if (cosWahl === id) cosWahl = null; }
   cosSpeichern();
   cosAenderung = Date.now();
   zeichnen();
@@ -2029,7 +1896,6 @@ function cosStatus(pid, status) {
 /* ── Projekt öffnen (Seite in projekt.js) ── */
 function cosOeffnenId(pid) {
   cosProjekt = pid && cosPid(pid) ? pid : null;
-  cosNeuZeile = null;
   zeichnen();
   if (!document.body.classList.contains('mac')) window.scrollTo(0, 0);
 }
@@ -2492,11 +2358,18 @@ function cosRasAendern(d) {
   }
   cosMengeSetzen(s.iso, s.z, d);
 }
-/* Menge eines Projekts an einem Tag. Heute nur Plus, Minus zeigt den Joker Hinweis */
+/* Menge eines Projekts an einem Tag. Heute geht Minus nur bis zur Menge vom Vortag (pb|Tag = Kopie von pt vor dem ersten Plus
+   des Tages), darunter zeigt es den Joker Hinweis. So lässt sich ein Plus zum Ausprobieren zurücknehmen */
+function cosPlanBasis(iso) { const v = cosMerk('pb|' + iso); return v && typeof v === 'object' && !Array.isArray(v) ? v : null; }
 function cosMengeSetzen(iso, pid, d) {
   if (iso === heute()) {
-    if (d < 0 && cosPlanLesen(iso)) { cosVnHinweis = Date.now(); haptik(); melden(COS_HINWEIS_JOKER); zeichnen(); return; }
-    cosPlanSetzen(pid, d);
+    const pt = cosPlanLesen(iso);
+    if (!pt) { cosPlanSetzen(pid, d); return; }
+    const pb = cosPlanBasis(iso), jetzt = Math.max(0, Number(pt[pid]) || 0), basis = pb ? Math.max(0, Number(pb[pid]) || 0) : jetzt;
+    if (d < 0 && jetzt <= basis) { cosVnHinweis = Date.now(); haptik(); melden(COS_HINWEIS_JOKER); zeichnen(); return; }
+    cosVnHinweis = 0;
+    if (d > 0 && !pb && jetzt < 8) cosGruppe('Mehr', () => { cosMerkSetzen('pb|' + iso, Object.assign({}, pt)); cosPlanSetzen(pid, d); });
+    else cosPlanSetzen(pid, d);
     return;
   }
   const pt = Object.assign({}, cosPlanLesen(iso) || {}), vor = Math.max(0, Number(pt[pid]) || 0);
@@ -2614,7 +2487,7 @@ function cosBlattZeichnen(neu) {
   const el = $('cosBlatt');
   if (!cosBlatt) { el.className = 'cos-blatt'; el.innerHTML = ''; return; }
   const art = cosBlatt.art;
-  const inhalt = art === 'schritt' ? cosBlattSchritt() : art === 'projekt' ? cosBlattProjekt() : art === 'etappe' ? cosBlattEtappe() :
+  const inhalt = art === 'schritt' ? cosBlattSchritt() : art === 'projekt' ? cosBlattProjekt() :
     art === 'sitzung' ? cosBlattSitzung() : art === 'einplanen' ? cosBlattEinplanen() : art === 'taskwann' ? cosBlattTaskWann() : art === 'weiter' ? cosBlattWeiter() : art === 'inhalt' ? cosBlattInhalt() : cosBlattZerlegen();
   const nurZu = ['zerlegen', 'sitzung', 'einplanen', 'taskwann', 'inhalt'].indexOf(art) >= 0;
   const alt = el.querySelector('.cos-blatt-in'), scroll = !neu && alt ? alt.scrollTop : 0;
@@ -2638,7 +2511,6 @@ function cosBlattFertig() {
   if (art === 'weiter') return;   // V92: Pflichtfeld, kein Schließen über Hintergrund oder Escape
   if (art === 'schritt') cosSchrittSpeichern();
   else if (art === 'projekt') cosProjektSpeichern();
-  else if (art === 'etappe') cosEtappeSpeichern();
   else cosBlattZu();   // Zerlegen und die Blätter vom Tag: Schließen ohne Speichern
 }
 function cosBk(titel, fertigText) {
@@ -2658,7 +2530,6 @@ function cosPicker(n, wahl, an, farbe, fn, klasse, lang) {
 function cosSchrittOeffnen(sid) {
   const s = C && C.schritte.find(x => x.id === sid);
   if (!s) return;
-  cosNeuZeile = null;
   cosBlattAuf({ art: 'schritt', titel: 'Schritt', sid: sid, d: cosPaket(s), neueEtappe: false,
     datum: !!(s.wann && s.wann !== heute() && s.wann !== tagPlus(heute(), 1)) });
 }
@@ -2723,9 +2594,6 @@ function cosBlattLesen() {
     if (e !== null && e !== '__neu') b.d.abschnitt = e;
   } else if (b.art === 'projekt') {
     [['cbName', 'name'], ['cbWofuer', 'wofuer'], ['cbDl', 'deadline']].forEach(x => { const v = cosWert(x[0]); if (v !== null) b.d[x[1]] = v; });
-  } else if (b.art === 'etappe') {
-    const v = cosWert('cbEtName');
-    if (v !== null) b.name = v;
   } else if (b.art === 'zerlegen') {
     b.teile.forEach((t, i) => { const v = cosWert('cbT' + i); if (v !== null) t.t = v; });
   }
@@ -2782,7 +2650,6 @@ function cosProjektNeu() {
 function cosProjektOeffnen(pid) {
   const p = cosPid(pid);
   if (!p) return;
-  cosNeuZeile = null;
   cosBlattAuf({ art: 'projekt', titel: 'Projekt', neu: false, d: cosKopie(p), keineDl: !p.deadline });
 }
 function cosBlattProjekt() {
@@ -2850,76 +2717,11 @@ function cosProjektLoeschen(pid) {
   melden(p.name + ' gelöscht. Oben geht Rückgängig.');
 }
 
-/* Etappe: umbenennen, verschieben, löschen. Neue Etappe: Name und grobe Schätzung */
-function cosEtappeOeffnen(pid, gi) {
-  const p = cosPid(pid), g = p && cosEtappen(cosListe(p))[gi];
-  if (!g) return;
-  cosNeuZeile = null;
-  cosBlattAuf({ art: 'etappe', titel: 'Etappe', pid: pid, alt: g.name, name: g.name, neu: false });
-}
-function cosEtappeNeu(pid) {
-  cosNeuZeile = null;
-  cosBlattAuf({ art: 'etappe', titel: 'Neue Etappe', pid: pid, alt: null, name: '', neu: true, k: 4, fokus: 'cbEtName' });
-}
-function cosBlattEtappe() {
-  const b = cosBlatt, p = cosPid(b.pid);
-  if (!p) return cosBk('Etappe', null);
-  const gruppen = cosEtappen(cosListe(p)), gi = gruppen.findIndex(g => g.name === b.alt), g = gruppen[gi];
-  let html = cosBk(b.neu ? 'Neue Etappe' : 'Etappe', b.neu ? 'Anlegen' : 'Fertig') +
-    '<div class="cos-feld"><label for="cbEtName">Name</label><input type="text" id="cbEtName" value="' + esc(b.name) + '" placeholder="zum Beispiel Akt 2 überarbeiten" oninput="cosBlatt.name=this.value" autocomplete="off"></div>';
-  if (b.neu) {
-    html += '<div class="cos-feld"><div class="l"><span>Grob geschätzt</span><em><b>' + b.k + '</b> · ' + dauerText(b.k * COS_MIN) + '</em></div>' +
-      cosPicker(12, b.k, 0, cosFarbe(p.bereich), 'cosBlattEtK', 'klein') + '<div class="cos-tipp">Grob reicht. Zerlegt wird, wenn die Etappe dran ist.</div></div>';
-  } else if (g) {
-    const k = g.schritte.reduce((n, s) => n + s.k, 0);
-    html += '<div class="hinweis">' + g.schritte.length + (g.schritte.length === 1 ? ' Schritt' : ' Schritte') + ' · ' + k + ' Kästchen · ' + g.zustand + '</div>' +
-      '<div class="cos-rangzeile"><span>Reihenfolge</span><button onclick="cosEtappeSchieben(-1)"' + (gi <= 0 ? ' disabled' : '') + '>Nach oben</button>' +
-      '<button onclick="cosEtappeSchieben(1)"' + (gi >= gruppen.length - 1 ? ' disabled' : '') + '>Nach unten</button></div>' +
-      '<button class="cos-weg" onclick="cosEtappeLoeschen()">Etappe mit ' + g.schritte.length + (g.schritte.length === 1 ? ' Schritt' : ' Schritten') + ' löschen</button>';
-  }
-  return html;
-}
-function cosBlattEtK(n) { cosBlattLesen(); cosBlatt.k = n; haptik(); cosBlattZeichnen(); }
-function cosEtappeSpeichern() {
-  const b = cosBlatt, p = cosPid(b.pid);
-  cosBlattLesen();
-  const name = (b.name || '').replace(/\s+/g, ' ').trim();
-  if (!p) { cosBlattZu(); return; }
-  if (b.neu) {
-    if (!name) { melden('Die Etappe braucht einen Namen.'); return; }
-    cosBlattZu();
-    const s = { id: cosId('s'), abschnitt: name, titel: name, k: b.k, fertigWenn: '', status: 'grob', weiterBei: '', wann: '', verschoben: 0, min: 0, bl: {} };
-    cosFrisch[s.id] = Date.now();
-    cosSchritteAendern(p, cosListe(p).concat([s]), 'Etappe angelegt');
-    return;
-  }
-  cosBlattZu();
-  if (name === b.alt) return;
-  cosSchritteAendern(p, cosListe(p).map(s => ((s.abschnitt || '') === b.alt ? Object.assign({}, s, { abschnitt: name }) : s)), 'Etappe umbenannt');
-}
-function cosEtappeSchieben(d) {
-  const b = cosBlatt, p = cosPid(b.pid);
-  if (!p) return;
-  const liste = cosListe(p), gruppen = cosEtappen(liste), gi = gruppen.findIndex(g => g.name === b.alt), gj = gi + d;
-  if (gi < 0 || gj < 0 || gj >= gruppen.length) return;
-  gruppen.splice(gj, 0, gruppen.splice(gi, 1)[0]);
-  haptik();
-  cosSchritteAendern(p, [].concat(...gruppen.map(g => g.schritte), liste.filter(s => s.status === 'park')), 'Etappe verschoben');
-  cosBlattZeichnen();
-}
-function cosEtappeLoeschen() {
-  const b = cosBlatt, p = cosPid(b.pid);
-  if (!p) return;
-  cosBlattZu();
-  cosSchritteAendern(p, cosListe(p).filter(s => (s.abschnitt || '') !== b.alt || s.status === 'park'), 'Etappe gelöscht');
-  melden('Etappe gelöscht. Oben geht Rückgängig.');
-}
 
 /* Zerlegen: ein großer Schritt wird zu kleinen. Was nicht verteilt ist, bleibt als grober Rest */
 function cosZerlegen(sid) {
   const s = C && C.schritte.find(x => x.id === sid);
   if (!s) return;
-  cosNeuZeile = null;
   cosBlattAuf({ art: 'zerlegen', titel: 'Zerlegen', sid: sid, teile: [{ t: '', k: Math.min(2, s.k) }], fokus: 'cbT0' });
 }
 function cosBlattZerlegen() {
@@ -3051,9 +2853,9 @@ function cosWeiterNeu(b, p) {
   cosSchritteAendern(p, liste, 'Weiter bei');
   melden('Weiter bei: ' + t + (frei ? '. Steht im nächsten freien Platz.' : '. Liegt in Offen im Projekt.'));
 }
-/* ── Ziehen: am Griff ziehen ordnet Projekte (Rang) und Schritte (auch über Etappen hinweg). Pfeiltasten gehen auch ── */
+/* ── Ziehen: am Griff ziehen ordnet die Projekte (Rang). Pfeiltasten gehen auch. V99: Schritte werden nicht mehr gezogen ── */
 function cosZiehElemente(art) {
-  return Array.from($('inhalt').querySelectorAll(art === 's' ? '[data-zieh="s"], [data-etappe-kopf]' : '[data-zieh="p"]'));
+  return Array.from($('inhalt').querySelectorAll('[data-zieh="' + art + '"]'));
 }
 function cosZiehStart(e) {
   if (e.button > 0 || cosZieh) return;
@@ -3096,7 +2898,6 @@ function cosZiehSetzen() {
   const andere = z.elemente.filter(x => x !== z.zeile);
   let i = andere.findIndex(x => { const r = x.getBoundingClientRect(); return z.y < r.top + r.height / 2; });
   if (i < 0) i = andere.length;
-  if (z.art === 's' && i === 0 && andere[0] && andere[0].hasAttribute('data-etappe-kopf')) i = 1;
   z.ziel = i;
   const vor = andere[i - 1], nach = andere[i];
   const a = vor && vor.getBoundingClientRect(), b = nach && nach.getBoundingClientRect();
@@ -3129,25 +2930,7 @@ function cosZiehAblegen(art, zeile, elemente, ziel) {
   if (neu.every((x, i) => x === elemente[i])) { zeichnen(); return false; }
   haptik();
   if (art === 'p') { cosReiheSetzen(neu.map(x => x.dataset.id), 'Rang geändert'); return true; }
-  const p = cosPid(zeile.dataset.pid);
-  if (!p) return false;
-  const liste = cosListe(p), nachId = {};
-  liste.forEach(s => { nachId[s.id] = s; });
-  let etappe = '';
-  const ordnung = [], drin = {};
-  neu.forEach(x => {
-    if (x.hasAttribute('data-etappe-kopf')) {
-      etappe = x.dataset.etappe || '';
-      if (x.dataset.zu) liste.forEach(s => { if ((s.abschnitt || '') === etappe && s.status !== 'park' && s.id !== zeile.dataset.id && !drin[s.id]) { ordnung.push(s); drin[s.id] = true; } });
-      return;
-    }
-    const s = nachId[x.dataset.id];
-    if (!s || drin[s.id]) return;
-    ordnung.push(x === zeile ? Object.assign({}, s, { abschnitt: etappe }) : s);
-    drin[s.id] = true;
-  });
-  cosSchritteAendern(p, ordnung.concat(liste.filter(s => !drin[s.id])), 'Reihenfolge geändert');
-  return true;
+  return false;
 }
 function cosGriffTaste(e) {
   if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
@@ -3157,7 +2940,6 @@ function cosGriffTaste(e) {
   const art = zeile.dataset.zieh, id = zeile.dataset.id, elemente = cosZiehElemente(art);
   const idx = elemente.indexOf(zeile), andere = elemente.filter(x => x !== zeile);
   let ziel = e.key === 'ArrowUp' ? idx - 1 : idx + 1;
-  if (art === 's' && andere[0] && andere[0].hasAttribute('data-etappe-kopf')) ziel = Math.max(1, ziel);
   ziel = Math.max(0, Math.min(andere.length, ziel));
   if (cosZiehAblegen(art, zeile, elemente, ziel)) {
     const g = $('inhalt').querySelector('[data-id="' + id + '"] .cos-griff');
@@ -3502,7 +3284,6 @@ function cosWannChips(sid, k, mitOhne, klasse) {
     '<button class="grau" onclick="cosSitzungSchritt(\'' + sid + '\',' + k + ')">Mehr</button></div>';
 }
 function cosReinKl() { return Date.now() - cosReinT < 900 ? ' rein' : ''; }
-function cosWahlSetzen(n) { haptik(); cosWannAuf = null; cosMerkSetzen('n|' + heute(), n); if (ansicht === 'tag') heuteNeu(); else zeichnen(); }
 
 /* ── V96 Tag wie entwuerfe/kaestchen/Tag.dc.html, nur mit pt|heute (sonst die Liste von V69 mit Vorschlag und Passt).
    Plätze pro Projekt aus der Menge minus Joker: eingeplant (Block mit Uhrzeit), To Do (Schritt mit Wann = heute) oder frei.
@@ -3773,18 +3554,6 @@ function cosWannUhr(sid, k, v) {   // V62: eigene Uhrzeit für Kästchen im Tag
   cosEinplanen([{ id: sid, start: cosUhr(minVon(v)), k: k }]);
 }
 function cosHeuteOhne(sid) { cosWannAuf = null; cosWannSetzen(sid, heute()); }
-function cosAlleEinplanen() {
-  const plan = cosTagPlan(), liste = [], extra = [];
-  if (plan.jetzt) { const jm = jetztMin(); extra.push({ s: jm, e: jm + plan.jetzt.k * COS_MIN + 10 }); }   // Als Nächstes bleibt jetzt, der Rest kommt danach
-  plan.vorschlaege.forEach(v => {
-    const s = cosStarts(v.k * COS_MIN, null, 1, extra)[0];
-    if (!s) return;
-    liste.push({ id: v.s.id, start: cosUhr(s.s), k: v.k });
-    extra.push({ s: s.s, e: s.s + v.k * COS_MIN + 10 });
-  });
-  if (!liste.length) { melden('Heute ist keine freie Zeit mehr.'); return; }
-  cosEinplanen(liste);
-}
 
 /* ── Einplanen, verschieben, ausplanen, zuordnen: erst hier, dann im Kalender ── */
 function cosEinplanen(liste, ohneVerlauf) {
@@ -4069,7 +3838,6 @@ function cosSuchen(v) {
 function cosEinplanenWahl(sid) { cosBlattLesen(); cosBlatt.sid = sid; cosBlatt.k = cosVorschlagK(sid); haptik(); cosBlattZeichnen(); }
 function cosEinplanenModus(m) { cosBlattLesen(); cosBlatt.modus = m; cosBlatt.such = ''; if (m === 'frei') cosBlatt.ohne = false; cosBlattZeichnen(); if (m === 'frei') { const f = $('cbWas'); if (f) f.focus(); } }
 function cosEinplanenBereich(x) { cosBlattLesen(); cosBlatt.bereich = x; haptik(); cosBlattZeichnen(); }
-function cosZuTasks() { cosBlattZu(); heuteWahlOeffnen(); }
 function cosZuNach() { cosBlattZu(); planOeffnen(true); }
 function cosEinplanenFertig() {
   const b = cosBlatt, h = heute();
@@ -4402,10 +4170,6 @@ function cosRundeKarte() {   // V63: eine kleine Zeile statt Karte
   return '<div class="cos-runde-karte"><button class="cos-runde-los" onclick="cosRundeStart()"><b>' + (r.art === 'so' ? 'Wochenrunde' : 'Mittwochsrunde') + ' fällig</b><span>mit Claude ›</span></button>' +
     '<button class="gestr" onclick="cosRundeFertig()">Erledigt</button></div>';
 }
-function cosRundeZeile() {
-  const r = cosRundeFaellig();
-  return r ? '<button class="cos-runde-z" onclick="cosRundeStart()">' + (r.art === 'so' ? 'Wochenrunde' : 'Mittwochsrunde') + ' fällig · mit Claude starten</button>' : '';
-}
 /* V90: Kalenderwoche eines Tages (ISO) */
 function cosKwVon(iso) {
   const a = iso.split('-').map(Number), t = new Date(Date.UTC(a[0], a[1] - 1, a[2]));
@@ -4503,7 +4267,7 @@ function cosRundeFertig() {
 /* ── Einhängen ── */
 (function () {
   const k = document.getElementById('navChief');   // $ gibt es erst im Hauptscript
-  if (k) k.onclick = () => { ansicht = 'chief'; cosProjekt = null; cosNeuZeile = null; zeichnen(); cosLaden(false); window.scrollTo(0, 0); };
+  if (k) k.onclick = () => { ansicht = 'chief'; cosProjekt = null; zeichnen(); cosLaden(false); window.scrollTo(0, 0); };
   window.addEventListener('load', () => cosLaden(true));
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') cosLaden(false); });
   document.addEventListener('keydown', e => {
@@ -4538,10 +4302,6 @@ function cosRundeFertig() {
   .sen-balken-bahn { position: relative; height: 18px; border-radius: var(--radius-rund); background: var(--linie); overflow: hidden; }
   .sen-balken-voll { position: absolute; inset: 0 auto 0 0; border-radius: var(--radius-mittel); background: var(--sen); transition: width .7s cubic-bezier(.2, .8, .2, 1); }
   .sen-balken-skala { display: flex; justify-content: space-between; font-size: var(--schrift-mini); font-weight: 600; color: var(--leise); font-variant-numeric: tabular-nums; margin-top: calc(-1 * var(--abstand-3)); }
-  .sen-teile { margin: calc(-1 * var(--abstand-1)) 0 var(--abstand-6); display: grid; gap: var(--abstand-2); }
-  .sen-teil { display: flex; justify-content: center; gap: var(--abstand-4); font-size: var(--schrift-klein); color: var(--leise); }
-  .sen-teil b { color: var(--sen); font-weight: 700; font-variant-numeric: tabular-nums; }
-  .sen-teil.neu { animation: ciein .4s ease-out; }
   .sen-kopf .ringe-leg span b { color: var(--sen); font-weight: 700; }
   .sen-kopf .ringe-leg span.neu { animation: ciein .4s ease-out; }
 
@@ -4624,7 +4384,7 @@ function cosRundeFertig() {
   .sen-aktionen button { height: 46px; border-radius: var(--radius-gross); background: var(--chip); font-weight: 600; }
   .sen-aktionen button.gut { background: var(--sen); color: var(--sen-auf); }
   .sen-aktionen button.weg { color: var(--rot-loeschen); background: none; }
-  @media (prefers-reduced-motion: reduce) { .sen-zahl b.pop, .sen-balken-voll, .sen-uhr, .sen-zeile.neu, .sen-teil.neu, .sen-blatt.neu .sen-blatt-in, .sen-punkt { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .sen-zahl b.pop, .sen-balken-voll, .sen-uhr, .sen-zeile.neu, .sen-blatt.neu .sen-blatt-in, .sen-punkt { animation: none; } }
 </style>
 <div id="senBlatt" class="sen-blatt"></div>
 <script>
@@ -5173,8 +4933,8 @@ function senFilmWeg() {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611222118';
-const PWA_NAME = "V98 Projekt und Mac";
+const PWA_VERSION = '202611222209';
+const PWA_NAME = "V99 Minus nimmt Plus am Tag zurück";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -5233,7 +4993,6 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&am
 const zwei = n => String(n).padStart(2, '0');
 const isoVon = d => d.getFullYear() + '-' + zwei(d.getMonth() + 1) + '-' + zwei(d.getDate());
 const komma = x => String(x).replace('.', ',');
-const HAKEN = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const TAGNAMEN = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
 
 function heute() { return isoVon(new Date()); }
@@ -5469,21 +5228,14 @@ function koeBewegungHtml() {   // nur wenn es keine Felder für Bewegung gibt
     (sch || '<div class="hinweis">Kommt bald.</div>') + '</div>';
 }
 function koeOeffnen() { ansicht = 'koe'; zeichnen(); window.scrollTo(0, 0); }
-function koeAnteil(iso) { const t = ringTeile(iso); return t ? Math.round(t[1] * 100) : null; }
 function koeOffen() {   // V93: Check ins (Halsi, Migna) zählen offen, solange das laufende Fenster fehlt
   return P.felder.filter(f => koeFeld(f) && ['kaestchen', 'mac', 'oben', 'wert'].indexOf(f.typ) === -1 && f.typ !== 'gross')
     .filter(f => { if (istCheckin(f)) return checkinFehlt(f); const w = wertVon(f.spalte); return w == null || w === ''; }).length;
 }
-const KOE_BALD = [];   // Platzhalter für später: [['Name', 'Kommt bald.']]
 function koeBaldHtml() {
-  return koeBewegungHtml() + koeRauchenHtml() + KOE_BALD.map(b => '<div class="karte koe-bald"><div class="bereich"><span class="punkt" style="background:var(--leise)"></span>' + esc(b[0]) + '</div><div class="hinweis">' + esc(b[1]) + '</div></div>').join('');
+  return koeBewegungHtml() + koeRauchenHtml();
 }
 
-/* Neben der großen Zahl: nur der Schnitt Tag 1/10 der letzten 4 Tage, heute zählt mit. Links bleibt leer, damit die Zahl mittig steht.
-   Ausgaben 7 Tage stehen in der Geld Karte, Schlaf in der Schlaf Karte. */
-/* Köö: unter den Ringen groß, was Körper heute bringt. Die Tageszahl in der Mitte ist grau, nur der Körperring bleibt */
-function koeNeben() { return ''; }
-/* Köö: an der Stelle von "Kästchen einsammeln" eine Zeile in derselben Höhe, damit Tag und Köö genau gleich anfangen */
 /* ── V81 Köö: Zigaretten, Nikotin und Drinks mit Uhrzeit (Server Koerper.js, Tab Signale). Keine Punkte ── */
 const KOE_ZAEHLER = [['rauchen', 'Zigaretten', ''], ['nikotin', 'Nikotin', 'Pouch oder Kaugummi']];
 const KOE_ARTEN = ['rauchen', 'nikotin', 'drink'];
@@ -5589,7 +5341,7 @@ function zeichneTag() {
   P.felder.filter(f => f.typ === 'gross').forEach(f => {
     const live = tagLive(tagIso), w = live != null ? live : wertVon(f.spalte), s = stufe(f, w);
     html += '<div class="tageszahl"><div class="neben links">' + nebenWerte(f, 'l') + '</div><div class="ringe"><div class="ringe-kreis" id="tagRinge">' + ringeSvg(tagIso) + '<div class="zahl" id="tagZahl" style="' + (ton(f, s) || 'background:var(--chip)') + '">' +
-      (live != null ? live.toFixed(1).replace('.', ',') : esc(anzeigeVon(f.spalte)) || '–') + '</div></div>' + ringeLegende() + (typeof cosReiheHtml === 'function' ? (koe ? koeReiheHtml() : cosReiheHtml(tagIso)) : '') + '</div><div class="neben">' + (koe ? koeNeben() : nebenWerte(f, 'r')) +
+      (live != null ? live.toFixed(1).replace('.', ',') : esc(anzeigeVon(f.spalte)) || '–') + '</div></div>' + ringeLegende() + (typeof cosReiheHtml === 'function' ? (koe ? koeReiheHtml() : cosReiheHtml(tagIso)) : '') + '</div><div class="neben">' + (koe ? '' : nebenWerte(f, 'r')) +
       oben.map(o => '<div' + (o.liste ? ' class="klappbar' + (auf.has(o.spalte) ? ' auf' : '') + '" onclick="umklappen(' + P.felder.indexOf(o) + ')"' : '') +
         '><small>' + esc(o.spalte) + (o.liste ? '<span class="pfeil">▸</span>' : '') + '</small><b style="' + ton(o, stufe(o, wertVon(o.spalte))) + '">' +
         (esc(anzeigeVon(o.spalte)) || '–') + '</b></div>').join('') + '</div></div>';
@@ -5928,7 +5680,6 @@ const NACH_FAKTOR = 0.5;           // nachgetragene Blöcke zählen halb (wie BL
 const SEIT_MAX = 90;  // Los "seit …": höchstens so viele Minuten zurück (wie BLK.LOS_ZURUECK_MAX)
 function zaehlt(b) { return ZAEHLT_NICHT.indexOf(b.bereich) === -1; }
 const PUNKTE = { ERSTER: 3, WEITERE: 2, MAX_BLOECKE: 3, GANZ: 1, HALB: 0.5, MIN_DAUER: 25, TASK: 0.5, MAX_TASKS: 5 };
-const PUNKTE_ZIEL = 7;   // Ersatz, falls Ziele noch keinen Wert hat
 const PUNKTE_AB = '2026-11-05';   // Tage davor zählten Fokuszeit und werden nicht umgerechnet
 const FOKUS_ZIEL_MIN = 180;        // Ersatz für das Tagesziel, falls Regeln keinen Wert hat (3 h)
 const WAHL = ['nono', 'hmm', 'si'];   // Typ wahl im Tab App (Spalte Vb): nono zählt null, hmm halb, si voll
@@ -7362,13 +7113,6 @@ function eintragNeu(id, n) {
   if (alt) nacheinander('appEintrag', tagIso, f.spalte, 'weg', ersetzt);
   nacheinander('appEintrag', tagIso, f.spalte, 'neu', n);
 }
-function eintragWeg(id, i) {
-  const f = feldVon(id);
-  const liste = ((zelle(f.spalte) || {}).eintraege || []).slice();
-  liste.splice(i, 1);
-  eintragLokal(f, liste); zeichnen();
-  nacheinander('appEintrag', tagIso, f.spalte, 'weg', i);
-}
 function jetztSetzen(id) {
   const d = new Date();
   setzen(id, d.getHours() / 24 + d.getMinutes() / 1440);
@@ -7404,7 +7148,6 @@ function aktualisieren() {
 }
 
 /* ── Mac: breites Layout ab 760 px mit Maus oder Trackpad, drei Spalten ab 1100 px. Handy und iPad ohne Maus bleiben einspaltig ── */
-const MAC_LINKS = ['struktur', 'notiz'];                     // dazu die Fokus Karte
 const MAC_2 = matchMedia('(min-width: 760px) and (hover: hover) and (pointer: fine)');
 const MAC_3 = matchMedia('(min-width: 1100px) and (hover: hover) and (pointer: fine)');
 function macSpalten() { return MAC_3.matches ? 3 : MAC_2.matches ? 2 : 1; }
