@@ -259,6 +259,42 @@ if TEST:
 
 io.open(os.path.join(ZIEL, 'index.html'), 'w', encoding='utf-8').write(s)
 
+# ── Stufe 2: Werkbank (nur Testseite) unter web/test/werkbank/ ──
+# Dieselbe gebaute Seite wie die Testseite (gleiche CSS, gleiche JS, Spielwelt aus tests/spieldaten.js),
+# dazu feste Uhr der Spielwelt (Do 19.11.2026 10:30), eigener Browserspeicher und die Werkbank aus tests/werkbank/.
+# Die App in app/ bleibt unberührt, die Werkbank steht nicht in SEITEN.
+WERKBANK = ['werkbank/uhr.js', 'werkbank/werkbank.css', 'werkbank/skala.js', 'werkbank/bauteile.js', 'werkbank/werkbank.js']
+if TEST:
+    T = os.path.join(HIER, '..', 'tests')
+    wl = lambda n: io.open(os.path.join(T, n), encoding='utf-8').read()
+    for n in WERKBANK:
+        if '</script' in wl(n) or '</style' in wl(n):
+            sys.exit('bauen.py: </script oder </style in tests/' + n)
+    w = s
+    def wers(alt, neu):
+        global w
+        if w.count(alt) != 1:
+            sys.exit('bauen.py Werkbank: Stelle nicht gefunden oder doppelt: ' + alt[:60])
+        w = w.replace(alt, neu)
+    wers('<script>\n/* ── PWA (aus web/bauen.py) ── */', '<script>\n' + wl('werkbank/uhr.js') + '</script>\n<script>\n/* ── PWA (aus web/bauen.py) ── */')
+    wers("if ('serviceWorker' in navigator)", "if (false)")
+    wers('href="manifest.webmanifest"', 'href="../manifest.webmanifest"')
+    wers('href="icon-180.png"', 'href="../icon-180.png"')
+    wers("const VOR = 'zentrale_test:';", "const VOR = 'zentrale_werkbank:';")
+    wers('<title>Zentrale Test</title>', '<title>Zentrale Werkbank</title>')
+    # Quelltexte der App für die Skala (gezählt wie in tests/messen.js), in der Reihenfolge von SEITEN
+    quellen = {}
+    for _, liste in SEITEN:
+        for t in liste:
+            for n in ([t] if isinstance(t, str) else t):
+                if not n.endswith('.html'):
+                    quellen[n] = io.open(os.path.join(APP, n), encoding='utf-8').read()
+    qjs = json.dumps(quellen, ensure_ascii=False).replace('</', '<\\/')
+    wers('</body>', '<style id="wbStil">\n' + wl('werkbank/werkbank.css') + '</style>\n<script>\nwindow.__wbQuellen = ' + qjs + ';\n' +
+         ''.join(wl(n) for n in WERKBANK if n.endswith('.js') and n != 'werkbank/uhr.js') + '</script>\n</body>')
+    os.makedirs(os.path.join(ZIEL, 'werkbank'), exist_ok=True)
+    io.open(os.path.join(ZIEL, 'werkbank', 'index.html'), 'w', encoding='utf-8').write(w)
+
 # Service Worker bekommt die Version, damit das Handy die neue Seite holt
 sw = io.open(os.path.join(HIER, 'sw.vorlage.js'), encoding='utf-8').read().replace('__VERSION__', VERSION)
 sw = sw.replace('__VORSILBE__', 'zentrale-test-' if TEST else 'zentrale-')
