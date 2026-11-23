@@ -3658,6 +3658,7 @@ function chiefOeffnen() { ansicht = 'chief'; cosProjekt = null; zeichnen(); cosL
   .sen-pkt.null { background: var(--chip); color: var(--leise); font-weight: 500; }
   .sen-liste { margin-top: var(--abstand-6); }
   .sen-link { display: block; margin: var(--abstand-5) auto 0; font-size: var(--schrift-klein); font-weight: 600; color: var(--sen); padding: var(--abstand-3) var(--abstand-1); }
+  .sen-verbinden { text-align: center; text-decoration: none; }
   .sen-handy { display: grid; grid-template-columns: 1fr 1fr; gap: var(--abstand-5); }
   .sen-handy > div { padding: var(--abstand-5) var(--abstand-6); border-radius: var(--radius-gross); background: var(--chip); text-align: center; }
   .sen-handy small { display: block; font-size: var(--schrift-mini); color: var(--leise); text-transform: uppercase; letter-spacing: .04em; }
@@ -13774,7 +13775,7 @@ var ZentraleUI = function(exports) {
   function kurz(t2) {
     const x2 = String(t2.text || "");
     if (t2.art === "lesen") return (x2.match(/^Lesen \d+ min/) || ["Lesen"])[0];
-    return { buch: "Buch fertig", film: "Film", serie: "Serie" }[t2.art] || x2.split(" ")[0];
+    return { buch: "Buch fertig", film: "Film", serie: "Serie", album: "Album ganz" }[t2.art] || x2.split(" ")[0];
   }
   function wert(d) {
     const t2 = Number(d && d.tiefe) || 0;
@@ -13922,14 +13923,21 @@ var ZentraleUI = function(exports) {
   const audioDa = (d) => !!d.audio;
   function Audio({ d }) {
     const a = d.audio;
-    const kopf2 = /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$1, { name: "Audio", children: a.titel ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sen-rechts", children: a.titel + " Titel" }) : null });
-    if (!a.verbunden) return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte", children: [
-      kopf2,
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Spotify ist noch nicht verbunden. Anleitung in LIESMICH.md, Abschnitt Sensi Audio." })
-    ] });
+    const kopf2 = /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$1, { name: "Audio", children: a.titel && a.verbunden ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sen-rechts", children: a.titel + " Titel" }) : null });
+    if (!a.verbunden) {
+      if (!("link" in a)) return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte", children: [
+        kopf2,
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Spotify ist noch nicht verbunden. Anleitung in LIESMICH.md, Abschnitt Sensi Audio." })
+      ] });
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte", children: [
+        kopf2,
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: a.link ? "Hörzeit und Alben kommen automatisch, sobald Spotify verbunden ist." : "Spotify Schlüssel fehlen noch: ./spotify_schluessel.sh im Terminal." }),
+        a.link ? /* @__PURE__ */ jsxRuntimeExports.jsx("a", { className: "sen-link sen-verbinden", href: a.link, target: "_blank", rel: "noopener", children: "Mit Spotify verbinden" }) : null
+      ] });
+    }
     if (!a.titel) return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte", children: [
       kopf2,
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: (d.datum === A$2.heute() ? "Heute" : "An diesem Tag") + " noch nichts gehört." })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Spotify verbunden. " + (d.datum === A$2.heute() ? "Heute" : "An diesem Tag") + " noch nichts gehört." })
     ] });
     const pz = Math.round((a.quote || 0) * 100);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte", children: [
@@ -15348,8 +15356,8 @@ var ZentraleUI = function(exports) {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611231854';
-const PWA_NAME = "V104 Fokus Kopf im Tag";
+const PWA_VERSION = '202611231916';
+const PWA_NAME = "V106 Fokus Kopf und Spotify";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
