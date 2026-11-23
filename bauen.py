@@ -37,21 +37,21 @@ SEITEN = [
             'tag/erledigt.css',           # Ringe, Erledigt, Taskpunkte, Plus fliegt
         ],
         'ui:css',                         # Stufe 3: React Teil, Hilfsklassen (Tailwind aus ui/, nach dem CSS der App, damit sie gewinnen)
-        'basis/seite.html',               # Gerüst: Kopfleiste, Inhalt, Leiste, Chief und Sensi (Apps Script Einschub)
-        'ui:js',                          # Stufe 3: React Teil (ui/, window.ZentraleUI): Köö. Läuft vor dem Hauptteil, zeichnet erst auf Zuruf
+        'basis/seite.html',               # Gerüst: Plätze für Kopfleiste, Inhalt, Leiste, Fenster (React zeichnet hinein), Chief und Sensi (Apps Script Einschub)
+        'ui:js',                          # Stufe 3: React Teil (ui/, window.ZentraleUI): zeichnet die ganze App. Läuft vor dem Hauptteil, Kopf und Leiste sofort
         [
             'basis/kern.js',              # Einstellungen, Zustand, kleine Hilfen, Serveraufruf, Abfragen
-            'basis/hilfen.js',            # Farben aus Ziele, Hilfen, Zeichnen, Tipp Animation, Wechsel
-            'koeoe/koeoe.js',             # Köö: Zuordnung der Felder, Sport, Rauchen, Nikotin, Drinks
-            'tag/tag.js',                 # Tag zeichnen, Version
-            'woche/woche.js',             # Karte Woche im Tag, Ansicht Letzte 14 Tage
-            'tag/felder.js',              # Felder, Bildschirm Balken, Check ins, Mehrfach, Termine, Tasks
-            'geld/geld.js',               # Listen aus Zellnotizen, Posten, Geld Karte letzte 7 Tage
+            'basis/hilfen.js',            # Farben aus Ziele, Hilfen, Zeichnen (Weiche zu React), Meldung, Tipp Animation, Wechsel
+            'koeoe/koeoe.js',             # Köö: Zuordnung der Felder zu Tag, Köö, Sensi
+            'tag/tag.js',                 # Kopfleiste für Tag und Köö
+            'woche/woche.js',             # Woche öffnen, Farbe der Stufe
+            'tag/felder.js',              # Felder: Farben am Mac, Check ins, Skala, Aufklappen
+            'geld/geld.js',               # Geld Karte letzte 7 Tage aufklappen
             'tag/tageswert.js',           # Fokuspunkte, Tageswert wie in Tage, Fokuszeit, Blöcke
-            'tag/ringe.js',               # Ringe um die Tageszahl, Plus fliegt
-            'tag/heute.js',               # Heute: Jetzt, Später, Dran, Los, Erledigt, Stufen
-            'tag/tasks.js',               # Für heute, Tasks Vorrat, Tasks vormerken und bearbeiten, Block bewerten
-            'tag/planen.js',              # Planen: Block oder Task, Lücke, Tagesleiste
+            'tag/ringe.js',               # Ringe um die Tageszahl rechnen und wachsen lassen, Plus fliegt
+            'tag/heute.js',               # Fokus Karte: Dran, Los, Fertig, Stufen, heuteNeu (gezeichnet in React, ui/src/fokus/)
+            'tag/tasks.js',               # Für heute, Tasks Vorrat, Tasks vormerken und bearbeiten, Block bewerten (gezeichnet in React)
+            'tag/planen.js',              # Planen: Block oder Task, Lücke, Tagesleiste (gezeichnet in React, ui/src/planen/)
             'basis/aktionen.js',          # Aktionen: Speichern, Rückgängig, Einträge, Blättern, Aktualisieren
             'basis/start.js',             # Mac Layout und Tasten, Ort, Start, Abfragen im Takt, Räder
         ],
@@ -67,16 +67,18 @@ SEITEN = [
         'chief/blatt.html',               # Platz für das Blatt
         [
             'chief/zustand.js',           # Zustand, Laden, Ändern mit Rückweg
-            'chief/rechnen.js',           # Rechnen, Kästchen, Block läuft, Als Nächstes
-            'chief/seite.js',             # Seite Chief: Übersicht, Liste, zwei Spalten am Mac
-            'chief/projekt.js',           # V98 Projektseite: Kopf, Notiz, Offen, frei, grob, Erledigt, Reiter
-            'chief/woche.js',             # V95 Woche als Raster: Start, Mengen, Summe, Gehalten
-            'chief/blaetter.js',          # Blätter: Schritt, Projekt, Etappe, Zerlegen
-            'chief/ziehen.js',            # Ziehen am Griff (Rang, Schritte)
-            'chief/fokus.js',             # Tag: Fokus Karte, Liste nach Uhrzeit, Balken
-            'chief/vornehmen.js',         # Heute vornehmen, Vergessen, Einplanen, Blatt Wann
-            'chief/plus.js',              # Blatt Plus, Karte Tasks
-            'chief/mac.js',               # Mac: Tag als Leiste
+            'chief/rechnen.js',           # Rechnen: Blöcke, Minuten, Kästchen der Projekte, Reihenfolge, Etappen, Einsammeln, Haken
+            'chief/rechnen_tag.js',       # Stufe 3: Rechnen für den Tag (Plan, Termine, Startzeiten, Empfehlung, Gehalten, Fokus Daten)
+            'chief/rechnen_woche.js',     # Stufe 3: Rechnen für die Woche (Raster, Joker, Serie)
+            'chief/seite.js',             # Seite Chief: Woche jetzt, Status, Projekt öffnen, Wochenplan, fester Tag
+            'chief/projekt.js',           # V98 Projektseite: Zahlen, Notiz, frei, Erledigt, Reiter ziehen
+            'chief/woche.js',             # V95 Raster ändern: Zelle wählen, Mengen, Startzeit, Verteilen, Joker, Momente
+            'chief/blaetter.js',          # Blätter: Schritt, Projekt, Zerlegen, Weiter bei (Handlungen, gezeichnet in React)
+            'chief/ziehen.js',            # Ziehen am Griff mit Pointer Events (Rang), Pfeiltasten
+            'chief/fokus.js',             # Fokus Karte: Merken, Termine fix oder flexibel, Anfangen, Los, Weiter +30
+            'chief/vornehmen.js',         # Heute vornehmen, Vergessen, Einplanen, Verschieben, Blatt Wann (Handlungen)
+            'chief/plus.js',              # Blatt Plus, Task Wann, Was kommt rein (Handlungen)
+            'chief/mac.js',               # Mac: Leiste ziehen und ablegen, Balken wachsen lassen
             'chief/runde.js',             # Wochenrunde, Mittwochsrunde, Einhängen
         ],
     ]),
@@ -86,14 +88,15 @@ SEITEN = [
         ],
         'sensi/blatt.html',               # Platz für das Blatt
         [
-            'sensi/sensi.js',             # Zustand, Laden, Rechnen, Zeichnen, Lesen, Rückgängig
-            'sensi/blaetter.js',          # Blätter (Buch, Film, Seite), Einhängen
+            'sensi/sensi.js',             # Zustand, Laden, Rechnen, Lesen, Rückgängig (gezeichnet in React, ui/src/sensi/)
+            'sensi/blaetter.js',          # Handlungen der Blätter (Buch, Film, Seite), Einhängen
         ],
     ]),
 ]
 # SEITEN Ende
 
 APP = os.path.join(HIER, '..', 'app')
+STUFE3_NEU = {'chief/rechnen_tag.js', 'chief/rechnen_woche.js'}   # neu im Branch react, siehe lies()
 
 # ── Stufe 3: React Teil aus ui/ (Vite, React, Tailwind) zu einer JS und einer CSS Datei bauen ──
 # In SEITEN stehen dafür 'ui:css' und 'ui:js'. Einmalig vorher: cd ui && npm install
@@ -123,8 +126,12 @@ ui_bauen()
 
 def teile_bauen():
     benutzt = set()
+    # web/ hat keine Branches: auf einem Stand vor Stufe 3 Schritt 2 (main bis V100) gibt es diese Dateien noch nicht, dann fallen sie weg
+    vor_stufe3 = not os.path.isfile(os.path.join(UI, 'src', 'chief', 'daten.js'))
     def lies(name):
         p = os.path.join(APP, name)
+        if not os.path.isfile(p) and vor_stufe3 and name in STUFE3_NEU:
+            return ''
         if not os.path.isfile(p):
             sys.exit('bauen.py: Teil fehlt: app/' + name)
         t = io.open(p, encoding='utf-8').read()
@@ -203,21 +210,19 @@ const SCHLUESSEL_SPEICHER = 'zentrale_k';
   if (m) { try { localStorage.setItem(SCHLUESSEL_SPEICHER, m[1]); } catch (e) { /* egal */ } history.replaceState(null, '', location.pathname); }
 })();
 function schluessel() { try { return localStorage.getItem(SCHLUESSEL_SPEICHER) || ''; } catch (e) { return ''; } }
+/* Dialog zeichnet React (ui/src/basis/gerust.jsx), hier nur Prüfen und Speichern */
 function schluesselFragen(falsch) {
   if (falsch) { try { localStorage.removeItem(SCHLUESSEL_SPEICHER); } catch (e) { /* egal */ } }
-  if (document.getElementById('schluessel')) return;
-  const d = document.createElement('div');
-  d.id = 'schluessel';
-  d.innerHTML = '<div class="sk-innen"><b>Zentrale</b><p>' + (falsch ? 'Der Schlüssel stimmt nicht.' : 'Einmal den Schlüssel eingeben.') +
-    '</p><input type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Schlüssel"><button>Los</button></div>';
-  d.querySelector('button').onclick = () => {
-    // Großbuchstaben, Leerzeichen und Umbrüche vom Einsetzen nicht übel nehmen
-    const roh = d.querySelector('input').value, k = roh.toLowerCase().replace(/[^0-9a-f]/g, '');
-    if (k.length !== 32) { d.querySelector('p').textContent = 'Eingesetzt sind ' + k.length + ' passende Zeichen, der Schlüssel hat 32 (Zahlen und a bis f).'; return; }
-    try { localStorage.setItem(SCHLUESSEL_SPEICHER, k); } catch (e) { /* egal */ }
-    location.reload();
-  };
-  document.body.appendChild(d);
+  if (document.getElementById('schluessel') || typeof ZentraleUI === 'undefined') return;
+  ZentraleUI.kopf({ schluessel: { falsch: !!falsch, text: falsch ? 'Der Schlüssel stimmt nicht.' : 'Einmal den Schlüssel eingeben.' } });
+}
+/* Eingesetzter Schlüssel: Großbuchstaben, Leerzeichen und Umbrüche vom Einsetzen nicht übel nehmen. Gibt den Fehlertext zurück oder lädt neu */
+function schluesselNehmen(roh) {
+  const k = String(roh || '').toLowerCase().replace(/[^0-9a-f]/g, '');
+  if (k.length !== 32) return 'Eingesetzt sind ' + k.length + ' passende Zeichen, der Schlüssel hat 32 (Zahlen und a bis f).';
+  try { localStorage.setItem(SCHLUESSEL_SPEICHER, k); } catch (e) { /* egal */ }
+  location.reload();
+  return '';
 }
 document.addEventListener('DOMContentLoaded', () => { if (!schluessel()) schluesselFragen(false); });
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(() => {}));
@@ -320,7 +325,7 @@ if TEST:
     for _, liste in SEITEN:
         for t in liste:
             for n in ([t] if isinstance(t, str) else t):
-                if not n.endswith('.html') and not n.startswith('ui:'):
+                if not n.endswith('.html') and not n.startswith('ui:') and os.path.isfile(os.path.join(APP, n)):
                     quellen[n] = io.open(os.path.join(APP, n), encoding='utf-8').read()
     qjs = json.dumps(quellen, ensure_ascii=False).replace('</', '<\\/')
     # Teil 2: Vorher Nachher, Bilder aus tests/bilder/vergleich (basis, neu) verkleinert als JPEG (braucht Pillow, sonst ohne)
