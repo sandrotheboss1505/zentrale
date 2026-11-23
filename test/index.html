@@ -1033,9 +1033,19 @@
   .tg-titel { display: block; text-align: left; font-weight: 600; }
   .tg-z.fertig .tg-titel { color: var(--leise); }
   .tg-titel.frei { color: var(--leise); font-style: italic; font-weight: 500; }
-  .tg-unter { display: block; font-size: var(--schrift-klein); color: var(--leise); margin-top: var(--abstand-1); }
-  .tg-dauer { display: flex; align-items: center; gap: var(--abstand-2); font-weight: 700; color: var(--ras-gruen); font-size: var(--schrift-klein); white-space: nowrap; }
-  .tg-dauer.null { color: var(--leise); }
+  .tg-unter { display: block; font-size: var(--schrift-text); color: var(--leise); margin-top: var(--abstand-1); }
+  /* F1: erledigter Block in einer Zeile, Kästchen in Projektfarbe mit Goldrand und leichtem Glühen */
+  .tg-z.tg-erl { grid-template-columns: 52px 4px minmax(0, 1fr) auto; align-items: center; min-height: 44px; padding: var(--abstand-2) 0; background: none; color: inherit; }
+  .tg-erl .tg-zeit { font-weight: 400; padding-top: 0; color: var(--leise); }
+  .tg-erl .tg-streif { opacity: .55; }
+  .tg-erl .tg-titel { font-weight: 400; color: var(--leise); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tg-kq { display: inline-flex; gap: var(--abstand-2); padding-right: var(--abstand-1); }
+  .tg-kq i { width: 12px; height: 12px; border-radius: var(--radius-klein); background: var(--pf); box-shadow: 0 0 0 1.5px var(--gold-funken), 0 0 6px color-mix(in srgb, var(--gold-funken) 45%, transparent); }
+  .tg-kq.leer { color: var(--leise); }
+  /* F1: Jetzt Linie in Geplant */
+  .tg-jetzt-l { display: flex; align-items: center; gap: var(--abstand-3); padding: var(--abstand-2) 0; font-size: var(--schrift-text); font-weight: 700; color: var(--jetzt-linie); font-variant-numeric: tabular-nums; }
+  .tg-jetzt-l::after { content: ""; flex: 1; height: 2px; border-radius: var(--radius-klein); background: var(--jetzt-linie); }
+  .tg-jetzt-l + .tg-z { border-top-color: transparent; }
   .tg-kn { display: flex; gap: var(--abstand-3); flex: none; }
   .tg-los { width: 36px; height: 36px; border-radius: var(--radius-rund); background: var(--pf); display: grid; place-items: center; transition: transform .1s; }
   .tg-los:active, .tg-wann:active { transform: scale(.94); }
@@ -1056,7 +1066,7 @@
   .tg-lauf-u .hz-seit { margin: 0; }
   .tg-lauf .cos-doch { margin: 0; }
   .tg-z.termin .tg-zeit { color: var(--leise); font-weight: 600; }
-  .tg-z.termin .tg-streif { background: repeating-linear-gradient(180deg, var(--kreis) 0 3px, transparent 3px 6px); }
+  .tg-z.termin .tg-streif { width: 0; justify-self: center; background: none; border-left: 3px dotted var(--tg-grau); border-radius: 0; }
   .tg-z.termin .tg-titel { color: var(--leise); font-weight: 500; }
   .tg-z.termin.flex .tg-unter { color: var(--akzent); }
   .tg-z.termin.vorbei { opacity: .5; }
@@ -11802,11 +11812,20 @@ var ZentraleUI = function(exports) {
       d
     ] });
   }
+  function Erledigt$2({ r: r2 }) {
+    const x2 = r2.x, b = x2.b, titel = F.cosTrTitel(x2), ok2 = F.fokusMin(A$2.heute(), b) > 0 && F.zaehlt(b);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "tg-z fertig tg-erl", style: { "--pf": F.cosTrFarbe(x2) }, "aria-label": titel + (ok2 ? ", " + x2.k + " Kästchen" : "") + ", erledigt", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-zeit", children: b.gestartet || b.start }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-titel", children: titel }),
+      ok2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-kq", children: Array.from({ length: x2.k }, (_, j) => /* @__PURE__ */ jsxRuntimeExports.jsx("i", {}, j)) }) : F.zaehlt(b) ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-kq leer", children: "–" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", {})
+    ] });
+  }
   function Block$1({ r: r2, d }) {
+    if (r2.status === "fertig") return /* @__PURE__ */ jsxRuntimeExports.jsx(Erledigt$2, { r: r2 });
     const x2 = r2.x, b = x2.b, s = x2.s, key = b.key, i = F.bloeckeVon(d.h).indexOf(b), titel = F.cosTrTitel(x2), offen2 = r2.status === "offen";
     const zeit2 = offen2 ? b.start : b.gestartet || b.start;
     const klick = !offen2 ? null : s && r2.p ? () => F.cosInhaltOeffnen(r2.p.id, key, s.id) : () => F.cosSitzungOeffnen(key);
-    const fm = r2.status === "fertig" ? F.fokusMin(d.h, b) : 0;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-z " + r2.status, style: { "--pf": F.cosTrFarbe(x2) }, children: [
       offen2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-zeit", onClick: () => F.cosSitzungOeffnen(key), "aria-label": "Uhrzeit ändern", children: zeit2 }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-zeit", children: zeit2 }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
@@ -11816,10 +11835,6 @@ var ZentraleUI = function(exports) {
             klick ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-titel", onClick: klick, children: titel }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-titel", children: titel }),
             x2.k > 1 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-unter", children: x2.k + " Kästchen" }) : null
           ] }),
-          r2.status === "fertig" ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-dauer" + (fm > 0 && F.zaehlt(b) ? "" : " null"), children: fm > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            HAKEN_G,
-            fm + " Min"
-          ] }) : "–" }) : null,
           offen2 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-kn", children: [
             !s && F.zaehlt(b) && !b.lokal ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-wann", onClick: () => F.cosSitzungOeffnen(key), children: "Zuordnen" }) : null,
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-los", onClick: () => F.cosLosBlock(key), "aria-label": "Los: " + titel, children: PLAY })
@@ -11828,6 +11843,12 @@ var ZentraleUI = function(exports) {
         r2.status === "laeuft" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Lauf, { x: x2, i }) : null
       ] })
     ] });
+  }
+  function geplantZeilen(d) {
+    const out = d.geplant.map((r2, j) => r2.art === "termin" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Termin$1, { t: r2.termin, jm: d.jm }, "t" + j) : /* @__PURE__ */ jsxRuntimeExports.jsx(Block$1, { r: r2, d }, r2.x.b.key));
+    const i = d.geplant.findIndex((r2) => r2.t > d.jm);
+    out.splice(i < 0 ? out.length : i, 0, /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-jetzt-l", role: "img", "aria-label": "Jetzt " + F.cosUhr(d.jm), children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: F.cosUhr(d.jm) }) }, "jetzt"));
+    return out;
   }
   function TerminWahl({ t: t2, kurz: kurz2 }) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-tf", children: [
@@ -11919,7 +11940,7 @@ var ZentraleUI = function(exports) {
       /* @__PURE__ */ jsxRuntimeExports.jsx(FokusKopf, { d, k: k2 }),
       momente,
       /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "tg-h3", children: "Geplant" }),
-      d.geplant.length ? d.geplant.map((r2, j) => r2.art === "termin" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Termin$1, { t: r2.termin, jm: d.jm }, "t" + j) : /* @__PURE__ */ jsxRuntimeExports.jsx(Block$1, { r: r2, d }, r2.x.b.key)) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-leer", children: "Noch nichts mit Uhrzeit." }),
+      d.geplant.length ? geplantZeilen(d) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-leer", children: "Noch nichts mit Uhrzeit." }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "tg-h3", children: "To Do · noch ohne Uhrzeit" }),
       d.todo.length ? todoZeilen(d) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-leer", children: "Alles hat eine Uhrzeit." }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-fuss", children: [
@@ -15356,7 +15377,7 @@ var ZentraleUI = function(exports) {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611231916';
+const PWA_VERSION = '202611231946';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -17540,7 +17561,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 19:16</div>
+<div id="testband">TEST 19:46</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
