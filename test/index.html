@@ -1077,11 +1077,40 @@
   .tg-lauf-k .leise { color: var(--leise); }
   .tg-puls { width: 8px; height: 8px; border-radius: var(--radius-rund); background: var(--pf); animation: tgpuls 1.6s ease-in-out infinite; }
   @keyframes tgpuls { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
-  .tg-lauf-kn { display: flex; gap: var(--abstand-4); }
-  .tg-weiter, .tg-fertig { flex: 1; height: 44px; border-radius: var(--radius-gross); font-weight: 700; }
-  .tg-weiter { background: var(--karte); color: var(--pf); box-shadow: inset 0 0 0 2px var(--pf); }
-  .tg-fertig { background: var(--pf); color: var(--weiss); }
+  .tg-lauf-k { flex-wrap: wrap; row-gap: var(--abstand-1); }
+  .tg-lauf-k b { white-space: nowrap; }
+  .tg-lauf-k .tg-puls { flex: none; }
+  .tg-lauf-kn.zwei { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tg-lauf-kn .tg-pause { grid-column: 1 / -1; }
+  .tg-lauf-k .warn { color: var(--warnung); font-weight: 600; }
+  .tg-lauf-kn { display: grid; grid-template-columns: repeat(3, minmax(max-content, 1fr)); gap: var(--abstand-3); }
+  .tg-dran, .tg-weiter, .tg-fertig { height: 44px; padding: 0 var(--abstand-3); border-radius: var(--radius-gross); font-size: var(--schrift-text); font-weight: 600; white-space: nowrap; transition: transform .1s; }
+  .tg-dran:active, .tg-weiter:active, .tg-fertig:active { transform: scale(.96); }
+  .tg-dran { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1.5px var(--pf); }
+  .tg-weiter { background: var(--karte); color: var(--text); }
+  .tg-fertig { background: var(--akzent); color: var(--weiss); }
+  @media (prefers-color-scheme: dark) { .tg-fertig { background: var(--knopf-blau-dunkel); } }
   .tg-weiter:disabled, .tg-fertig:disabled { opacity: .45; }
+  /* U2 Kästchen des laufenden Blocks: das letzte füllt sich von unten, drüber gestrichelt in warnung */
+  .tg-lq { display: inline-flex; gap: var(--abstand-2); min-height: 12px; }
+  .tg-lq i { position: relative; width: 12px; height: 12px; border-radius: var(--radius-klein); background: var(--pf); }
+  .tg-lq i.lauf { background: linear-gradient(to top, var(--pf) var(--f), var(--tg-strich) var(--f)); }
+  .tg-lq i.drueber { box-sizing: border-box; background: none; border: 1.5px dashed var(--warnung); }
+  .tg-lq i.puls { animation: tglqpuls .6s ease-out; }
+  .tg-lq i.rein { animation: tglqrein .45s cubic-bezier(.3, 1.6, .5, 1); }
+  @keyframes tglqpuls { 0% { transform: scale(1); } 35% { transform: scale(1.5); box-shadow: 0 0 10px var(--gold-funken); } 100% { transform: scale(1); } }
+  @keyframes tglqrein { from { transform: translateY(-14px) scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+  .tg-funken { position: absolute; left: 50%; top: 50%; pointer-events: none; }
+  .tg-funken i { position: absolute; width: 5px; height: 5px; translate: -50% -50%; border-radius: var(--radius-rund); background: var(--pf); opacity: 0;
+    animation: cosfunke .8s ease-out var(--w, 0ms) forwards; }
+  .tg-funken i.gold { background: var(--gold-funken); }
+  .tg-funken b { position: absolute; left: var(--abstand-5); bottom: 0; white-space: nowrap; font-size: var(--schrift-klein); font-weight: 700; color: var(--gold-funken); animation: tgdrantext 1s ease-out both; }
+  @keyframes tgdrantext { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-28px); opacity: 0; } }
+  .tg-lauf .tg-feld { margin: 0; background: var(--karte); }
+  .tg-lauf .tg-feld .tg-antwort { background: var(--hell); }
+  .tg-lauf .tg-feld .tg-antwort.haupt { background: var(--akzent); }
+  @media (prefers-color-scheme: dark) { .tg-lauf .tg-feld .tg-antwort.haupt { background: var(--knopf-blau-dunkel); } }
+  @media (prefers-reduced-motion: reduce) { .tg-lq i.puls, .tg-lq i.rein { animation: none; } .tg-funken { display: none; } .tg-dran, .tg-weiter, .tg-fertig { transition: none; } }
   .tg-pause { flex: 1; display: grid; place-items: center; font-size: var(--schrift-klein); color: var(--leise); text-align: center; }
   .tg-lauf-u { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--abstand-2) var(--abstand-6); font-size: var(--schrift-klein); color: var(--leise); }
   .tg-lauf-u .cos-schritt-fertig { width: auto; height: auto; margin: 0; padding: var(--abstand-2) 0; background: none; font-size: var(--schrift-klein); }
@@ -1765,7 +1794,7 @@ function cosStart(id, k) {
   const s = C.schritte.find(x => x.id === id);
   if (!s) return;
   const h = heute(), jm = jetztMin();
-  if (bloeckeVon(h).some(b => b.gestartet && !b.beendet && !b.status && jm < minVon(b.ende))) { melden('Es läuft schon ein Block.'); return; }
+  if (cosLaeuftEtwas()) { melden('Es läuft schon ein Block.'); return; }
   const p = cosNachName(s.projekt);
   const min = k ? Math.max(1, Math.min(COS_SITZUNG, k)) * COS_MIN : cosSitzung(s, cosMin(s));
   const key = 'lokal|' + Date.now();
@@ -1838,11 +1867,38 @@ function cosAufgabeSetzen(sid, erledigt) {
 function cosFertigFrage(i) {
   const b = bloeckeVon(heute())[i], s = b && cosSchrittVon(b);
   if (!b) return;
+  if (cosDrueber(b) > COS_WANN_AB) { cosTagAuf = { art: 'wann', key: b.key }; haptik(); zeichnen(); return; }   // U2: erst fragen, wann (nicht in den ersten Minuten)
   if (!s) { blockFertigWeiter(i); return; }
   cosFertig(i, true);
   cosTagAuf = { art: 'frage', key: b.key, sid: s.id };
   zeichnen();
 }
+/* ── U2 Wann warst du fertig? Jetzt erst fertig: Ende genau jetzt, höchstens Start plus 3 am Stück. Die Kästchen (Kalenderblock) sind
+   gerundet (53 Min = 2), Fokuszeit und Tageswert rechnen mit dem genauen Ende. Um HH:MM fertig: Ende wie geplant, Rest zählt nicht ── */
+const COS_WANN_AB = 2;   // bis 2 Minuten über dem Ende endet Fertig ohne Frage
+function cosWannDaten(b) {
+  const st = minVon(b.gestartet || b.start), jm = jetztMin(), kAlt = Math.max(1, Math.round((b.min || COS_MIN) / COS_MIN));
+  const max = st + COS_SITZUNG * COS_MIN, ende = Math.min(jm, max), k = Math.min(COS_SITZUNG, Math.max(kAlt, Math.round((ende - st) / COS_MIN)));
+  return { st: st, ende: ende, k: k, deckel: jm > max, kAlt: kAlt, planEnde: minVon(b.ende) };
+}
+function cosWannFertig(jetzt) {
+  const a = cosTagAuf, h = heute(), i = a && a.art === 'wann' ? bloeckeVon(h).findIndex(x => x.key === a.key) : -1, b = bloeckeVon(h)[i];
+  if (!b) { cosTagAuf = null; zeichnen(); return; }
+  if (b.lokal) { melden('Einen Moment, der Block wird noch angelegt.'); return; }
+  const w = cosWannDaten(b), s = cosSchrittVon(b);
+  cosTagAuf = null;
+  cosGruppe('Fertig', () => {
+    if (s) cosFertig(i, true); else blockFertig(i);
+    if (jetzt) cosVerschieben(b.key, w.st, w.k, false, null, w.ende);
+    else cosVerschieben(b.key, minVon(b.start), w.kAlt, false, null, w.planEnde);
+  });
+  const k = jetzt ? w.k : w.kAlt;
+  melden((jetzt ? 'Fertig um ' + cosUhr(w.ende) : 'Fertig um ' + cosUhr(w.planEnde)) + ' · ' + k + ' Kästchen');
+  if (s) cosTagAuf = { art: 'frage', key: b.key, sid: s.id };   // cosVerschieben zieht den Schlüssel nach, wenn der Server ihn tauscht
+  zeichnen();
+}
+function cosJetztFertig() { cosWannFertig(true); }
+function cosPlanFertig() { cosWannFertig(false); }
 function cosFrageJa() {
   const a = cosTagAuf;
   if (!a || a.art !== 'frage') return;
@@ -1972,7 +2028,7 @@ function cosTagPlan(ohneJetzt, ohnePlan) {
   const wahl = Number(cosMerk('n|' + h)) || 0;
   let n = planP ? Object.keys(planP).reduce((a, id) => a + (cosPid(id) && cosPid(id).status === 'aktiv' ? Math.max(0, Number(planP[id]) || 0) : 0), 0) : wahl || empf.n;
   const bl = cosHeuteBloecke(), geschafft = cosTag(h).farben.length;
-  const laeuft = bl.filter(x => !x.b.status && x.b.gestartet && !x.b.beendet && jm < minVon(x.b.ende));
+  const laeuft = bl.filter(x => !x.b.status && x.b.gestartet && !x.b.beendet && (jm < minVon(x.b.ende) || cosDrueber(x.b)));
   const kommend = bl.filter(x => !x.b.status && !x.b.gestartet && minVon(x.b.ende) > jm);
   const geplantMin = {}, imBlock = {};
   kommend.forEach(x => { if (x.s) { geplantMin[x.s.id] = (geplantMin[x.s.id] || 0) + (x.b.min || 0); imBlock[x.s.id] = true; } });
@@ -2001,9 +2057,10 @@ function cosTagPlan(ohneJetzt, ohnePlan) {
   const vorschlaege = [];
   // V62: was jedes Projekt heute schon hat (geschafft, läuft, eingeplant, fest, Als Nächstes)
   const projK = {}, dazuP = (name, k) => { if (name && k > 0) projK[name] = (projK[name] || 0) + k; }, minP = {};
-  bl.forEach(x => { if (x.s && laeuft.indexOf(x) < 0) minP[x.s.projekt] = (minP[x.s.projekt] || 0) + fokusMin(h, x.b); });
-  laeuft.forEach(x => { if (x.s) minP[x.s.projekt] = (minP[x.s.projekt] || 0) + fokusMin(h, x.b) + Math.max(0, minVon(x.b.ende) - jm); });
-  Object.keys(minP).forEach(name => dazuP(name, Math.floor(minP[name] / COS_MIN + 0.01)));
+  const mitP = (name, m) => { (minP[name] = minP[name] || []).push(m); };   // U2: Minuten pro Block, ab COS_RUNDEN_AB je Block gerundet
+  bl.forEach(x => { if (x.s && laeuft.indexOf(x) < 0) mitP(x.s.projekt, fokusMin(h, x.b)); });
+  laeuft.forEach(x => { if (x.s) mitP(x.s.projekt, fokusMin(h, x.b) + Math.max(0, minVon(x.b.ende) - jm)); });
+  Object.keys(minP).forEach(name => dazuP(name, cosKqVon(h, minP[name])));
   kommend.forEach(x => dazuP(x.s ? x.s.projekt : '', x.k));
   ohneZeit.forEach(o => dazuP(o.p.name, o.k));
   if (jetzt) dazuP(jetzt.p.name, jetzt.k);
@@ -2058,15 +2115,34 @@ function cosOhneK() {
   return tp.ohneZeit.concat(tp.vorschlaege).reduce((a, o) => a + o.k, 0);
 }
 function cosTagNeuAn() { return cosTagAn() && !!cosPlanLesen(heute()); }
-function cosLaeuftEtwas() { const jm = jetztMin(); return bloeckeVon(heute()).some(b => b.gestartet && !b.beendet && !b.status && jm < minVon(b.ende)); }
+function cosLaeuftEtwas() { const jm = jetztMin(); return bloeckeVon(heute()).some(b => b.gestartet && !b.beendet && !b.status && (jm < minVon(b.ende) || cosDrueber(b))); }
+/* ── U2 Weiter vergessen: ein gestarteter Block ohne Fertig über seinem Ende. Gilt nur heute im Tag mit Plan, bis Fertig beantwortet ist.
+   Gibt die Minuten über dem Ende zurück (0: nicht drüber) ── */
+function cosDrueber(b) {
+  if (!b || !b.gestartet || b.beendet || b.status || b.nach || tagIso !== heute() || !cosTagNeuAn()) return 0;
+  if (bloeckeVon(heute()).indexOf(b) < 0 || dranVon(b.key).fertig) return 0;
+  const d = jetztMin() - minVon(b.ende);
+  return d >= 0 ? Math.max(1, d) : 0;
+}
+/* U2: Kästchen aus Fokusminuten. Ab COS_RUNDEN_AB pro Block gerundet (53 = 2, 44 = 1), vorher volle 30 Minuten der Summe.
+   m: Minuten (Zahl) oder Minuten pro Block (Liste). Minuten selbst bleiben überall genau */
+const COS_RUNDEN_AB = '2026-11-24';
+function cosKqVon(iso, m) {
+  const l = Array.isArray(m) ? m : [m];
+  if (iso >= COS_RUNDEN_AB) return l.reduce((n, x) => n + Math.round((Number(x) || 0) / COS_MIN), 0);
+  return Math.floor(l.reduce((n, x) => n + (Number(x) || 0), 0) / COS_MIN + 0.01);
+}
 function cosTagDaten() {
   const h = heute(), jm = jetztMin(), tp = cosTagPlan(true), pt = tp.planP || {}, jt = tp.jt || {}, proj = cosRasProjekte(), geplant = [], zahl = {};
-  proj.forEach(p => { zahl[p.id] = { dMin: 0, lMin: 0, o: 0 }; });
+  proj.forEach(p => { zahl[p.id] = { dMin: 0, lMin: 0, o: 0, dL: [], lL: [] }; });
   cosHeuteBloecke().forEach(x => {
     const b = x.b, p = x.s && cosNachName(x.s.projekt), z = p && zahl[p.id];
-    const fertig = !!b.status || (!!b.gestartet && (!!b.beendet || minVon(b.ende) <= jm)), laeuft = !fertig && !!b.gestartet;
+    const fertig = !!b.status || (!!b.gestartet && (!!b.beendet || (minVon(b.ende) <= jm && !cosDrueber(b)))), laeuft = !fertig && !!b.gestartet;
     if (!fertig && !laeuft && minVon(b.ende) <= jm) return;   // vorbei ohne Los zählt nicht, Nachtragen geht im Plus
-    if (z && zaehlt(b)) { if (fertig) z.dMin += fokusMin(h, b); else if (laeuft) z.lMin += fokusMin(h, b) + Math.max(0, minVon(b.ende) - jm); else z.o += x.k; }
+    if (z && zaehlt(b)) {
+      if (fertig) { const m = fokusMin(h, b); z.dMin += m; z.dL.push(m); }
+      else if (laeuft) { const m = fokusMin(h, b) + Math.max(0, minVon(b.ende) - jm); z.lMin += m; z.lL.push(m); } else z.o += x.k;
+    }
     geplant.push({ art: 'block', t: minVon(b.gestartet || b.start), x: x, p: p, status: fertig ? 'fertig' : laeuft ? 'laeuft' : 'offen' });
   });
   cosTermine().forEach(t => geplant.push({ art: 'termin', t: t.s, termin: t }));
@@ -2075,7 +2151,7 @@ function cosTagDaten() {
   proj.forEach(p => { tp.ohneZeit.concat(tp.vorschlaege).forEach(o => { if (o.p.id === p.id) todo.push(o); }); });
   let fertigN = 0, gesamtN = 0, summe = 0, menge = 0, ist = 0;
   proj.forEach(p => {
-    const m = Math.max(0, Number(pt[p.id]) || 0), z = zahl[p.id], d = Math.floor(z.dMin / COS_MIN + 0.01), l = Math.floor((z.dMin + z.lMin) / COS_MIN + 0.01) - d;
+    const m = Math.max(0, Number(pt[p.id]) || 0), z = zahl[p.id], d = cosKqVon(h, z.dL), l = cosKqVon(h, z.dL.concat(z.lL)) - d;
     const j = Math.min(m, Number(jt[p.id]) || 0), t = todo.filter(o => o.p.id === p.id).length, f = todo.filter(o => o.p.id === p.id && !o.s).length;
     if (!m && !d && !l && !z.o && !t) return;
     const belegt = d + l + z.o + t + j;
@@ -2164,19 +2240,19 @@ function cosStartVon(iso) {
    (null, wenn nichts geplant oder noch offen). soll, ist (gekappt pro Projekt) und joker für die Anzeige */
 function cosGehalten(iso) {
   const pt = cosPlanLesen(iso) || {}, jtRoh = cosMerk('jt|' + iso), jt = jtRoh && typeof jtRoh === 'object' ? jtRoh : {};
-  const min = {}, proP = {};
+  const min = {}, proP = {};   // U2: Minuten pro Block (Liste), Kästchen über cosKqVon
   let erster = null;
   bloeckeVon(iso).forEach(b => {
     if (!zaehlt(b)) return;
     if (b.gestartet && (erster === null || minVon(b.gestartet) < erster)) erster = minVon(b.gestartet);
     const s = cosSchrittVon(b), p = s && cosNachName(s.projekt);
-    if (p) min[p.id] = (min[p.id] || 0) + fokusMin(iso, b);
+    if (p) (min[p.id] = min[p.id] || []).push(fokusMin(iso, b));
   });
   let soll = 0, ist = 0, joker = 0, ok = true;
   ((C && C.projekte) || []).forEach(p => {
     if (p.bereich === 'System') return;
     const geplant = Math.max(0, Number(pt[p.id]) || 0), j = Math.max(0, Number(jt[p.id]) || 0);
-    const s = Math.max(0, geplant - j), k = Math.floor((min[p.id] || 0) / COS_MIN + 0.01);
+    const s = Math.max(0, geplant - j), k = cosKqVon(iso, min[p.id] || []);
     if (!geplant && !k) return;
     proP[p.id] = { soll: s, ist: k, joker: Math.min(j, geplant), ok: k >= s };
     soll += s; ist += Math.min(k, s); joker += Math.min(j, geplant);
@@ -3034,7 +3110,7 @@ function cosZumChief() { chiefOeffnen(); }
 function cosAnfangen(key) {
   const h = heute(), i = bloeckeVon(h).findIndex(b => b.key === key);
   if (i < 0) return;
-  if (bloeckeVon(h).some(b => b.key !== key && b.gestartet && !b.beendet && !b.status && jetztMin() < minVon(b.ende))) { melden('Es läuft schon ein Block.'); return; }
+  if (bloeckeVon(h).some(b => b.key !== key && b.gestartet && !b.beendet && !b.status && (jetztMin() < minVon(b.ende) || cosDrueber(b)))) { melden('Es läuft schon ein Block.'); return; }
   blockStarten(h, i);
 }
 function cosDochNicht(key) {
@@ -3066,6 +3142,7 @@ function cosWeiterPlus(key) {
   if (k >= COS_SITZUNG) { melden('3 am Stück. Kurz Pause?'); return; }
   const frei = p ? (cosTagPlan(true).offenP[p.name] || 0) : 1;
   cosVerschieben(key, minVon(b.start), k + 1);
+  cosLaufFx = { key: b.key, art: 'weiter', i: k, t: Date.now(), text: '' };
   melden(frei > 0 ? '+30 Minuten. ' + (k + 1) + ' am Stück.' : 'Über die feste Zahl hinaus: zählt als Bonus.');
 }
 /* V104 */
@@ -3076,6 +3153,39 @@ function cosKopfLos() {
   if (j.key) cosLosBlock(j.key);
   else if (j.sid) cosStart(j.sid, 1);
   else cosInhaltOeffnen(j.pid, '', '', 'platzlos');
+}
+/* ── U2 Dran: bestätigt die Zeit (nur lokal, dranTippen) und gibt immer Rückmeldung: Kästchen pulsiert, Funken, "dran HH:MM".
+   Über dem Ende trägt Dran die angefangenen halben Stunden nach, höchstens 3 am Stück ── */
+let cosLaufFx = null;   // { key, art: dran|nach|weiter, i (Kästchen), t, text }: Animation im laufenden Block
+function cosDranNach(b) {
+  const k = Math.max(1, Math.round((b.min || COS_MIN) / COS_MIN)), d = cosDrueber(b);
+  return { k: k, neu: d ? Math.min(COS_SITZUNG, k + Math.ceil(d / COS_MIN)) : k };
+}
+/* Dran lokal merken wie dranTippen (app/tag/heute.js), ohne das alte Einsammeln der Kästchen. Rückgängig über art dran */
+function cosDranMerken(b) {
+  const d = dranVon(b.key);
+  merken({ art: 'dran', tag: tagIso, key: b.key, ja: true, vorher: d.zuletzt || 0, name: 'Dran' });
+  d.dran++; d.zuletzt = Date.now();
+  dranSpeichern(b.key, d);
+  haptik();
+}
+function cosDran(key) {
+  const b = bloeckeVon(heute()).find(x => x.key === key);
+  if (!b) return;
+  const n = cosDranNach(b), drueber = cosDrueber(b);
+  if (drueber && n.neu > n.k && b.lokal) { melden('Einen Moment, der Block wird noch angelegt.'); return; }
+  const uhr = cosUhr(jetztMin());
+  if (drueber && n.neu > n.k) {
+    cosGruppe('Dran', () => { cosDranMerken(b); cosVerschieben(key, minVon(b.start), n.neu); });
+    const plus = n.neu - n.k;
+    cosLaufFx = { key: b.key, art: 'nach', i: n.neu - 1, t: Date.now(), text: '+' + plus + ' nachgetragen' };
+    melden('+' + plus + ' Kästchen nachgetragen. ' + n.neu + ' am Stück.');
+  } else {
+    cosDranMerken(b);
+    cosLaufFx = { key: b.key, art: 'dran', i: n.k - 1, t: Date.now(), text: 'dran ' + uhr };
+    if (drueber) melden('3 am Stück. Kurz Pause?');
+  }
+  zeichnen();
 }
 /* ── V62 Heute vornehmen: pro Projekt Kästchen, Vorschlag vom Chief, ein Tipp auf Passt. Im Chief immer, im Fokus bis bestätigt ── */
 function cosPlanSetzen(pid, d) {
@@ -3208,6 +3318,8 @@ function cosVerschieben(key, startMin, k, ohneVerlauf, danach, ende) {
     if (d && d.key) {
       if (cosKeys[key]) cosKeys[d.key] = cosKeys[key];
       if (dranMerk[key]) { dranMerk[d.key] = dranMerk[key]; delete dranMerk[key]; }
+      if (cosTagAuf && cosTagAuf.key === key) cosTagAuf.key = d.key;   // U2: offene Frage bleibt an der Zeile
+      if (cosLaufFx && cosLaufFx.key === key) cosLaufFx.key = d.key;
       b.key = d.key; eintrag.key = d.key;
       if (danach) danach(d.key);
     }
@@ -11603,6 +11715,9 @@ var ZentraleUI = function(exports) {
     get tagAuf() {
       return cosTagAuf;
     },
+    get laufFx() {
+      return cosLaufFx;
+    },
     set spaeter(v2) {
       spaeterZeichnen = v2;
     }
@@ -11930,26 +12045,64 @@ var ZentraleUI = function(exports) {
     }, 12500);
     return /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "cos-doch", onClick: () => F.cosDochNicht(b.key), children: "Doch nicht starten" }, "doch");
   }
-  const mac$1 = () => document.body.classList.contains("mac");
+  const FUNKEN = [[-22, -26], [-8, -34], [8, -36], [22, -24], [-28, -8], [28, -10], [0, -42]];
+  const FX_MS = 1100;
+  function LaufKaestchen({ k: k2, fuell, drueber, fx }) {
+    const n2 = drueber ? Math.min(K.SITZUNG, Math.ceil(drueber / K.MIN)) : 0;
+    const frisch = fx && Date.now() - fx.t < FX_MS;
+    const funken = frisch && fx.art !== "weiter" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-funken", "aria-hidden": "true", children: [
+      FUNKEN.map(([dx, dy], j) => /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: j % 2 ? "gold" : "", style: { "--dx": dx + "px", "--dy": dy + "px", "--w": j * 25 + "ms" } }, j)),
+      fx.text ? /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: fx.text }) : null
+    ] }, fx.t) : null;
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-lq", role: "img", "aria-label": k2 + " Kästchen" + (n2 ? ", " + n2 + " drüber" : ""), children: [
+      Array.from({ length: k2 }, (_, j) => {
+        const lauf = j === k2 - 1 && !drueber, hier = frisch && Math.max(0, Math.min(k2 - 1, fx.i)) === j;
+        const kl2 = (lauf ? "lauf" : "voll") + (hier ? fx.art === "dran" ? " puls" : " rein" : "");
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: kl2, style: lauf ? { "--f": Math.round(fuell * 100) + "%" } : void 0, children: hier ? funken : null }, j);
+      }),
+      Array.from({ length: n2 }, (_, j) => /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "drueber" }, "d" + j))
+    ] });
+  }
+  function Wann({ b }) {
+    const w2 = F.cosWannDaten(b), kt = (n2) => n2 + " Kästchen";
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-feld tg-wann-feld", role: "group", "aria-label": "Wann warst du fertig?", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Wann warst du fertig?" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "tg-antwort haupt", onClick: () => F.cosJetztFertig(), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: w2.deckel ? "Bis " + F.cosUhr(w2.ende) + " fertig · 3 am Stück" : "Jetzt erst fertig · " + F.cosUhr(w2.ende) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: kt(w2.k) + ", die Zeit drüber zählt mit" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "tg-antwort", onClick: () => F.cosPlanFertig(), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Um " + F.cosUhr(w2.planEnde) + " fertig" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: kt(w2.kAlt) + ", Rest zählt nicht" })
+      ] })
+    ] });
+  }
   function Lauf({ x: x2, i }) {
-    const b = x2.b;
-    x2.s;
-    const k2 = x2.k, aus = !!b.lokal;
+    const b = x2.b, k2 = x2.k, aus = !!b.lokal, jm = A$2.jetztMin(), drueber = F.cosDrueber(b);
+    const s0 = A$2.minVon(b.start), fuell = Math.max(0, Math.min(1, (jm - s0) / K.MIN - (k2 - 1)));
     const dm = Z$1.dranMeldung, d = dm && dm.key === b.key && Date.now() - dm.t < 12e3 ? doch(b) : null;
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-lauf", children: [
+    const fx = Z$1.laufFx && Z$1.laufFx.key === b.key ? Z$1.laufFx : null;
+    if (fx && Date.now() - fx.t < FX_MS) setTimeout(() => F.heuteNeu(), FX_MS + 50);
+    const a = Z$1.tagAuf, wann = a && a.art === "wann" && a.key === b.key;
+    const rest = drueber ? drueber + " Min drüber, Weiter vergessen?" : "noch " + Math.max(0, A$2.minVon(b.ende) - jm) + " Min bis " + b.ende;
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-lauf" + (drueber ? " drueber" : ""), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(LaufKaestchen, { k: k2, fuell, drueber, fx }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-lauf-k", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-puls" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "läuft seit " + b.gestartet }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "leise", children: k2 > 1 ? k2 + " am Stück" : "" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: drueber ? "warn" : "leise", children: rest })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-lauf-kn", children: [
-        k2 < K.SITZUNG ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-weiter", onClick: () => F.cosWeiterPlus(b.key), disabled: aus, children: "Weiter +30" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-pause", children: "3 am Stück. Kurz Pause?" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-fertig", onClick: () => F.cosFertigFrage(i), disabled: aus, children: "Fertig" })
+      wann ? /* @__PURE__ */ jsxRuntimeExports.jsx(Wann, { b }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-lauf-kn" + (k2 < K.SITZUNG ? "" : " zwei"), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-dran", onClick: () => F.cosDran(b.key), children: "+ Dran" }),
+        k2 < K.SITZUNG ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-weiter", onClick: () => F.cosWeiterPlus(b.key), disabled: aus, children: "Weiter +30" }) : null,
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-fertig", onClick: () => F.cosFertigFrage(i), disabled: aus, children: "Fertig" }),
+        k2 < K.SITZUNG ? null : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-pause", children: "3 am Stück. Kurz Pause?" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-lauf-u", children: b.lokal ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Wird im Kalender angelegt …" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Seit, { iso: A$2.heute(), i, text: "Früher angefangen?" }) }),
       d
     ] });
   }
+  const mac$1 = () => document.body.classList.contains("mac");
   function Erledigt$2({ r: r2 }) {
     const x2 = r2.x, b = x2.b, s = x2.s, titel = F.cosTrTitel(x2), ok2 = F.fokusMin(A$2.heute(), b) > 0 && F.zaehlt(b), erl = !!s && s.status === "fertig";
     const a = Z$1.tagAuf, hier = a && a.key === b.key ? a.art : "";
@@ -12017,7 +12170,7 @@ var ZentraleUI = function(exports) {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-oben", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-was", children: [
             klick ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-titel", onClick: klick, children: titel }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-titel", children: titel }),
-            x2.k > 1 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-unter", children: x2.k + " Kästchen" }) : null
+            x2.k > 1 && r2.status !== "laeuft" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-unter", children: x2.k + " Kästchen" }) : null
           ] }),
           offen2 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-kn", children: [
             !s && F.zaehlt(b) && !b.lokal ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-wann", onClick: () => F.cosSitzungOeffnen(key), children: "Zuordnen" }) : null,
@@ -15577,7 +15730,7 @@ var ZentraleUI = function(exports) {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611232310';
+const PWA_VERSION = '202611240000';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -17765,7 +17918,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 23:10</div>
+<div id="testband">TEST 00:00</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
