@@ -7,6 +7,8 @@ bauen.py setzt sie nach der Liste SEITEN zu AppSeite.html, ChiefSeite.html und S
 Die drei Seiten sind erzeugt: nie von Hand ändern, Änderungen immer in app/.
 Aufruf: python3 web/bauen.py        (Live Seite web/index.html)
         python3 web/bauen.py test   (Testseite web/test/ mit Spieldaten, spricht nie mit Google)
+        python3 web/bauen.py entwicklung   (nur für ui/entwicklung/vite.js: Testseite mit Spieldaten nach ui/.entwicklung/,
+                                    React Teil als Modul vom Vite Server statt gebaut, schreibt sonst nichts)
 """
 import io, json, os, re, sys, time
 
@@ -14,8 +16,9 @@ HIER = os.path.dirname(os.path.abspath(__file__))
 API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec'
 VERSION = time.strftime('%Y%m%d%H%M')
 NAME = os.environ.get('ZENTRALE_NAME', '').strip()   # aus bereitstellen.sh, zum Beispiel "V80 Beschreibung"
-TEST = len(sys.argv) > 1 and sys.argv[1] == 'test'
-ZIEL = os.path.join(HIER, 'test') if TEST else HIER
+ENTW = len(sys.argv) > 1 and sys.argv[1] == 'entwicklung'   # Entwicklungsmodus: wie test, aber nur ui/.entwicklung/index.html
+TEST = len(sys.argv) > 1 and sys.argv[1] == 'test' or ENTW
+ZIEL = os.path.join(HIER, '..', 'ui', '.entwicklung') if ENTW else os.path.join(HIER, 'test') if TEST else HIER
 
 # ── Oberfläche: Teile aus app/ in fester Reihenfolge ──
 # Jede Seite ist eine Liste. Ein .html Teil wird so eingesetzt, wie er ist.
@@ -102,8 +105,19 @@ STUFE3_NEU = {'chief/rechnen_tag.js', 'chief/rechnen_woche.js'}   # neu im Branc
 # In SEITEN stehen dafür 'ui:css' und 'ui:js'. Einmalig vorher: cd ui && npm install
 UI = os.path.join(HIER, '..', 'ui')
 UI_TEILE = {}
+# Was nur in den Entwicklungsmodus gehört und nie in einen Bau (Prüfung unten und am Ende)
+NUR_ENTWICKLUNG = ('react-grab', '/@vite/client', '@react-refresh', 'entwicklung.jsx', '__vite_plugin_react_preamble')
 def ui_bauen():
     import subprocess
+    if ENTW:
+        # Kein vite build: der Vite Server liefert den React Teil als Modul, CSS setzt Vite selbst ans Ende von <head> (wie ui:css).
+        # Fast Refresh braucht den Vorspann vor React, dann der Vite Client, dann der Einstieg. Die Skriptblöcke danach setzt
+        # ui/src/entwicklung.jsx der Reihe nach ein, sobald window.ZentraleUI steht (siehe unten, zentrale/spaeter).
+        UI_TEILE['ui:css'] = ''
+        UI_TEILE['ui:js'] = ('<script type="module">\nimport RefreshRuntime from "/@react-refresh"\nRefreshRuntime.injectIntoGlobalHook(window)\n'
+                             'window.$RefreshReg$ = () => {}\nwindow.$RefreshSig$ = () => (type) => type\nwindow.__vite_plugin_react_preamble_installed__ = true\n</script>\n'
+                             '<script type="module" src="/@vite/client"></script>\n<script type="module" src="/src/entwicklung.jsx"></script>\n')
+        return
     # web/ ist ein eigenes Repository ohne Branches: auf einem Stand ohne ui/src (zum Beispiel main vor Stufe 3) fällt der React Teil weg
     if not os.path.isfile(os.path.join(UI, 'src', 'start.jsx')):
         for _, liste in SEITEN:
@@ -117,13 +131,14 @@ def ui_bauen():
     for art, datei in (('js', 'zentrale-ui.js'), ('css', 'zentrale-ui.css')):
         t = io.open(os.path.join(UI, 'dist', datei), encoding='utf-8').read()
         # Die Seite geht auch als Apps Script Vorlage zu Google: <? wäre dort Vorlagen Code, </script beendet den Block
-        for verboten in ('</script', '</style', '<?'):
+        for verboten in ('</script', '</style', '<?') + NUR_ENTWICKLUNG:
             if verboten in t:
                 sys.exit('bauen.py: ' + verboten + ' im React Teil (ui/dist/' + datei + ')')
         UI_TEILE['ui:' + art] = ('<script>\n/* ── React Teil (ui/, gebaut von web/bauen.py) ── */\n' if art == 'js' else '<style>\n') + t.rstrip('\n') + '\n' + ('</script>\n' if art == 'js' else '</style>\n')
 
 ui_bauen()
 
+SEITEN_TEXT = {}   # fertige AppSeite.html, ChiefSeite.html, SensiSeite.html
 def teile_bauen():
     benutzt = set()
     # web/ hat keine Branches: auf einem Stand vor Stufe 3 Schritt 2 (main bis V100) gibt es diese Dateien noch nicht, dann fallen sie weg
@@ -151,7 +166,14 @@ def teile_bauen():
             art = 'style' if t[0].endswith('.css') else 'script'
             if any(not x.endswith('.css' if art == 'style' else '.js') for x in t):
                 sys.exit('bauen.py: CSS und JS gemischt in einem Block von ' + seite)
+            if ENTW and art == 'style':
+                # Entwicklungsmodus: ein <style> pro Datei (gleiche Reihenfolge, gleiche Wirkung), damit der Vite Server eine geänderte Datei ohne Neuladen tauscht
+                out += ''.join('<style data-quelle="' + x + '">\n' + lies(x) + '</style>\n' for x in t)
+                continue
             out += '<' + art + '>\n' + ''.join(lies(x) for x in t) + '</' + art + '>\n'
+        SEITEN_TEXT[seite] = out
+        if ENTW:
+            continue   # Entwicklungsmodus schreibt nie in den Hauptordner (clasp schickt AppSeite.html zu Google)
         ziel = os.path.join(HIER, '..', seite)
         alt = io.open(ziel, encoding='utf-8').read() if os.path.exists(ziel) else None
         if alt != out:
@@ -166,7 +188,7 @@ def teile_bauen():
 
 teile_bauen()
 
-s = io.open(os.path.join(HIER, '..', 'AppSeite.html'), encoding='utf-8').read()
+s = SEITEN_TEXT['AppSeite.html']
 
 def ersetze(alt, neu):
     global s
@@ -188,11 +210,11 @@ ersetze('<base target="_top">\n', '''<title>Zentrale</title>
 
 # Chief of Staff: eigene Datei ChiefSeite.html, hier fest in die Seite gesetzt (in der alten Web App macht das Apps Script)
 ersetze("<?!= HtmlService.createHtmlOutputFromFile('ChiefSeite').getContent() ?>",
-        io.open(os.path.join(HIER, '..', 'ChiefSeite.html'), encoding='utf-8').read())
+        SEITEN_TEXT['ChiefSeite.html'])
 
 # Sensi: eigene Datei SensiSeite.html, genauso eingesetzt
 ersetze("<?!= HtmlService.createHtmlOutputFromFile('SensiSeite').getContent() ?>",
-        io.open(os.path.join(HIER, '..', 'SensiSeite.html'), encoding='utf-8').read())
+        SEITEN_TEXT['SensiSeite.html'])
 
 # Startdaten kommen in der PWA aus dem Handyspeicher, nicht vom Server
 ersetze('const START = <?!= start ?>;', 'const START = null;')
@@ -294,6 +316,21 @@ if TEST:
           import shutil
           for g in (180, 192, 512):
               shutil.copy(os.path.join(HIER, 'icon-%d.png' % g), os.path.join(ZIEL, 'icon-%d.png' % g))
+
+if ENTW:
+    # Kein Service Worker, eigenes Band. Alle klassischen Skriptblöcke nach dem React Einstieg warten, bis ui/src/entwicklung.jsx
+    # window.ZentraleUI gesetzt hat, und laufen dann in derselben Reihenfolge wie im Bau (PWA, Spielwelt, Hauptteil).
+    ersetze("if ('serviceWorker' in navigator)", "if (false)")
+    s = re.sub(r'<div id="testband">TEST [0-9:]+</div>', '<div id="testband">ENTWICKLUNG</div>', s)
+    i = s.index('<script type="module" src="/src/entwicklung.jsx"></script>')
+    s = s[:i] + re.sub(r'(?m)^<script>$', '<script type="zentrale/spaeter">', s[i:])
+    io.open(os.path.join(ZIEL, 'index.html'), 'w', encoding='utf-8').write(s)
+    print('Entwicklungsseite gebaut')
+    sys.exit(0)
+
+for verboten in NUR_ENTWICKLUNG:
+    if verboten in s:
+        sys.exit('bauen.py: ' + verboten + ' (nur Entwicklungsmodus) steht in der Seite')
 
 io.open(os.path.join(ZIEL, 'index.html'), 'w', encoding='utf-8').write(s)
 
