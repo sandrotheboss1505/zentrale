@@ -317,22 +317,20 @@ if TEST:
           for g in (180, 192, 512):
               shutil.copy(os.path.join(HIER, 'icon-%d.png' % g), os.path.join(ZIEL, 'icon-%d.png' % g))
 
-if ENTW:
-    # Kein Service Worker, eigenes Band. Alle klassischen Skriptblöcke nach dem React Einstieg warten, bis ui/src/entwicklung.jsx
-    # window.ZentraleUI gesetzt hat, und laufen dann in derselben Reihenfolge wie im Bau (PWA, Spielwelt, Hauptteil).
-    ersetze("if ('serviceWorker' in navigator)", "if (false)")
-    s = re.sub(r'<div id="testband">TEST [0-9:]+</div>', '<div id="testband">ENTWICKLUNG</div>', s)
-    i = s.index('<script type="module" src="/src/entwicklung.jsx"></script>')
-    s = s[:i] + re.sub(r'(?m)^<script>$', '<script type="zentrale/spaeter">', s[i:])
-    io.open(os.path.join(ZIEL, 'index.html'), 'w', encoding='utf-8').write(s)
-    print('Entwicklungsseite gebaut')
-    sys.exit(0)
+def entw_seite(t):
+    # Entwicklungsmodus: kein Service Worker, eigenes Band. Alle klassischen Skriptblöcke nach dem React Einstieg warten, bis
+    # ui/src/entwicklung.jsx window.ZentraleUI gesetzt hat, und laufen dann in derselben Reihenfolge wie im Bau (PWA, Spielwelt, Hauptteil).
+    t = t.replace("if ('serviceWorker' in navigator)", "if (false)")
+    t = re.sub(r'<div id="testband">TEST [0-9:]+</div>', '<div id="testband">ENTWICKLUNG</div>', t)
+    i = t.index('<script type="module" src="/src/entwicklung.jsx"></script>')
+    return t[:i] + re.sub(r'(?m)^<script>$', '<script type="zentrale/spaeter">', t[i:])
 
-for verboten in NUR_ENTWICKLUNG:
-    if verboten in s:
-        sys.exit('bauen.py: ' + verboten + ' (nur Entwicklungsmodus) steht in der Seite')
+if not ENTW:
+    for verboten in NUR_ENTWICKLUNG:
+        if verboten in s:
+            sys.exit('bauen.py: ' + verboten + ' (nur Entwicklungsmodus) steht in der Seite')
 
-io.open(os.path.join(ZIEL, 'index.html'), 'w', encoding='utf-8').write(s)
+io.open(os.path.join(ZIEL, 'index.html'), 'w', encoding='utf-8').write(entw_seite(s) if ENTW else s)
 
 # ── Stufe 2: Werkbank (nur Testseite) unter web/test/werkbank/ ──
 # Dieselbe gebaute Seite wie die Testseite (gleiche CSS, gleiche JS, Spielwelt aus tests/spieldaten.js),
@@ -375,6 +373,9 @@ if TEST:
         for teil in ('basis', 'neu'):
             os.makedirs(os.path.join(ZIEL, 'werkbank', 'vergleich', teil), exist_ok=True)
             for n in namen:
+                q, z = os.path.join(vq, teil, n + '.png'), os.path.join(ZIEL, 'werkbank', 'vergleich', teil, n + '.jpg')
+                if ENTW and os.path.exists(z) and os.path.getmtime(z) >= os.path.getmtime(q):
+                    continue   # Entwicklungsmodus erzeugt die Seite bei jeder Änderung neu: Bilder nur, wenn sie neuer sind
                 im = Image.open(os.path.join(vq, teil, n + '.png')).convert('RGB')
                 b = 390 if im.size[0] <= 800 else 700
                 im.resize((b, round(im.size[1] * b / im.size[0]))).save(os.path.join(ZIEL, 'werkbank', 'vergleich', teil, n + '.jpg'), quality=72)
@@ -384,7 +385,11 @@ if TEST:
     wers('</body>', '<style id="wbStil">\n' + wl('werkbank/werkbank.css') + '</style>\n<script>\nwindow.__wbQuellen = ' + qjs + ';\nwindow.__wbVergleich = ' + json.dumps(vergleich) + ';\n' +
          ''.join(wl(n) for n in WERKBANK if n.endswith('.js') and n != 'werkbank/uhr.js') + '</script>\n</body>')
     os.makedirs(os.path.join(ZIEL, 'werkbank'), exist_ok=True)
-    io.open(os.path.join(ZIEL, 'werkbank', 'index.html'), 'w', encoding='utf-8').write(w)
+    io.open(os.path.join(ZIEL, 'werkbank', 'index.html'), 'w', encoding='utf-8').write(entw_seite(w) if ENTW else w)
+
+if ENTW:
+    print('Entwicklungsseite und Werkbank gebaut')
+    sys.exit(0)   # kein Service Worker
 
 # Service Worker bekommt die Version, damit das Handy die neue Seite holt
 sw = io.open(os.path.join(HIER, 'sw.vorlage.js'), encoding='utf-8').read().replace('__VERSION__', VERSION)
