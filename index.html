@@ -1042,6 +1042,28 @@
   .tg-kq { display: inline-flex; gap: var(--abstand-2); padding-right: var(--abstand-1); }
   .tg-kq i { width: 12px; height: 12px; border-radius: var(--radius-klein); background: var(--pf); box-shadow: 0 0 0 1.5px var(--gold-funken), 0 0 6px color-mix(in srgb, var(--gold-funken) 45%, transparent); }
   .tg-kq.leer { color: var(--leise); }
+  /* U1+B3: Unterzeile Aufgabe erledigt oder offen, darunter Frage nach Fertig oder Nachtragen (nur eins offen) */
+  .tg-erl .tg-was { display: flex; flex-direction: column; text-align: left; }
+  .tg-aufg { font-size: var(--schrift-text); color: var(--leise); }
+  .tg-aufg.ja { color: var(--gruen-fertig); }
+  .tg-feld { display: flex; flex-direction: column; gap: var(--abstand-4); margin: 0 0 var(--abstand-5) 68px; padding: var(--abstand-6); border-radius: var(--radius-gross); background: var(--chip); animation: ciein .25s ease-out; }
+  .tg-feld > b { font-weight: 600; }
+  .tg-feld-zeit { color: var(--leise); font-variant-numeric: tabular-nums; }
+  .tg-feld .tg-antwort { min-height: 52px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: var(--abstand-1); padding: var(--abstand-4) var(--abstand-6); border-radius: var(--radius-gross); background: var(--karte); color: var(--text); text-align: left; }
+  .tg-feld .tg-antwort b { font-weight: 600; }
+  .tg-feld .tg-antwort span { color: var(--leise); font-weight: 400; }
+  .tg-feld .tg-antwort.haupt { background: var(--akzent); color: var(--weiss); }
+  .tg-feld .tg-antwort.haupt span { color: color-mix(in srgb, var(--weiss) 80%, transparent); }
+  .tg-dauer { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; gap: var(--abstand-4); align-items: center; }
+  .tg-dauer button { height: 44px; border-radius: var(--radius-gross); background: var(--karte); color: var(--text); font-size: var(--schrift-gross); font-weight: 600; }
+  .tg-dauer button:disabled { opacity: .4; }
+  .tg-dauer b { text-align: center; font-size: var(--schrift-gross); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .tg-feld .cos-seg { background: var(--karte); }
+  .tg-feld .cos-seg button.an { background: var(--chip); }
+  .tg-ok { height: 44px; border-radius: var(--radius-gross); background: var(--akzent); color: var(--weiss); font-weight: 600; }
+  .tg-ok:disabled { opacity: .45; }
+  @media (prefers-color-scheme: dark) { .tg-feld .tg-antwort.haupt, .tg-ok { background: var(--knopf-blau-dunkel); } }
+  @media (prefers-reduced-motion: reduce) { .tg-feld { animation: none; } }
   /* F1: Jetzt Linie in Geplant */
   .tg-jetzt-l { display: flex; align-items: center; gap: var(--abstand-3); padding: var(--abstand-2) 0; font-size: var(--schrift-text); font-weight: 700; color: var(--jetzt-linie); font-variant-numeric: tabular-nums; }
   .tg-jetzt-l::after { content: ""; flex: 1; height: 2px; border-radius: var(--radius-klein); background: var(--jetzt-linie); }
@@ -1802,6 +1824,77 @@ function cosHakenSetzen(id, neu, ohneVerlauf) {
   }
   cosAusstehend++;
   cosNach('appChiefHaken', id, neu === 'fertig').then(() => { cosAusstehend--; cosGeladen = 0; });
+}
+
+/* ── U1+B3: Fertig fragt "Aufgabe ganz erledigt?", die erledigte Zeile öffnet Nachtragen.
+   Beides teilt cosTagAuf, also ist immer nur eine Zeile offen. Ja und der Umschalter setzen den Schritt über cosAufgabeSetzen ── */
+let cosTagAuf = null;
+function cosAufgabeSetzen(sid, erledigt) {
+  const s = C && C.schritte.find(x => x.id === sid);
+  if (!s || (s.status === 'fertig') === !!erledigt) return;
+  cosHakenSetzen(sid, erledigt ? 'fertig' : 'offen');
+}
+/* Fertig im laufenden Block: mit Schritt beenden (Kästchen zählen sofort) und fragen, ohne Schritt wie bisher */
+function cosFertigFrage(i) {
+  const b = bloeckeVon(heute())[i], s = b && cosSchrittVon(b);
+  if (!b) return;
+  if (!s) { blockFertigWeiter(i); return; }
+  cosFertig(i, true);
+  cosTagAuf = { art: 'frage', key: b.key, sid: s.id };
+  zeichnen();
+}
+function cosFrageJa() {
+  const a = cosTagAuf;
+  if (!a || a.art !== 'frage') return;
+  cosTagAuf = null;
+  cosAufgabeSetzen(a.sid, true);
+  zeichnen();
+}
+/* Nein ist genau Weiter bei: der Satz wird mit Raster ein neuer Schritt im nächsten freien Platz, die Menge bleibt */
+function cosFrageNein() {
+  const a = cosTagAuf;
+  if (!a || a.art !== 'frage') return;
+  cosTagAuf = null;
+  haptik();
+  zeichnen();
+  cosWeiterOeffnen(a.sid, false);
+}
+function cosNachAufZu(key) {
+  if (cosTagAuf && cosTagAuf.art === 'nach' && cosTagAuf.key === key) { cosTagAuf = null; zeichnen(); return; }
+  const h = heute(), b = bloeckeVon(h).find(x => x.key === key);
+  if (!b) return;
+  const s = cosSchrittVon(b), k0 = Math.max(1, Math.round(fokusMin(h, b) / COS_MIN)), e0 = !!s && s.status === 'fertig';
+  cosTagAuf = { art: 'nach', key: key, sid: s ? s.id : '', k0: k0, k: k0, e0: e0, erledigt: e0 };
+  haptik();
+  zeichnen();
+}
+function cosNachDauer(d) {
+  const a = cosTagAuf;
+  if (!a || a.art !== 'nach') return;
+  a.k = Math.max(1, Math.min(Math.max(COS_SITZUNG, a.k0), a.k + d));
+  haptik();
+  zeichnen();
+}
+function cosNachErledigt(an) { const a = cosTagAuf; if (!a || a.art !== 'nach' || !a.sid) return; a.erledigt = !!an; zeichnen(); }
+/* Von und bis für das Feld: unverändert die echte Zeit, sonst Start plus Kästchen */
+function cosNachZeit(b) {
+  const a = cosTagAuf, von = b.gestartet || b.start;
+  const bis = !a || a.k === a.k0 ? (b.beendet || b.ende) : cosUhr(minVon(von) + a.k * COS_MIN);
+  return { von: von, bis: bis };
+}
+function cosNachOk() {
+  const a = cosTagAuf;
+  if (!a || a.art !== 'nach') return;
+  const b = bloeckeVon(heute()).find(x => x.key === a.key), dauer = a.k !== a.k0, status = !!a.sid && a.erledigt !== a.e0;
+  if (b && b.lokal && dauer) { melden('Einen Moment, der Block wird noch angelegt.'); return; }
+  cosTagAuf = null;
+  if (!b || (!dauer && !status)) { zeichnen(); return; }
+  cosGruppe('Nachgetragen', () => {
+    if (dauer) { const st = minVon(b.gestartet || b.start); cosVerschieben(b.key, st, a.k, false, null, b.gestartet ? st + a.k * COS_MIN : undefined); }
+    if (status) cosAufgabeSetzen(a.sid, a.erledigt);
+  });
+  if (dauer && !status) melden('Nachgetragen · ' + dauerText(a.k * COS_MIN));
+  zeichnen();
 }
 /* ── Rechnen für den Tag: Plan des Tages, Termine, freie Startzeiten, Empfehlung, Vornehmen, Gehalten, Daten der Fokus Karte ──
    Stufe 3: aus fokus.js, vornehmen.js und rechnen.js hierher, unverändert. Nur Lesen und Rechnen, nichts zeichnen.
@@ -3095,18 +3188,22 @@ function cosEinplanen(liste, ohneVerlauf) {
     if (offen === 0) abfragen(true);
   });
 }
-function cosVerschieben(key, startMin, k, ohneVerlauf, danach) {
+/* U1+B3: ende (Minuten) setzt bei Nachtragen das Ende von Fertig mit, '' nimmt es weg, undefined lässt es */
+function cosVerschieben(key, startMin, k, ohneVerlauf, danach, ende) {
   const h = heute(), b = bloeckeVon(h).find(x => x.key === key);
   if (!b) return;
   if (b.lokal) { melden('Einen Moment, der Block wird noch angelegt.'); return; }
   const alt = minVon(b.start), altK = Math.max(1, Math.round((b.min || COS_MIN) / COS_MIN)), min = k ? k * COS_MIN : (b.min || COS_MIN);
-  const eintrag = { art: 'cosPlanZeit', tag: tagIso, key: key, alt: alt, altK: altK, name: 'Uhrzeit geändert' };
+  const mitEnde = ende !== undefined && ende !== null, endeText = mitEnde && ende !== '' ? cosUhr(ende) : '';
+  const eintrag = { art: 'cosPlanZeit', tag: tagIso, key: key, alt: alt, altK: altK, name: mitEnde ? 'Nachgetragen' : 'Uhrzeit geändert' };
+  if (mitEnde) eintrag.altEnde = b.beendet ? minVon(b.beendet) : '';
   if (!ohneVerlauf) merken(eintrag);
   b.start = cosUhr(startMin); b.ende = cosUhr(Math.min(startMin + min, 23 * 60 + 59)); b.min = min; b.lokal = true;
+  if (mitEnde) { b.beendet = endeText; fokusLokal(h); }
   P.bloecke[h].sort((u, v) => u.start.localeCompare(v.start));
   haptik();
   zeichnen();
-  cosNach('appChiefVerschieben', key, cosUhr(startMin), k || '').then(d => {
+  (mitEnde ? cosNach('appChiefVerschieben', key, cosUhr(startMin), k || '', endeText) : cosNach('appChiefVerschieben', key, cosUhr(startMin), k || '')).then(d => {
     b.lokal = false;
     if (d && d.key) {
       if (cosKeys[key]) cosKeys[d.key] = cosKeys[key];
@@ -3154,7 +3251,7 @@ function cosRueckTag(a) {
     return true;
   }
   if (a.art === 'cosPlan') { if (a.keys.some(lokal)) return 'warte'; a.keys.forEach(k => cosAusplanen(k, true)); return true; }
-  if (a.art === 'cosPlanZeit') { if (lokal(a.key)) return 'warte'; cosVerschieben(a.key, a.alt, a.altK, true); return true; }
+  if (a.art === 'cosPlanZeit') { if (lokal(a.key)) return 'warte'; cosVerschieben(a.key, a.alt, a.altK, true, null, a.altEnde); return true; }
   if (a.art === 'cosZuord') { if (lokal(a.key)) return 'warte'; cosZuordnen(a.key, a.alt, true); return true; }
   if (a.art === 'cosNachV') { cosVergessenZurueck(a); return true; }
   if (a.art === 'cosPlanWeg') {
@@ -11503,6 +11600,9 @@ var ZentraleUI = function(exports) {
     get startet() {
       return cosStartet;
     },
+    get tagAuf() {
+      return cosTagAuf;
+    },
     set spaeter(v2) {
       spaeterZeichnen = v2;
     }
@@ -11832,7 +11932,9 @@ var ZentraleUI = function(exports) {
   }
   const mac$1 = () => document.body.classList.contains("mac");
   function Lauf({ x: x2, i }) {
-    const b = x2.b, s = x2.s, k2 = x2.k, aus = !!b.lokal;
+    const b = x2.b;
+    x2.s;
+    const k2 = x2.k, aus = !!b.lokal;
     const dm = Z$1.dranMeldung, d = dm && dm.key === b.key && Date.now() - dm.t < 12e3 ? doch(b) : null;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-lauf", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-lauf-k", children: [
@@ -11842,22 +11944,65 @@ var ZentraleUI = function(exports) {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-lauf-kn", children: [
         k2 < K.SITZUNG ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-weiter", onClick: () => F.cosWeiterPlus(b.key), disabled: aus, children: "Weiter +30" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-pause", children: "3 am Stück. Kurz Pause?" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-fertig", onClick: () => s ? F.cosFertig(i) : F.blockFertigWeiter(i), disabled: aus, children: "Fertig" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-fertig", onClick: () => F.cosFertigFrage(i), disabled: aus, children: "Fertig" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-lauf-u", children: b.lokal ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Wird im Kalender angelegt …" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        s ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "cos-schritt-fertig", onClick: () => F.cosSchrittFertig(i), children: "✓ Schritt fertig" }) : null,
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Seit, { iso: A$2.heute(), i, text: "Früher angefangen?" })
-      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-lauf-u", children: b.lokal ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Wird im Kalender angelegt …" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Seit, { iso: A$2.heute(), i, text: "Früher angefangen?" }) }),
       d
     ] });
   }
   function Erledigt$2({ r: r2 }) {
-    const x2 = r2.x, b = x2.b, titel = F.cosTrTitel(x2), ok2 = F.fokusMin(A$2.heute(), b) > 0 && F.zaehlt(b);
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "tg-z fertig tg-erl", style: { "--pf": F.cosTrFarbe(x2) }, "aria-label": titel + (ok2 ? ", " + x2.k + " Kästchen" : "") + ", erledigt", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-zeit", children: b.gestartet || b.start }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-titel", children: titel }),
-      ok2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-kq", children: Array.from({ length: x2.k }, (_, j) => /* @__PURE__ */ jsxRuntimeExports.jsx("i", {}, j)) }) : F.zaehlt(b) ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-kq leer", children: "–" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", {})
+    const x2 = r2.x, b = x2.b, s = x2.s, titel = F.cosTrTitel(x2), ok2 = F.fokusMin(A$2.heute(), b) > 0 && F.zaehlt(b), erl = !!s && s.status === "fertig";
+    const a = Z$1.tagAuf, hier = a && a.key === b.key ? a.art : "";
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          className: "tg-z fertig tg-erl",
+          style: { "--pf": F.cosTrFarbe(x2) },
+          onClick: () => F.cosNachAufZu(b.key),
+          "aria-expanded": String(hier === "nach"),
+          "aria-label": titel + (ok2 ? ", " + x2.k + " Kästchen" : "") + ", erledigt" + (s ? erl ? ", Aufgabe erledigt" : ", Aufgabe offen" : "") + ", antippen zum Nachtragen",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-zeit", children: b.gestartet || b.start }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-was", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-titel", children: titel }),
+              s ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-aufg" + (erl ? " ja" : ""), children: erl ? "Aufgabe erledigt" : "Aufgabe offen" }) : null
+            ] }),
+            ok2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-kq", children: Array.from({ length: x2.k }, (_, j) => /* @__PURE__ */ jsxRuntimeExports.jsx("i", {}, j)) }) : F.zaehlt(b) ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-kq leer", children: "–" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", {})
+          ]
+        }
+      ),
+      hier === "frage" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Frage, {}) : hier === "nach" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Nachtragen, { b, a }) : null
+    ] });
+  }
+  function Frage() {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-feld", role: "group", "aria-label": "Aufgabe ganz erledigt?", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Aufgabe ganz erledigt?" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "tg-antwort haupt", onClick: () => F.cosFrageJa(), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Ja, erledigt" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "geht im Chief auf erledigt" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "tg-antwort", onClick: () => F.cosFrageNein(), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Nein, nur die Kästchen" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Aufgabe bleibt offen" })
+      ] })
+    ] });
+  }
+  function Nachtragen({ b, a }) {
+    const z2 = F.cosNachZeit(b), max = Math.max(K.SITZUNG, a.k0);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-feld", role: "group", "aria-label": "Nachtragen", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-feld-zeit", children: z2.von + " bis " + z2.bis }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-dauer", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosNachDauer(-1), disabled: a.k <= 1, "aria-label": "30 Minuten weniger", children: "−" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: F.dauerText(a.k * K.MIN) }, a.k),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosNachDauer(1), disabled: a.k >= max, "aria-label": "30 Minuten mehr", children: "+" })
+      ] }),
+      a.sid ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-seg", role: "group", "aria-label": "Aufgabe", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: a.erledigt ? "" : "an", "aria-pressed": String(!a.erledigt), onClick: () => F.cosNachErledigt(false), children: "Aufgabe offen" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: a.erledigt ? "an" : "", "aria-pressed": String(a.erledigt), onClick: () => F.cosNachErledigt(true), children: "Erledigt" })
+      ] }) : null,
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-ok", onClick: () => F.cosNachOk(), disabled: !!b.lokal, children: "OK" })
     ] });
   }
   function Block$1({ r: r2, d }) {
@@ -15432,8 +15577,8 @@ var ZentraleUI = function(exports) {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611232012';
-const PWA_NAME = "V107 Fokus: Geplant ruhiger (Stufe 15, Erledigtes kompakt mit Goldkästchen, Jetzt Linie), To Do pro Projekt gebündelt mit Zeitchips";
+const PWA_VERSION = '202611232318';
+const PWA_NAME = "V108 Fertig fragt Aufgabe erledigt, Nachtragen";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
