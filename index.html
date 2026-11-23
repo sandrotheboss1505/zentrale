@@ -1047,6 +1047,9 @@
   .tg .cos-tf { padding: 0 0 var(--abstand-6) 62px; }
   .tg-t { display: grid; grid-template-columns: 4px minmax(0, 1fr) auto; gap: var(--abstand-5); padding: var(--abstand-6) 0; border-top: 1px solid var(--linie); align-items: center; }
   .tg-t .tg-was { text-align: left; min-height: 44px; }
+  .tg-plaetze .tg-was { display: flex; align-items: center; justify-content: space-between; gap: var(--abstand-5); }
+  .tg-zahl { font-size: var(--schrift-klein); color: var(--leise); white-space: nowrap; }
+  .tg-wahl.an { box-shadow: inset 0 0 0 2px var(--pf); }
   .tg-leer { padding: var(--abstand-6) 0; border-top: 1px solid var(--linie); font-size: var(--schrift-klein); color: var(--leise); }
   .tg-fuss { display: flex; justify-content: space-between; align-items: center; gap: var(--abstand-5); margin-top: var(--abstand-5); padding-top: var(--abstand-6); border-top: 1px solid var(--linie); }
   .tg-joker { flex: none; white-space: nowrap; height: 40px; padding: 0 var(--abstand-6); border-radius: var(--radius-gross); background: var(--chip); font-size: var(--schrift-klein); font-weight: 600; }
@@ -2490,7 +2493,7 @@ function cosBlattEtappeWahl(v) {
 function cosBlattLesen() {
   const b = cosBlatt;
   if (!b) return;
-  if (b.art === 'sitzung' || b.art === 'einplanen' || b.art === 'taskwann') { cosBlattLesenTag(b); return; }
+  if (b.art === 'sitzung' || b.art === 'einplanen' || b.art === 'taskwann' || b.art === 'inhalt') { cosBlattLesenTag(b); return; }
   if (b.art === 'schritt') {
     [['cbTitel', 'titel'], ['cbFertig', 'fertigWenn'], ['cbWeiter', 'weiterBei'], ['cbEtappeNeu', 'abschnitt'], ['cbDatum', 'wann']].forEach(x => { const v = cosWert(x[0]); if (v !== null) b.d[x[1]] = v; });
     const e = cosWert('cbEtappe');
@@ -3095,7 +3098,7 @@ function cosBlattZeit(v) {
   if (!k) return;
   if (b.art === 'taskwann') { k.textContent = 'Um ' + cosUhr(b.start); k.disabled = false; return; }
   k.textContent = cosKnopfText(b, !!b.key);
-  k.disabled = (b.art === 'einplanen' && b.modus !== 'frei' && !b.sid) || (b.art === 'sitzung' && !!b.key && b.start === b.alt && b.k === b.altK && !b.zuordnen);
+  k.disabled = (b.art === 'inhalt' && cosInhaltPlatzAus(b)) || (b.art === 'einplanen' && b.modus !== 'frei' && !b.sid) || (b.art === 'sitzung' && !!b.key && b.start === b.alt && b.k === b.altK && !b.zuordnen);
 }
 function cosBlattOhne() { const b = cosBlatt; cosBlattLesen(); b.ohne = true; b.start = null; b.jetzt = false; haptik(); cosBlattZeichnen(); }
 /* Für cosBlattLesen: Textfelder der neuen Blätter */
@@ -3255,16 +3258,53 @@ function cosTaskWannWeg() {
 function cosSeit(s) { const id = String(s.id || ''), t = id.length >= 13 ? parseInt(id.slice(1, 9), 36) : 0; return t > 1e12 && t < 5e12 ? t : 0; }
 function cosInhaltOeffnen(pid, key, sid, dann) {
   if (!cosPid(pid)) return;
-  if (dann === 'los' && cosLaeuftEtwas()) { melden('Es läuft schon ein Kästchen. Erst Fertig, dann das nächste.'); return; }
-  cosBlattAuf({ art: 'inhalt', titel: 'Was kommt rein?', pid: pid, key: key || '', sid: sid || '', dann: dann || '', text: '' });
+  if ((dann === 'los' || dann === 'platzlos') && cosLaeuftEtwas()) { melden('Es läuft schon ein Kästchen. Erst Fertig, dann das nächste.'); return; }
+  // V102: aus der gebündelten Zeile (platz, platzlos) wählt das Blatt Inhalt und Uhrzeit zusammen und füllt einen Platz
+  const platz = dann === 'platz' || dann === 'platzlos', los = dann === 'platzlos';
+  cosBlattAuf({ art: 'inhalt', titel: 'Was kommt rein?', pid: pid, key: key || '', sid: sid || '', dann: platz ? '' : dann || '', text: '',
+    platz: platz, wahl: '', k: 1, start: los ? jetztMin() : null, jetzt: los, ohne: false });
 }
 function cosInhaltListe(b) {
   const h = heute(), belegt = {};
   cosHeuteBloecke().forEach(x => { if (x.s && !x.b.status && !x.b.beendet) belegt[x.s.id] = true; });
   return cosListe(cosPid(b.pid)).filter(s => s.status === 'offen' && s.wann !== h && !belegt[s.id]).sort((a, c) => cosSeit(a) - cosSeit(c));
 }
-function cosInhaltTippen(v) { if (!cosBlatt) return; cosBlatt.text = v; const k = $('cbEigenOk'); if (k) k.disabled = !v.trim(); }
-function cosInhaltNimm(sid) { const b = cosBlatt; if (!b || b.art !== 'inhalt') return; cosBlattZu(); cosInhaltSetzen(b, sid, ''); }
+function cosInhaltTippen(v) {
+  const b = cosBlatt;
+  if (!b) return;
+  b.text = v;
+  const k = $('cbEigenOk');
+  if (k) k.disabled = !v.trim();
+  if (!b.platz) return;
+  if (v.trim()) { b.wahl = ''; document.querySelectorAll('#cosBlatt .tg-wahl.an').forEach(x => { x.classList.remove('an'); x.setAttribute('aria-pressed', 'false'); }); }
+  const p = document.querySelector('#cosBlatt .cos-primaer');
+  if (p) p.disabled = cosInhaltPlatzAus(b);
+}
+function cosInhaltNimm(sid) {
+  const b = cosBlatt;
+  if (!b || b.art !== 'inhalt') return;
+  if (b.platz) { cosBlattLesen(); b.wahl = b.wahl === sid ? '' : sid; if (b.wahl) b.text = ''; haptik(); cosBlattZeichnen(); return; }
+  cosBlattZu(); cosInhaltSetzen(b, sid, '');
+}
+/* V102 Platz füllen: Inhalt (gewählt oder geschrieben) und Uhrzeit (Uhrzeit, jetzt oder ohne) */
+function cosInhaltPlatzAus(b) { return (!b.wahl && !String(b.text || '').trim()) || (b.start == null && !b.ohne && !b.jetzt); }
+function cosInhaltPlatzFertig() {
+  const b = cosBlatt, h = heute();
+  if (!b || b.art !== 'inhalt' || !b.platz) return;
+  cosBlattLesen();
+  if (cosInhaltPlatzAus(b)) return;
+  const p = cosPid(b.pid), t = b.wahl ? '' : String(b.text || '').replace(/\s+/g, ' ').trim().slice(0, 160);
+  cosBlattZu();
+  if (b.ohne || b.jetzt) { cosInhaltSetzen(Object.assign({}, b, { key: '', sid: '', dann: b.jetzt ? 'los' : '' }), b.wahl, t); return; }
+  const start = cosUhr(b.start);
+  if (b.wahl) { cosEinplanen([{ id: b.wahl, start: start, k: 1, erinnern: true }]); return; }
+  cosGruppe('Selbst geschrieben', () => {   // neuer Schritt ohne Wann, dazu der Block, ein Rückgängig
+    const neu = { id: cosId('s'), abschnitt: '', titel: t, k: 1, fertigWenn: '', status: 'offen', weiterBei: '', wann: '', verschoben: 0, min: 0, bl: {} };
+    cosFrisch[neu.id] = Date.now();
+    cosSchritteAendern(p, cosListe(p).concat([neu]), 'Selbst geschrieben');
+    cosEinplanen([{ id: neu.id, start: start, k: 1, erinnern: true }]);
+  });
+}
 function cosInhaltEigen() {
   const b = cosBlatt;
   if (!b || b.art !== 'inhalt') return;
@@ -3541,7 +3581,8 @@ function chiefOeffnen() { ansicht = 'chief'; cosProjekt = null; zeichnen(); cosL
     display: grid; place-items: center; font: 700 var(--schrift-titel)/1 Georgia, serif; box-shadow: 0 1px 3px var(--schatten-leiste); }
   .sen-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .sen-cover.klein { width: 34px; height: 50px; border-radius: var(--radius-klein); font-size: var(--schrift-klein); }
-  .sen-buch-r { min-width: 0; display: grid; gap: var(--abstand-1); }
+  .sen-buch.ohne { grid-template-columns: minmax(0, 1fr); }
+  .sen-buch-r { min-width: 0; width: 100%; text-align: left; display: grid; gap: var(--abstand-1); }
   .sen-buch-r b { font-size: var(--schrift-gross); line-height: 1.2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .sen-buch-r small { font-size: var(--schrift-klein); color: var(--leise); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .sen-seite { font-size: var(--schrift-klein); font-weight: 600; font-variant-numeric: tabular-nums; margin-top: var(--abstand-2); }
@@ -3605,7 +3646,7 @@ function chiefOeffnen() { ansicht = 'chief'; cosProjekt = null; zeichnen(); cosL
   .sen-vorschau b { color: var(--sen); font-size: var(--schrift-gross); }
   .sen-such { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--abstand-4); }
   .sen-such button { height: 46px; padding: 0 var(--abstand-7); border-radius: var(--radius-gross); background: var(--sen); color: var(--sen-auf); font-weight: 700; }
-  .sen-treffer { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: var(--abstand-6); align-items: center; width: 100%; text-align: left; padding: var(--abstand-5) 0; border-top: 1px solid var(--linie); }
+  .sen-treffer { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--abstand-6); align-items: center; width: 100%; text-align: left; padding: var(--abstand-5) 0; border-top: 1px solid var(--linie); }
   .sen-treffer:first-child { border-top: 0; }
   .sen-treffer b { display: block; font-size: var(--schrift-text); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .sen-treffer small { font-size: var(--schrift-klein); color: var(--leise); }
@@ -11648,19 +11689,47 @@ var ZentraleUI = function(exports) {
     ] });
   }
   function Todo({ o }) {
-    const leer2 = !o.s, pid = o.p.id, sid = leer2 ? "" : o.s.id, titel = leer2 ? "frei" : o.s.titel, wahl = (dann) => () => F.cosInhaltOeffnen(pid, "", sid, dann);
-    const ziehen = !leer2 && mac$1() ? { draggable: "true", onDragStart: (e) => F.cosDragZeile(e.nativeEvent, "s", sid, 1) } : {};
+    const pid = o.p.id, sid = o.s.id, titel = o.s.titel;
+    const ziehen = mac$1() ? { draggable: "true", onDragStart: (e) => F.cosDragZeile(e.nativeEvent, "s", sid, 1) } : {};
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-t", style: { "--pf": F.cosFarbe(o.p.bereich) }, ...ziehen, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "tg-was", onClick: wahl(""), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-titel" + (leer2 ? " frei" : ""), children: titel }),
-        leer2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-unter", children: "Inhalt beim Los" }) : null
-      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-was", onClick: () => F.cosInhaltOeffnen(pid, "", sid, ""), children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-titel", children: titel }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-kn", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-wann", onClick: leer2 ? wahl("wann") : () => F.cosSitzungSchritt(sid, 1), children: "Wann?" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-los", onClick: leer2 ? wahl("los") : () => F.cosStart(sid, 1), "aria-label": "Los: " + titel, children: PLAY })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-wann", onClick: () => F.cosSitzungSchritt(sid, 1), children: "Wann?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-los", onClick: () => F.cosStart(sid, 1), "aria-label": "Los: " + titel, children: PLAY })
       ] })
     ] });
+  }
+  function Plaetze({ p: p2, frei, von }) {
+    const zahl = frei === von ? frei + " Kästchen" : frei + " von " + von + " frei";
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-t tg-plaetze", style: { "--pf": F.cosFarbe(p2.bereich) }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "tg-was", onClick: () => F.cosInhaltOeffnen(p2.id, "", "", "platz"), "aria-label": p2.name + ": " + zahl + ", Inhalt und Uhrzeit wählen", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-titel", children: p2.name }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-zahl", children: zahl })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-kn", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-los", onClick: () => F.cosInhaltOeffnen(p2.id, "", "", "platzlos"), "aria-label": "Los: " + p2.name, children: PLAY }) })
+    ] });
+  }
+  function todoZeilen(d) {
+    const out = [], gruppe = {};
+    d.todo.forEach((o) => {
+      if (o.s) {
+        out.push(/* @__PURE__ */ jsxRuntimeExports.jsx(Todo, { o }, "s" + o.s.id));
+        return;
+      }
+      if (gruppe[o.p.id]) {
+        gruppe[o.p.id].frei++;
+        return;
+      }
+      gruppe[o.p.id] = { p: o.p, frei: 1, i: out.length };
+      out.push(null);
+    });
+    Object.keys(gruppe).forEach((id2) => {
+      const g = gruppe[id2], c = d.chips.find((x2) => x2.p.id === id2), von = Math.max(g.frei, c ? c.m - c.j : 0);
+      out[g.i] = /* @__PURE__ */ jsxRuntimeExports.jsx(Plaetze, { p: g.p, frei: g.frei, von }, "p" + id2);
+    });
+    return out;
   }
   function TagNeu() {
     F.cosBelegtLaden(false);
@@ -11738,7 +11807,7 @@ var ZentraleUI = function(exports) {
       /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "tg-h3", children: "Geplant" }),
       d.geplant.length ? d.geplant.map((r2, j) => r2.art === "termin" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Termin$1, { t: r2.termin, jm: d.jm }, "t" + j) : /* @__PURE__ */ jsxRuntimeExports.jsx(Block$1, { r: r2, d }, r2.x.b.key)) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-leer", children: "Noch nichts mit Uhrzeit." }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "tg-h3", children: "To Do · noch ohne Uhrzeit" }),
-      d.todo.length ? d.todo.map((o, j) => /* @__PURE__ */ jsxRuntimeExports.jsx(Todo, { o }, j)) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-leer", children: "Alles hat eine Uhrzeit." }),
+      d.todo.length ? todoZeilen(d) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-leer", children: "Alles hat eine Uhrzeit." }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-fuss", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-joker", onClick: () => F.cosJoker(), disabled: aus, children: "Joker · noch " + rest + " diese Woche" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-plus", onClick: () => F.plusOeffnen(), children: "+ Kästchen oder Nachtragen" })
@@ -13636,13 +13705,6 @@ var ZentraleUI = function(exports) {
       ] })
     ] });
   }
-  function Cover({ w: w2, klein }) {
-    const b = String(w2.titel || "?").trim().charAt(0).toUpperCase();
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "sen-cover" + (klein ? " klein" : ""), children: [
-      b,
-      w2.cover ? /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: w2.cover, alt: "", loading: "lazy", onError: (e) => e.currentTarget.remove() }) : null
-    ] });
-  }
   function uhrText() {
     const u2 = S.uhr, s = u2 ? Math.max(0, Math.floor((Date.now() - u2.start) / 1e3)) : 0;
     const hh2 = Math.floor(s / 3600), mm = Math.floor(s / 60) % 60, ss = s % 60;
@@ -13686,20 +13748,16 @@ var ZentraleUI = function(exports) {
         minHeute ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sen-rechts", children: minHeute + " min" }) : null
       ] }),
       haupt ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-buch", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => S.buchBlatt(haupt.id), "aria-label": "Buch bearbeiten", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Cover, { w: haupt }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-buch-r", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: haupt.titel }),
-            haupt.von ? /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: haupt.von }) : null,
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-seite", children: "S. " + (haupt.seite || 0) + (haupt.umfang ? " von " + haupt.umfang : "") }),
-            haupt.umfang ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-fort", children: /* @__PURE__ */ jsxRuntimeExports.jsx("i", { style: { width: pr + "%" } }) }) : null
-          ] })
-        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-buch ohne", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "sen-buch-r", onClick: () => S.buchBlatt(haupt.id), "aria-label": "Buch bearbeiten", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: haupt.titel }),
+          haupt.von ? /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: haupt.von }) : null,
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-seite", children: "S. " + (haupt.seite || 0) + (haupt.umfang ? " von " + haupt.umfang : "") }),
+          haupt.umfang ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-fort", children: /* @__PURE__ */ jsxRuntimeExports.jsx("i", { style: { width: pr + "%" } }) }) : null
+        ] }) }),
         laeuft ? /* @__PURE__ */ jsxRuntimeExports.jsx(Uhr, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "sen-knopf", onClick: () => S.start(haupt.id), children: "Start" })
       ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Noch kein Buch. Mit Buch hinzufügen geht es los." }),
       andere.length || sitz.length ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-liste", children: [
-        andere.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-zeile mit", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Cover, { w: b, klein: true }),
+        andere.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-zeile", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "t", onClick: () => S.buchBlatt(b.id), children: [
             b.titel,
             /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "S. " + (b.seite || 0) + (b.umfang ? " von " + b.umfang : "") })
@@ -13715,6 +13773,13 @@ var ZentraleUI = function(exports) {
         ] }, "s" + i))
       ] }) : null,
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "sen-link", onClick: () => S.buchNeu(), children: "Buch hinzufügen" })
+    ] });
+  }
+  function Cover({ w: w2, klein }) {
+    const b = String(w2.titel || "?").trim().charAt(0).toUpperCase();
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "sen-cover" + (klein ? " klein" : ""), children: [
+      b,
+      w2.cover ? /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: w2.cover, alt: "", loading: "lazy", onError: (e) => e.currentTarget.remove() }) : null
     ] });
   }
   const Kopf$1 = ({ name, children }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bereich", children: [
@@ -13932,13 +13997,10 @@ var ZentraleUI = function(exports) {
         /* @__PURE__ */ jsxRuntimeExports.jsx("input", { id: "senSuche", type: "text", placeholder: "ISBN oder Titel", defaultValue: b.suche, autoComplete: "off", onKeyDown: enter(() => S.suchen()) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => S.suchen(), children: b.sucht ? "…" : "Suchen" })
       ] }),
-      b.treffer ? b.treffer.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-feld", children: b.treffer.map((t2, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "sen-treffer", onClick: () => S.trefferNehmen(i), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Cover, { w: t2, klein: true }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: t2.titel }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: [t2.von, t2.jahr, t2.umfang ? t2.umfang + " Seiten" : ""].filter(Boolean).join(" · ") })
-        ] })
-      ] }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-leise", children: "Nichts gefunden. Einfach von Hand eintragen." }) : null,
+      b.treffer ? b.treffer.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-feld", children: b.treffer.map((t2, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "sen-treffer", onClick: () => S.trefferNehmen(i), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: t2.titel }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: [t2.von, t2.jahr, t2.umfang ? t2.umfang + " Seiten" : ""].filter(Boolean).join(" · ") })
+      ] }) }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-leise", children: "Nichts gefunden. Einfach von Hand eintragen." }) : null,
       b.hand ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-feld", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Titel" }),
@@ -14444,16 +14506,19 @@ var ZentraleUI = function(exports) {
   function Inhalt$1({ b }) {
     const p2 = F.cosPid(b.pid);
     if (!p2) return /* @__PURE__ */ jsxRuntimeExports.jsx(Bk, { titel: "Was kommt rein?", fertig: null });
-    const l2 = F.cosInhaltListe(b);
+    const l2 = F.cosInhaltListe(b), platz2 = !!b.platz;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-blatt", style: { "--pf": F.cosFarbe(p2.bereich) }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("b", { className: "tg-blatt-t", children: "Was kommt rein?" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-blatt-u", children: p2.name + " · schon beschrieben" })
       ] }),
-      l2.length ? l2.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "tg-wahl", onClick: () => F.cosInhaltNimm(s.id), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: s.titel })
-      ] }, s.id)) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-tipp", children: "Nichts Konkretes offen. Schreib eins." }),
+      l2.length ? l2.map((s) => {
+        const an = platz2 && b.wahl === s.id;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "tg-wahl" + (an ? " an" : ""), "aria-pressed": platz2 ? String(an) : void 0, onClick: () => F.cosInhaltNimm(s.id), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: s.titel })
+        ] }, s.id);
+      }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-tipp", children: "Nichts Konkretes offen. Schreib eins." }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "cbEigen", className: "tg-blatt-u", children: "Oder selbst schreiben" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-eigen", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -14470,13 +14535,21 @@ var ZentraleUI = function(exports) {
             onKeyDown: (e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
-                F.cosInhaltEigen();
+                if (!platz2) F.cosInhaltEigen();
+                else e.target.blur();
               }
             }
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Knopf$1, { id: "cbEigenOk", onClick: () => F.cosInhaltEigen(), aus: !b.text.trim(), children: "OK" })
-      ] })
+        platz2 ? null : /* @__PURE__ */ jsxRuntimeExports.jsx(Knopf$1, { id: "cbEigenOk", onClick: () => F.cosInhaltEigen(), aus: !b.text.trim(), children: "OK" })
+      ] }),
+      platz2 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-feld", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "l", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Wann?" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Zeiten, { b, starts: F.cosStarts(K.MIN, null, 4), mitOhne: true })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-unten", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Knopf$1, { className: "cos-primaer", onClick: () => F.cosInhaltPlatzFertig(), aus: F.cosInhaltPlatzAus(b), children: F.cosKnopfText(b, false) }) })
+      ] }) : null
     ] });
   }
   const ARTEN = { schritt: Schritt, projekt: ProjektBlatt, sitzung: Sitzung, einplanen: Einplanen, taskwann: TaskWann, weiter: Weiter, inhalt: Inhalt$1 };
@@ -15158,8 +15231,8 @@ var ZentraleUI = function(exports) {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611231021';
-const PWA_NAME = "V101 Oberfläche in React";
+const PWA_VERSION = '202611231728';
+const PWA_NAME = "V103 Sensi Lesen ohne Buchbild";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
