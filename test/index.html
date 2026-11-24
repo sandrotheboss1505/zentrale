@@ -113,7 +113,7 @@
   input[type=text] { width: 140px; text-align: right; }
   textarea { width: 100%; min-height: 84px; margin-top: var(--abstand-4); resize: vertical; }
   /* Notizfelder: genau so hoch wie der Inhalt, mindestens eine Zeile. Ohne field-sizing hilft notizHoehe() in hilfen.js */
-  textarea.notizfeld, body.mac .tag-spalten textarea.notizfeld { min-height: 0; field-sizing: content; overflow: hidden; resize: none; }
+  textarea.notizfeld, body.mac .tag-spalten textarea.notizfeld, .pj-notiz textarea.notizfeld, .pj-notiz-r textarea.notizfeld { min-height: 0; field-sizing: content; overflow: hidden; resize: none; }
   /* Notiz (ui/src/notiz/): Tiptap Feld, Leiste mit drei Knöpfen nur beim Bearbeiten, Anzeige ohne Editor (.notiz-text) */
   .notiz { min-width: 0; }
   .notiz-kopf { display: flex; align-items: center; gap: var(--abstand-4); min-height: 28px; margin-bottom: var(--abstand-3); }
@@ -1302,6 +1302,9 @@
 
   /* Notiz */
   .pj-notiz .notiz-ed { background: var(--pj-notiz); }
+  .pj-notiz textarea { display: block; width: 100%; min-height: 104px; margin-top: var(--abstand-4); padding: var(--abstand-5) var(--abstand-6); border: 0; border-radius: var(--radius-gross);
+    background: var(--pj-notiz); font: inherit; font-size: var(--schrift-text); line-height: 1.45; color: var(--text); resize: none; }
+  .pj-notiz textarea:focus-visible { outline: 2px solid var(--akzent); outline-offset: 2px; }
   .pj-sichern { width: 100%; height: 44px; margin-top: var(--abstand-5); border-radius: var(--radius-gross); background: var(--knopf-blau); color: var(--weiss); font-weight: 700; }
   @media (prefers-color-scheme: dark) { .pj-sichern { background: var(--knopf-blau-dunkel); } }
   .pj-sichern:disabled { opacity: .4; cursor: default; }
@@ -1360,7 +1363,9 @@
   .pj.mac .pj-balken { gap: var(--abstand-2); margin-top: var(--abstand-7); }
   .pj.mac .pj-balken .kq { width: 16px; height: 16px; }
   .pj-notiz-r { display: flex; gap: var(--abstand-6); align-items: stretch; }
+  .pj-k + .pj-notiz-r { margin-top: var(--abstand-4); }
   .pj-notiz-r .notiz-feld { flex: 1; min-width: 0; }
+  .pj-notiz-r textarea { flex: 1; min-height: 76px; margin: 0; }
   .pj-notiz-r .pj-sichern { flex: none; width: 150px; height: auto; margin: 0; }
   .pj.mac .pj-z { grid-template-columns: 22px minmax(0, 1fr) auto; gap: var(--abstand-6); }
   .pj.mac .pj-kaesten { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--abstand-6); }
@@ -12807,11 +12812,11 @@ var ZentraleUI = function(exports) {
     const schritt = t2.schritt ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hz-meta", children: "Erster Schritt: " + t2.schritt }) : null;
     const dm = Z$1.dranMeldung, meld = dm && dm.key === b.key && Date.now() - dm.t < 6e4 ? dm : null;
     const meldEl = meld ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hz-melde" + (meld.ja ? " lob hops" : ""), children: meld.text }) : null;
-    let box, feier = false;
+    let box2, feier = false;
     if (istLauf && b.gestartet) {
       const a0 = A$2.minVon(b.gestartet), lauf = Math.max(0, jm - a0), p2 = Math.min(100, Math.round(lauf / Math.max(1, s1 - a0) * 100));
       const kb2 = da("cosTag") ? laufTeile(h2, b, i2, d, jm) : null;
-      box = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      box2 = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hz-vor", children: "Läuft seit " + b.gestartet }),
         name,
         kb2 ? kb2.oben : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -12837,7 +12842,7 @@ var ZentraleUI = function(exports) {
       feier = !!(meld && meld.erster && Date.now() - meld.t < 3e3);
     } else if (istLauf) {
       const seit = jm - s0;
-      box = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      box2 = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hz-vor", children: "Jetzt" + (seit > 0 ? " · seit " + F.dauerText(seit) : "") }),
         name,
         dauerZeile,
@@ -12848,7 +12853,7 @@ var ZentraleUI = function(exports) {
       ] });
     } else {
       const bis = s0 - jm;
-      box = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      box2 = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hz-vor", children: "Als Nächstes · " + (bis <= 90 ? "in " + F.dauerText(bis) : "um " + b.start) }),
         name,
         dauerZeile,
@@ -12858,7 +12863,7 @@ var ZentraleUI = function(exports) {
       ] });
     }
     const lf2 = cosT && da("cosTrFarbe") ? F.cosTrFarbe({ b, s: F.cosSchrittVon(b) }) : "";
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hz-jetzt" + (feier ? " feier" : "") + (lf2 ? " cos-lauf2" : ""), style: lf2 ? { "--pf": lf2 } : void 0, children: box });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hz-jetzt" + (feier ? " feier" : "") + (lf2 ? " cos-lauf2" : ""), style: lf2 ? { "--pf": lf2 } : void 0, children: box2 });
   }
   function Heute() {
     const h2 = A$2.heute(), iso = A$2.tagIso, l2 = F.bloeckeVon(iso).map((b, i2) => ({ b, i: i2 }));
@@ -13373,10 +13378,10 @@ var ZentraleUI = function(exports) {
     const tage = Math.max(0, Math.round((ms(A$2.heute()) - ms(l2.datum)) / 864e5));
     const gross = tage === 0 ? "heute" : tage === 1 ? "vor 1 Tag" : "vor " + tage + " Tagen";
     const klasse = tage === 0 ? "sp-heute" : tage >= 3 ? "sp-lange" : "";
-    const was = l2.block || l2.art || "";
+    const was2 = l2.block || l2.art || "";
     const w2 = K$1.sport.woche, woche = w2 && w2.kraft != null && w2.ziel != null ? "Woche: " + w2.kraft + " von " + w2.ziel + " Kraft" : "";
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Kasten2, { klasse: "koe-sport", abstand, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Kasten, { oben: "Letzter Sport", gross, grossKlasse: klasse, unten: A$2.label(l2.datum) + (was ? " · " + was : "") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Kasten, { oben: "Letzter Sport", gross, grossKlasse: klasse, unten: A$2.label(l2.datum) + (was2 ? " · " + was2 : "") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Kasten, { oben: "Dauer", gross: typeof l2.minuten === "number" ? Math.round(l2.minuten) + " min" : "–", unten: woche })
     ] });
   }
@@ -13487,7 +13492,7 @@ var ZentraleUI = function(exports) {
       erl
     ] });
     const vorher = F.stufeVorher(), sn = Z$1.stufeNeu;
-    const zeilen = ht.map((t2, i2) => ({ t: t2, i: i2, z: zeiten[t2.ref] || "" })).sort((a, b) => (a.z || "99").localeCompare(b.z || "99")).map((x2) => {
+    const zeilen2 = ht.map((t2, i2) => ({ t: t2, i: i2, z: zeiten[t2.ref] || "" })).sort((a, b) => (a.z || "99").localeCompare(b.z || "99")).map((x2) => {
       const st = x2.t.stufe || 1, auf2 = vorher && Z$1.stufeOffenCos === x2.t.ref;
       const pkt = vorher ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "cos-task-p" + (auf2 ? " auf" : ""), onClick: () => F.cosTaskStufeAuf(x2.i), "aria-label": "Stufe: " + x2.t.titel, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "er-pkt s" + st + (sn && sn.ref === x2.t.ref && Date.now() - sn.t < 2e3 ? " neu" : ""), children: "+" + F.offenPunkte(x2.t) }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx(AltPill, { t: x2.t });
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(React$2.Fragment, { children: [
@@ -13508,7 +13513,7 @@ var ZentraleUI = function(exports) {
     });
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       kopf2,
-      zeilen,
+      zeilen2,
       erl
     ] });
   }
@@ -13684,7 +13689,7 @@ var ZentraleUI = function(exports) {
       if (x2.s) minP[x2.s.projekt] = (minP[x2.s.projekt] || 0) + F.fokusMin(h2, x2.b);
     });
     const summe = proj.reduce((a, p2) => a + F.cosRasMenge(h2, p2.id), 0), st = F.cosStartVon(h2);
-    const zeilen = proj.map((p2) => {
+    const zeilen2 = proj.map((p2) => {
       const s = Z$1.C.schritte.find((x2) => x2.projekt === p2.name && F.cosOffen(x2)), k2 = F.cosRasMenge(h2, p2.id), gp = Math.floor((minP[p2.name] || 0) / K.MIN + 0.01);
       const unter = (gp ? gp + " geschafft · " : "") + (s ? F.cosKurz(s.titel, 30) : "nichts offen") + (p2.deadline ? " · bis " + F.cosWt(p2.deadline) + " " + F.cosDatum(p2.deadline) + (p2.art === "extern" ? " extern" : "") : "");
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-pl cos-hv" + (k2 ? "" : " null") + (pop && pop.pid === p2.id ? " pop" : ""), style: { "--pf": F.cosFarbe(p2.bereich) }, children: [
@@ -13714,7 +13719,7 @@ var ZentraleUI = function(exports) {
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "leise", children: st ? "fest, aus der Woche" : "heute frei" })
         ] })
       ] }),
-      zeilen.length ? zeilen : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-tipp", children: "Kein aktives Projekt." }),
+      zeilen2.length ? zeilen2 : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-tipp", children: "Kein aktives Projekt." }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ras-vn-t", children: "Übernommen aus dem Raster ✓ · mehr geht immer" }),
       hinweis ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ras-hinweis", role: "status", children: K.HINWEIS_JOKER }) : null
     ] });
@@ -13728,7 +13733,7 @@ var ZentraleUI = function(exports) {
     F.cosHeuteBloecke().forEach((x2) => {
       if (x2.s) minP[x2.s.projekt] = (minP[x2.s.projekt] || 0) + F.fokusMin(A$2.heute(), x2.b);
     });
-    const zeilen = aktiv.map((p2) => {
+    const zeilen2 = aktiv.map((p2) => {
       const s = Z$1.C.schritte.find((x2) => x2.projekt === p2.name && F.cosOffen(x2)), k2 = pl2[p2.id], gp = Math.floor((minP[p2.name] || 0) / K.MIN + 0.01);
       const unter = (gp ? gp + " geschafft · " : "") + (s ? F.cosKurz(s.titel, 30) : "nichts offen") + (p2.deadline ? " · bis " + F.cosWt(p2.deadline) + " " + F.cosDatum(p2.deadline) : "");
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-pl" + (k2 ? "" : " null") + (pop && pop.pid === p2.id ? " pop" : ""), style: { "--pf": F.cosFarbe(p2.bereich) }, children: [
@@ -13750,7 +13755,7 @@ var ZentraleUI = function(exports) {
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cos-ab", children: "Heute vornehmen" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("b", { className: pop ? "pop" : void 0, children: summe })
       ] }),
-      zeilen.length ? zeilen : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-tipp", children: "Kein aktives Projekt." }),
+      zeilen2.length ? zeilen2 : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-tipp", children: "Kein aktives Projekt." }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-vn-t", children: text }),
       da2 ? null : /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "cos-passt", onClick: () => F.cosPlanPasst(), children: "Passt" })
     ] });
@@ -13790,9 +13795,9 @@ var ZentraleUI = function(exports) {
       const klick = z2 === "summe" || z2 === "erg" ? null : () => F.cosRasWaehle(z2, iso);
       return /* @__PURE__ */ jsxRuntimeExports.jsx(Zelle, { css, text: text2, label: label2 + " " + K.RAS_KURZ[i2] + " " + F.cosDatum(iso), klick, groesse, kl: z2 === "start" ? "start" : z2 === "summe" || z2 === "erg" ? z2 : "menge" }, z2 + iso);
     };
-    const zeilen = [/* @__PURE__ */ jsxRuntimeExports.jsx("span", {}, "leer"), ...tage.map((iso, i2) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ras-tag" + (diese && iso === h2 ? " heute" : i2 > 4 ? " we" : ""), children: K.RAS_KURZ[i2] }, "t" + i2))];
+    const zeilen2 = [/* @__PURE__ */ jsxRuntimeExports.jsx("span", {}, "leer"), ...tage.map((iso, i2) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ras-tag" + (diese && iso === h2 ? " heute" : i2 > 4 ? " we" : ""), children: K.RAS_KURZ[i2] }, "t" + i2))];
     const zeile = (key, name, farbe, zellen, titel) => {
-      zeilen.push(/* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ras-name", title: titel || void 0, children: [
+      zeilen2.push(/* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ras-name", title: titel || void 0, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("i", { style: { background: farbe } }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: name })
       ] }, "n" + key), ...zellen);
@@ -13849,7 +13854,7 @@ var ZentraleUI = function(exports) {
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: diese ? "" : "an", onClick: () => F.cosRasZeig("naechste"), "aria-pressed": String(!diese), children: "KW " + F.cosKwVon(F.cosRasTage("naechste")[0]) + " planen" })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ras-gitter", children: zeilen }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ras-gitter", children: zeilen2 }),
       auswahl,
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ras-fuss", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "ras-kap", onClick: () => F.cosRasWaehle("kap", ""), "aria-label": "Kästchen pro Woche ändern", children: [
@@ -14074,8 +14079,8 @@ var ZentraleUI = function(exports) {
       for (let i2 = 0, pos = 0; pos < to; i2++) {
         let child = this.content[i2], end = pos + child.nodeSize;
         if (end > from && f2(child, nodeStart + pos, parent || null, i2) !== false && child.content.size) {
-          let start = pos + 1;
-          child.nodesBetween(Math.max(0, from - start), Math.min(child.content.size, to - start), f2, nodeStart + start);
+          let start2 = pos + 1;
+          child.nodesBetween(Math.max(0, from - start2), Math.min(child.content.size, to - start2), f2, nodeStart + start2);
         }
         pos = end;
       }
@@ -14626,8 +14631,8 @@ var ZentraleUI = function(exports) {
       let parent = $from.parent, content = parent.content;
       return close(parent, content.cut(0, $from.parentOffset).append(slice.content).append(content.cut($to.parentOffset)));
     } else {
-      let { start, end } = prepareSliceForReplace(slice, $from);
-      return close(node, replaceThreeWay($from, start, end, $to, depth));
+      let { start: start2, end } = prepareSliceForReplace(slice, $from);
+      return close(node, replaceThreeWay($from, start2, end, $to, depth));
     }
   }
   function checkJoin(main, sub) {
@@ -14946,18 +14951,18 @@ var ZentraleUI = function(exports) {
       if (!(pos >= 0 && pos <= doc2.content.size))
         throw new RangeError("Position " + pos + " out of range");
       let path = [];
-      let start = 0, parentOffset = pos;
+      let start2 = 0, parentOffset = pos;
       for (let node = doc2; ; ) {
         let { index, offset } = node.content.findIndex(parentOffset);
         let rem = parentOffset - offset;
-        path.push(node, index, start + offset);
+        path.push(node, index, start2 + offset);
         if (!rem)
           break;
         node = node.child(index);
         if (node.isText)
           break;
         parentOffset = rem - 1;
-        start += offset + 1;
+        start2 += offset + 1;
       }
       return new ResolvedPos(pos, path, parentOffset);
     }
@@ -15189,8 +15194,8 @@ var ZentraleUI = function(exports) {
         return Slice.empty;
       let $from = this.resolve(from), $to = this.resolve(to);
       let depth = includeParents ? 0 : $from.sharedDepth(to);
-      let start = $from.start(depth), node = $from.node(depth);
-      let content = node.content.cut($from.pos - start, $to.pos - start);
+      let start2 = $from.start(depth), node = $from.node(depth);
+      let content = node.content.cut($from.pos - start2, $to.pos - start2);
       return new Slice(content, $from.depth - depth, $to.depth - depth);
     }
     /**
@@ -15344,12 +15349,12 @@ var ZentraleUI = function(exports) {
     can optionally pass `start` and `end` indices into the
     replacement fragment.
     */
-    canReplace(from, to, replacement = Fragment.empty, start = 0, end = replacement.childCount) {
-      let one = this.contentMatchAt(from).matchFragment(replacement, start, end);
+    canReplace(from, to, replacement = Fragment.empty, start2 = 0, end = replacement.childCount) {
+      let one = this.contentMatchAt(from).matchFragment(replacement, start2, end);
       let two = one && one.matchFragment(this.content, to);
       if (!two || !two.validEnd)
         return false;
-      for (let i2 = start; i2 < end; i2++)
+      for (let i2 = start2; i2 < end; i2++)
         if (!this.type.allowsMarks(replacement.child(i2).marks))
           return false;
       return true;
@@ -15361,8 +15366,8 @@ var ZentraleUI = function(exports) {
     canReplaceWith(from, to, type, marks) {
       if (marks && !this.type.allowsMarks(marks))
         return false;
-      let start = this.contentMatchAt(from).matchType(type);
-      let end = start && start.matchFragment(this.content, to);
+      let start2 = this.contentMatchAt(from).matchType(type);
+      let end = start2 && start2.matchFragment(this.content, to);
       return end ? end.validEnd : false;
     }
     /**
@@ -15539,9 +15544,9 @@ var ZentraleUI = function(exports) {
     Try to match a fragment. Returns the resulting match when
     successful.
     */
-    matchFragment(frag, start = 0, end = frag.childCount) {
+    matchFragment(frag, start2 = 0, end = frag.childCount) {
       let cur = this;
-      for (let i2 = start; cur && i2 < end; i2++)
+      for (let i2 = start2; cur && i2 < end; i2++)
         cur = cur.matchType(frag.child(i2).type);
       return cur;
     }
@@ -16520,9 +16525,9 @@ var ZentraleUI = function(exports) {
         if (fill) {
           this.match = this.type.contentMatch.matchFragment(fill);
         } else {
-          let start = this.type.contentMatch, wrap2;
-          if (wrap2 = start.findWrapping(node.type)) {
-            this.match = start;
+          let start2 = this.type.contentMatch, wrap2;
+          if (wrap2 = start2.findWrapping(node.type)) {
+            this.match = start2;
             return wrap2;
           } else {
             return null;
@@ -17167,9 +17172,9 @@ var ZentraleUI = function(exports) {
     }
     let contentDOM;
     let dom = xmlNS ? doc2.createElementNS(xmlNS, tagName) : doc2.createElement(tagName);
-    let attrs = structure[1], start = 1;
+    let attrs = structure[1], start2 = 1;
     if (attrs && typeof attrs == "object" && attrs.nodeType == null && !Array.isArray(attrs)) {
-      start = 2;
+      start2 = 2;
       for (let name in attrs)
         if (attrs[name] != null) {
           let space2 = name.indexOf(" ");
@@ -17181,10 +17186,10 @@ var ZentraleUI = function(exports) {
             dom.setAttribute(name, attrs[name]);
         }
     }
-    for (let i2 = start; i2 < structure.length; i2++) {
+    for (let i2 = start2; i2 < structure.length; i2++) {
       let child = structure[i2];
       if (child === 0) {
-        if (i2 < structure.length - 1 || i2 > start)
+        if (i2 < structure.length - 1 || i2 > start2)
           throw new RangeError("Content hole must be the only child of its parent node");
         return { dom, contentDOM: dom };
       } else if (typeof child == "string") {
@@ -17285,20 +17290,20 @@ var ZentraleUI = function(exports) {
     _map(pos, assoc, simple) {
       let diff = 0, oldIndex = this.inverted ? 2 : 1, newIndex = this.inverted ? 1 : 2;
       for (let i2 = 0; i2 < this.ranges.length; i2 += 3) {
-        let start = this.ranges[i2] - (this.inverted ? diff : 0);
-        if (start > pos)
+        let start2 = this.ranges[i2] - (this.inverted ? diff : 0);
+        if (start2 > pos)
           break;
-        let oldSize = this.ranges[i2 + oldIndex], newSize = this.ranges[i2 + newIndex], end = start + oldSize;
+        let oldSize = this.ranges[i2 + oldIndex], newSize = this.ranges[i2 + newIndex], end = start2 + oldSize;
         if (pos <= end) {
-          let side = !oldSize ? assoc : pos == start ? -1 : pos == end ? 1 : assoc;
-          let result = start + diff + (side < 0 ? 0 : newSize);
+          let side = !oldSize ? assoc : pos == start2 ? -1 : pos == end ? 1 : assoc;
+          let result = start2 + diff + (side < 0 ? 0 : newSize);
           if (simple)
             return result;
-          let recover = pos == (assoc < 0 ? start : end) ? null : makeRecover(i2 / 3, pos - start);
+          let recover = pos == (assoc < 0 ? start2 : end) ? null : makeRecover(i2 / 3, pos - start2);
           let del = 0;
           if (oldSize) {
-            del |= pos == start ? DEL_AFTER : pos == end ? DEL_BEFORE : DEL_ACROSS;
-            if (assoc < 0 ? pos != start : pos != end)
+            del |= pos == start2 ? DEL_AFTER : pos == end ? DEL_BEFORE : DEL_ACROSS;
+            if (assoc < 0 ? pos != start2 : pos != end)
               del |= DEL_SIDE;
           }
           return new MapResult(result, del, recover);
@@ -17314,10 +17319,10 @@ var ZentraleUI = function(exports) {
       let diff = 0, index = recoverIndex(recover);
       let oldIndex = this.inverted ? 2 : 1, newIndex = this.inverted ? 1 : 2;
       for (let i2 = 0; i2 < this.ranges.length; i2 += 3) {
-        let start = this.ranges[i2] - (this.inverted ? diff : 0);
-        if (start > pos)
+        let start2 = this.ranges[i2] - (this.inverted ? diff : 0);
+        if (start2 > pos)
           break;
-        let oldSize = this.ranges[i2 + oldIndex], end = start + oldSize;
+        let oldSize = this.ranges[i2 + oldIndex], end = start2 + oldSize;
         if (pos <= end && i2 == index * 3)
           return true;
         diff += this.ranges[i2 + newIndex] - oldSize;
@@ -17331,7 +17336,7 @@ var ZentraleUI = function(exports) {
     forEach(f2) {
       let oldIndex = this.inverted ? 2 : 1, newIndex = this.inverted ? 1 : 2;
       for (let i2 = 0, diff = 0; i2 < this.ranges.length; i2 += 3) {
-        let start = this.ranges[i2], oldStart = start - (this.inverted ? diff : 0), newStart = start + (this.inverted ? 0 : diff);
+        let start2 = this.ranges[i2], oldStart = start2 - (this.inverted ? diff : 0), newStart = start2 + (this.inverted ? 0 : diff);
         let oldSize = this.ranges[i2 + oldIndex], newSize = this.ranges[i2 + newIndex];
         f2(oldStart, oldStart + oldSize, newStart, newStart + newSize);
         diff += newSize - oldSize;
@@ -17992,8 +17997,8 @@ var ZentraleUI = function(exports) {
         return;
       let marks = node.marks;
       if (!mark.isInSet(marks) && parent.type.allowsMarkType(mark.type)) {
-        let start = Math.max(pos, from), end = Math.min(pos + node.nodeSize, to);
-        pushMarkStep(AddMarkStep, start, end, mark, added);
+        let start2 = Math.max(pos, from), end = Math.min(pos + node.nodeSize, to);
+        pushMarkStep(AddMarkStep, start2, end, mark, added);
       }
     });
     added.forEach((s) => tr.step(s));
@@ -18068,8 +18073,8 @@ var ZentraleUI = function(exports) {
     for (let i2 = replSteps.length - 1; i2 >= 0; i2--)
       tr.step(replSteps[i2]);
   }
-  function canCut(node, start, end) {
-    return (start == 0 || node.canReplace(start, node.childCount)) && (end == node.childCount || node.canReplace(0, end));
+  function canCut(node, start2, end) {
+    return (start2 == 0 || node.canReplace(start2, node.childCount)) && (end == node.childCount || node.canReplace(0, end));
   }
   function liftTarget(range) {
     let parent = range.parent;
@@ -18091,7 +18096,7 @@ var ZentraleUI = function(exports) {
   function lift$2(tr, range, target) {
     let { $from, $to, depth } = range;
     let gapStart = $from.before(depth + 1), gapEnd = $to.after(depth + 1);
-    let start = gapStart, end = gapEnd;
+    let start2 = gapStart, end = gapEnd;
     let before = Fragment.empty, openStart = 0;
     for (let d = depth, splitting = false; d > target; d--)
       if (splitting || $from.index(d) > 0) {
@@ -18099,7 +18104,7 @@ var ZentraleUI = function(exports) {
         before = Fragment.from($from.node(d).copy(before));
         openStart++;
       } else {
-        start--;
+        start2--;
       }
     let after = Fragment.empty, openEnd = 0;
     for (let d = depth, splitting = false; d > target; d--)
@@ -18110,7 +18115,7 @@ var ZentraleUI = function(exports) {
       } else {
         end++;
       }
-    tr.step(new ReplaceAroundStep(start, end, gapStart, gapEnd, new Slice(before.append(after), openStart, openEnd), before.size - openStart, true));
+    tr.step(new ReplaceAroundStep(start2, end, gapStart, gapEnd, new Slice(before.append(after), openStart, openEnd), before.size - openStart, true));
   }
   function findWrapping(range, nodeType, attrs = null, innerRange = range) {
     let around = findWrappingOutside(range, nodeType);
@@ -18154,8 +18159,8 @@ var ZentraleUI = function(exports) {
       }
       content = Fragment.from(wrappers[i2].type.create(wrappers[i2].attrs, content));
     }
-    let start = range.start, end = range.end;
-    tr.step(new ReplaceAroundStep(start, end, start, end, new Slice(content, 0, 0), wrappers.length, true));
+    let start2 = range.start, end = range.end;
+    tr.step(new ReplaceAroundStep(start2, end, start2, end, new Slice(content, 0, 0), wrappers.length, true));
   }
   function setBlockType$1(tr, from, to, type, attrs) {
     if (!type.isTextblock)
@@ -18189,8 +18194,8 @@ var ZentraleUI = function(exports) {
       if (child.isText) {
         let m2, newline = /\r?\n|\r/g;
         while (m2 = newline.exec(child.text)) {
-          let start = tr.mapping.slice(mapFrom).map(pos + 1 + offset + m2.index);
-          tr.replaceWith(start, start + 1, node.type.schema.linebreakReplacement.create());
+          let start2 = tr.mapping.slice(mapFrom).map(pos + 1 + offset + m2.index);
+          tr.replaceWith(start2, start2 + 1, node.type.schema.linebreakReplacement.create());
         }
       }
     });
@@ -18198,8 +18203,8 @@ var ZentraleUI = function(exports) {
   function replaceLinebreaks(tr, node, pos, mapFrom) {
     node.forEach((child, offset) => {
       if (child.type == child.type.schema.linebreakReplacement) {
-        let start = tr.mapping.slice(mapFrom).map(pos + 1 + offset);
-        tr.replaceWith(start, start + 1, node.type.schema.text("\n"));
+        let start2 = tr.mapping.slice(mapFrom).map(pos + 1 + offset);
+        tr.replaceWith(start2, start2 + 1, node.type.schema.text("\n"));
       }
     });
   }
@@ -18314,10 +18319,10 @@ var ZentraleUI = function(exports) {
     }
     if (beforeType.inlineContent)
       clearIncompatible(tr, pos + depth - 1, beforeType, $before.node().contentMatchAt($before.index()), convertNewlines == null);
-    let mapping = tr.mapping.slice(mapFrom), start = mapping.map(pos - depth);
-    tr.step(new ReplaceStep(start, mapping.map(pos + depth, -1), Slice.empty, true));
+    let mapping = tr.mapping.slice(mapFrom), start2 = mapping.map(pos - depth);
+    tr.step(new ReplaceStep(start2, mapping.map(pos + depth, -1), Slice.empty, true));
     if (convertNewlines === true) {
-      let $full = tr.doc.resolve(start);
+      let $full = tr.doc.resolve(start2);
       replaceNewlines(tr, $full.node(), $full.before(), tr.steps.length);
     }
     return tr;
@@ -18619,8 +18624,8 @@ var ZentraleUI = function(exports) {
     let fit = match.fillBefore(node.content, true, index);
     return fit && !invalidMarks(type, node.content, index) ? fit : null;
   }
-  function invalidMarks(type, fragment, start) {
-    for (let i2 = start; i2 < fragment.childCount; i2++)
+  function invalidMarks(type, fragment, start2) {
+    for (let i2 = start2; i2 < fragment.childCount; i2++)
       if (!type.allowsMarks(fragment.child(i2).marks))
         return true;
     return false;
@@ -18707,8 +18712,8 @@ var ZentraleUI = function(exports) {
     }
     if (depth > newOpen) {
       let match = parent.contentMatchAt(0);
-      let start = match.fillBefore(fragment).append(fragment);
-      fragment = start.append(match.matchFragment(start).fillBefore(Fragment.empty, true));
+      let start2 = match.fillBefore(fragment).append(fragment);
+      fragment = start2.append(match.matchFragment(start2).fillBefore(Fragment.empty, true));
     }
     return fragment;
   }
@@ -18756,10 +18761,10 @@ var ZentraleUI = function(exports) {
   function coveredDepths($from, $to) {
     let result = [], minDepth = Math.min($from.depth, $to.depth);
     for (let d = minDepth; d >= 0; d--) {
-      let start = $from.start(d);
-      if (start < $from.pos - ($from.depth - d) || $to.end(d) > $to.pos + ($to.depth - d) || $from.node(d).type.spec.isolating || $to.node(d).type.spec.isolating)
+      let start2 = $from.start(d);
+      if (start2 < $from.pos - ($from.depth - d) || $to.end(d) > $to.pos + ($to.depth - d) || $from.node(d).type.spec.isolating || $to.node(d).type.spec.isolating)
         break;
-      if (start == $to.start(d) || d == $from.depth && d == $to.depth && $from.parent.inlineContent && $to.parent.inlineContent && d && $to.start(d - 1) == start - 1)
+      if (start2 == $to.start(d) || d == $from.depth && d == $to.depth && $from.parent.inlineContent && $to.parent.inlineContent && d && $to.start(d - 1) == start2 - 1)
         result.push(d);
     }
     return result;
@@ -20714,8 +20719,8 @@ var ZentraleUI = function(exports) {
     let parent = $start.node(-1), indexBefore = $start.index(-1);
     if (!parent.canReplace(indexBefore + (atStart ? 0 : 1), indexBefore + 1, item.content.append(atEnd ? Fragment.empty : Fragment.from(list))))
       return false;
-    let start = $start.pos, end = start + item.nodeSize;
-    tr.step(new ReplaceAroundStep(start - (atStart ? 1 : 0), end + (atEnd ? 1 : 0), start + 1, end - 1, new Slice((atStart ? Fragment.empty : Fragment.from(list.copy(Fragment.empty))).append(atEnd ? Fragment.empty : Fragment.from(list.copy(Fragment.empty))), atStart ? 0 : 1, atEnd ? 0 : 1), atStart ? 0 : 1));
+    let start2 = $start.pos, end = start2 + item.nodeSize;
+    tr.step(new ReplaceAroundStep(start2 - (atStart ? 1 : 0), end + (atEnd ? 1 : 0), start2 + 1, end - 1, new Slice((atStart ? Fragment.empty : Fragment.from(list.copy(Fragment.empty))).append(atEnd ? Fragment.empty : Fragment.from(list.copy(Fragment.empty))), atStart ? 0 : 1, atEnd ? 0 : 1), atStart ? 0 : 1));
     dispatch(tr.scrollIntoView());
     return true;
   }
@@ -21148,10 +21153,10 @@ var ZentraleUI = function(exports) {
     }
     return outsideBlock > -1 ? outsideBlock : view.docView.posFromDOM(node, offset, -1);
   }
-  function elementFromPoint(element, coords, box) {
+  function elementFromPoint(element, coords, box2) {
     let len = element.childNodes.length;
-    if (len && box.top < box.bottom) {
-      for (let startI = Math.max(0, Math.min(len - 1, Math.floor(len * (coords.top - box.top) / (box.bottom - box.top)) - 2)), i2 = startI; ; ) {
+    if (len && box2.top < box2.bottom) {
+      for (let startI = Math.max(0, Math.min(len - 1, Math.floor(len * (coords.top - box2.top) / (box2.bottom - box2.top)) - 2)), i2 = startI; ; ) {
         let child = element.childNodes[i2];
         if (isElt(child)) {
           let rects = child.getClientRects();
@@ -21175,10 +21180,10 @@ var ZentraleUI = function(exports) {
     let elt = (view.root.elementFromPoint ? view.root : doc2).elementFromPoint(coords.left, coords.top);
     let pos;
     if (!elt || !view.dom.contains(elt)) {
-      let box = view.dom.getBoundingClientRect();
-      if (!inRect(coords, box))
+      let box2 = view.dom.getBoundingClientRect();
+      if (!inRect(coords, box2))
         return null;
-      elt = elementFromPoint(view.dom, coords, box);
+      elt = elementFromPoint(view.dom, coords, box2);
       if (!elt)
         return null;
     }
@@ -21192,8 +21197,8 @@ var ZentraleUI = function(exports) {
       if (gecko && isElt(node)) {
         offset = Math.min(offset, node.childNodes.length);
         if (offset < node.childNodes.length) {
-          let next = node.childNodes[offset], box;
-          if (next.nodeName == "IMG" && (box = next.getBoundingClientRect()).right <= coords.left && box.bottom > coords.top)
+          let next = node.childNodes[offset], box2;
+          if (next.nodeName == "IMG" && (box2 = next.getBoundingClientRect()).right <= coords.left && box2.bottom > coords.top)
             offset++;
         }
       }
@@ -21336,8 +21341,8 @@ var ZentraleUI = function(exports) {
         else
           continue;
         for (let i2 = 0; i2 < boxes.length; i2++) {
-          let box = boxes[i2];
-          if (box.bottom > box.top + 1 && (dir == "up" ? coords.top - box.top > (box.bottom - coords.top) * 2 : box.bottom - coords.bottom > (coords.bottom - box.top) * 2))
+          let box2 = boxes[i2];
+          if (box2.bottom > box2.top + 1 && (dir == "up" ? coords.top - box2.top > (box2.bottom - coords.top) * 2 : box2.bottom - coords.bottom > (coords.bottom - box2.top) * 2))
             return false;
         }
       }
@@ -22277,12 +22282,12 @@ var ZentraleUI = function(exports) {
     }
     // Destroy and remove the children between the given indices in
     // `this.top`.
-    destroyBetween(start, end) {
-      if (start == end)
+    destroyBetween(start2, end) {
+      if (start2 == end)
         return;
-      for (let i2 = start; i2 < end; i2++)
+      for (let i2 = start2; i2 < end; i2++)
         this.top.children[i2].destroy();
-      this.top.children.splice(start, end - start);
+      this.top.children.splice(start2, end - start2);
       this.changed = true;
     }
     // Destroy all remaining children in `this.top`.
@@ -22637,18 +22642,18 @@ var ZentraleUI = function(exports) {
   function replaceNodes(nodes, from, to, view, replacement) {
     let result = [];
     for (let i2 = 0, off = 0; i2 < nodes.length; i2++) {
-      let child = nodes[i2], start = off, end = off += child.size;
-      if (start >= to || end <= from) {
+      let child = nodes[i2], start2 = off, end = off += child.size;
+      if (start2 >= to || end <= from) {
         result.push(child);
       } else {
-        if (start < from)
-          result.push(child.slice(0, from - start, view));
+        if (start2 < from)
+          result.push(child.slice(0, from - start2, view));
         if (replacement) {
           result.push(replacement);
           replacement = void 0;
         }
         if (end > to)
-          result.push(child.slice(to - start, child.size, view));
+          result.push(child.slice(to - start2, child.size, view));
       }
     }
     return result;
@@ -23302,13 +23307,13 @@ var ZentraleUI = function(exports) {
         syncNodeSelection(view, view.state.selection);
         let sel = view.state.selection;
         if (view.input.mouseDown || editorOwnsSelection(view)) {
-          let { desc, start } = innerViewDesc(view.docView, sel.from, sel.to, 0);
+          let { desc, start: start2 } = innerViewDesc(view.docView, sel.from, sel.to, 0);
           if (view.cursorWrapper) {
             selectCursorWrapper(view);
           } else if (desc instanceof CustomNodeViewDesc && desc.spec.setSelection) {
-            desc.spec.setSelection(sel.anchor - start, sel.head - start, view.root);
+            desc.spec.setSelection(sel.anchor - start2, sel.head - start2, view.root);
           } else {
-            selectionToDOM(view, force, desc, start);
+            selectionToDOM(view, force, desc, start2);
           }
           this.synced = this.active = true;
         }
@@ -23412,7 +23417,7 @@ var ZentraleUI = function(exports) {
   function editorOwnsSelection(view) {
     return view.editable ? view.hasFocus() : hasSelection(view, view.domSel.readRange()) && (!document.activeElement || document.activeElement.contains(view.dom));
   }
-  function selectionToDOM(view, force, desc, start) {
+  function selectionToDOM(view, force, desc, start2) {
     let sel = view.state.selection;
     let { anchor, head } = sel, resetEditableFrom, resetEditableTo;
     if (brokenSelectBetweenUneditable && !(sel instanceof TextSelection)) {
@@ -23421,8 +23426,8 @@ var ZentraleUI = function(exports) {
       if (!sel.empty && !sel.$from.parent.inlineContent)
         resetEditableTo = temporarilyEditableNear(view, sel.to);
     }
-    let anchorDOM = desc.domFromPos(anchor - start, anchor > start ? -1 : 1);
-    let headDOM = head == anchor ? anchorDOM : desc.domFromPos(head - start, head > start ? -1 : 1);
+    let anchorDOM = desc.domFromPos(anchor - start2, anchor > start2 ? -1 : 1);
+    let headDOM = head == anchor ? anchorDOM : desc.domFromPos(head - start2, head > start2 ? -1 : 1);
     setSelection(anchor, head, anchorDOM, headDOM, view, force);
     if (brokenSelectBetweenUneditable) {
       if (resetEditableFrom)
@@ -23431,14 +23436,14 @@ var ZentraleUI = function(exports) {
         resetEditable(resetEditableTo);
     }
   }
-  function innerViewDesc(desc, from, to, start = 0) {
-    for (let i2 = 0, off = start; i2 < desc.children.length; i2++) {
+  function innerViewDesc(desc, from, to, start2 = 0) {
+    for (let i2 = 0, off = start2; i2 < desc.children.length; i2++) {
       let child = desc.children[i2], end = off + child.size;
       if (from > off && to < end)
         return innerViewDesc(child, from, to, off + child.border);
       off = end;
     }
-    return { desc, start };
+    return { desc, start: start2 };
   }
   function setSelection(anchor, head, anchorDOM, headDOM, view, force) {
     let brKludge = false;
@@ -23812,31 +23817,31 @@ var ZentraleUI = function(exports) {
       let prev = parent.child(i2 - 1);
       if (!prev.text)
         break;
-      let end = from == pos ? pos - $pos.posAtIndex(i2 - 1) : prev.text.length, start = end;
-      for (; start > 0; start--) {
-        if (/\S/.test(prev.text[start - 1]))
+      let end = from == pos ? pos - $pos.posAtIndex(i2 - 1) : prev.text.length, start2 = end;
+      for (; start2 > 0; start2--) {
+        if (/\S/.test(prev.text[start2 - 1]))
           sawNonWS = true;
         else if (sawNonWS)
           break;
       }
-      context = prev.text.slice(start, end) + context;
-      from -= end - start;
-      if (start || from < pos - 50)
+      context = prev.text.slice(start2, end) + context;
+      from -= end - start2;
+      if (start2 || from < pos - 50)
         break;
     }
     for (let i2 = $pos.index(), sawNonWS = false; i2 < parent.childCount; i2++) {
       let next = parent.child(i2);
       if (!next.text)
         break;
-      let start = to == pos ? pos - $pos.posAtIndex(i2) : 0, end = start;
+      let start2 = to == pos ? pos - $pos.posAtIndex(i2) : 0, end = start2;
       for (; end < next.text.length; end++) {
         if (/\S/.test(next.text[end]))
           sawNonWS = true;
         else if (sawNonWS)
           break;
       }
-      context += next.text.slice(start, end);
-      to += end - start;
+      context += next.text.slice(start2, end);
+      to += end - start2;
       if (end < next.text.length || to > pos + 50)
         break;
     }
@@ -23844,27 +23849,27 @@ var ZentraleUI = function(exports) {
     if (Intl.Segmenter) {
       for (let segment of new Intl.Segmenter(void 0, { granularity: "word" }).segment(context)) {
         if (segment.isWordLike) {
-          let start = segment.index + from, end = start + segment.segment.length;
+          let start2 = segment.index + from, end = start2 + segment.segment.length;
           if (end < pos)
             lastBefore = end;
-          else if (start > pos) {
-            firstAfter = start;
+          else if (start2 > pos) {
+            firstAfter = start2;
             break;
           } else
-            return TextSelection.create(doc2, start, end);
+            return TextSelection.create(doc2, start2, end);
         }
       }
     } else {
       wordRE.lastIndex = 0;
       for (let m2; m2 = wordRE.exec(context); ) {
-        let start = m2.index + from, end = start + m2[0].length;
+        let start2 = m2.index + from, end = start2 + m2[0].length;
         if (end < pos)
           lastBefore = end;
-        else if (start > pos) {
-          firstAfter = start;
+        else if (start2 > pos) {
+          firstAfter = start2;
           break;
         } else
-          return TextSelection.create(doc2, start, end);
+          return TextSelection.create(doc2, start2, end);
       }
     }
     let before = context.slice(lastBefore - from, pos - from), after = context.slice(pos - from, firstAfter - from);
@@ -24639,25 +24644,25 @@ var ZentraleUI = function(exports) {
     considered. When `predicate` isn't given, all decorations are
     assumed to match.
     */
-    find(start, end, predicate) {
+    find(start2, end, predicate) {
       let result = [];
-      this.findInner(start == null ? 0 : start, end == null ? 1e9 : end, result, 0, predicate);
+      this.findInner(start2 == null ? 0 : start2, end == null ? 1e9 : end, result, 0, predicate);
       return result;
     }
-    findInner(start, end, result, offset, predicate) {
+    findInner(start2, end, result, offset, predicate) {
       for (let i2 = 0; i2 < this.local.length; i2++) {
         let span = this.local[i2];
         if (span.from > end)
           break;
-        if (span.to >= start && (!predicate || predicate(span.spec)))
+        if (span.to >= start2 && (!predicate || predicate(span.spec)))
           result.push(span.copy(span.from + offset, span.to + offset));
       }
       for (let i2 = 0; i2 < this.children.length; i2 += 3) {
         if (this.children[i2] >= end)
           break;
-        if (this.children[i2 + 1] > start) {
+        if (this.children[i2 + 1] > start2) {
           let childOff = this.children[i2] + 1;
-          this.children[i2 + 2].findInner(start - childOff, end - childOff, result, offset + childOff, predicate);
+          this.children[i2 + 2].findInner(start2 - childOff, end - childOff, result, offset + childOff, predicate);
         }
       }
     }
@@ -24784,21 +24789,21 @@ var ZentraleUI = function(exports) {
       let child, local;
       let low = 0, high = this.children.length / 3;
       while (low < high) {
-        let mid = low + high >>> 1, index = mid * 3, start2 = this.children[index];
-        if (start2 < offset) {
+        let mid = low + high >>> 1, index = mid * 3, start3 = this.children[index];
+        if (start3 < offset) {
           low = mid + 1;
-        } else if (start2 > offset) {
+        } else if (start3 > offset) {
           high = mid;
         } else {
           child = this.children[index + 2];
           break;
         }
       }
-      let start = offset + 1, end = start + node.content.size;
+      let start2 = offset + 1, end = start2 + node.content.size;
       for (let i2 = 0; i2 < this.local.length; i2++) {
         let dec = this.local[i2];
-        if (dec.from < end && dec.to > start && dec.type instanceof InlineType) {
-          let from = Math.max(start, dec.from) - start, to = Math.min(end, dec.to) - start;
+        if (dec.from < end && dec.to > start2 && dec.type instanceof InlineType) {
+          let from = Math.max(start2, dec.from) - start2, to = Math.min(end, dec.to) - start2;
           if (from < to)
             (local || (local = [])).push(dec.copy(from, to));
         }
@@ -24930,9 +24935,9 @@ var ZentraleUI = function(exports) {
           let end = children[i3 + 1];
           if (end < 0 || oldStart > end + baseOffset - moved)
             continue;
-          let start = children[i3] + baseOffset - moved;
-          if (oldEnd >= start) {
-            children[i3 + 1] = oldStart <= start ? -2 : -1;
+          let start2 = children[i3] + baseOffset - moved;
+          if (oldEnd >= start2) {
+            children[i3 + 1] = oldStart <= start2 ? -2 : -1;
           } else if (oldStart >= baseOffset && dSize) {
             children[i3] += dSize;
             children[i3 + 1] += dSize;
@@ -25325,17 +25330,17 @@ var ZentraleUI = function(exports) {
     if (Fragment.from(updated).eq(cur))
       return { mark, type };
   }
-  function looksLikeBlockJoin(old, start, end, $newStart, $newEnd) {
+  function looksLikeBlockJoin(old, start2, end, $newStart, $newEnd) {
     if (
       // The content must have shrunk
-      end - start <= $newEnd.pos - $newStart.pos || // newEnd must point directly at or after the end of the block that newStart points into
+      end - start2 <= $newEnd.pos - $newStart.pos || // newEnd must point directly at or after the end of the block that newStart points into
       skipClosingAndOpening($newStart, true, false) < $newEnd.pos
     )
       return false;
-    let $start = old.resolve(start);
+    let $start = old.resolve(start2);
     if (!$newStart.parent.inlineContent) {
       let after = $start.nodeAfter;
-      return after != null && end == start + after.nodeSize;
+      return after != null && end == start2 + after.nodeSize;
     }
     if ($start.parentOffset < $start.parent.content.size || !$start.parent.isTextblock)
       return false;
@@ -25371,26 +25376,26 @@ var ZentraleUI = function(exports) {
     return end;
   }
   function findDiff(a, b, pos, preferredPos, preferredSide) {
-    let start = a.findDiffStart(b, pos), lenA = pos + a.size, lenB = pos + b.size;
-    if (start == null)
+    let start2 = a.findDiffStart(b, pos), lenA = pos + a.size, lenB = pos + b.size;
+    if (start2 == null)
       return null;
     let { a: endA, b: endB } = a.findDiffEnd(b, lenA, lenB);
     if (preferredSide == "end") {
-      let adjust = Math.max(0, start - Math.min(endA, endB));
-      preferredPos -= endA + adjust - start;
+      let adjust = Math.max(0, start2 - Math.min(endA, endB));
+      preferredPos -= endA + adjust - start2;
     }
-    if (endA < start && lenA < lenB) {
-      let move = preferredPos <= start && preferredPos >= endA ? start - preferredPos : 0;
-      start -= move;
-      endB = start + (endB - endA);
-      endA = start;
-    } else if (endB < start) {
-      let move = preferredPos <= start && preferredPos >= endB ? start - preferredPos : 0;
-      start -= move;
-      endA = start + (endA - endB);
-      endB = start;
+    if (endA < start2 && lenA < lenB) {
+      let move = preferredPos <= start2 && preferredPos >= endA ? start2 - preferredPos : 0;
+      start2 -= move;
+      endB = start2 + (endB - endA);
+      endA = start2;
+    } else if (endB < start2) {
+      let move = preferredPos <= start2 && preferredPos >= endB ? start2 - preferredPos : 0;
+      start2 -= move;
+      endA = start2 + (endA - endB);
+      endB = start2;
     }
-    return { start, endA, endB };
+    return { start: start2, endA, endB };
   }
   const observeOptions = {
     childList: true,
@@ -26406,16 +26411,16 @@ var ZentraleUI = function(exports) {
     Leaf2.prototype.getInner = function getInner(i2) {
       return this.values[i2];
     };
-    Leaf2.prototype.forEachInner = function forEachInner(f2, from, to, start) {
+    Leaf2.prototype.forEachInner = function forEachInner(f2, from, to, start2) {
       for (var i2 = from; i2 < to; i2++) {
-        if (f2(this.values[i2], start + i2) === false) {
+        if (f2(this.values[i2], start2 + i2) === false) {
           return false;
         }
       }
     };
-    Leaf2.prototype.forEachInvertedInner = function forEachInvertedInner(f2, from, to, start) {
+    Leaf2.prototype.forEachInvertedInner = function forEachInvertedInner(f2, from, to, start2) {
       for (var i2 = from - 1; i2 >= to; i2--) {
-        if (f2(this.values[i2], start + i2) === false) {
+        if (f2(this.values[i2], start2 + i2) === false) {
           return false;
         }
       }
@@ -26457,21 +26462,21 @@ var ZentraleUI = function(exports) {
     Append2.prototype.getInner = function getInner(i2) {
       return i2 < this.left.length ? this.left.get(i2) : this.right.get(i2 - this.left.length);
     };
-    Append2.prototype.forEachInner = function forEachInner(f2, from, to, start) {
+    Append2.prototype.forEachInner = function forEachInner(f2, from, to, start2) {
       var leftLen = this.left.length;
-      if (from < leftLen && this.left.forEachInner(f2, from, Math.min(to, leftLen), start) === false) {
+      if (from < leftLen && this.left.forEachInner(f2, from, Math.min(to, leftLen), start2) === false) {
         return false;
       }
-      if (to > leftLen && this.right.forEachInner(f2, Math.max(from - leftLen, 0), Math.min(this.length, to) - leftLen, start + leftLen) === false) {
+      if (to > leftLen && this.right.forEachInner(f2, Math.max(from - leftLen, 0), Math.min(this.length, to) - leftLen, start2 + leftLen) === false) {
         return false;
       }
     };
-    Append2.prototype.forEachInvertedInner = function forEachInvertedInner(f2, from, to, start) {
+    Append2.prototype.forEachInvertedInner = function forEachInvertedInner(f2, from, to, start2) {
       var leftLen = this.left.length;
-      if (from > leftLen && this.right.forEachInvertedInner(f2, from - leftLen, Math.max(to, leftLen) - leftLen, start + leftLen) === false) {
+      if (from > leftLen && this.right.forEachInvertedInner(f2, from - leftLen, Math.max(to, leftLen) - leftLen, start2 + leftLen) === false) {
         return false;
       }
-      if (to < leftLen && this.left.forEachInvertedInner(f2, Math.min(from, leftLen), to, start) === false) {
+      if (to < leftLen && this.left.forEachInvertedInner(f2, Math.min(from, leftLen), to, start2) === false) {
         return false;
       }
     };
@@ -26616,14 +26621,14 @@ var ZentraleUI = function(exports) {
       if (!this.eventCount)
         return this;
       rebasedCount = Math.min(this.items.length, rebasedCount);
-      let rebasedItems = [], start = this.items.length - rebasedCount;
+      let rebasedItems = [], start2 = this.items.length - rebasedCount;
       let mapping = rebasedTransform.mapping;
       let newUntil = rebasedTransform.steps.length;
       let eventCount = this.eventCount;
       this.items.forEach((item) => {
         if (item.selection)
           eventCount--;
-      }, start);
+      }, start2);
       let iRebased = rebasedCount;
       this.items.forEach((item) => {
         let pos = mapping.getMirror(--iRebased);
@@ -26640,11 +26645,11 @@ var ZentraleUI = function(exports) {
         } else {
           rebasedItems.push(new Item(map));
         }
-      }, start);
+      }, start2);
       let newMaps = [];
       for (let i2 = rebasedCount; i2 < newUntil; i2++)
         newMaps.push(new Item(mapping.maps[i2]));
-      let items = this.items.slice(0, start).append(newMaps).append(rebasedItems);
+      let items = this.items.slice(0, start2).append(newMaps).append(rebasedItems);
       let branch = new Branch(items, eventCount);
       if (branch.emptyItemCount() > max_empty_items)
         branch = branch.compress(this.items.length - rebasedItems.length);
@@ -26761,9 +26766,9 @@ var ZentraleUI = function(exports) {
     if (!transform.docChanged)
       return true;
     let adjacent = false;
-    transform.mapping.maps[0].forEach((start, end) => {
+    transform.mapping.maps[0].forEach((start2, end) => {
       for (let i2 = 0; i2 < prevRanges.length; i2 += 2)
-        if (start <= prevRanges[i2 + 1] && end >= prevRanges[i2])
+        if (start2 <= prevRanges[i2 + 1] && end >= prevRanges[i2])
           adjacent = true;
     });
     return adjacent;
@@ -27206,18 +27211,18 @@ var ZentraleUI = function(exports) {
   }
   function getMarkRange($pos, type, attributes) {
     if (!$pos || !type) return;
-    let start = $pos.parent.childAfter($pos.parentOffset);
-    if (!start.node || !start.node.marks.some((mark) => mark.type === type)) start = $pos.parent.childBefore($pos.parentOffset);
-    if (!start.node || !start.node.marks.some((mark) => mark.type === type)) return;
+    let start2 = $pos.parent.childAfter($pos.parentOffset);
+    if (!start2.node || !start2.node.marks.some((mark) => mark.type === type)) start2 = $pos.parent.childBefore($pos.parentOffset);
+    if (!start2.node || !start2.node.marks.some((mark) => mark.type === type)) return;
     if (!attributes) {
-      const firstMark = start.node.marks.find((mark) => mark.type === type);
+      const firstMark = start2.node.marks.find((mark) => mark.type === type);
       if (firstMark) attributes = firstMark.attrs;
     }
-    if (!findMarkInSet([...start.node.marks], type, attributes)) return;
-    let startIndex = start.index;
-    let startPos = $pos.start() + start.offset;
+    if (!findMarkInSet([...start2.node.marks], type, attributes)) return;
+    let startIndex = start2.index;
+    let startPos = $pos.start() + start2.offset;
     let endIndex = startIndex + 1;
-    let endPos = startPos + start.node.nodeSize;
+    let endPos = startPos + start2.node.nodeSize;
     while (startIndex > 0 && isMarkInSet([...$pos.parent.child(startIndex - 1).marks], type, attributes)) {
       startIndex -= 1;
       startPos -= $pos.parent.child(startIndex).nodeSize;
@@ -28774,10 +28779,10 @@ var ZentraleUI = function(exports) {
         };
         const nextType2 = ((_type$contentMatch$de = type.contentMatch.defaultType) === null || _type$contentMatch$de === void 0 ? void 0 : _type$contentMatch$de.createAndFill(newNextTypeAttributes2)) || void 0;
         wrap2 = wrap2.append(Fragment.from(type.createAndFill(null, nextType2) || void 0));
-        const start = $from.before($from.depth - (depthBefore - 1));
-        tr.replace(start, $from.after(-depthAfter), new Slice(wrap2, 4 - depthBefore, 0));
+        const start2 = $from.before($from.depth - (depthBefore - 1));
+        tr.replace(start2, $from.after(-depthAfter), new Slice(wrap2, 4 - depthBefore, 0));
         let sel = -1;
-        tr.doc.nodesBetween(start, tr.doc.content.size, (n2, pos) => {
+        tr.doc.nodesBetween(start2, tr.doc.content.size, (n2, pos) => {
           if (sel > -1) return false;
           if (n2.isTextblock && n2.content.size === 0) sel = pos + 1;
         });
@@ -30209,10 +30214,10 @@ ${indentedChild}`;
       const textToMatch = node.isText ? node.text || "" : node.textBetween(resolvedFrom - pos, resolvedTo - pos, void 0, "￼");
       pasteRuleMatcherHandler(textToMatch, rule.find, pasteEvent).forEach((match) => {
         if (match.index === void 0) return;
-        const start = resolvedFrom + match.index + 1;
-        const end = start + match[0].length;
+        const start2 = resolvedFrom + match.index + 1;
+        const end = start2 + match[0].length;
         const range = {
-          from: state.tr.mapping.map(start),
+          from: state.tr.mapping.map(start2),
           to: state.tr.mapping.map(end)
         };
         const handler = rule.handler({
@@ -33461,25 +33466,25 @@ img.ProseMirror-separator {
     const type = detectMarkerType(marker);
     if (type === "i" || type === "I") return fromRoman(marker);
     if (type === "a" || type === "A") {
-      const start = fromAlpha(marker);
-      return start > 0 ? start : 1;
+      const start2 = fromAlpha(marker);
+      return start2 > 0 ? start2 : 1;
     }
     const parsed = parseInt(marker, 10);
     return Number.isNaN(parsed) ? 1 : parsed;
   }
-  function startToMarker(type, start) {
-    if (type === "numeric") return String(start);
+  function startToMarker(type, start2) {
+    if (type === "numeric") return String(start2);
     switch (type) {
       case "a":
-        return toRomanAlpha(start);
+        return toRomanAlpha(start2);
       case "A":
-        return toRomanAlpha(start).toUpperCase();
+        return toRomanAlpha(start2).toUpperCase();
       case "i":
-        return toRoman(start);
+        return toRoman(start2);
       case "I":
-        return toRomanUpper(start);
+        return toRomanUpper(start2);
       default:
-        return String(start);
+        return String(start2);
     }
   }
   function areOrderedListMarkersSequential(markers) {
@@ -33501,10 +33506,10 @@ img.ProseMirror-separator {
     };
   }
   function buildOrderedListAttrsFromMarker(marker) {
-    const { type, start } = parseListMarker(marker);
+    const { type, start: start2 } = parseListMarker(marker);
     const attrs = {};
     if (type) attrs.type = type;
-    if (start !== 1) attrs.start = start;
+    if (start2 !== 1) attrs.start = start2;
     return attrs;
   }
   function getListMarker(type, index, separator = ". ") {
@@ -33626,8 +33631,8 @@ img.ProseMirror-separator {
         if (context.parentType === "bulletList") return "- ";
         if (context.parentType === "orderedList") {
           var _context$meta, _context$meta2;
-          const start = ((_context$meta = context.meta) === null || _context$meta === void 0 || (_context$meta = _context$meta.parentAttrs) === null || _context$meta === void 0 ? void 0 : _context$meta.start) || 1;
-          return getListMarker((_context$meta2 = context.meta) === null || _context$meta2 === void 0 || (_context$meta2 = _context$meta2.parentAttrs) === null || _context$meta2 === void 0 ? void 0 : _context$meta2.type, start - 1 + (context.index || 0), ". ");
+          const start2 = ((_context$meta = context.meta) === null || _context$meta === void 0 || (_context$meta = _context$meta.parentAttrs) === null || _context$meta === void 0 ? void 0 : _context$meta.start) || 1;
+          return getListMarker((_context$meta2 = context.meta) === null || _context$meta2 === void 0 || (_context$meta2 = _context$meta2.parentAttrs) === null || _context$meta2 === void 0 ? void 0 : _context$meta2.type, start2 - 1 + (context.index || 0), ". ");
         }
         return "- ";
       };
@@ -34014,15 +34019,15 @@ img.ProseMirror-separator {
   const ORDERED_LIST_SCAN_WINDOW = 64;
   function takeLines(source, max) {
     const lines = [];
-    let start = 0;
+    let start2 = 0;
     while (lines.length < max) {
-      const lineEnd = source.indexOf("\n", start);
+      const lineEnd = source.indexOf("\n", start2);
       if (lineEnd === -1) {
-        lines.push(source.slice(start));
+        lines.push(source.slice(start2));
         return lines;
       }
-      lines.push(source.slice(start, lineEnd));
-      start = lineEnd + 1;
+      lines.push(source.slice(start2, lineEnd));
+      start2 = lineEnd + 1;
     }
     return lines;
   }
@@ -34118,9 +34123,9 @@ img.ProseMirror-separator {
       return [{ tag: "ol" }];
     },
     renderHTML({ HTMLAttributes }) {
-      const { start, type, ...attributesWithoutType } = HTMLAttributes;
+      const { start: start2, type, ...attributesWithoutType } = HTMLAttributes;
       const attrs = mergeAttributes(this.options.HTMLAttributes, attributesWithoutType);
-      if (start !== 1) attrs.start = start;
+      if (start2 !== 1) attrs.start = start2;
       if (type && type !== "1") attrs.type = type;
       return [
         "ol",
@@ -35443,19 +35448,62 @@ img.ProseMirror-separator {
     }).join("");
   }
   function jsonZuMd(doc2) {
-    const zeilen = [];
+    const zeilen2 = [];
     const block = (k2) => {
-      if (k2.type === "heading") zeilen.push("## " + inhaltZuZeile(k2.content));
+      if (k2.type === "heading") zeilen2.push("## " + inhaltZuZeile(k2.content));
       else if (k2.type === "bulletList") (k2.content || []).forEach((li2) => (li2.content || []).forEach((x2) => {
         if (x2.type === "bulletList") block(x2);
-        else zeilen.push("- " + inhaltZuZeile(x2.content));
+        else zeilen2.push("- " + inhaltZuZeile(x2.content));
       }));
-      else zeilen.push(inhaltZuZeile(k2.content));
+      else zeilen2.push(inhaltZuZeile(k2.content));
     };
     (doc2 && doc2.content || []).forEach(block);
-    return zeilen.join("\n");
+    return zeilen2.join("\n");
   }
   const mdBloecke = (md2) => mdZuJson(md2).content;
+  const protAn = () => typeof ZENTRALE_API !== "undefined" && ZENTRALE_API === "spielwelt" && !window.__notizAlt;
+  const zeilen = [];
+  let start = 0, box = null;
+  const was = (el2) => {
+    if (!el2 || !el2.tagName) return String(el2);
+    const id2 = el2.id ? "#" + el2.id : "", kl2 = typeof el2.className === "string" && el2.className ? "." + el2.className.trim().split(/\s+/)[0] : "";
+    return el2.tagName.toLowerCase() + id2 + kl2;
+  };
+  function prot(text) {
+    if (!protAn()) return;
+    einrichten();
+    const t2 = Date.now();
+    if (!start) start = t2;
+    zeilen.push(((t2 - start) / 1e3).toFixed(1) + " " + text);
+    if (zeilen.length > 14) zeilen.shift();
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "notizProt";
+      box.setAttribute("style", "position:fixed;left:4px;right:4px;top:calc(40px + env(safe-area-inset-top));z-index:99;pointer-events:none;background:var(--meldung-grund);color:var(--weiss);font:var(--schrift-mini)/1.3 ui-monospace,Menlo,monospace;padding:var(--abstand-2) var(--abstand-3);border-radius:var(--radius-mittel);white-space:pre-wrap;max-height:40vh;overflow:hidden;opacity:.9");
+      document.body.appendChild(box);
+    }
+    box.textContent = zeilen.join("\n");
+  }
+  const protEl = was;
+  let eingerichtet = false;
+  function einrichten() {
+    if (eingerichtet) return;
+    eingerichtet = true;
+    let h2 = window.visualViewport ? Math.round(window.visualViewport.height) : 0;
+    document.addEventListener("pointerdown", (e) => {
+      if (e.target.closest && e.target.closest(".pj-notiz, .notiz")) prot("tipp " + was(e.target));
+    }, true);
+    document.addEventListener("focusout", (e) => {
+      if (e.target.closest && e.target.closest(".notiz")) setTimeout(() => prot("fokus jetzt " + was(document.activeElement)), 0);
+    }, true);
+    window.addEventListener("blur", () => prot("fenster blur"));
+    document.addEventListener("visibilitychange", () => prot("sichtbar " + document.visibilityState));
+    if (window.visualViewport) window.visualViewport.addEventListener("resize", () => {
+      const n2 = Math.round(window.visualViewport.height);
+      if (h2 && Math.abs(n2 - h2) > 80) prot("tastatur " + (n2 < h2 ? "auf" : "zu") + " (" + n2 + ")");
+      h2 = n2;
+    });
+  }
   const erweiterungen = (platz2) => [src_default$4, src_default$3, src_default$2, src_default$1.configure({ levels: [2] }), src_default, BulletList, ListItem, UndoRedo, Placeholder.configure({ placeholder: platz2 || "" })];
   const KNOEPFE = [
     { name: "Überschrift", an: (e) => e.isActive("heading"), tun: (c) => c.toggleHeading({ level: 2 }), bild: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "notiz-h", children: "Ü" }) },
@@ -35502,14 +35550,23 @@ img.ProseMirror-separator {
         if (fn.current.tippen) fn.current.tippen(md2);
       },
       onSelectionUpdate: () => neu((n2) => n2 + 1),
-      onFocus: () => setAn(true),
-      onBlur: () => {
+      onFocus: () => {
+        prot("fokus rein");
+        setAn(true);
+      },
+      onBlur: ({ event }) => {
+        prot("fokus raus nach " + protEl(event && event.relatedTarget));
         setAn(false);
         if (fn.current.raus) fn.current.raus();
       }
     });
     reactExports.useEffect(() => {
+      prot("feld gebaut" + (id2 ? " " + id2 : ""));
+      return () => prot("feld weg" + (id2 ? " " + id2 : ""));
+    }, []);
+    reactExports.useEffect(() => {
       const w2 = String(wert2 || "");
+      if (ed2 && w2 !== zuletzt.current && ed2.isFocused) prot("neuer Text von außen, beim Tippen nicht gesetzt");
       if (ed2 && w2 !== zuletzt.current && !ed2.isFocused) {
         zuletzt.current = w2;
         ed2.commands.setContent(mdZuJson(w2), { emitUpdate: false });
@@ -35584,14 +35641,16 @@ img.ProseMirror-separator {
       ] })
     ] });
   }
+  const notizNeu = () => typeof ZENTRALE_API !== "undefined" && ZENTRALE_API === "spielwelt" && !window.__notizAlt;
   function Notiz({ p: p2, mac: mac2 }) {
     if (!F.cosKann("notiz")) return null;
     const t2 = String(p2.notiz || ""), archiv = Array.isArray(p2.archiv) ? p2.archiv : [], nm = pj.notizMeldung;
     const frisch = nm && nm.pid === p2.id && Date.now() - nm.t < 4e3;
     const knopf = /* @__PURE__ */ jsxRuntimeExports.jsx(Knopf$1, { className: "pj-sichern", id: "pjSichern", onClick: () => F.pjNotizSichern(p2.id), aus: !t2.trim(), children: "Sichern und leeren" });
+    const alt = /* @__PURE__ */ jsxRuntimeExports.jsx("textarea", { id: "pjNotiz", className: "notizfeld", rows: "1", placeholder: "Gedanken zum Projekt, frei", defaultValue: t2, onInput: (e) => F.pjNotizTippen(p2.id, e.target.value), onBlur: () => F.pjNotizRaus(p2.id) });
     const archivK = /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.pjArchivKlappen(), "aria-expanded": String(pj.archivAuf), children: "Archiv · " + archiv.length });
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "karte pj-notiz", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
+      notizNeu() ? /* @__PURE__ */ jsxRuntimeExports.jsx(
         Notiz$1,
         {
           id: "pjNotiz",
@@ -35612,7 +35671,19 @@ img.ProseMirror-separator {
           ] })
         },
         p2.id
-      ),
+      ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-k", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "pjNotiz", children: "Notiz" }),
+          archivK
+        ] }),
+        mac2 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-notiz-r", children: [
+          alt,
+          knopf
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          alt,
+          knopf
+        ] })
+      ] }),
       frisch ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-meldung", children: "Im Archiv. Feld ist frei." }) : null,
       pj.archivAuf ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-archiv", children: archiv.length ? archiv.map((a, i2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-arch", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: /^\d{4}-\d\d-\d\d$/.test(a.datum) ? F.pjDatum(a.datum) : a.datum }),
@@ -35828,15 +35899,22 @@ img.ProseMirror-separator {
       Z$1.auf.park ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "karte", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ParkListe, {}) }) : null
     ] });
   }
+  const wer = () => {
+    if (!protAn()) return "";
+    const z2 = (new Error().stack || "").split("\n").map((x2) => (/^\s*(?:at\s+)?([\w$.]+)/.exec(x2.replace(/@.*/, "")) || [])[1]).filter((n2) => n2 && !/^(wer|vorChief|zeigen|zeichnen|Error|prot)$/.test(n2));
+    return "(" + z2.slice(0, 2).join(" < ") + ")";
+  };
   function vorChief() {
     if (Z$1.zieh) {
       Z$1.spaeter = true;
       return false;
     }
     if (notizTippt()) {
+      prot("zeichnen gesperrt " + wer());
       Z$1.spaeter = true;
       return false;
     }
+    if (protAn() && document.querySelector(".pj-notiz")) prot("zeichnen " + wer());
     A$2.kopf({ titel: "Chief of Staff", datum: "KW " + F.cosKw() });
     return true;
   }
@@ -37154,18 +37232,18 @@ img.ProseMirror-separator {
     if (plan2.tasks === null) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Lädt deine Tasks …" });
     if (!plan2.tasks.length) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: plan2.fehler ? "Fehler: " + plan2.fehler : "Keine offenen Tasks." });
     let letzte2 = null;
-    const zeilen = [];
+    const zeilen2 = [];
     plan2.tasks.forEach((t2, i2) => {
-      if (t2.liste !== letzte2) zeilen.push(/* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "unterkopf", children: t2.liste }, "k" + i2));
+      if (t2.liste !== letzte2) zeilen2.push(/* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "unterkopf", children: t2.liste }, "k" + i2));
       letzte2 = t2.liste;
-      zeilen.push(/* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "taskzeile" + (plan2.wahl.indexOf(t2) !== -1 ? " an" : "") + (t2.unter ? " unter" : ""), onClick: () => PL.task(i2), children: [
+      zeilen2.push(/* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "taskzeile" + (plan2.wahl.indexOf(t2) !== -1 ? " an" : "") + (t2.unter ? " unter" : ""), onClick: () => PL.task(i2), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "kreis" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2.titel }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(AltPill, { t: t2 })
       ] }, "t" + i2));
     });
-    if (plan2.wahl.length > 1) zeilen.push(/* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Wird ein Sammelblock: " + PL.blockName({ bereich: plan2.wahl[0].bereich, titel: "Kleinkram (" + plan2.wahl.length + " Tasks)" }) }, "s"));
-    return zeilen;
+    if (plan2.wahl.length > 1) zeilen2.push(/* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Wird ein Sammelblock: " + PL.blockName({ bereich: plan2.wahl[0].bereich, titel: "Kleinkram (" + plan2.wahl.length + " Tasks)" }) }, "s"));
+    return zeilen2;
   }
   function WasBox() {
     const plan2 = PL.plan;
@@ -37398,8 +37476,8 @@ img.ProseMirror-separator {
     el2.innerHTML = '<div class="ras-gitter" style="grid-template-columns:repeat(4,minmax(0,1fr))">' + z2.slice(0, 12).map((e) => e.outerHTML).join("") + "</div>";
     r2.unmount();
   }
-  function fokusStueck(el2, was) {
-    const [szene, sel, n2, huelle] = was.slice(6).split("|"), S2 = (window.WB_SZENEN || {})[szene] || {};
+  function fokusStueck(el2, was2) {
+    const [szene, sel, n2, huelle] = was2.slice(6).split("|"), S2 = (window.WB_SZENEN || {})[szene] || {};
     const tmp = document.createElement("div"), r2 = createRoot(tmp);
     window.wbSzene(S2, () => reactDomExports.flushSync(() => r2.render(/* @__PURE__ */ jsxRuntimeExports.jsx(Fehlergrenze, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(TagNeu, {}) }))));
     if (!sel) {
@@ -37469,17 +37547,17 @@ img.ProseMirror-separator {
       return f2 ? /* @__PURE__ */ jsxRuntimeExports.jsx(Tageszahl, { f: f2, oben: A$2.P.felder.filter((x2) => x2.typ === "oben" && !A$2.koeFeld(x2)) }) : null;
     }
   };
-  function werkbank(el2, was) {
+  function werkbank(el2, was2) {
     wurzeln = wurzeln.filter(([e, w2]) => {
       if (e.isConnected) return true;
       w2.unmount();
       return false;
     });
-    if (was.indexOf("fokus:") === 0) {
-      fokusStueck(el2, was);
+    if (was2.indexOf("fokus:") === 0) {
+      fokusStueck(el2, was2);
       return;
     }
-    if (was === "chief:zellen") {
+    if (was2 === "chief:zellen") {
       rasterZellen(el2);
       return;
     }
@@ -37489,8 +37567,8 @@ img.ProseMirror-separator {
       wurzeln.push([el2, r2]);
     }
     let teil2;
-    if (was.indexOf("kq:") === 0) {
-      const f2 = F.cosFarbe("FW"), [, kl2, t2] = was.split(":");
+    if (was2.indexOf("kq:") === 0) {
+      const f2 = F.cosFarbe("FW"), [, kl2, t2] = was2.split(":");
       if (kl2 === "verpasst") teil2 = /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "kr gross", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Kq, { farbe: f2, klasse: "gr" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Kq, { farbe: f2, klasse: "ue" })
@@ -37506,15 +37584,15 @@ img.ProseMirror-separator {
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "kr", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Kq, { farbe: f2, klasse: kl2, teil: tl2 }) })
         ] });
       }
-    } else if (was === "chips:wann") {
+    } else if (was2 === "chips:wann") {
       const s0 = F.cosOffeneSchritte(false)[0];
       teil2 = s0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(WannChips, { sid: s0.s.id, k: 1, mitOhne: true }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Kein offener Schritt" });
-    } else if (was.indexOf("feld:") === 0) {
-      const f2 = A$2.P.felder.find((x2) => x2.spalte === was.slice(5));
-      teil2 = f2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "karte", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Feld, { f: f2 }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Kein Feld " + was.slice(5) });
-    } else teil2 = BAUTEILE[was] ? BAUTEILE[was]() : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Unbekannt: " + was });
+    } else if (was2.indexOf("feld:") === 0) {
+      const f2 = A$2.P.felder.find((x2) => x2.spalte === was2.slice(5));
+      teil2 = f2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "karte", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Feld, { f: f2 }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Kein Feld " + was2.slice(5) });
+    } else teil2 = BAUTEILE[was2] ? BAUTEILE[was2]() : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Unbekannt: " + was2 });
     reactDomExports.flushSync(() => r2.render(/* @__PURE__ */ jsxRuntimeExports.jsx(Fehlergrenze, { children: teil2 })));
-    if (was.indexOf("koe:") === 0 && !geladen) {
+    if (was2.indexOf("koe:") === 0 && !geladen) {
       geladen = werkbankLaden(A$2.heute()).then(() => wurzeln.forEach(([e]) => {
         if (e.isConnected && e.dataset.react) werkbank(e, e.dataset.react);
       }));
@@ -37564,7 +37642,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611241557';
+const PWA_VERSION = '202611241719';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -39758,7 +39836,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 15:57</div>
+<div id="testband">TEST 17:19</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
