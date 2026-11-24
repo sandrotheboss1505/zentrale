@@ -1495,7 +1495,7 @@ function cosSpeichern() { try { localStorage.setItem(COS_SPEICHER, JSON.stringif
 function cosNeuZeichnen() {
   if (!P) return;
   const a = document.activeElement;
-  if (a && (a.tagName === 'TEXTAREA' || a.type === 'text' || a.type === 'time' || a.type === 'date')) { spaeterZeichnen = true; return; }
+  if (a && (a.tagName === 'TEXTAREA' || a.isContentEditable || a.type === 'text' || a.type === 'time' || a.type === 'date')) { spaeterZeichnen = true; return; }   // isContentEditable: Notiz (Tiptap)
   if (typeof plan !== 'undefined' && plan) return;
   if (cosZieh) return;
   zeichnen();
@@ -3921,7 +3921,7 @@ function chiefOeffnen() { ansicht = 'chief'; cosProjekt = null; zeichnen(); cosL
   setInterval(() => {
     if (document.visibilityState !== 'visible' || typeof ansicht === 'undefined' || ansicht !== 'chief' || !P || cosZieh) return;
     const a = document.activeElement;
-    if (a && (a.tagName === 'TEXTAREA' || a.tagName === 'INPUT' || a.tagName === 'SELECT')) return;
+    if (a && (a.tagName === 'TEXTAREA' || a.tagName === 'INPUT' || a.tagName === 'SELECT' || a.isContentEditable)) return;
     zeichnen();
   }, 30000);
 })();
@@ -35500,7 +35500,7 @@ img.ProseMirror-separator {
     });
     reactExports.useEffect(() => {
       const w2 = String(wert2 || "");
-      if (ed2 && w2 !== zuletzt.current) {
+      if (ed2 && w2 !== zuletzt.current && !ed2.isFocused) {
         zuletzt.current = w2;
         ed2.commands.setContent(mdZuJson(w2), { emitUpdate: false });
       }
@@ -37550,7 +37550,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611241528';
+const PWA_VERSION = '202611241546';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -38280,7 +38280,7 @@ function uebernehmen(d) {
   P = d;
   try { localStorage.setItem(SPEICHER, JSON.stringify(d)); } catch (e) { /* kein Speicher, egal */ }
   const a = document.activeElement;
-  if (a && (a.tagName === 'TEXTAREA' || a.type === 'text' || a.type === 'time')) { spaeterZeichnen = true; return; }
+  if (a && (a.tagName === 'TEXTAREA' || a.isContentEditable || a.type === 'text' || a.type === 'time')) { spaeterZeichnen = true; return; }   // isContentEditable: Notiz (Tiptap)
   zeichnen();
 }
 
@@ -39690,7 +39690,7 @@ setInterval(() => { if (document.visibilityState === 'visible') abfragen(); }, A
 setInterval(() => {
   if (document.visibilityState !== 'visible' || ansicht !== 'tag' || !P || tagIso !== heute() || plan) return;
   const a = document.activeElement;
-  if (a && (a.tagName === 'TEXTAREA' || a.type === 'text' || a.type === 'time')) return;
+  if (a && (a.tagName === 'TEXTAREA' || a.isContentEditable || a.type === 'text' || a.type === 'time')) return;
   heuteNeu();
 }, 30000);
 
@@ -39744,7 +39744,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 15:28</div>
+<div id="testband">TEST 15:47</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
