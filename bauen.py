@@ -272,7 +272,7 @@ if TEST:
             sys.exit('bauen.py: </script in ' + marke)
         welt = welt.replace(marke, teil)
     welt = welt.replace('__CHIEF__', json.dumps(lies(HIER, '..', 'Chief.js'), ensure_ascii=False).replace('</', '<\\/'))
-    welt = welt.replace('__SENSI__', json.dumps(lies(HIER, '..', 'Sensi.js') + '\n' + (lies(HIER, '..', 'Spotify.js') + '\n' if os.path.exists(os.path.join(HIER, '..', 'Spotify.js')) else '') + lies(HIER, '..', 'Koerper.js'), ensure_ascii=False).replace('</', '<\\/'))   # V81: Körper braucht Sensi, V105: Spotify.js für Audio
+    welt = welt.replace('__SENSI__', json.dumps(lies(HIER, '..', 'Sensi.js') + '\n' + (lies(HIER, '..', 'Spotify.js') + '\n' if os.path.exists(os.path.join(HIER, '..', 'Spotify.js')) else '') + (lies(HIER, '..', 'Handy.js') + '\n' if os.path.exists(os.path.join(HIER, '..', 'Handy.js')) else '') + lies(HIER, '..', 'Koerper.js'), ensure_ascii=False).replace('</', '<\\/'))   # V81: Körper braucht Sensi, V105: Spotify.js für Audio, Handy.js für Handyfrei
     ersetze('<script>\n/* ── Einstellungen ── */', '<script>\n' + welt + '</script>\n<script>\n/* ── Einstellungen ── */')
     ersetze('<title>Zentrale</title>', '<title>Zentrale Test</title>')
     ersetze('<meta name="apple-mobile-web-app-title" content="Zentrale">', '<meta name="apple-mobile-web-app-title" content="Test">')
