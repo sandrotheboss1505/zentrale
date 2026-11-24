@@ -1382,6 +1382,64 @@
   .cos-mac-fuss { display: flex; justify-content: space-between; align-items: center; padding: 0 var(--abstand-2) var(--abstand-6); font-size: var(--schrift-klein); }
   .cos-mac-fuss button { color: var(--leise); min-height: 36px; }
   .cos-mac-fuss a { color: var(--akzent); font-weight: 700; text-decoration: none; }
+
+  /* C1 Chief neu: Reiter am Handy, Module, Schritte mit Kreis, Erledigt und Zeit */
+  body:not(.mac) .pj-reiter { flex-wrap: nowrap; overflow-x: auto; margin: 0 calc(-1 * var(--abstand-7)) var(--abstand-6); padding: 0 var(--abstand-7); scrollbar-width: none; }
+  body:not(.mac) .pj-reiter::-webkit-scrollbar { display: none; }
+  .pj-reit { flex: none; min-height: 44px; }
+  .pj-hinweis { margin-top: var(--abstand-4); font-size: var(--schrift-klein); color: var(--leise); }
+  .pj-balken .kq.ueber, .pj-mod-kq .kq.ueber { background: var(--leise); box-shadow: none; }
+  .pj-mod-l { display: flex; flex-direction: column; gap: var(--abstand-5); margin-top: var(--abstand-5); }
+  .pj-mod { border: 1px solid var(--linie); border-radius: var(--radius-gross); }
+  .pj-mod.dran { border: 1.5px solid var(--kf); }
+  .pj-mod-k { display: block; width: 100%; text-align: left; padding: var(--abstand-5) var(--abstand-6); }
+  .pj-mod-o { display: flex; align-items: center; gap: var(--abstand-4); min-height: 24px; }
+  .pj-mod-o b { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pj-dran { flex: none; padding: 0 var(--abstand-3); border-radius: var(--radius-klein); background: var(--kf); color: var(--weiss); font-size: var(--schrift-mini); font-weight: 700; line-height: 18px; }
+  .pj-mod-sp { flex: 1; }
+  .pj-mod-z { flex: none; font-size: var(--schrift-klein); color: var(--leise); }
+  .pj-mod-plus { flex: none; font-size: var(--schrift-klein); color: var(--leise); font-weight: 700; }
+  .pj-mod-pf { flex: none; display: grid; color: var(--leise); transition: transform .2s ease-out; }
+  .pj-mod-pf.auf { transform: rotate(180deg); }
+  .pj-mod-kq { gap: var(--abstand-1); margin-top: var(--abstand-3); }
+  .pj-mod-kq .kq { width: 10px; height: 10px; border-radius: var(--radius-klein); }
+  .pj-mod-u { margin-top: var(--abstand-2); font-size: var(--schrift-klein); color: var(--leise); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pj-mod-in { padding: 0 var(--abstand-6) var(--abstand-5); animation: pjrein .2s ease-out; }
+  .pj-mod-leer { padding: var(--abstand-4) 0; border-top: 1px solid var(--linie); font-size: var(--schrift-klein); }
+  .pj-sz { display: flex; align-items: center; gap: var(--abstand-5); min-height: 44px; border-top: 1px solid var(--linie); }
+  .pj-sz.frisch { animation: cosrein .5s cubic-bezier(.2,.8,.2,1) both; }
+  .pj-sz.kurz .pj-sz-t { color: var(--leise); text-decoration: line-through; }
+  .pj-kreis { flex: none; width: 22px; height: 22px; border-radius: var(--radius-rund); box-shadow: inset 0 0 0 2px var(--kf); display: grid; place-items: center; position: relative; }
+  .pj-kreis::after { content: ""; position: absolute; inset: -11px; }
+  .pj-kreis.an { background: var(--kf); box-shadow: none; }
+  .pj-kreis svg { width: 12px; height: 12px; }
+  .pj-sz-t { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .pj-sz-t small { display: block; font-size: var(--schrift-klein); color: var(--leise); margin-top: var(--abstand-1); }
+  .pj-sz-pf { flex: none; display: flex; gap: var(--abstand-2); }
+  .pj-sz-pf button { width: 36px; height: 36px; border-radius: var(--radius-mittel); background: var(--chip); font-weight: 700; }
+  .pj-sz-pf button:disabled { opacity: .3; }
+  .pj-sz-neu { display: flex; gap: var(--abstand-4); padding-top: var(--abstand-4); border-top: 1px solid var(--linie); }
+  .pj-sz-neu input, .pj-mod-form input { flex: 1; min-width: 0; font: inherit; font-size: var(--schrift-text); padding: var(--abstand-4) var(--abstand-5); border-radius: var(--radius-gross); border: 0; background: var(--bg); color: var(--text); }
+  .pj-sz-neu button { flex: none; width: 44px; height: 40px; border-radius: var(--radius-gross); background: var(--kf); color: var(--weiss); font-size: var(--schrift-gross); font-weight: 700; }
+  .pj-mod-f { display: flex; justify-content: space-between; align-items: center; margin-top: var(--abstand-4); }
+  .pj-zahlw { display: inline-flex; align-items: center; gap: var(--abstand-4); font-size: var(--schrift-klein); color: var(--leise); }
+  .pj-zahlw button { width: 32px; height: 32px; border-radius: var(--radius-rund); background: var(--chip); color: var(--text); font-size: var(--schrift-gross); line-height: 1; }
+  .pj-zahlw button:disabled { opacity: .3; }
+  .pj-zahlw b { min-width: 32px; text-align: center; color: var(--text); font-size: var(--schrift-text); }
+  .pj-mod-neu { display: block; width: 100%; min-height: 44px; margin-top: var(--abstand-5); border-radius: var(--radius-gross); border: 1.5px dashed var(--pj-strich); color: var(--akzent); font-weight: 600; font-size: var(--schrift-klein); }
+  .pj-mod-form { display: flex; flex-direction: column; gap: var(--abstand-5); margin-top: var(--abstand-5); padding: var(--abstand-6); border-radius: var(--radius-gross); background: var(--bg); animation: pjrein .2s ease-out; }
+  .pj-mod-form label { display: flex; flex-direction: column; gap: var(--abstand-2); font-size: var(--schrift-klein); color: var(--leise); }
+  .pj-mod-form input { background: var(--karte); }
+  .pj-mod-form-k { display: flex; justify-content: flex-end; align-items: center; gap: var(--abstand-6); }
+  .pj-anlegen { min-height: 40px; padding: 0 var(--abstand-7); border-radius: var(--radius-gross); background: var(--kf); color: var(--weiss); font-weight: 700; }
+  .pj-sz.erl .pj-sz-t span { display: block; }
+  .pj-zeit-k { margin-top: var(--abstand-7); }
+  .pj-zeit { display: flex; justify-content: space-between; align-items: center; gap: var(--abstand-5); min-height: 36px; border-top: 1px solid var(--linie); font-size: var(--schrift-klein); }
+  .pj-zeit .kr { gap: var(--abstand-1); }
+  .pj-zeit .kq { width: 10px; height: 10px; border-radius: var(--radius-klein); }
+  .pj.mac .pj-mod-k { padding: var(--abstand-6) var(--abstand-7); }
+  .pj.mac .pj-mod-in { padding: 0 var(--abstand-7) var(--abstand-6); }
+  @media (prefers-reduced-motion: reduce) { .pj-mod-in, .pj-mod-form, .pj-sz.frisch { animation: none; } .pj-mod-pf { transition: none; } }
 </style>
 <div id="cosBlatt" class="cos-blatt"></div>
 <script>
@@ -2678,6 +2736,110 @@ function pjReitAblegen(e) {
   const p = cosPid(von);
   if (p) melden(p.name + ' auf Rang ' + (ids.indexOf(von) + 1) + '.');
 }
+
+/* ── C1 Chief neu: Module auf und zu, Bearbeiten (Pfeile und Zahl), Abhaken mit kurzem Rückgängig, neuer Schritt unten, + Neues Modul ── */
+const cosModAuf = {};            // Projekt ID → offenes Modul (ID oder null). Ohne Eintrag ist das Modul offen, das dran ist
+let cosModSort = null;           // Modul ID im Bearbeiten
+let cosModNeu = null;            // { pid, name, zahl }: Formular Neues Modul
+let cosHakKurz = null;           // { sid, t, titel }: gerade abgehakt, kurz Rückgängig
+let cosZeitAlle = false;
+const PJ_ERL_NEU = 3, PJ_ZEIT = 5, COS_HAK_KURZ = 4000;
+function cosModOffen(p) { return Object.prototype.hasOwnProperty.call(cosModAuf, p.id) ? cosModAuf[p.id] : (cosModulDran(p) || {}).id || null; }
+function cosModAufZu(pid, mid) {
+  const p = cosPid(pid);
+  if (!p) return;
+  cosModAuf[pid] = cosModOffen(p) === mid ? null : mid;
+  cosModSort = null; haptik(); zeichnen();
+}
+function cosModSortZu(mid) { cosModSort = cosModSort === mid ? null : mid; haptik(); zeichnen(); }
+function cosModZahl(pid, mid, d) {
+  const p = cosPid(pid);
+  if (!p || mid === COS_ALLG) return;
+  const liste = cosModulRoh(p).map(m => ({ id: m.id, name: m.name, zahl: m.zahl || '' })), m = liste.find(x => x.id === mid);
+  if (!m) return;
+  const n = Math.max(0, Math.min(99, (Number(m.zahl) || 0) + d));
+  if (n === (Number(m.zahl) || 0)) return;
+  m.zahl = n || '';
+  haptik();
+  cosModuleSetzen(p, liste, m.name + ': ' + (n ? n + ' Kästchen' : 'ohne Zahl'));
+}
+function cosModSchrittRuecken(pid, mid, sid, d) {
+  const p = cosPid(pid), m = p && cosModule(p).find(x => x.id === mid);
+  if (!m) return;
+  const l = m.offen.slice(), i = l.findIndex(s => s.id === sid), j = i + d;
+  if (i < 0 || j < 0 || j >= l.length) return;
+  [l[i], l[j]] = [l[j], l[i]];
+  haptik();
+  cosModulSchritteSetzen(p, mid, l, 'Reihenfolge');
+}
+function cosModSchrittNeu(pid, mid) {
+  const el = $('modNeu' + mid), t = el ? String(el.value || '').replace(/\s+/g, ' ').trim() : '';
+  const p = cosPid(pid), m = p && cosModule(p).find(x => x.id === mid);
+  if (!t || !m) { if (el) el.focus(); return; }
+  const s = { id: cosId('s'), abschnitt: '', titel: t.slice(0, 160), k: 1, fertigWenn: '', status: 'offen', weiterBei: '', wann: '', verschoben: 0, min: 0, bl: {}, modul: mid === COS_ALLG ? '' : mid };
+  cosFrisch[s.id] = Date.now();
+  el.value = '';
+  cosModulSchritteSetzen(p, mid, m.offen.concat([s]), 'Schritt angefügt');
+  melden('Unten angefügt');
+}
+function cosModSchrittTaste(e, pid, mid) { if (e.key === 'Enter') { e.preventDefault(); cosModSchrittNeu(pid, mid); } }
+/* Abhaken (auch grob, das zählt wie offen). Kurz steht an der Stelle "Rückgängig" */
+function cosModHaken(sid) {
+  const s = C && C.schritte.find(x => x.id === sid);
+  if (!s || !cosOffen(s)) return;
+  s.abgehakt = heute();
+  cosHakKurz = { sid: sid, t: Date.now(), titel: s.titel, alt: s.status };
+  cosHakenSetzen(sid, 'fertig');
+  clearTimeout(cosModHaken.t);
+  cosModHaken.t = setTimeout(() => { if (cosHakKurz && Date.now() - cosHakKurz.t >= COS_HAK_KURZ - 50) { cosHakKurz = null; zeichnen(); } }, COS_HAK_KURZ);
+}
+function cosModHakenZurueck() {
+  const k = cosHakKurz;
+  if (!k) return;
+  cosHakKurz = null;
+  const top = verlauf[verlauf.length - 1];
+  if (top && top.art === 'cosHaken' && top.id === k.sid) rueckgaengig();
+  else cosHakenSetzen(k.sid, k.alt || 'offen');
+}
+function cosModWiederOffen(sid) {
+  const s = C && C.schritte.find(x => x.id === sid);
+  if (!s || s.status !== 'fertig') return;
+  s.abgehakt = '';
+  cosHakenSetzen(sid, 'offen');
+}
+function cosModNeuAuf(pid) { cosModNeu = cosModNeu ? null : { pid: pid, name: '', zahl: 0 }; haptik(); zeichnen(); if (cosModNeu) setTimeout(() => { const el = $('modNeuName'); if (el) el.focus(); }, 30); }
+function cosModNeuZahl(d) { if (!cosModNeu) return; const el = $('modNeuName'); if (el) cosModNeu.name = el.value; cosModNeu.zahl = Math.max(0, Math.min(99, cosModNeu.zahl + d)); haptik(); zeichnen(); }
+function cosModNeuAnlegen() {
+  const f = cosModNeu, p = f && cosPid(f.pid), el = $('modNeuName'), name = el ? String(el.value || '').replace(/\s+/g, ' ').trim() : '';
+  if (!p) return;
+  if (!name) { if (el) el.focus(); return; }
+  const id = cosId('m'), liste = cosModulRoh(p).map(m => ({ id: m.id, name: m.name, zahl: m.zahl || '' })).concat([{ id: id, name: name.slice(0, 80), zahl: f.zahl || '' }]);
+  cosModNeu = null;
+  cosModAuf[p.id] = id;
+  cosModuleSetzen(p, liste, 'Modul ' + name + ' angelegt');
+  melden('Modul ' + name + ' angelegt.');
+}
+/* Erledigt: abgehakte Schritte, neueste oben (Abgehakt, sonst Tabellenfolge rückwärts) */
+function cosErledigtSchritte(p) {
+  const mods = cosModule(p), out = [];
+  mods.forEach(m => m.erledigt.forEach(s => out.push({ s: s, m: m, i: C.schritte.indexOf(s) })));
+  return out.sort((a, b) => String(b.s.abgehakt || '').localeCompare(String(a.s.abgehakt || '')) || b.i - a.i);
+}
+/* Zeit: Kästchen pro Tag (fertige Blöcke des Projekts), neueste oben */
+function cosZeitTage(p, alle) {
+  alle = alle || cosAlleBloecke();
+  const h = heute(), tage = {};
+  alle.forEach(x => {
+    const s = cosSchrittVon(x.b);
+    if (!s || s.projekt !== p.name || !zaehlt(x.b)) return;
+    if (x.iso === h && x.b.gestartet && !x.b.beendet && !x.b.status) return;
+    const m = fokusMin(x.iso, x.b);
+    if (m > 0) (tage[x.iso] = tage[x.iso] || []).push(m);
+  });
+  return Object.keys(tage).sort().reverse().map(iso => ({ iso: iso, n: cosKqVon(iso, tage[iso]) })).filter(t => t.n > 0);
+}
+function cosErlKlappen() { cosErlAlle = !cosErlAlle; zeichnen(); }
+function cosZeitKlappen() { cosZeitAlle = !cosZeitAlle; zeichnen(); }
 /* ── V95 Woche als Raster: Spalten Mo bis So, Zeilen Start, aktive Projekte ohne System, Summe, Gehalten (laufende Woche).
    Mengen in cos_merk pt|Datum = { ProjektID: n }, Startzeit st|Datum = Minuten (0 frei). Vergangene Tage nur ansehen,
    heute Start gesperrt und Mengen nur Plus (weniger geht über den Joker im Fokus). Vorlage: entwuerfe/kaestchen/Chief.dc.html ── */
@@ -11832,9 +11994,6 @@ var ZentraleUI = function(exports) {
     },
     get KAP() {
       return COS_KAP;
-    },
-    get AKTIV_MAX() {
-      return COS_AKTIV_MAX;
     },
     get BEREICHE() {
       return COS_BEREICHE;
@@ -35541,10 +35700,15 @@ img.ProseMirror-separator {
     return cosErlAlle;
   }, get notizMeldung() {
     return cosNotizMeldung;
-  }, get freiAuf() {
-    return cosFreiAuf;
-  }, get ERL() {
-    return PJ_ERL;
+  } };
+  const pjm = { get sort() {
+    return cosModSort;
+  }, get neu() {
+    return cosModNeu;
+  }, get hakKurz() {
+    return cosHakKurz;
+  }, get zeitAlle() {
+    return cosZeitAlle;
   } };
   function Frist({ p: p2 }) {
     const h2 = A$2.heute(), n2 = p2.deadline < h2 ? 0 : F.cosArbeitstageBis(h2, p2.deadline) + (F.cosArbeitstag(h2) ? 1 : 0);
@@ -35554,7 +35718,13 @@ img.ProseMirror-separator {
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-leise", children: (p2.art === "extern" ? "extern" : "Ziel") + " · " + (p2.deadline < h2 ? "vorbei" : "noch " + n2 + (n2 === 1 ? " Arbeitstag" : " Arbeitstage")) })
     ] });
   }
-  function Kopf$3({ p: p2, z: z2, farbe, mac: mac2 }) {
+  function Kopf$3({ p: p2, b, farbe, mac: mac2 }) {
+    const kq = [];
+    b.mods.filter((m2) => m2.zahl).forEach((m2) => {
+      for (let i2 = 0; i2 < Math.max(m2.zahl, m2.kq); i2++) kq.push(/* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "kq" + (i2 < Math.min(m2.kq, m2.zahl) ? " an" : i2 < m2.kq ? " an ueber" : ""), style: { "--kf": farbe } }, m2.id + i2));
+    });
+    const text = !b.mods.length ? "Noch kein Modul" : b.z ? b.g + " von " + b.z + " Kästchen" : b.kq ? b.kq + (b.kq === 1 ? " Kästchen" : " Kästchen") + ", ohne Zahl" : "Noch keine Kästchen";
+    const hinweis = b.z && b.ohne ? (b.ohne === 1 ? "1 Modul" : b.ohne + " Module") + " ohne Zahl" : "";
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "karte pj-kopf", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-kopf-o", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-kopf-t", children: [
@@ -35565,18 +35735,14 @@ img.ProseMirror-separator {
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.cosStatus(p2.id, "aktiv"), children: p2.status === "parkplatz" ? "Aktivieren" : "Zurückholen" })
           ] })
         ] }),
-        mac2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.cosProjektOeffnen(p2.id), children: "Bearbeiten" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-punkt" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.cosProjektOeffnen(p2.id), children: "Bearbeiten" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "kr pj-balken", children: [
-        viele(z2.geschafft, farbe, "an", 80, "a"),
-        viele(z2.konkret, farbe, "", 80, "k"),
-        viele(z2.grob + z2.frei, farbe, "hell", 80, "g")
-      ] }),
+      p2.bereich === "System" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-hinweis", children: "Nicht im Tagesraster, zählt nicht für gehalten" }) : null,
+      kq.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "kr pj-balken", role: "img", "aria-label": text, children: kq }) : null,
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-zahl", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: z2.geschafft + " von " + z2.gesamt }),
-          " ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-leise", children: "geschafft" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: text }),
+          hinweis ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-leise", children: " · " + hinweis }) : null
         ] }),
         p2.wofuer ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-leise pj-wofuer", children: "Wofür: " + p2.wofuer }) : null
       ] })
@@ -35618,107 +35784,126 @@ img.ProseMirror-separator {
       ] }, i2)) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-leise", children: "Noch nichts gesichert." }) }) : null
     ] });
   }
-  function Frei$1({ p: p2 }) {
-    const n2 = Math.max(0, Number(p2.reserve) || 0), auf2 = pj.freiAuf === p2.id;
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-frei", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-frei-o", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: n2 + " frei" }),
-          " ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-leise", children: "noch ohne Inhalt" })
+  const PFEIL = /* @__PURE__ */ jsxRuntimeExports.jsx("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M6 9l6 6 6-6" }) });
+  function Modul({ p: p2, m: m2, dran, auf: auf2, farbe }) {
+    const t2 = F.cosModulText(m2), sort = pjm.sort === m2.id, kurz2 = pjm.hakKurz, alleSchritte = m2.offen.slice();
+    if (kurz2 && Date.now() - kurz2.t < 4e3) {
+      const s = Z$1.C.schritte.find((x2) => x2.id === kurz2.sid);
+      if (s && m2.erledigt.indexOf(s) >= 0) alleSchritte.unshift({ kurz: true, s });
+    }
+    const kq = [];
+    if (m2.zahl) for (let i2 = 0; i2 < Math.max(m2.zahl, m2.kq); i2++) kq.push(/* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "kq" + (i2 < Math.min(m2.kq, m2.zahl) ? " an" : i2 < m2.kq ? " an ueber" : ""), style: { "--kf": farbe } }, i2));
+    const unter = t2.o ? t2.o + (t2.o === 1 ? " Schritt" : " Schritte") + " · zuerst: " + m2.offen[0].titel : "noch keine Schritte";
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-mod" + (dran ? " dran" : ""), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "pj-mod-k", onClick: () => F.cosModAufZu(p2.id, m2.id), "aria-expanded": String(auf2), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-mod-o", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: m2.name }),
+          dran ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-dran", children: "dran" }) : null,
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-mod-sp" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-mod-z", children: t2.text }),
+          t2.plus ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-mod-plus", children: "+" + t2.plus }) : null,
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-mod-pf" + (auf2 ? " auf" : ""), children: PFEIL })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "kr", children: viele(n2, "var(--kf)", "hell", 12) })
+        kq.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "kr pj-mod-kq", children: kq }) : null,
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-mod-u", children: unter })
       ] }),
-      auf2 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-frei-in", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", id: "pjFreiIn", "aria-label": "Kästchen beschreiben", placeholder: "Verb, was, woran merkst du das Ende", autoComplete: "off", enterKeyHint: "done", onKeyDown: (e) => F.pjFreiTaste(e, p2.id) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onPointerDown: (e) => e.preventDefault(), onClick: () => F.pjFreiSpeichern(p2.id), children: "OK" })
-      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.pjFreiOeffnen(p2.id), children: n2 ? "Eins beschreiben" : "Neues Kästchen" })
+      auf2 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-mod-in", children: [
+        !alleSchritte.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-leise pj-mod-leer", children: "Noch keine Schritte." }) : null,
+        alleSchritte.map((x2, i2) => x2.kurz ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-sz kurz", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-kreis an", children: HAKEN }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-sz-t", children: x2.s.titel }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.cosModHakenZurueck(), children: "Rückgängig" })
+        ] }, "k" + x2.s.id) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-sz" + (Z$1.frisch[x2.id] && Date.now() - Z$1.frisch[x2.id] < 1500 ? " frisch" : ""), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-kreis", onClick: () => F.cosModHaken(x2.id), "aria-label": "abhaken: " + x2.titel }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-sz-t", children: x2.titel }),
+          sort ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "pj-sz-pf", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosModSchrittRuecken(p2.id, m2.id, x2.id, -1), disabled: x2 === m2.offen[0], "aria-label": "nach oben", children: "↑" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosModSchrittRuecken(p2.id, m2.id, x2.id, 1), disabled: x2 === m2.offen[m2.offen.length - 1], "aria-label": "nach unten", children: "↓" })
+          ] }) : null
+        ] }, x2.id)),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-sz-neu", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", id: "modNeu" + m2.id, "aria-label": "Neuer Schritt unten", placeholder: "Neuer Schritt: Verb plus Gegenstand", autoComplete: "off", enterKeyHint: "done", onKeyDown: (e) => F.cosModSchrittTaste(e, p2.id, m2.id) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onPointerDown: (e) => e.preventDefault(), onClick: () => F.cosModSchrittNeu(p2.id, m2.id), "aria-label": "Schritt unten anfügen", children: "+" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-mod-f", children: [
+          sort && !m2.allg ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "pj-zahlw", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Zahl" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosModZahl(p2.id, m2.id, -1), disabled: !m2.zahl, "aria-label": "Zahl weniger", children: "−" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: m2.zahl || "ohne" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosModZahl(p2.id, m2.id, 1), "aria-label": "Zahl mehr", children: "+" })
+          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.cosModSortZu(m2.id), children: sort ? "Fertig" : "Bearbeiten" })
+        ] })
+      ] }) : null
     ] });
   }
-  function Offen({ p: p2, alle: alle2, mac: mac2 }) {
-    const liste = F.cosListe(p2), h2 = A$2.heute();
-    const konkret = F.pjSortiert(liste.filter((s) => s.status === "offen")), grob = liste.filter((s) => s.status === "grob"), park = liste.filter((s) => s.status === "park");
-    const weiter = {};
-    liste.forEach((s) => {
-      if (s.weiterBei) weiter[String(s.weiterBei).trim()] = s.id;
-    });
-    const zeile = (s) => {
-      const sp = Math.floor(F.cosMin(s, alle2) / K.MIN), seit = F.pjSeitText(s), frisch = Z$1.frisch[s.id] && Date.now() - Z$1.frisch[s.id] < 1500;
-      const ausWeiter = weiter[String(s.titel).trim()] && weiter[String(s.titel).trim()] !== s.id;
-      const unter = [
-        s.abschnitt ? s.abschnitt : "",
-        !mac2 && seit ? "seit " + seit : "",
-        ausWeiter ? "aus Weiter bei" : "",
-        s.k > 1 || sp ? s.k + " Kästchen" + (sp ? ", " + sp + " geschafft" : "") : "",
-        s.wann === h2 ? "heute" : ""
-      ].filter(Boolean).join(" · ");
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "pj-z" + (frisch ? " frisch" : ""), "data-sid": s.id, onClick: () => F.cosSchrittOeffnen(s.id), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-q" + (sp ? " teil" : "") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "pj-t", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: s.titel }),
-          unter ? /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: unter }) : null
-        ] }),
-        mac2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-seit", children: seit ? "seit " + seit : "" }) : null
-      ] }, s.id);
-    };
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "karte pj-offen", children: [
+  function NeuModul({ p: p2 }) {
+    const f2 = pjm.neu;
+    if (!f2 || f2.pid !== p2.id) return /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-mod-neu", onClick: () => F.cosModNeuAuf(p2.id), children: "+ Neues Modul" });
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-mod-form", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+        "Name des Moduls",
+        /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", id: "modNeuName", defaultValue: f2.name, placeholder: "zum Beispiel Akt 3", autoComplete: "off", enterKeyHint: "done", onKeyDown: (e) => {
+          if (e.key === "Enter") F.cosModNeuAnlegen();
+        } })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-zahlw", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Kästchen geschätzt" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosModNeuZahl(-1), disabled: !f2.zahl, "aria-label": "weniger", children: "−" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: f2.zahl || "ohne" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosModNeuZahl(1), "aria-label": "mehr", children: "+" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-mod-form-k", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.cosModNeuAuf(p2.id), children: "Abbrechen" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-anlegen", onClick: () => F.cosModNeuAnlegen(), children: "Anlegen" })
+      ] })
+    ] });
+  }
+  function Module({ p: p2, b, farbe }) {
+    const dran = b.mods.find((m2) => m2.offen.length), auf2 = F.cosModOffen(p2), offen2 = b.mods.reduce((n2, m2) => n2 + m2.offen.length, 0);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "karte pj-module", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-k", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Offen" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-leise", children: konkret.length + " konkret · älteste oben" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Module" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-leise", children: b.mods.length + (b.mods.length === 1 ? " Modul · " : " Module · ") + offen2 + (offen2 === 1 ? " Schritt offen" : " Schritte offen") })
       ] }),
-      konkret.length ? konkret.map(zeile) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-leer", children: "Noch nichts Konkretes. Beschreib ein freies Kästchen oder zerleg etwas Grobes." }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-kaesten", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Frei$1, { p: p2 }),
-        grob.map((s) => {
-          const rest = Math.max(0, s.k - Math.floor(F.cosMin(s, alle2) / K.MIN));
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-grob", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-grob-l", children: "Grob" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: s.titel + (mac2 ? " · etwa " + rest : "") }),
-            mac2 ? null : /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "etwa " + rest + (rest === 1 ? " Kästchen" : " Kästchen") + " · in der Wochenrunde zerlegen" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.cosZerlegen(s.id), children: "Zerlegen" })
-          ] }, s.id);
-        })
-      ] }),
-      park.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-park", onClick: () => F.cosKlappen("geparkt"), "aria-expanded": String(!!Z$1.auf.geparkt), children: "Geparkt · " + park.length }) : null,
-      park.length && Z$1.auf.geparkt ? park.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-parkz", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "t", onClick: () => F.cosSchrittOeffnen(s.id), children: s.titel }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.cosSchrittStatus(s.id, "offen"), children: "Zurückholen" })
-      ] }, "p" + s.id)) : null
+      !b.mods.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "pj-leer", children: "Noch kein Modul." }) : null,
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-mod-l", children: b.mods.map((m2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Modul, { p: p2, m: m2, dran: m2 === dran, auf: auf2 === m2.id, farbe }, m2.id)) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(NeuModul, { p: p2 })
     ] });
   }
-  function Erledigt({ p: p2, alle: alle2 }) {
-    const erl = F.pjErledigt(p2, alle2), zeigen2 = pj.erlAlle ? erl : erl.slice(0, pj.ERL), wk2 = F.pjWocheKq(erl);
+  function Erledigt({ p: p2, farbe, alle: alle2 }) {
+    const erl = F.cosErledigtSchritte(p2), zeigen2 = pj.erlAlle ? erl : erl.slice(0, 3), zeit2 = F.cosZeitTage(p2, alle2), zeitZ = pjm.zeitAlle ? zeit2 : zeit2.slice(0, 5);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "karte pj-erl", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-k", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Erledigt" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-leise", children: wk2 ? "diese Woche " + wk2 + (wk2 === 1 ? " Kästchen" : " Kästchen") : "diese Woche noch nichts" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-leise", children: "abgehakte Schritte, neueste oben" })
       ] }),
-      erl.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-erl-l", children: zeigen2.map((e, i2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-e", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-q an", children: HAKEN }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "pj-t", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: e.titel }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: F.pjDatum(e.iso) + (e.zeit ? " · " + e.zeit : "") })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-min", children: e.m + " Min" })
-      ] }, i2)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-leer", children: "Noch kein Kästchen in den letzten sechs Wochen." }),
-      erl.length > pj.ERL ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-aelter", onClick: () => F.pjErlKlappen(), children: pj.erlAlle ? "Weniger zeigen" : "Ältere zeigen · " + (erl.length - pj.ERL) }) : null
+      erl.length ? zeigen2.map((e) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-sz erl", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-kreis an", onClick: () => F.cosModWiederOffen(e.s.id), "aria-label": "wieder öffnen: " + e.s.titel, title: "wieder öffnen", children: HAKEN }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "pj-sz-t", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: e.s.titel }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: e.m.name + (e.s.abgehakt ? " · " + F.pjDatum(e.s.abgehakt) : "") })
+        ] })
+      ] }, e.s.id)) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-leer", children: "Noch kein Schritt abgehakt." }),
+      erl.length > 3 ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-aelter", onClick: () => F.cosErlKlappen(), children: pj.erlAlle ? "Weniger zeigen" : "Ältere zeigen · " + (erl.length - 3) }) : null,
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-k pj-zeit-k", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Zeit" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-leise", children: "Kästchen pro Tag" })
+      ] }),
+      zeit2.length ? zeitZ.map((z2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-zeit", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: F.pjDatum(z2.iso) + " · " + z2.n + (z2.n === 1 ? " Kästchen" : " Kästchen") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "kr", children: viele(z2.n, farbe, "an", 12, "z") })
+      ] }, z2.iso)) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-leer", children: "Noch keine Kästchen." }),
+      zeit2.length > 5 ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-aelter", onClick: () => F.cosZeitKlappen(), children: pjm.zeitAlle ? "Weniger zeigen" : "Ältere zeigen · " + (zeit2.length - 5) }) : null
     ] });
   }
-  function Projekt({ p: p2, mitZurueck, mac: mac2 }) {
-    const alle2 = F.cosAlleBloecke(), farbe = F.cosFarbe(p2.bereich), z2 = F.pjZahlen(p2, alle2);
+  function Projekt({ p: p2, mac: mac2 }) {
+    const alle2 = F.cosAlleBloecke(), farbe = F.cosFarbe(p2.bereich), b = F.cosProjektBalken(p2, alle2);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj" + (mac2 ? " mac" : ""), style: { "--kf": farbe }, children: [
-      mitZurueck ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-nav", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "pj-zurueck", onClick: () => F.cosOeffnenId(null), "aria-label": "Zurück zum Chief", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.6", strokeLinecap: "round", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M15 6l-6 6 6 6" }) }),
-          "Chief"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Projekt" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.cosProjektOeffnen(p2.id), children: "Bearbeiten" })
-      ] }) : null,
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$3, { p: p2, z: z2, farbe, mac: mac2 }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$3, { p: p2, b, farbe, mac: mac2 }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Notiz, { p: p2, mac: mac2 }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Offen, { p: p2, alle: alle2, mac: mac2 }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Erledigt, { p: p2, alle: alle2 })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Module, { p: p2, b, farbe }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Erledigt, { p: p2, farbe, alle: alle2 })
     ] });
   }
   function Reiter({ offenP }) {
@@ -35801,22 +35986,6 @@ img.ProseMirror-separator {
     ] });
   }
   const RundeLink = () => /* @__PURE__ */ jsxRuntimeExports.jsx("a", { className: "cos-runde", target: "_blank", rel: "noopener", href: K.CLAUDE, children: "Wochenrunde mit Claude" });
-  function Uebersicht() {
-    const aktiv = Z$1.C.projekte.filter((p2) => p2.status === "aktiv");
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "karte cos-pl-karte", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "ras-h2", children: "3 · Projekte" }),
-        aktiv.length ? aktiv.map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsx(ProjektZeile, { p: p2 }, p2.id)) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis cos-pl-leer", children: "Kein aktives Projekt. Hol eins vom Parkplatz oder leg ein neues an." }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-pl-fuss", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosKlappen("park"), "aria-expanded": String(!!Z$1.auf.park), children: "Parkplatz · " + F.cosParkZahl() }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "cos-link", onClick: () => F.cosProjektNeu(), children: "+ Projekt" })
-        ] }),
-        Z$1.auf.park ? /* @__PURE__ */ jsxRuntimeExports.jsx(ParkListe, {}) : null
-      ] }),
-      aktiv.length > K.AKTIV_MAX ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-unter eng", children: "Mehr als drei aktive Projekte verteilen die Kästchen dünn. Eins parken?" }) : null,
-      /* @__PURE__ */ jsxRuntimeExports.jsx(RundeLink, {})
-    ] });
-  }
   function MacFuss() {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-mac-fuss", children: [
@@ -35852,19 +36021,23 @@ img.ProseMirror-separator {
     ] });
     const alt = F.cosServerAlt() ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "karte cos-hinweis", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Der Server ist noch alt, Bearbeiten geht erst danach. Einmal: ./bereitstellen.sh server" }) }) : null;
     let offenP = Z$1.projekt ? F.cosPid(Z$1.projekt) : null;
-    if (A$2.macSpalten() < 2) return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      alt,
-      offenP ? /* @__PURE__ */ jsxRuntimeExports.jsx(Projekt, { p: offenP, mitZurueck: true, mac: false }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Vornehmen, {}),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Woche, {}),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Runde, {}),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Uebersicht, {})
-      ] })
-    ] });
     if (!offenP) {
       offenP = C2.projekte.find((p2) => p2.status === "aktiv") || C2.projekte[0] || null;
       Z$1.projekt = offenP ? offenP.id : null;
     }
+    const seite = offenP ? /* @__PURE__ */ jsxRuntimeExports.jsx(Projekt, { p: offenP, mac: A$2.macSpalten() >= 2 }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Noch kein Projekt." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Leg oben mit + Projekt eins an." })
+    ] });
+    if (A$2.macSpalten() < 2) return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      alt,
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Reiter, { offenP }),
+      seite,
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Vornehmen, {}),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Woche, {}),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Runde, {}),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MacFuss, {})
+    ] });
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       alt,
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-zwei", children: [
@@ -35876,10 +36049,7 @@ img.ProseMirror-separator {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Reiter, { offenP }),
-          offenP ? /* @__PURE__ */ jsxRuntimeExports.jsx(Projekt, { p: offenP, mitZurueck: false, mac: true }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Noch kein Projekt." }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Leg oben mit + Projekt eins an." })
-          ] })
+          seite
         ] })
       ] })
     ] });
@@ -37582,7 +37752,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611250020';
+const PWA_VERSION = '202611250031';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -39818,7 +39988,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 00:20</div>
+<div id="testband">TEST 00:31</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
