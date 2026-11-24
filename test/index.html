@@ -876,31 +876,6 @@
   .cos-wahlzeile .t small { font-size: var(--schrift-klein); color: var(--leise); }
   .cos-wahlzeile .kr { flex: none; flex-wrap: nowrap; }
 
-  /* Mac: Tag als Leiste */
-  .cos-ls-k { display: flex; align-items: baseline; gap: var(--abstand-4); margin-bottom: var(--abstand-4); }
-  .cos-ls-k span { flex: 1; text-align: right; font-size: var(--schrift-klein); color: var(--leise); }
-  .cos-ls { position: relative; max-height: 72vh; overflow-y: auto; }
-  .cos-ls-feld { position: relative; margin: var(--abstand-4) 0 var(--abstand-2) 40px; }
-  .cos-ls-std { position: absolute; left: -40px; right: 0; border-top: 1px solid var(--linie); }
-  .cos-ls-std span { position: absolute; left: 0; top: -7px; font-size: var(--schrift-mini); color: var(--leise); background: var(--karte); padding-right: var(--abstand-2); font-variant-numeric: tabular-nums; }
-  .cos-ls-t { position: absolute; left: 0; right: 0; border-radius: var(--radius-klein); padding: var(--abstand-1) var(--abstand-3); font-size: var(--schrift-mini); color: var(--leise); overflow: hidden;
-    background: repeating-linear-gradient(135deg, var(--chip) 0 5px, var(--karte) 5px 10px); box-shadow: inset 0 0 0 1px var(--linie); }
-  .cos-ls-t b { font-weight: 600; }
-  .cos-ls-t.flex { background: none; box-shadow: inset 0 0 0 1px var(--linie); opacity: .6; }
-  .cos-ls-b { position: absolute; left: 6px; right: 6px; border-radius: var(--radius-mittel); padding: var(--abstand-1) var(--abstand-4); overflow: hidden; display: flex; align-items: baseline; align-content: flex-start; gap: 0 var(--abstand-4); font-size: var(--schrift-klein); line-height: 1.25; z-index: 1; touch-action: none; }
-  .cos-ls-b b { order: 2; flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cos-ls-b .z { order: 1; flex: none; }
-  .cos-ls-b .z { font-size: var(--schrift-mini); opacity: .8; font-variant-numeric: tabular-nums; }
-  .cos-ls-b.voll { background: var(--kf); color: var(--weiss); }
-  .cos-ls-b.nicht { background: var(--chip); color: var(--leise); }
-  .cos-ls-b.lauf { background: var(--kf); color: var(--weiss); box-shadow: 0 0 0 3px var(--akzent-hell); }
-  .cos-ls-b.plan { background: var(--karte); box-shadow: inset 0 0 0 2px var(--kf); cursor: grab; }
-  .cos-ls-b.plan.zieht { cursor: grabbing; box-shadow: inset 0 0 0 2px var(--kf), 0 8px 24px var(--schatten-ziehen); z-index: 3; }
-  .cos-ls-task { position: absolute; left: 6px; right: 6px; height: 16px; margin-top: calc(-1 * var(--abstand-4)); border-left: 3px solid var(--gold); padding-left: var(--abstand-3); font-size: var(--schrift-mini); color: var(--gold); z-index: 2;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
-  .cos-ls-jetzt { position: absolute; left: -6px; right: 0; height: 2px; margin-top: calc(-1 * var(--abstand-1)); background: var(--jetzt-linie-mac); z-index: 4; pointer-events: none; }
-  .cos-ls-drop { display: none; position: absolute; left: 6px; right: 6px; height: 30px; border-radius: var(--radius-mittel); border: 2px dashed var(--akzent); background: var(--akzent-hell); color: var(--akzent);
-    font-size: var(--schrift-klein); font-weight: 700; padding: var(--abstand-2) var(--abstand-4); z-index: 5; pointer-events: none; }
   .cos-paar .voll { background: var(--knopf-blau); color: var(--weiss); }
   @media (prefers-color-scheme: dark) { .cos-paar .voll, .cos-primaer, .cos-chips > button:first-child, .cos-zeiten button.an, .cos-andere.an { background: var(--knopf-blau-dunkel); } }
   @media (prefers-color-scheme: dark) { .cos-aktionen button.blau, .cos-uebernehmen button { background: var(--knopf-blau-dunkel); } }
@@ -3108,14 +3083,13 @@ function cosGriffTaste(e) {
   }
 }
 
-/* ── Tag: Fokus wird zu Kästchen. Zeitleiste, Kästchen des Tages, Heute mit Uhrzeiten, Tasks mit Uhrzeit, Leiste am Mac ──
+/* ── Tag: Fokus wird zu Kästchen. Zeitleiste, Kästchen des Tages, Heute mit Uhrzeiten, Tasks mit Uhrzeit ──
    Gespeichert wird wie bisher: ein eingeplantes Kästchen ist ein Block im Kalender Blöcke (mit Erinnerung zur Startzeit),
    "ohne Uhrzeit" ist Wann = heute am Schritt. Die Kästchen des Tages (n) und die Uhrzeiten der Tasks liegen in appChiefMerken. */
-const COS_TAG_VON = 8 * 60, COS_TAG_BIS = 22 * 60, COS_SPAET = 23 * 60, COS_PX = 44 / 60;
+const COS_SPAET = 23 * 60;
 let cosBelegt = null, cosBelegtLaedt = false;
 let cosWannAuf = null;           // Zeile, deren Uhrzeiten gerade offen sind
 let cosNaechsterJetzt = null;    // Schritt in der Karte Als Nächstes: { id, k }
-let cosLsZieh = null;            // Ziehen in der Leiste am Mac
 
 function cosMerkSetzen(k, wert, ohneVerlauf) {
   if (!C) return;
@@ -3712,83 +3686,9 @@ function cosInhaltSetzen(b, sid, titel) {
   const s = C.schritte.find(x => x.id === id);
   melden((b.key ? 'Drin: ' : 'Für heute: ') + (s ? s.titel : titel));
 }
-/* ── Mac: der Tag als Leiste von oben nach unten. Eingeplantes ziehen verschiebt, Vorschläge darauf ziehen plant ein ── */
-function cosLsBereich() {
-  const bl = cosHeuteBloecke(), termine = cosTermine();
-  let von = COS_TAG_VON, bis = COS_TAG_BIS;
-  bl.forEach(x => { von = Math.min(von, Math.floor(minVon(x.b.gestartet || x.b.start) / 60) * 60); bis = Math.max(bis, Math.ceil(minVon(x.b.ende) / 60) * 60); });
-  termine.forEach(t => { von = Math.min(von, Math.floor(t.s / 60) * 60); bis = Math.max(bis, Math.min(24 * 60, Math.ceil(t.e / 60) * 60)); });
-  return { von: Math.max(0, von), bis: Math.min(24 * 60, bis) };
-}
-function cosLsMinute(clientY) {
-  const feld = document.querySelector('#cosLeiste .cos-ls-feld'), r = cosLsBereich();
-  if (!feld) return null;
-  const top = feld.getBoundingClientRect().top;
-  return Math.max(r.von, Math.min(r.bis - 15, Math.round(((clientY - top) / COS_PX + r.von) / 5) * 5));
-}
-function cosLsZiehStart(e, key) {
-  if (e.button > 0) return;
-  const el = e.currentTarget;
-  e.preventDefault();
-  cosLsZieh = { key: key, el: el, y0: e.clientY, top0: parseFloat(el.style.top) || 0, start: null, bewegt: false };
-  try { el.setPointerCapture(e.pointerId); } catch (x) { /* egal */ }
-  el.classList.add('zieht');
-  window.addEventListener('pointermove', cosLsZiehen);
-  window.addEventListener('pointerup', cosLsZiehEnde);
-  window.addEventListener('pointercancel', cosLsZiehEnde);
-}
-function cosLsZiehen(e) {
-  const z = cosLsZieh;
-  if (!z) return;
-  const r = cosLsBereich(), dy = e.clientY - z.y0;
-  if (Math.abs(dy) > 3) z.bewegt = true;
-  const m = Math.max(r.von, Math.min(r.bis - 15, Math.round(((z.top0 + dy) / COS_PX + r.von) / 5) * 5));
-  z.start = m;
-  z.el.style.top = Math.round((m - r.von) * COS_PX) + 'px';
-  const zeit = z.el.querySelector('.z');
-  if (zeit) zeit.textContent = cosUhr(m);
-}
-function cosLsZiehEnde() {
-  const z = cosLsZieh;
-  cosLsZieh = null;
-  window.removeEventListener('pointermove', cosLsZiehen);
-  window.removeEventListener('pointerup', cosLsZiehEnde);
-  window.removeEventListener('pointercancel', cosLsZiehEnde);
-  if (!z) return;
-  z.el.classList.remove('zieht');
-  const b = bloeckeVon(heute()).find(x => x.key === z.key);
-  if (!z.bewegt || z.start == null || !b) { if (!z.bewegt) cosSitzungOeffnen(z.key); else heuteNeu(); return; }
-  if (z.start === minVon(b.start)) { heuteNeu(); return; }
-  cosVerschieben(z.key, z.start);
-}
-function cosDragZeile(e, art, wert, k) {
-  e.dataTransfer.setData('text/plain', 'cosz:' + art + ':' + wert + ':' + k);
-  e.dataTransfer.effectAllowed = 'move';
-}
-function cosLsUeber(e) {
-  e.preventDefault();
-  const m = cosLsMinute(e.clientY), d = $('cosLsDrop'), r = cosLsBereich();
-  if (m == null || !d) return;
-  d.style.display = 'block';
-  d.style.top = Math.round((m - r.von) * COS_PX) + 'px';
-  d.textContent = 'Hier ablegen · ' + cosUhr(m);
-}
-function cosLsRaus(e) { const d = $('cosLsDrop'); if (d && !e.currentTarget.contains(e.relatedTarget)) d.style.display = 'none'; }
-function cosLsAblegen(e) {
-  e.preventDefault();
-  const d = $('cosLsDrop');
-  if (d) d.style.display = 'none';
-  const t = e.dataTransfer.getData('text/plain') || '', m = cosLsMinute(e.clientY);
-  const teile = t.split(':');
-  if (teile[0] !== 'cosz' || m == null) return;
-  const art = teile[1], k = Number(teile[teile.length - 1]) || 1, wert = teile.slice(2, -1).join(':');
-  if (art === 'b') cosVerschieben(wert, m);
-  else if (art === 's') cosEinplanen([{ id: wert, start: cosUhr(m), k: Math.min(COS_SITZUNG, k) }]);
-}
-/* Nach heuteNeu: Tasks Karte und Leiste nachziehen */
+/* ── Mac und Tag: nach heuteNeu die Karte Tasks nachziehen ── */
 function cosTagNeu() {
-  if ($('cosTasksBox')) ZentraleUI.chiefNeu('tasks');   // React (ui/src/chief/TasksKarte.jsx, LeisteKarte.jsx)
-  if ($('cosLeiste') && !cosLsZieh) ZentraleUI.chiefNeu('leiste');
+  if ($('cosTasksBox')) ZentraleUI.chiefNeu('tasks');   // React (ui/src/chief/TasksKarte.jsx)
 }
 
 /* V96: der Balken von V69 gilt nur noch ohne Plan (pt|heute), darum hier */
@@ -11865,9 +11765,6 @@ var ZentraleUI = function(exports) {
     get HINWEIS_JOKER() {
       return COS_HINWEIS_JOKER;
     },
-    get PX() {
-      return COS_PX;
-    },
     get CLAUDE() {
       return COS_CLAUDE;
     },
@@ -12257,7 +12154,6 @@ var ZentraleUI = function(exports) {
       d
     ] });
   }
-  const mac$4 = () => document.body.classList.contains("mac");
   function Erledigt$2({ r: r2 }) {
     const x2 = r2.x, b = x2.b, s = x2.s, titel = F.cosTrTitel(x2), ok2 = F.fokusMin(A$2.heute(), b) > 0 && F.zaehlt(b), erl = !!s && s.status === "fertig";
     const a = Z$1.tagAuf, hier = a && a.key === b.key ? a.art : "";
@@ -12383,9 +12279,8 @@ var ZentraleUI = function(exports) {
   }
   function Aufgabe({ o, busy }) {
     const pid = o.p.id, sid = o.s.id, titel = o.s.titel, id2 = "td:" + sid;
-    const ziehen = mac$4() ? { draggable: "true", onDragStart: (e) => F.cosDragZeile(e.nativeEvent, "s", sid, 1) } : {};
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-auf", ...ziehen, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-auf", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-was", onClick: () => F.cosInhaltOeffnen(pid, "", sid, ""), children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-titel", children: titel }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-kn", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(UhrKnopf, { id: id2, name: titel }),
@@ -12457,7 +12352,6 @@ var ZentraleUI = function(exports) {
       ] })
     ] });
   }
-  const mac$3 = () => document.body.classList.contains("mac");
   function TrKq({ k: k2, farbe, klasse }) {
     const l2 = [];
     for (let i2 = 0; i2 < Math.min(6, k2); i2++) l2.push(/* @__PURE__ */ jsxRuntimeExports.jsx(Kq, { farbe, klasse }, i2));
@@ -12502,8 +12396,7 @@ var ZentraleUI = function(exports) {
     }
     const unter = (weiter ? weiter + " · " : "") + (s && p2 ? p2.name : b.bereich === "Sonstiges" ? "aus dem Kalender" : b.bereich + " · aus dem Kalender") + (b.lokal ? " · wird angelegt …" : "");
     const fb2 = Z$1.frischB, frisch = fb2 && Date.now() - fb2.t < 1200 && s && fb2.ids.indexOf(s.id) >= 0;
-    const ziehen = mac$3() && !b.lokal ? { draggable: "true", onDragStart: (e) => F.cosDragZeile(e.nativeEvent, "b", b.key, x2.k) } : {};
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-tr plan" + (frisch ? " frisch" : ""), style: { "--pf": f2 }, ...ziehen, children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-tr plan" + (frisch ? " frisch" : ""), style: { "--pf": f2 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "cos-tr-in", onClick: oeffnen2, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cos-tr-zeit", children: b.start }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cos-tr-strich" }),
@@ -35203,7 +35096,7 @@ img.ProseMirror-separator {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Spalten, { spalten: sp })
     ] });
   }
-  function Innen$2() {
+  function Innen$1() {
     const h2 = A$2.heute(), ht = Z$1.heuteTasks || [], zeiten = F.cosMerk("tz|" + h2) || {};
     const kopf2 = /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-tasks-k", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cos-ab gold", children: "Tasks · unter 30 Minuten" }),
@@ -35244,47 +35137,7 @@ img.ProseMirror-separator {
   function TasksKarte() {
     const stand2 = useTeil("tasks");
     if (!F.cosTagAn()) return null;
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "karte cos-tasks", id: "cosTasksBox", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Innen$2, {}, stand2 + "|" + zug()) });
-  }
-  function Innen$1() {
-    const h2 = A$2.heute(), jm = A$2.jetztMin(), r2 = F.cosLsBereich(), y2 = (m2) => Math.round((m2 - r2.von) * K.PX), tz = F.cosMerk("tz|" + h2) || {};
-    const std = [];
-    for (let m2 = r2.von; m2 < r2.bis; m2 += 60) std.push(/* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-ls-std", style: { top: y2(m2) + "px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: m2 / 60 + ":00" }) }, "s" + m2));
-    const termine = F.cosTermine().map((t2, j) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-ls-t" + (t2.flex ? " flex" : ""), style: { top: y2(t2.s) + "px", height: Math.max(16, y2(t2.e) - y2(t2.s)) + "px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: t2.t }) }, "t" + j));
-    const bloecke = F.cosHeuteBloecke().map((x2) => {
-      const b = x2.b, s = x2.s, p2 = s && F.cosNachName(s.projekt), f2 = F.cosFarbe(p2 ? p2.bereich : b.bereich);
-      const fertig = !!b.status || !!b.beendet, laeuft = !fertig && !!b.gestartet, plan2 = !fertig && !laeuft && A$2.minVon(b.start) > jm && !b.lokal;
-      const a = A$2.minVon(b.gestartet || b.start), e = A$2.minVon(b.beendet || b.ende);
-      const titel = s ? s.titel : F.blockName(b);
-      const ziehen = plan2 ? { onPointerDown: (ev) => F.cosLsZiehStart(ev, b.key), onDoubleClick: () => F.cosSitzungOeffnen(b.key) } : {};
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-ls-b " + (fertig ? b.status === "nicht" ? "nicht" : "voll" : laeuft ? "lauf" : "plan"), style: { top: y2(a) + "px", height: Math.max(18, y2(e) - y2(a) - 2) + "px", "--kf": f2 }, ...ziehen, "data-key": b.key, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: titel }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "z", children: (b.gestartet || b.start) + (fertig ? " ✓" : laeuft ? " · läuft" : "") })
-      ] }, "b" + b.key);
-    });
-    const tasks = (Z$1.heuteTasks || []).map((t2, j) => {
-      const z2 = tz[t2.ref];
-      return z2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-ls-task", style: { top: y2(A$2.minVon(z2)) + "px" }, children: F.cosKurz(t2.titel, 30) }, "k" + j) : null;
-    });
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-ls-feld", style: { height: y2(r2.bis) + "px" }, children: [
-      std,
-      termine,
-      bloecke,
-      tasks,
-      jm >= r2.von && jm <= r2.bis ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-ls-jetzt", style: { top: y2(jm) + "px" } }) : null,
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-ls-drop", id: "cosLsDrop" })
-    ] });
-  }
-  function LeisteKarte() {
-    const stand2 = useTeil("leiste");
-    if (!F.cosTagAn() || A$2.macSpalten() < 2) return null;
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte cos-ls-karte", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-ls-k", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Tag" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Ziehen verschiebt die Uhrzeit, auch im Kalender" })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-ls", id: "cosLeiste", onDragOver: (e) => F.cosLsUeber(e), onDragLeave: (e) => F.cosLsRaus(e), onDrop: (e) => F.cosLsAblegen(e), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Innen$1, {}, stand2 + "|" + zug()) })
-    ] });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "karte cos-tasks", id: "cosTasksBox", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Innen$1, {}, stand2 + "|" + zug()) });
   }
   function innen(iso) {
     const t2 = F.cosTag(iso), h2 = A$2.heute(), n2 = t2.farben.length;
@@ -35369,7 +35222,7 @@ img.ProseMirror-separator {
     const sp = Array.from({ length: n2 }, () => []);
     const kopfK = karten.filter((b) => name(b) === "kopf"), notizK = karten.filter((b) => name(b) === "notiz");
     const rest = karten.filter((b) => kopfK.indexOf(b) === -1 && notizK.indexOf(b) === -1);
-    sp[0].push(...fokus.map(teil), /* @__PURE__ */ jsxRuntimeExports.jsx(LeisteKarte, {}, "leiste"));
+    sp[0].push(...fokus.map(teil));
     sp[1].push(...kopfK.concat(notizK).map(teil), ...listen);
     const rechts = n2 === 3 ? 2 : 1;
     if (n2 === 3) sp[2].push(woche);
@@ -37646,7 +37499,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611241836';
+const PWA_VERSION = '202611242307';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -39840,7 +39693,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 18:36</div>
+<div id="testband">TEST 23:07</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
