@@ -35576,7 +35576,7 @@ img.ProseMirror-separator {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "notiz" + (an ? " an" : "") + (className ? " " + className : ""), children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "notiz-kopf" + (kopfKlasse ? " " + kopfKlasse : ""), children: [
         kopf2,
-        an && ed2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "notiz-leiste", role: "toolbar", "aria-label": "Format", children: KNOEPFE.map((k2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        an && ed2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "notiz-leiste", role: "toolbar", "aria-label": "Format", onMouseDown: (e) => e.preventDefault(), children: KNOEPFE.map((k2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
             type: "button",
@@ -35584,6 +35584,7 @@ img.ProseMirror-separator {
             "aria-label": k2.name,
             "aria-pressed": String(k2.an(ed2)),
             onPointerDown: (e) => e.preventDefault(),
+            onMouseDown: (e) => e.preventDefault(),
             onClick: () => k2.tun(ed2.chain().focus()).run(),
             children: k2.bild
           },
@@ -37642,8 +37643,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611241719';
-const PWA_NAME = "V114 Projektnotiz live wieder Textfeld, Tiptap auf der Testseite mit Protokoll";
+const PWA_VERSION = '202611241727';
+const PWA_NAME = "";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert

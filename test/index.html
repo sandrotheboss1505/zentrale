@@ -35576,7 +35576,7 @@ img.ProseMirror-separator {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "notiz" + (an ? " an" : "") + (className ? " " + className : ""), children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "notiz-kopf" + (kopfKlasse ? " " + kopfKlasse : ""), children: [
         kopf2,
-        an && ed2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "notiz-leiste", role: "toolbar", "aria-label": "Format", children: KNOEPFE.map((k2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        an && ed2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "notiz-leiste", role: "toolbar", "aria-label": "Format", onMouseDown: (e) => e.preventDefault(), children: KNOEPFE.map((k2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
             type: "button",
@@ -35584,6 +35584,7 @@ img.ProseMirror-separator {
             "aria-label": k2.name,
             "aria-pressed": String(k2.an(ed2)),
             onPointerDown: (e) => e.preventDefault(),
+            onMouseDown: (e) => e.preventDefault(),
             onClick: () => k2.tun(ed2.chain().focus()).run(),
             children: k2.bild
           },
@@ -37642,7 +37643,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611241719';
+const PWA_VERSION = '202611241733';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -39836,7 +39837,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 17:19</div>
+<div id="testband">TEST 17:33</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
