@@ -15862,8 +15862,8 @@ var ZentraleUI = function(exports) {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611241437';
-const PWA_NAME = "V111 Balken Animation";
+const PWA_VERSION = '202611241454';
+const PWA_NAME = "V112 Geld Listen am Mac offen";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -15912,7 +15912,7 @@ let spaeterZeichnen = false;
 let abfrageLaeuft = false;
 let geschrieben = 0;           // fertige Speichervorgänge, damit keine alte Abfrage neue Eingaben überschreibt
 let nochmal = false;           // Abfrage nachholen, die kam, während schon eine lief
-const auf = new Set();          // aufgeklappte Listen (Spaltennamen)
+const auf = new Set(matchMedia('(min-width: 760px) and (hover: hover) and (pointer: fine)').matches ? ['Ausgaben', 'Kontostand', 'Ausgaben 7 Tage'] : []);   // aufgeklappte Listen (Spaltennamen), am Mac Geld zu Beginn offen
 const verlauf = [];             // letzte Eingaben, für Rückgängig
 
 const $ = id => document.getElementById(id);

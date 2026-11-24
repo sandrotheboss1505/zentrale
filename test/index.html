@@ -15862,7 +15862,7 @@ var ZentraleUI = function(exports) {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611241435';
+const PWA_VERSION = '202611241449';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -16517,7 +16517,7 @@ let spaeterZeichnen = false;
 let abfrageLaeuft = false;
 let geschrieben = 0;           // fertige Speichervorgänge, damit keine alte Abfrage neue Eingaben überschreibt
 let nochmal = false;           // Abfrage nachholen, die kam, während schon eine lief
-const auf = new Set();          // aufgeklappte Listen (Spaltennamen)
+const auf = new Set(matchMedia('(min-width: 760px) and (hover: hover) and (pointer: fine)').matches ? ['Ausgaben', 'Kontostand', 'Ausgaben 7 Tage'] : []);   // aufgeklappte Listen (Spaltennamen), am Mac Geld zu Beginn offen
 const verlauf = [];             // letzte Eingaben, für Rückgängig
 
 const $ = id => document.getElementById(id);
@@ -18056,7 +18056,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 14:35</div>
+<div id="testband">TEST 14:49</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
