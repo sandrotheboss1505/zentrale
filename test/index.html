@@ -1145,33 +1145,38 @@
   .tg-z.termin.flex .tg-unter { color: var(--akzent); }
   .tg-z.termin.vorbei { opacity: .5; }
   .tg .cos-tf { padding: 0 0 var(--abstand-6) 62px; }
-  /* B2: To Do pro Projekt gebündelt. Kopf Name und n von Menge, offene Aufgaben, freie Plätze umrandet, Uhr Knopf mit Zeitchips */
-  .tg-todo-k { display: flex; align-items: baseline; justify-content: space-between; gap: var(--abstand-5); }
-  .tg-todo-k h3 { margin: 0; font: inherit; }
-  .tg-todo-k span { font-weight: 400; }
-  .tg-gr { display: grid; grid-template-columns: 4px minmax(0, 1fr); gap: 0 var(--abstand-6); padding: var(--abstand-6) 0; border-top: 1px solid var(--linie); }
-  .tg-gr-in { display: flex; flex-direction: column; gap: var(--abstand-2); min-width: 0; }
-  .tg-gr-k { display: flex; align-items: center; justify-content: space-between; gap: var(--abstand-4); min-height: 24px; }
-  .tg-gr-k b { font-weight: 700; }
-  .tg-gr-k span { font-size: var(--schrift-klein); color: var(--leise); white-space: nowrap; }
-  .tg-auf { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--abstand-4); align-items: center; min-height: 48px; }
-  .tg-auf .tg-was { text-align: left; min-height: 44px; display: flex; align-items: center; gap: var(--abstand-4); }
-  .tg-auf .tg-titel { font-weight: 400; }
-  .tg-frei .tg-was { font-style: italic; color: var(--leise); }
-  .tg-fk { display: inline-flex; gap: var(--abstand-1); flex: none; }
-  .tg-fk i { width: 12px; height: 12px; border-radius: var(--radius-klein); box-shadow: inset 0 0 0 1.5px var(--pf); }
-  .tg-uhr { width: 44px; height: 44px; border-radius: var(--radius-gross); background: var(--chip); color: var(--text); display: grid; place-items: center; transition: transform .1s; }
-  .tg-uhr.an { background: var(--linie); }
-  .tg-uhr:active { transform: scale(.94); }
-  .tg-gr .tg-los { width: 44px; height: 44px; }
+  /* T1 To Do neu (ersetzt B2 gebündelt): Kopf mit n von Menge, eine Zeile pro Projekt mit Modul und Kästchen, Los klein, Schritte zum Aufklappen */
+  .td { margin-top: var(--abstand-7); }
+  .td-k { display: flex; align-items: baseline; gap: var(--abstand-5); margin-bottom: var(--abstand-2); font-size: var(--schrift-klein); color: var(--leise); }
+  .td-k h3 { margin: 0; font-size: var(--schrift-klein); font-weight: 700; color: var(--titel); }
+  .td-k b { color: var(--text); }
+  .td-busy { margin-left: auto; }
+  .td-z { border-top: 1px solid var(--linie); }
+  .td-o { display: grid; grid-template-columns: 4px minmax(0, 1fr) auto; gap: 0 var(--abstand-6); align-items: center; min-height: 56px; }
+  .td-o .tg-streif { margin: var(--abstand-5) 0; }
+  .td-was { display: flex; flex-direction: column; align-items: flex-start; gap: var(--abstand-2); min-width: 0; min-height: 48px; justify-content: center; text-align: left; }
+  .td-was:disabled { cursor: default; opacity: 1; }
+  .td-name { display: flex; align-items: baseline; gap: var(--abstand-3); min-width: 0; max-width: 100%; }
+  .td-name b { color: var(--pf); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .td-modul { flex: none; font-size: var(--schrift-klein); color: var(--leise); white-space: nowrap; }
+  .td-kq { display: inline-flex; flex-wrap: wrap; gap: var(--abstand-1); }
+  .td-kq i { width: 12px; height: 12px; border-radius: var(--radius-klein); box-shadow: inset 0 0 0 1.5px var(--pf); }
+  .td-kq i.an { background: var(--pf); box-shadow: none; }
+  .td-kq i.bonus { box-shadow: 0 0 0 1.5px var(--gold-funken); }
+  .td-frei { font-size: var(--schrift-klein); font-style: italic; color: var(--leise); }
+  .td-los { width: 32px; height: 32px; }
+  .td-los svg { width: 12px; height: 12px; }
+  .td-schritte { display: flex; flex-direction: column; padding: 0 0 var(--abstand-5) var(--abstand-7); animation: pjrein .2s ease-out; }
+  .td-s { display: flex; align-items: center; gap: var(--abstand-5); min-height: 40px; color: var(--leise); }
+  .td-s .pj-kreis { --kf: var(--pf); width: 18px; height: 18px; }
+  .td-s.naechst { color: var(--text); }
+  .td-abdruck { display: flex; align-items: center; justify-content: space-between; min-height: 52px; margin: var(--abstand-2) 0; padding: 0 var(--abstand-6); border: 1.5px dashed var(--linie); border-radius: var(--radius-gross); color: var(--leise); }
+  .td-abdruck span:last-child { font-size: var(--schrift-klein); }
+  .tg-heute-k { margin-top: var(--abstand-8); }
   .tg-los.rand { background: none; box-shadow: inset 0 0 0 1.5px var(--pf); }
   .tg-los.rand svg { fill: var(--pf); }
   .tg-los:disabled { opacity: .35; }
-  .tg-chips { display: flex; flex-wrap: wrap; gap: var(--abstand-3); padding: 0 0 var(--abstand-4); }
-  .tg-chips button { height: 36px; padding: 0 var(--abstand-5); border-radius: var(--radius-mittel); background: var(--chip); font-weight: 600; font-variant-numeric: tabular-nums; }
-  .tg-chips button.weg { background: none; color: var(--leise); }
-  .tg-verplant { padding: var(--abstand-4) 0; color: var(--leise); }
-  @media (prefers-reduced-motion: reduce) { .tg-uhr { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .td-schritte { animation: none; } }
   .tg-wahl.an { box-shadow: inset 0 0 0 2px var(--pf); }
   .tg-leer { padding: var(--abstand-6) 0; border-top: 1px solid var(--linie); font-size: var(--schrift-klein); color: var(--leise); }
   .tg-fuss { display: flex; justify-content: space-between; align-items: center; gap: var(--abstand-5); margin-top: var(--abstand-5); padding-top: var(--abstand-6); border-top: 1px solid var(--linie); }
@@ -2444,6 +2449,31 @@ function cosGehalten(iso) {
   }
   return { proP: proP, tag: geplantTag ? ok : null, start: start, soll: soll, ist: ist, joker: joker, erster: erster };
 }
+/* ── T1 To Do neu: eine Zeile pro Projekt mit Menge heute (Raster minus Joker), geschafften Kästchen und übrig = Menge minus geschafft.
+   Dazu das Modul, das dran ist, und seine offenen Schritte (nächster zuerst). Fertige Projekte fallen raus, außer es läuft gerade etwas davon ── */
+function cosTodoZeilen(d) {
+  const lauf = cosLaufendX(), out = [];
+  d.chips.forEach(c => {
+    const menge = Math.max(0, c.m - c.j), n = c.d, uebrig = Math.max(0, menge - n), laeuft = !!(lauf && lauf.s && lauf.s.projekt === c.p.name);
+    if (!uebrig && !laeuft) return;
+    const m = typeof cosModulDran === 'function' ? cosModulDran(c.p) : null;
+    out.push({ p: c.p, menge: menge, n: n, uebrig: uebrig, bonus: Math.max(0, n - menge), modul: m, schritte: m ? m.offen : [], laeuft: laeuft });
+  });
+  return out;
+}
+/* Der laufende Block von heute als { b, s } (oder null) */
+function cosLaufendX() {
+  const jm = jetztMin(), x = cosHeuteBloecke().find(y => !y.b.status && y.b.gestartet && !y.b.beendet && (jm < minVon(y.b.ende) || cosDrueber(y.b)));
+  return x || null;
+}
+/* Neuer Schritt aus "Was kommt rein?": ins Modul, das dran ist, sonst ins letzte Modul des Projekts, sonst Allgemein */
+function cosModulNeuZiel(p) {
+  if (!p || typeof cosModulRoh !== 'function') return '';
+  const d = cosModulDran(p);
+  if (d && !d.allg) return d.id;
+  const l = cosModulRoh(p);
+  return l.length ? l[l.length - 1].id : '';
+}
 /* ── Rechnen für die Woche: Raster (Mengen, Summe, Gemessen, System), Joker, Serie, Kalenderwoche ──
    Stufe 3: aus woche.js und runde.js hierher, unverändert. Nur Lesen und Rechnen, nichts zeichnen. */
 function cosRasterAn() { return !!(P && C && !C.fehlt && C.merk && typeof C.merk === 'object' && !cosServerAlt()); }
@@ -2488,7 +2518,7 @@ function cosJokerKey(iso) { return 'jk|' + tagPlus(cosMontag(iso), 3).slice(0, 4
 function cosJokerRest() { return Math.max(0, COS_JOKER_MAX - (Number(cosMerk(cosJokerKey(heute()))) || 0)); }
 /* Der letzte offene Platz: zuerst To Do (unten), sonst der späteste eingeplante Block, der noch nicht angefangen ist */
 function cosJokerZiel(d) {
-  if (d.todo.length) return { todo: d.todo[d.todo.length - 1] };
+  if (d.todo.length) return { todo: d.todo[0] };   // Entschieden 25.11.: Joker nimmt ein Kästchen vom Projekt, das dran ist (erstes mit übrig)
   const l = d.geplant.filter(r => r.art === 'block' && r.status === 'offen' && r.p && !r.x.b.lokal);
   return l.length ? { block: l[l.length - 1] } : null;
 }
@@ -3474,6 +3504,19 @@ function cosDran(key) {
   }
   zeichnen();
 }
+/* ── T1 To Do: Name antippen klappt die Schritte des Moduls auf, Los startet den nächsten offenen Schritt (ohne Schritte: Blatt zum Schreiben) ── */
+let cosTodoAuf = null;   // Projekt ID mit offenen Schritten
+function cosTodoAufZu(pid) { cosTodoAuf = cosTodoAuf === pid ? null : pid; haptik(); heuteNeu(); }
+function cosTodoLos(pid) {
+  const p = cosPid(pid);
+  if (!p) return;
+  if (cosLaeuftEtwas()) { melden('Es läuft schon ein Kästchen. Erst Fertig, dann das nächste.'); return; }
+  const z = cosTodoZeilen(cosTagDaten()).find(x => x.p.id === pid), k = Math.max(1, Math.min(COS_SITZUNG, z ? z.uebrig : 1));
+  const m = cosModulDran(p);
+  cosTodoAuf = null;
+  if (m && m.offen.length) { cosStart(m.offen[0].id, k); return; }
+  cosInhaltOeffnen(pid, '', '', 'platzlos');
+}
 /* ── V62 Heute vornehmen: pro Projekt Kästchen, Vorschlag vom Chief, ein Tipp auf Passt. Im Chief immer, im Fokus bis bestätigt ── */
 function cosPlanSetzen(pid, d) {
   const pl = cosPlanAktuell();
@@ -3895,7 +3938,7 @@ function cosInhaltPlatzFertig() {
   const start = cosUhr(b.start);
   if (b.wahl) { cosEinplanen([{ id: b.wahl, start: start, k: 1, erinnern: true }]); return; }
   cosGruppe('Selbst geschrieben', () => {   // neuer Schritt ohne Wann, dazu der Block, ein Rückgängig
-    const neu = { id: cosId('s'), abschnitt: '', titel: t, k: 1, fertigWenn: '', status: 'offen', weiterBei: '', wann: '', verschoben: 0, min: 0, bl: {} };
+    const neu = { id: cosId('s'), abschnitt: '', titel: t, k: 1, fertigWenn: '', status: 'offen', weiterBei: '', wann: '', verschoben: 0, min: 0, bl: {}, modul: cosModulNeuZiel(p) };
     cosFrisch[neu.id] = Date.now();
     cosSchritteAendern(p, cosListe(p).concat([neu]), 'Selbst geschrieben');
     cosEinplanen([{ id: neu.id, start: start, k: 1, erinnern: true }]);
@@ -3919,7 +3962,7 @@ function cosInhaltSetzen(b, sid, titel) {
       return x;
     });
     if (titel) {
-      const neu = { id: cosId('s'), abschnitt: '', titel: titel, k: 1, fertigWenn: '', status: 'offen', weiterBei: '', wann: ohneZeit ? h : '', verschoben: 0, min: 0, bl: {} };
+      const neu = { id: cosId('s'), abschnitt: '', titel: titel, k: 1, fertigWenn: '', status: 'offen', weiterBei: '', wann: ohneZeit ? h : '', verschoben: 0, min: 0, bl: {}, modul: cosModulNeuZiel(p) };
       id = neu.id; cosFrisch[id] = Date.now(); liste.push(neu);
     }
     if (titel || ohneZeit) cosSchritteAendern(p, liste, titel ? 'Selbst geschrieben' : 'Inhalt gewählt');
@@ -11975,6 +12018,12 @@ var ZentraleUI = function(exports) {
     get laufFx() {
       return cosLaufFx;
     },
+    get todoAuf() {
+      return typeof cosTodoAuf === "undefined" ? null : cosTodoAuf;
+    },
+    get todoLaeuftAbdruck() {
+      return typeof cosTodoAbdruck === "undefined" ? false : cosTodoAbdruck;
+    },
     set spaeter(v2) {
       spaeterZeichnen = v2;
     }
@@ -12504,58 +12553,49 @@ var ZentraleUI = function(exports) {
       auf2 ? /* @__PURE__ */ jsxRuntimeExports.jsx(TerminWahl, { t: t2, kurz: true }) : null
     ] });
   }
-  const UHR = /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", strokeLinecap: "round", "aria-hidden": "true", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "12", cy: "12", r: "8.5" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M12 7.5V12l3 2" })
-  ] });
-  function UhrKnopf({ id: id2, name }) {
-    const auf2 = Z$1.wannAuf === id2;
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-uhr" + (auf2 ? " an" : ""), onClick: () => F.cosWannAufZu(id2), "aria-expanded": String(auf2), "aria-label": "Wann: " + name, children: UHR });
-  }
-  function Zeitchips({ id: id2, wahl }) {
-    if (Z$1.wannAuf !== id2) return null;
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-chips", children: [
-      F.cosHalbeChips(A$2.jetztMin()).map((m2) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => wahl(m2), children: F.cosUhr(m2) }, m2)),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "weg", onClick: () => F.cosWannAufZu(id2), children: "Abbrechen" })
+  function TodoZeile({ z: z2, busy }) {
+    const p2 = z2.p, farbe = F.cosFarbe(p2.bereich), auf2 = Z$1.todoAuf === p2.id, name = p2.name;
+    const kq = [];
+    for (let i2 = 0; i2 < z2.menge + z2.bonus; i2++) kq.push(/* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: i2 < z2.n ? "an" + (i2 >= z2.menge ? " bonus" : "") : "" }, i2));
+    if (z2.laeuft && Z$1.todoLaeuftAbdruck) return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-abdruck", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: name }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "läuft unten ↓" })
     ] });
-  }
-  function Aufgabe({ o, busy }) {
-    const pid = o.p.id, sid = o.s.id, titel = o.s.titel, id2 = "td:" + sid;
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-auf", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-was", onClick: () => F.cosInhaltOeffnen(pid, "", sid, ""), children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-titel", children: titel }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-kn", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(UhrKnopf, { id: id2, name: titel }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-los", onClick: () => F.cosStart(sid, 1), disabled: busy, "aria-label": "Los: " + titel, children: PLAY })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Zeitchips, { id: id2, wahl: (m2) => F.cosWannWahl(sid, 1, m2, 0) })
-    ] });
-  }
-  function Gruppe({ g, busy }) {
-    const p2 = g.p, id2 = "tf:" + p2.id, name = F.cosRasKurzName(p2);
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-gr", style: { "--pf": F.cosFarbe(p2.bereich) }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-gr-in", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-gr-k", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: g.n + " von " + g.menge + (g.bonus ? " · Bonus" : "") })
-        ] }),
-        g.aufgaben.map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx(Aufgabe, { o, busy }, o.s.id)),
-        g.frei ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-auf tg-frei", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "tg-was", onClick: () => F.cosInhaltOeffnen(p2.id, "", "", "platz"), "aria-label": name + ": " + g.frei + " frei, Inhalt und Uhrzeit wählen", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-fk", children: Array.from({ length: g.frei }, (_, j) => /* @__PURE__ */ jsxRuntimeExports.jsx("i", {}, j)) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: g.frei + " frei · Inhalt beim Los" })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-kn", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(UhrKnopf, { id: id2, name: name + " frei" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-los rand", onClick: () => F.cosInhaltOeffnen(p2.id, "", "", "platzlos"), disabled: busy, "aria-label": "Los: " + name + " frei", children: PLAY })
-            ] })
+    const info = z2.n + " von " + z2.menge + " Kästchen" + (z2.bonus ? ", " + z2.bonus + " Bonus" : "") + ", " + z2.uebrig + " übrig";
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-z", style: { "--pf": farbe }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-o", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "td-was", onClick: () => F.cosTodoAufZu(p2.id), "aria-expanded": String(auf2), disabled: !z2.schritte.length, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "td-name", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: name }),
+            z2.modul ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "td-modul", children: z2.modul.name + (z2.schritte.length ? auf2 ? " ▴" : " ▾" : "") }) : null
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Zeitchips, { id: id2, wahl: (m2) => F.cosPlatzUm(p2.id, m2) })
-        ] }) : null,
-        g.leer ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-verplant", children: "alles verplant" }) : null
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "td-kq", role: "img", "aria-label": info, children: kq }),
+          !z2.schritte.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "td-frei", children: "frei · Inhalt beim Los" }) : null
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-los td-los", onClick: () => F.cosTodoLos(p2.id), disabled: busy, "aria-label": "Los: " + name, children: PLAY })
+      ] }),
+      auf2 && z2.schritte.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "td-schritte", children: z2.schritte.map((s, i2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-s" + (i2 === 0 ? " naechst" : ""), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-kreis", onClick: () => F.cosModHaken(s.id), "aria-label": "abhaken: " + s.titel }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: s.titel })
+      ] }, s.id)) }) : null
+    ] });
+  }
+  function ToDo({ d, busy }) {
+    const zeilen = F.cosTodoZeilen(d), rest = F.cosJokerRest(), aus = rest <= 0 || !F.cosJokerZiel(d);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "td", "aria-label": "To Do", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-k", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "To Do" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: d.ist }),
+          " von " + d.menge
+        ] }),
+        busy ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "td-busy", children: "erst Fertig, dann Los" }) : null
+      ] }),
+      zeilen.length ? zeilen.map((z2) => /* @__PURE__ */ jsxRuntimeExports.jsx(TodoZeile, { z: z2, busy }, z2.p.id)) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-leer", children: d.menge ? "Alles für heute geschafft." : "Heute nichts vorgenommen." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-fuss", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-joker", onClick: () => F.cosJoker(), disabled: aus, children: "Joker · noch " + rest + " diese Woche" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-plus", onClick: () => F.plusOeffnen(), children: "+ Kästchen oder Nachtragen" })
       ] })
     ] });
   }
@@ -12577,21 +12617,13 @@ var ZentraleUI = function(exports) {
       return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-pg" + (neu ? " tg-moment" : ""), style: { "--pf": f2(c) }, children: name + " gehalten" }, c.p.id);
     });
     if (k2.art === "leer" && !d.geplant.length && !d.todo.length) return /* @__PURE__ */ jsxRuntimeExports.jsx(FokusLeer, {});
-    const rest = F.cosJokerRest(), aus = rest <= 0 || !F.cosJokerZiel(d), gruppen = F.cosTodoGruppen(d), busy = F.cosLaeuftEtwas();
+    const busy = F.cosLaeuftEtwas();
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(FokusKopf, { d, k: k2 }),
       momente,
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "tg-h3", children: "Geplant" }),
-      d.geplant.length ? geplantZeilen(d) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-leer", children: "Noch nichts mit Uhrzeit." }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-h3 tg-todo-k", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "To Do · noch ohne Uhrzeit" }),
-        busy ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "erst Fertig, dann Los" }) : null
-      ] }),
-      gruppen.length ? gruppen.map((x2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Gruppe, { g: x2, busy }, x2.p.id)) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-leer", children: "Alles hat eine Uhrzeit." }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-fuss", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-joker", onClick: () => F.cosJoker(), disabled: aus, children: "Joker · noch " + rest + " diese Woche" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-plus", onClick: () => F.plusOeffnen(), children: "+ Kästchen oder Nachtragen" })
-      ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ToDo, { d, busy }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "tg-h3 tg-heute-k", children: "Heute" }),
+      d.geplant.length ? geplantZeilen(d) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-leer", children: "Noch nichts mit Uhrzeit." })
     ] });
   }
   function TrKq({ k: k2, farbe, klasse }) {
@@ -37752,7 +37784,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611250031';
+const PWA_VERSION = '202611250043';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -39988,7 +40020,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 00:31</div>
+<div id="testband">TEST 00:43</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
