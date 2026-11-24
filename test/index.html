@@ -35472,6 +35472,16 @@ img.ProseMirror-separator {
       ] })
     }
   ];
+  let tippOrt = null, tippZeit = 0;
+  if (typeof document !== "undefined") document.addEventListener("pointerdown", (e) => {
+    tippOrt = e.target;
+    tippZeit = Date.now();
+  }, true);
+  function notizTippt() {
+    const a = document.activeElement;
+    if (!a || !a.isContentEditable || !a.closest(".notiz")) return false;
+    return !(Date.now() - tippZeit < 1e3 && tippOrt && !a.closest(".notiz").contains(tippOrt));
+  }
   const inhalt = (c) => (c || []).map((n2, i2) => n2.marks ? /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: n2.text }, i2) : /* @__PURE__ */ jsxRuntimeExports.jsx(React$2.Fragment, { children: n2.text }, i2));
   function NotizText({ wert: wert2, className }) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "notiz-text" + (className ? " " + className : ""), children: mdBloecke(wert2).map((k2, i2) => k2.type === "heading" ? /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: inhalt(k2.content) }, i2) : k2.type === "bulletList" ? /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { children: k2.content.map((li2, j) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: inhalt(li2.content[0].content) }, j)) }, i2) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: k2.content ? inhalt(k2.content) : /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}) }, i2)) });
@@ -35820,6 +35830,10 @@ img.ProseMirror-separator {
   }
   function vorChief() {
     if (Z$1.zieh) {
+      Z$1.spaeter = true;
+      return false;
+    }
+    if (notizTippt()) {
       Z$1.spaeter = true;
       return false;
     }
@@ -37550,7 +37564,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611241546';
+const PWA_VERSION = '202611241557';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -39744,7 +39758,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 15:47</div>
+<div id="testband">TEST 15:57</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
