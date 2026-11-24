@@ -4097,8 +4097,10 @@ function senNach(fn, ...args) {
 }
 
 /* ── Rechnen wie der Server (nur für die sofortige Anzeige, die Antwort ersetzt es) ── */
-function senP() { const d = SN[tagIso]; return (d && d.punkte) || { lesen: { je: 15, punkte: 1, ab: 15 }, buch: { fertig: 3, ganz: 2 }, film: { ganz: 3, handyWeg: 1, nichtGanz: 0 }, serie: 0 }; }
+function senP() { const d = SN[tagIso]; return (d && d.punkte) || { lesen: { je: 15, punkte: 1, ab: 15 }, seiten: { je: 10, punkte: 1, seit: '2026-11-24' }, buch: { fertig: 3, ganz: 2 }, film: { ganz: 3, handyWeg: 1, nichtGanz: 0 }, serie: 0 }; }
 function senLesenPkt(min) { const L = senP().lesen; return min >= L.ab ? Math.floor(min / L.je) * L.punkte : 0; }
+/* Seiten (Knopf +): 1 Punkt je 10, erst ab dem Stichtag des Servers */
+function senSeitenPkt(n, iso) { const S = senP().seiten; return S && iso >= S.seit ? Math.floor(n / S.je) * S.punkte : 0; }
 function senFilmPkt(f) { const F = senP().film; if (f.art === 'Serie') return senP().serie || 0; return f.ganz ? F.ganz + (f.handyWeg || f.ort === 'Kino' ? F.handyWeg : 0) : F.nichtGanz; }
 function senZahl(x) { return String(Math.round((Number(x) || 0) * 10) / 10).replace('.', ','); }
 function senKopie(x) { return JSON.parse(JSON.stringify(x)); }
@@ -4142,7 +4144,35 @@ function senFliegt(p) {
 function zeichneSensi() { ZentraleUI.zeigen('sensi'); }
 
 
-/* ── Lesen: Start und Stopp ── */
+/* ── Lesen mit Seiten (seit 24.11.2026): Knopf + fragt nur die neue Seite, ohne Uhr ── */
+function senSeiteBlatt(werkId) {
+  const d = SN[tagIso], b = d && (d.buecher || []).find(x => x.id === werkId);
+  if (!b) return;
+  senBlattAuf({ art: 'seite', werkId: werkId, seite: b.seite || 0, umfang: b.umfang || 0, fertig: false, titel: b.titel, iso: senTagVon(Date.now()) });
+}
+function senSeiteSenden() {
+  if (!senB || senB.art !== 'seite') return;
+  const el = $('senSeite'), seite = el && el.value !== '' ? Math.max(0, Math.round(Number(el.value))) : senB.seite;
+  const von = senB.seite || 0, n = seite - von, fertig = !!senB.fertig, werkId = senB.werkId;
+  if (n <= 0) { melden('Seite muss größer sein als ' + von + '.'); if (el) el.focus(); return; }
+  const iso = senTagVon(Date.now()), d = SN[iso], vorher = d ? senKopie(d) : null;
+  const b = d && (d.buecher || []).find(x => x.id === werkId);
+  const titel = senB.titel || (b ? b.titel : ''), p = senSeitenPkt(n, iso), jetzt = new Date();
+  if (d) {
+    (d.lesen = d.lesen || []).push({ zeit: zwei(jetzt.getHours()) + ':' + zwei(jetzt.getMinutes()), min: 0, seiten: n, titel: titel, notiz: 'S. ' + von + ' bis ' + seite, punkte: p });
+    if (b) { b.seite = seite; if (fertig) d.buecher = d.buecher.filter(x => x !== b); }
+  }
+  const eintrag = { art: 'senSeite', tag: tagIso, iso: iso, vorher: vorher, schluessel: null, name: 'Lesen ' + n + ' Seiten' };
+  merken(eintrag);
+  senBlattZu();
+  haptik();
+  senGewinn(iso, p, 'Lesen ' + n + ' Seiten', { art: 'lesen', text: 'Lesen ' + n + ' S.' + (titel ? ' ' + titel : ''), punkte: p });
+  if (fertig) senGewinn(iso, senP().buch.fertig, titel + ' beendet', { art: 'buch', text: titel + ' beendet', punkte: senP().buch.fertig });
+  zeichnen();
+  senNach('appSensiSeite', werkId, seite, fertig).then(r => { if (r && r.schluessel) eintrag.schluessel = r.schluessel; else if (!r) { eintrag.kaputt = true; } });
+}
+
+/* ── Lesen mit Uhr (bis 24.11.2026): nur noch Stopp für eine Uhr, die auf einem Gerät noch läuft ── */
 function senStart(werkId) {
   if (senUhrL) { melden('Es läuft schon eine Uhr.'); return; }
   const uhr = { art: 'lesen', werkId: werkId, start: Date.now() };
@@ -4207,6 +4237,12 @@ function senRueck(a) {
     if (a.vorher) SN[a.iso] = a.vorher;
     senUhrSetzenL(a.uhr); zeichnen();
     senNach('appSensiZurueck', a.schluessel, true);
+  } else if (a.art === 'senSeite') {
+    if (a.kaputt) { melden('Das wurde nicht gespeichert.'); return; }
+    if (!a.schluessel) { verlauf.push(a); kopfSetzen({ undoAus: false }); melden('Einen Moment, das wird noch gespeichert. Dann geht Rückgängig.'); return; }
+    if (a.vorher) SN[a.iso] = a.vorher;
+    zeichnen();
+    senNach('appSensiZurueck', a.schluessel);
   } else if (a.art === 'senWerk') {
     if (!a.zurueck) { verlauf.push(a); kopfSetzen({ undoAus: false }); melden('Einen Moment, das wird noch gespeichert. Dann geht Rückgängig.'); return; }
     if (a.vorher) SN[a.iso] = a.vorher;
@@ -4239,8 +4275,14 @@ function senLies(id) { const el = $(id); return el ? el.value : ''; }
 
 function senSeitePlus(n) { const el = $('senSeite'); el.value = Math.max(0, (Number(el.value) || senB.seite || 0) + n); senSeiteTipp(); }
 function senSeiteTipp() {
-  const v = Number(senLies('senSeite')) || 0, auto = senB.umfang && v >= senB.umfang;
-  if (auto !== !!senB.fertig && (auto || senB.autoFertig)) { senB.fertig = auto; senB.autoFertig = auto; const w = senLies('senSeite'); senBlattZeichnen(); const el = $('senSeite'); el.value = w; el.focus(); }
+  const v = Number(senLies('senSeite')) || 0, auto = senB.umfang && v >= senB.umfang, w = senLies('senSeite');
+  const um = auto !== !!senB.fertig && (auto || senB.autoFertig);
+  if (um) { senB.fertig = auto; senB.autoFertig = auto; }
+  if (senB.art === 'seite') {   // Knopf +: Vorschau mit Seiten und Punkten bei jeder Eingabe, Fokus nur halten, nicht holen (Tastatur bleibt zu nach +10)
+    const hatte = document.activeElement === $('senSeite');
+    senB.wert = w; senBlattZeichnen();
+    const el = $('senSeite'); el.value = w; if (hatte) el.focus();
+  } else if (um) { senBlattZeichnen(); const el = $('senSeite'); el.value = w; el.focus(); }
 }
 function senFertigUm() { const w = senLies('senSeite'); senB.fertig = !senB.fertig; senB.autoFertig = false; haptik(); senBlattZeichnen(); $('senSeite').value = w; }
 
@@ -35927,6 +35969,7 @@ img.ProseMirror-separator {
     },
     punkte: () => senP(),
     lesenPkt: (m2) => senLesenPkt(m2),
+    seitenPkt: (n2, iso) => senSeitenPkt(n2, iso),
     filmPkt: (f2) => senFilmPkt(f2),
     zahl: (x2) => senZahl(x2),
     min: () => senMin(),
@@ -35935,6 +35978,8 @@ img.ProseMirror-separator {
     isbn: (s) => senIsbnL(s),
     start: (id2) => senStart(id2),
     stoppBlatt: () => senStoppBlatt(),
+    seiteBlatt: (id2) => senSeiteBlatt(id2),
+    seiteSenden: () => senSeiteSenden(),
     stoppSenden: () => senStoppSenden(),
     verwerfen: () => senVerwerfen(),
     blattZu: () => senBlattZu(),
@@ -35958,7 +36003,7 @@ img.ProseMirror-separator {
   };
   function kurz(t2) {
     const x2 = String(t2.text || "");
-    if (t2.art === "lesen") return (x2.match(/^Lesen \d+ min/) || ["Lesen"])[0];
+    if (t2.art === "lesen") return (x2.match(/^Lesen \d+ (min|S\.)/) || ["Lesen"])[0];
     return { buch: "Buch fertig", film: "Film", serie: "Serie", album: "Album ganz" }[t2.art] || x2.split(" ")[0];
   }
   function wert(d) {
@@ -36040,14 +36085,15 @@ img.ProseMirror-separator {
     const jetzt = Date.now(), buecher = d.buecher || [];
     const laeuft = S.uhr && S.uhr.art === "lesen" ? S.uhr : null;
     const haupt = laeuft && buecher.find((b) => b.id === laeuft.werkId) || buecher[0] || null;
-    const minHeute = (d.lesen || []).reduce((a, x2) => a + x2.min, 0);
+    const minHeute = (d.lesen || []).reduce((a, x2) => a + (x2.min || 0), 0), seitenHeute = (d.lesen || []).reduce((a, x2) => a + (x2.seiten || 0), 0);
+    const rechts = [minHeute ? minHeute + " min" : "", seitenHeute ? seitenHeute + " S." : ""].filter(Boolean).join(" · ");
     const andere = buecher.filter((b) => b !== haupt), sitz = d.lesen || [];
     const pr = haupt && haupt.umfang ? Math.min(100, Math.round(haupt.seite / haupt.umfang * 100)) : 0;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bereich", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "punkt", style: { background: "var(--sen)" } }),
         "Lesen",
-        minHeute ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sen-rechts", children: minHeute + " min" }) : null
+        rechts ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sen-rechts", children: rechts }) : null
       ] }),
       haupt ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-buch ohne", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "sen-buch-r", onClick: () => S.buchBlatt(haupt.id), "aria-label": "Buch bearbeiten", children: [
@@ -36056,7 +36102,7 @@ img.ProseMirror-separator {
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-seite", children: "S. " + (haupt.seite || 0) + (haupt.umfang ? " von " + haupt.umfang : "") }),
           haupt.umfang ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-fort", children: /* @__PURE__ */ jsxRuntimeExports.jsx("i", { style: { width: pr + "%" } }) }) : null
         ] }) }),
-        laeuft ? /* @__PURE__ */ jsxRuntimeExports.jsx(Uhr, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "sen-knopf", onClick: () => S.start(haupt.id), children: "Start" })
+        laeuft ? /* @__PURE__ */ jsxRuntimeExports.jsx(Uhr, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "sen-knopf", onClick: () => S.seiteBlatt(haupt.id), "aria-label": "Gelesene Seiten eintragen", children: "+ Seiten" })
       ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Noch kein Buch. Mit Buch hinzufügen geht es los." }),
       andere.length || sitz.length ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-liste", children: [
         andere.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-zeile", children: [
@@ -36064,11 +36110,11 @@ img.ProseMirror-separator {
             b.titel,
             /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "S. " + (b.seite || 0) + (b.umfang ? " von " + b.umfang : "") })
           ] }),
-          laeuft ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}) : /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "sen-pkt", onClick: () => S.start(b.id), children: "Start" })
+          laeuft ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}) : /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "sen-pkt", onClick: () => S.seiteBlatt(b.id), "aria-label": "Seiten eintragen: " + b.titel, children: "+" })
         ] }, "b" + b.id)),
         sitz.map((s, i2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-zeile" + (jetzt < S.neuBis && i2 === sitz.length - 1 ? " neu" : ""), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "t", children: [
-            s.zeit + "  " + s.min + " min" + (s.titel ? "  " + s.titel : ""),
+            s.zeit + "  " + (s.seiten ? s.seiten + " S." : s.min + " min") + (s.titel ? "  " + s.titel : ""),
             s.notiz ? /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: s.notiz }) : null
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sen-pkt" + (s.punkte ? "" : " null"), children: s.punkte ? "+" + S.zahl(s.punkte) : "0" })
@@ -36333,6 +36379,22 @@ img.ProseMirror-separator {
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-aktionen", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "weg", onClick: () => S.verwerfen(), children: "Nicht zählen" }) })
     ] });
   }
+  function Seite(b) {
+    const n2 = Math.max(0, (Number(b.wert) || 0) - (b.seite || 0));
+    const p2 = S.seitenPkt(n2, b.iso) + (b.fertig ? S.punkte().buch.fertig : 0);
+    b.fokus = "senSeite";
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Bk$1, { titel: "Bis Seite?", rechts: "Fertig", fn: () => S.seiteSenden() }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-vorschau", children: [
+        b.titel + " · S. " + (b.seite || 0) + (n2 ? " · +" + n2 + " Seiten" : "") + " · ",
+        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "+" + S.zahl(p2) }),
+        " Tiefe"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-feld", children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { id: "senSeite", className: "gross", type: "number", inputMode: "numeric", min: "0", defaultValue: b.wert || "", placeholder: String(b.seite || 0), onInput: () => S.seiteTipp(), onKeyDown: enter(() => S.seiteSenden()) }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-feld sen-chips", children: [5, 10, 20].map((n22) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => S.seitePlus(n22), children: "+" + n22 }, n22)) }),
+      b.umfang ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-feld sen-chips", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: b.fertig ? "an" : "", onClick: () => S.fertigUm(), children: "Buch fertig" + (b.fertig ? " · +" + S.punkte().buch.fertig : "") }) }) : null
+    ] });
+  }
   function BuchNeu(b) {
     if (b.treffer && !b.treffer.length) b.hand = true;
     const hand = () => {
@@ -36447,7 +36509,7 @@ img.ProseMirror-separator {
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-aktionen", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "weg", onClick: () => S.filmWeg(), children: "Entfernen" }) })
     ] });
   }
-  const ARTEN$1 = { stopp: Stopp, buchneu: BuchNeu, buch: Buch, film: Film };
+  const ARTEN$1 = { stopp: Stopp, seite: Seite, buchneu: BuchNeu, buch: Buch, film: Film };
   function SensiBlattInhalt({ b }) {
     return (ARTEN$1[b.art] || FilmAnsicht)(b);
   }
@@ -37584,8 +37646,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611241814';
-const PWA_NAME = "V116 Notiz im Tag mit Format";
+const PWA_VERSION = '202611241822';
+const PWA_NAME = "V117 Lesen mit Seiten statt Minuten";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
