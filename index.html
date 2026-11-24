@@ -2842,7 +2842,7 @@ function cosProjektSpeichern() {
   cosBlattZu();
   if (p && JSON.stringify(neu) === JSON.stringify({ id: p.id, name: p.name, bereich: p.bereich, status: p.status, deadline: p.deadline, art: p.deadline ? p.art : 'ziel', wofuer: p.wofuer, reserve: p.reserve })) return;
   cosProjektAendern(neu, b.neu ? 'Projekt angelegt' : 'Projekt geändert');
-  if (b.neu) { cosProjekt = d.id; zeichnen(); melden('Angelegt. Jetzt Etappen oder Schritte dazu.'); }
+  if (b.neu) { cosProjekt = d.id; zeichnen(); melden('Angelegt. Jetzt ein Kästchen beschreiben.'); }
 }
 function cosProjektLoeschen(pid) {
   const p = cosPid(pid);
@@ -3917,11 +3917,12 @@ function chiefOeffnen() { ansicht = 'chief'; cosProjekt = null; zeichnen(); cosL
   .sen-liste { margin-top: var(--abstand-6); }
   .sen-link { display: block; margin: var(--abstand-5) auto 0; font-size: var(--schrift-klein); font-weight: 600; color: var(--sen); padding: var(--abstand-3) var(--abstand-1); }
   .sen-verbinden { text-align: center; text-decoration: none; }
-  .sen-handy { display: grid; grid-template-columns: 1fr 1fr; gap: var(--abstand-5); }
-  .sen-handy > div { padding: var(--abstand-5) var(--abstand-6); border-radius: var(--radius-gross); background: var(--chip); text-align: center; }
+  .sen-handy { display: grid; grid-template-columns: 1fr 1fr; gap: var(--abstand-4); }
+  .sen-frei { margin-top: var(--abstand-4); }
+  .sen-handy > div { padding: var(--abstand-3) var(--abstand-5); border-radius: var(--radius-gross); line-height: 1.25; background: var(--chip); text-align: center; }
   .sen-handy small { display: block; font-size: var(--schrift-mini); color: var(--leise); text-transform: uppercase; letter-spacing: .04em; }
-  .sen-handy b { font-size: var(--schrift-titel); font-variant-numeric: tabular-nums; }
-  .sen-handy span { display: block; font-size: var(--schrift-klein); color: var(--leise); }
+  .sen-handy b { font-size: var(--schrift-gross); font-variant-numeric: tabular-nums; }
+  .sen-handy span { display: block; font-size: var(--schrift-mini); color: var(--leise); }
   .sen-unruhe { height: 5px; border-radius: var(--radius-rund); background: var(--linie); overflow: hidden; margin: var(--abstand-4) var(--abstand-2) 0; }
   .sen-unruhe i { display: block; height: 100%; border-radius: var(--radius-rund); background: var(--leise); opacity: .55; transition: width .8s cubic-bezier(.2, .8, .2, 1); }
 
@@ -13834,7 +13835,7 @@ var ZentraleUI = function(exports) {
       ] }, i)) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-leise", children: "Noch nichts gesichert." }) }) : null
     ] });
   }
-  function Frei({ p: p2 }) {
+  function Frei$1({ p: p2 }) {
     const n2 = Math.max(0, Number(p2.reserve) || 0), auf2 = pj.freiAuf === p2.id;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-frei", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-frei-o", children: [
@@ -13884,7 +13885,7 @@ var ZentraleUI = function(exports) {
       ] }),
       konkret.length ? konkret.map(zeile) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-leer", children: "Noch nichts Konkretes. Beschreib ein freies Kästchen oder zerleg etwas Grobes." }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-kaesten", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Frei, { p: p2 }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Frei$1, { p: p2 }),
         grob.map((s) => {
           const rest = Math.max(0, s.k - Math.floor(F.cosMin(s, alle2) / K.MIN));
           return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-grob", children: [
@@ -14267,33 +14268,11 @@ var ZentraleUI = function(exports) {
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "sen-link", onClick: () => S.buchNeu(), children: "Buch hinzufügen" })
     ] });
   }
-  function Cover({ w: w2, klein }) {
-    const b = String(w2.titel || "?").trim().charAt(0).toUpperCase();
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "sen-cover" + (klein ? " klein" : ""), children: [
-      b,
-      w2.cover ? /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: w2.cover, alt: "", loading: "lazy", onError: (e) => e.currentTarget.remove() }) : null
-    ] });
-  }
   const Kopf$1 = ({ name, children }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bereich", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "punkt", style: { background: "var(--sen)" } }),
     name,
     children
   ] });
-  function Gesehen({ d }) {
-    const jetzt = Date.now(), f2 = d.filme || [];
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$1, { name: "Gesehen" }),
-      f2.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: f2.map((x2, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "sen-zeile mit" + (jetzt < S.neuBis && i === f2.length - 1 ? " neu" : ""), onClick: () => S.filmAnsicht(x2.id), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Cover, { w: x2, klein: true }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "t", children: [
-          x2.titel,
-          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: [x2.art === "Serie" ? "Serie" : "", x2.ort, x2.ganz ? "ganz" : "nicht ganz", x2.handyWeg ? "Handy weg" : "", x2.bewertung ? "★".repeat(x2.bewertung) : ""].filter(Boolean).join(" · ") })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sen-pkt" + (x2.punkte ? "" : " null"), children: x2.punkte ? "+" + S.zahl(x2.punkte) : "0" })
-      ] }, x2.id + "|" + i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: (A$2.tagIso === A$2.heute() ? "Heute" : "An diesem Tag") + " noch nichts gesehen." }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "sen-knopf hell", onClick: () => S.filmNeu(), children: "Film eintragen" })
-    ] });
-  }
   const audioDa = (d) => !!d.audio;
   function Audio({ d }) {
     const a = d.audio;
@@ -14364,12 +14343,60 @@ var ZentraleUI = function(exports) {
             wann(hd2.aufgenommen)
           ] })
         ] }),
-        !hd2.abgelegt && !hd2.aufgenommen ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Kommt per Kurzbefehl vom Ladegerät." }) : null
+        !hd2.abgelegt && !hd2.aufgenommen ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Kommt per Kurzbefehl vom Ladegerät." }) : null,
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Frei, { hd: hd2 })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Felder, {})
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Felder, { hd: hd2 })
     ] });
   }
-  function Felder() {
+  function Frei({ hd: hd2 }) {
+    const f2 = hd2.frei;
+    if (!f2) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Handyfreie Zeit kommt vom Mac (iphone.py)." });
+    const n2 = f2.strecken.length;
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-handy sen-frei", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Handyfrei" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: A$2.hm(f2.min) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: n2 ? n2 + (n2 === 1 ? " Strecke" : " Strecken") + (f2.punkte ? " · +" + S.zahl(f2.punkte) + " Tiefe" : "") : "noch keine Stunde am Stück" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Am Handy" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: hd2.zeit != null ? A$2.hm(hd2.zeit) : "–" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "0 bis 24 Uhr" })
+        ] })
+      ] }),
+      n2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-liste", children: f2.strecken.map((x2, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-zeile", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "t", children: x2.von + " bis " + x2.bis }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sen-pkt null", children: A$2.hm(x2.min) })
+      ] }, x2.von + "|" + i)) }) : null
+    ] });
+  }
+  let iphoneAuf = false;
+  function IPhone({ hd: hd2 }) {
+    const [auf2, setAuf] = reactExports.useState(iphoneAuf);
+    const l2 = hd2.bereiche || [];
+    const um = () => {
+      iphoneAuf = !auf2;
+      setAuf(iphoneAuf);
+    };
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "feld klappbar" + (auf2 ? " auf" : ""), onClick: um, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "zeile", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "name", children: [
+          "iPhone",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pfeil", children: "▸" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Pille, { text: String(Math.floor(hd2.zeit / 60)).padStart(2, "0") + ":" + String(hd2.zeit % 60).padStart(2, "0") })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MacBalken, { l: l2 }),
+      auf2 ? l2.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "liste", children: l2.map((x2, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "posten", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ppunkt", style: { color: A$2.macFarbe(x2.bereich) }, children: "●" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pname", children: x2.bereich }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pbetrag", children: A$2.hm(Math.round(x2.min)) })
+      ] }, i)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Noch keine Bereiche vom iPhone." }) : null
+    ] });
+  }
+  function Felder({ hd: hd2 }) {
     if (!A$2.P || !A$2.werteVon()) return null;
     const karte = (name, fs) => fs.length ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bereich", children: [
@@ -14379,15 +14406,22 @@ var ZentraleUI = function(exports) {
       fs.map((f2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Feld, { f: f2 }, f2.spalte))
     ] }, name) : null;
     const sf2 = A$2.P.felder.filter((f2) => A$2.sensiFeld(f2));
+    const mac2 = sf2.filter((f2) => f2.typ === "mac"), ip = hd2 && hd2.zeit != null;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       karte("Ohne Handy", sf2.filter((f2) => f2.typ !== "mac")),
-      karte("Bildschirm", sf2.filter((f2) => f2.typ === "mac"))
+      mac2.length || ip ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bereich", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "punkt", style: { background: "var(--sen)" } }),
+          "Bildschirm"
+        ] }),
+        mac2.map((f2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Feld, { f: f2 }, f2.spalte)),
+        ip ? /* @__PURE__ */ jsxRuntimeExports.jsx(IPhone, { hd: hd2 }) : null
+      ] }, "Bildschirm") : null
     ] });
   }
   const ABSCHNITTE = [
     { id: "kopf", breit: true, B: Kopf$2 },
     { id: "lesen", B: Lesen },
-    { id: "gesehen", B: Gesehen },
     { id: "audio", B: Audio, da: audioDa },
     { id: "handy", B: Handy }
   ];
@@ -14456,6 +14490,13 @@ var ZentraleUI = function(exports) {
       ] }),
       platz2
     );
+  }
+  function Cover({ w: w2, klein }) {
+    const b = String(w2.titel || "?").trim().charAt(0).toUpperCase();
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "sen-cover" + (klein ? " klein" : ""), children: [
+      b,
+      w2.cover ? /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: w2.cover, alt: "", loading: "lazy", onError: (e) => e.currentTarget.remove() }) : null
+    ] });
   }
   const enter = (fn) => (e) => {
     if (e.key === "Enter") fn();
@@ -15601,7 +15642,7 @@ var ZentraleUI = function(exports) {
     "sensi:balken": () => sensiTag((d) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ringe", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Balken, { d }) })),
     "sensi:kopf": () => sensiTag((d) => /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$2, { d })),
     "sensi:lesen": () => sensiTag((d) => /* @__PURE__ */ jsxRuntimeExports.jsx(Lesen, { d })),
-    "sensi:gesehen": () => sensiTag((d) => /* @__PURE__ */ jsxRuntimeExports.jsx(Gesehen, { d })),
+    "sensi:handy": () => sensiTag((d) => /* @__PURE__ */ jsxRuntimeExports.jsx(Handy, { d })),
     "sensi:blatt-film": () => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-blatt offen wb-blatt", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-blatt-in", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SensiBlattInhalt, { b: { art: "film", f: { art: "Film", titel: "Perfect Days", link: "", ganz: true, handyWeg: true, ort: "Kino", bewertung: 4 } } }) }) }),
     "woche:liste": () => /* @__PURE__ */ jsxRuntimeExports.jsx(Woche$1, {}),
     "chief:raster": () => /* @__PURE__ */ jsxRuntimeExports.jsx(Raster, {}),
@@ -15730,8 +15771,8 @@ var ZentraleUI = function(exports) {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611240006';
-const PWA_NAME = "V109 Dran und Weiter vergessen";
+const PWA_VERSION = '202611241408';
+const PWA_NAME = "V110 Sensi: Handyfrei vom iPhone, Zeile iPhone in Bildschirm, Kacheln kompakter, Gesehen raus";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
