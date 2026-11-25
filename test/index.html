@@ -3637,6 +3637,7 @@ const COS_MOMENT_FRISCH = 4000;
 let cosMomentErst = false;
 const cosMomentSeit = {};   // Moment → performance.now() beim ersten Zeichnen in dieser Sitzung
 function cosMomentNeu(k) {
+  if (typeof tagAlsAn === 'function' && tagAlsAn()) { cosMomentErst = false; return false; }   // Vortag wie live: keine Momente
   const h = heute(), jetzt = performance.now();
   let o = {};
   try { o = JSON.parse(localStorage.getItem(COS_MOMENTE) || '{}') || {}; } catch (e) { o = {}; }
@@ -4034,7 +4035,7 @@ function cosMerkSetzen(k, wert, ohneVerlauf) {
 
 /* Termine des Tages mit Ende: aus appFreierSlot (live aus den Kalendern), Titel aus P.termine */
 function cosBelegtLaden(erzwingen) {
-  if (typeof server !== 'function' || cosBelegtLaedt) return;
+  if (typeof server !== 'function' || cosBelegtLaedt || (typeof tagAlsAn === 'function' && tagAlsAn())) return;   // Vortag wie live: nichts laden
   const h = heute();
   if (!erzwingen && cosBelegt && cosBelegt.iso === h && Date.now() - cosBelegt.t < 300000) return;
   cosBelegtLaedt = true;
@@ -5010,7 +5011,7 @@ function cosMorgenReiheVon(iso) {
   return r.concat(ids.filter(id => r.indexOf(id) < 0));
 }
 function cosMorgenAuf() {
-  if (!C || !cosRasterAn()) return;
+  if (!C || !cosRasterAn() || (typeof tagAlsAn === 'function' && tagAlsAn())) return;
   const iso = cosMorgenIso(), pt = cosPlanLesen(iso), heutePt = cosPlanLesen(heute()) || {}, menge = {};
   cosRasProjekte().forEach(p => { menge[p.id] = Math.max(0, Number((pt || heutePt)[p.id]) || 0); });
   const entscheid = {}, erste = cosMorgenHeute().length || cosMorgenOhne().length ? 1 : 2;   // nichts Unklares: gleich Stufe 2
@@ -14274,6 +14275,13 @@ var ZentraleUI = function(exports) {
     const lf2 = cosT && da("cosTrFarbe") ? F.cosTrFarbe({ b, s: F.cosSchrittVon(b) }) : "";
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hz-jetzt" + (feier ? " feier" : "") + (lf2 ? " cos-lauf2" : ""), style: lf2 ? { "--pf": lf2 } : void 0, children: box });
   }
+  function Als({ iso }) {
+    F.tagAlsSetzen(iso || null);
+    return null;
+  }
+  function WieLive() {
+    return F.cosTagNeuAn() ? /* @__PURE__ */ jsxRuntimeExports.jsx(TagNeu, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(FokusLeer, {});
+  }
   function Heute$1() {
     const h2 = A$2.heute(), iso = A$2.tagIso, l2 = F.bloeckeVon(iso).map((b, i2) => ({ b, i: i2 }));
     if (iso === h2 && da("cosTagNeuAn") && F.cosTagNeuAn()) return /* @__PURE__ */ jsxRuntimeExports.jsx(TagNeu, {});
@@ -14294,6 +14302,11 @@ var ZentraleUI = function(exports) {
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "hz-plus", onClick: () => F.plusOeffnen(), "aria-label": "Planen", children: "+" })
     ] });
     const vortag = iso < h2 && da("cosVortagStand") ? F.cosVortagStand(iso) : null;
+    if (vortag === "ac" && da("tagAlsSetzen")) return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-wielive", inert: "", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Als, { iso }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(WieLive, {}),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Als, {})
+    ] });
     if (vortag) return /* @__PURE__ */ jsxRuntimeExports.jsx(Vortag$1, { iso, stand: vortag, kopfAlt: hzKopf });
     const kopf2 = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       hzKopf,
@@ -39210,7 +39223,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611260005';
+const PWA_VERSION = '202611260020';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -39966,7 +39979,12 @@ const isoVon = d => d.getFullYear() + '-' + zwei(d.getMonth() + 1) + '-' + zwei(
 const komma = x => String(x).replace('.', ',');
 const TAGNAMEN = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
 
-function heute() { return isoVon(new Date()); }
+/* Vortage wie live (ui/src/fokus/Heute.jsx): solange tagAls gilt, rechnet alles mit diesem Tag um 23:59. Gilt nur beim Zeichnen
+   der gesperrten Fokus Karte eines Vortags und läuft nach 300 ms von selbst ab, damit nichts anderes je den falschen Tag sieht */
+let tagAls = null;
+function tagAlsAn() { return !!tagAls && performance.now() < tagAls.bis; }
+function tagAlsSetzen(iso) { tagAls = iso ? { iso: iso, bis: performance.now() + 300 } : null; }
+function heute() { return tagAlsAn() ? tagAls.iso : isoVon(new Date()); }
 function tagPlus(iso, n) {
   const [y, m, d] = iso.split('-').map(Number);
   return isoVon(new Date(y, m - 1, d + n));
@@ -39975,7 +39993,7 @@ function label(iso) {
   const [y, m, d] = iso.split('-').map(Number);
   return TAGNAMEN[new Date(y, m - 1, d).getDay()] + ' ' + zwei(d) + '.' + zwei(m) + '.';
 }
-function jetztZeit() { const d = new Date(); return zwei(d.getHours()) + ':' + zwei(d.getMinutes()); }
+function jetztZeit() { if (tagAlsAn()) return '23:59'; const d = new Date(); return zwei(d.getHours()) + ':' + zwei(d.getMinutes()); }
 
 /* ── Server: in der alten Web App über google.script.run, in der PWA (ZENTRALE_API aus web/bauen.py) über die Schnittstelle doPost ── */
 function server(fn, ...args) {
@@ -40478,7 +40496,7 @@ Object.keys(dranMerk).forEach(k => { if (Date.now() - Number(String(k).split('|'
 let dranMeldung = null;
 
 function minVon(hhmm) { const m = String(hhmm).match(/^(\d{1,2}):(\d{2})/); return m ? Number(m[1]) * 60 + Number(m[2]) : 0; }
-function jetztMin() { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
+function jetztMin() { if (typeof tagAlsAn === 'function' && tagAlsAn()) return 23 * 60 + 59; const d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
 function hm(min) { return Math.floor(min / 60) + ':' + zwei(min % 60); }
 /* "Szene 12 · Lara bekommt den letzten Satz": vorne was, hinten der erste Schritt aus dem Planen */
 function titelTeile(b) {
@@ -41495,7 +41513,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 00:05</div>
+<div id="testband">TEST 00:20</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
