@@ -755,6 +755,36 @@
   .cos-uebernehmen button { width: 100%; height: 52px; border-radius: var(--radius-karte); background: var(--knopf-blau); color: var(--weiss); font-weight: 700; font-size: var(--schrift-text); }
   .cos-uebernehmen button:disabled { opacity: .4; }
   .cos-weiter-u { text-align: center; font-size: var(--schrift-klein); color: var(--leise); margin: calc(-1 * var(--abstand-2)) 0 var(--abstand-6); }
+
+  /* T3 Blatt Morgen */
+  .tg-morgen { display: block; width: 100%; min-height: 44px; margin-top: var(--abstand-5); border-radius: var(--radius-gross); border: 1.5px dashed var(--linie); color: var(--akzent); font-size: var(--schrift-klein); font-weight: 600; }
+  .mg-teil { display: flex; flex-direction: column; gap: var(--abstand-5); animation: pjrein .2s ease-out; }
+  .mg-schritt { font-size: var(--schrift-klein); font-weight: 700; color: var(--titel); }
+  .mg-leise { font-size: var(--schrift-klein); color: var(--leise); }
+  .mg-d { display: flex; flex-direction: column; gap: var(--abstand-4); padding: var(--abstand-5) 0; border-top: 1px solid var(--linie); }
+  .mg-d-t { display: grid; grid-template-columns: 4px minmax(0, 1fr); gap: var(--abstand-5); }
+  .mg-d-t b { display: block; font-weight: 600; }
+  .mg-d-t span:not(.tg-streif) { font-size: var(--schrift-klein); color: var(--leise); }
+  .mg-wahl { display: flex; gap: var(--abstand-4); }
+  .mg-wahl button { flex: 1; height: 44px; border-radius: var(--radius-gross); background: var(--chip); font-weight: 600; }
+  .mg-wahl button.an { background: var(--knopf-blau); color: var(--weiss); }
+  @media (prefers-color-scheme: dark) { .mg-wahl button.an, .mg-haupt { background: var(--knopf-blau-dunkel); } }
+  .mg-kn { display: flex; justify-content: space-between; align-items: center; margin-top: var(--abstand-4); }
+  .mg-haupt { min-height: 44px; padding: 0 var(--abstand-8); border-radius: var(--radius-gross); background: var(--knopf-blau); color: var(--weiss); font-weight: 700; }
+  .mg-start { display: flex; justify-content: space-between; align-items: center; min-height: 48px; }
+  .mg-e { display: flex; align-items: center; gap: var(--abstand-4); min-height: 48px; border-top: 1px solid var(--linie); }
+  .mg-e .punkt, .mg-g-k .punkt { flex: none; width: 10px; height: 10px; background: var(--pf); }
+  .mg-e-n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mg-g { display: flex; flex-direction: column; gap: var(--abstand-3); padding: var(--abstand-5) 0; border-top: 1px solid var(--linie); }
+  .mg-g-k { display: flex; align-items: center; gap: var(--abstand-4); }
+  .mg-g-k b { flex: 1; color: var(--pf); }
+  .mg-g-k span:last-child { font-size: var(--schrift-klein); color: var(--leise); }
+  .mg-s { display: flex; align-items: center; gap: var(--abstand-4); min-height: 44px; }
+  .mg-nr { flex: none; width: 22px; height: 22px; border-radius: var(--radius-rund); background: var(--chip); display: grid; place-items: center; font-size: var(--schrift-mini); font-weight: 700; }
+  .mg-s-t { flex: 1; min-width: 0; }
+  .mg-steht { align-items: flex-start; padding: var(--abstand-6) 0; }
+  .mg-steht b { font-size: var(--schrift-titel); }
+  @media (prefers-reduced-motion: reduce) { .mg-teil { animation: none; } }
   /* ── V59 Fokus neu: Balken aus 6 Kästchen, Als Nächstes als Zeile, Heute vornehmen im Chief ── */
   /* V69: ein durchgehender Balken in einer Farbe. Kräftig geschafft, hell vorgenommen, voll ist 3:00 */
   .cos-fb { position: relative; height: 10px; margin: var(--abstand-6) 0 0; border-radius: var(--radius-rund); background: var(--chip); }
@@ -2457,6 +2487,8 @@ function cosTodoZeilen(d) {
     const m = typeof cosModulDran === 'function' ? cosModulDran(c.p) : null;
     out.push({ p: c.p, menge: menge, n: n, uebrig: uebrig, bonus: Math.max(0, n - menge), modul: m, schritte: m ? m.offen : [], laeuft: laeuft });
   });
+  const pr = cosMerk('pr|' + d.h);   // T3: Reihenfolge aus dem Blatt Morgen
+  if (Array.isArray(pr)) out.sort((a, b) => ((pr.indexOf(a.p.id) + 1) || 99) - ((pr.indexOf(b.p.id) + 1) || 99));
   return out;
 }
 /* Der laufende Block von heute als { b, s } (oder null) */
@@ -4182,6 +4214,84 @@ function chiefOeffnen() { ansicht = 'chief'; cosProjekt = null; zeichnen(); cosL
     zeichnen();
   }, 30000);
 })();
+
+/* ── T3 Blatt Morgen (entwuerfe/neu/TagNeuMac, Blatt Morgen): 1 Schritte von heute (durch oder geht weiter), 2 Menge pro Projekt,
+   Startzeit (15 Min) und Reihenfolge, 3 Liste für morgen (Schritte des Moduls, das dran ist, höchstens 3 pro Projekt), 4 Morgen steht.
+   Schreibt ins Raster wie die Wochenrunde: pt|Tag, st|Tag, dazu pr|Tag (Reihenfolge, To Do sortiert danach). Morgen = nächster Arbeitstag ── */
+const COS_MORGEN_DECKEL = 3;
+function cosMorgenIso() { let t = tagPlus(heute(), 1); for (let i = 0; i < 7 && !cosArbeitstag(t); i++) t = tagPlus(t, 1); return t; }
+/* Schritte, an denen heute gearbeitet wurde (Block heute) oder die heute abgehakt wurden */
+function cosMorgenHeute() {
+  const h = heute(), out = [], da = {};
+  const dazu = s => { if (!s || da[s.id]) return; const p = cosNachName(s.projekt); if (!p) return; da[s.id] = true; out.push({ s: s, p: p, m: cosModulVon(s) }); };
+  cosHeuteBloecke().forEach(x => { if (x.s && (x.b.gestartet || x.b.status)) dazu(x.s); });
+  C.schritte.forEach(s => { if (s.status === 'fertig' && s.abgehakt === h) dazu(s); });
+  return out;
+}
+/* Liste für morgen eines Projekts: Modul, das dran ist, höchstens COS_MORGEN_DECKEL Schritte, der Rest bleibt im Modul */
+function cosMorgenListe(p) {
+  const m = cosModulDran(p), o = m ? m.offen : [];
+  return { m: m, zeige: o.slice(0, COS_MORGEN_DECKEL), versteckt: Math.max(0, o.length - COS_MORGEN_DECKEL), voll: o.length >= COS_MORGEN_DECKEL };
+}
+function cosMorgenReiheVon(iso) {
+  const pr = cosMerk('pr|' + iso), ids = cosRasProjekte().map(p => p.id);
+  const r = Array.isArray(pr) ? pr.filter(id => ids.indexOf(id) >= 0) : [];
+  return r.concat(ids.filter(id => r.indexOf(id) < 0));
+}
+function cosMorgenAuf() {
+  if (!C || !cosRasterAn()) return;
+  const iso = cosMorgenIso(), pt = cosPlanLesen(iso), heutePt = cosPlanLesen(heute()) || {}, menge = {};
+  cosRasProjekte().forEach(p => { menge[p.id] = Math.max(0, Number((pt || heutePt)[p.id]) || 0); });
+  const entscheid = {};
+  cosMorgenHeute().forEach(x => { if (x.s.status === 'fertig') entscheid[x.s.id] = 'durch'; });
+  cosBlattAuf({ art: 'morgen', titel: 'Morgen', iso: iso, phase: 1, entscheid: entscheid, menge: menge, start: cosStartVon(iso) || COS_START, reihe: cosMorgenReiheVon(iso), steht: '' });
+}
+function cosMorgenPhase(n) { if (!cosBlatt || cosBlatt.art !== 'morgen') return; cosBlatt.phase = n; haptik(); cosBlattZeichnen(true); }
+function cosMorgenEntscheid(sid, art) {
+  const b = cosBlatt, s = C && C.schritte.find(x => x.id === sid);
+  if (!b || b.art !== 'morgen' || !s) return;
+  b.entscheid[sid] = art;
+  if (art === 'durch' && cosOffen(s)) cosModHaken(sid);
+  else if (art === 'weiter' && s.status === 'fertig') cosModWiederOffen(sid);
+  else haptik();
+  cosBlattZeichnen();
+}
+function cosMorgenStart(d) { const b = cosBlatt; if (!b) return; b.start = Math.max(6 * 60, Math.min(13 * 60, b.start + d * 15)); haptik(); cosBlattZeichnen(); }
+function cosMorgenMenge(pid, d) { const b = cosBlatt; if (!b) return; b.menge[pid] = Math.max(0, Math.min(8, (b.menge[pid] || 0) + d)); haptik(); cosBlattZeichnen(); }
+function cosMorgenRuecken(pid, d) {
+  const b = cosBlatt, r = b && b.reihe.slice(), i = r ? r.indexOf(pid) : -1, j = i + d;
+  if (i < 0 || j < 0 || j >= r.length) return;
+  [r[i], r[j]] = [r[j], r[i]]; b.reihe = r; haptik(); cosBlattZeichnen();
+}
+function cosMorgenSchrittRuecken(pid, sid, d) { const l = cosMorgenListe(cosPid(pid)); if (l.m) cosModSchrittRuecken(pid, l.m.id, sid, d); cosBlattZeichnen(); }
+function cosMorgenNeu(pid) {
+  const p = cosPid(pid), el = $('mgNeu' + pid), t = el ? String(el.value || '').replace(/\s+/g, ' ').trim() : '';
+  if (!p || !t) { if (el) el.focus(); return; }
+  const l = cosMorgenListe(p);
+  if (l.voll) { melden('3 Schritte reichen für morgen.'); return; }
+  const mid = l.m ? l.m.id : (cosModulNeuZiel(p) || COS_ALLG), alt = l.m ? l.m.offen : [];
+  const s = { id: cosId('s'), abschnitt: '', titel: t.slice(0, 160), k: 1, fertigWenn: '', status: 'offen', weiterBei: '', wann: '', verschoben: 0, min: 0, bl: {}, modul: mid === COS_ALLG ? '' : mid };
+  cosFrisch[s.id] = Date.now();
+  cosModulSchritteSetzen(p, mid, alt.concat([s]), 'Schritt für morgen');
+  cosBlattZeichnen();
+}
+function cosMorgenFertig() {
+  const b = cosBlatt;
+  if (!b || b.art !== 'morgen') return;
+  const pt = {};
+  cosRasProjekte().forEach(p => { pt[p.id] = Math.max(0, Number(b.menge[p.id]) || 0); });
+  cosGruppe('Morgen vorbereitet', () => {
+    cosMerkSetzen('pt|' + b.iso, pt);
+    cosMerkSetzen('st|' + b.iso, b.start);
+    cosMerkSetzen('pr|' + b.iso, b.reihe.slice());
+  });
+  cosAnkerSetzen(b.iso);
+  const erst = b.reihe.map(cosPid).find(p => p && pt[p.id] > 0), l = erst ? cosMorgenListe(erst) : null;
+  b.steht = 'Start ' + cosUhr(b.start) + (erst ? ', zuerst ' + erst.name + (l && l.zeige[0] ? ': ' + l.zeige[0].titel : '') : '');
+  b.phase = 4;
+  haptik(); setTimeout(haptik, 140);
+  cosBlattZeichnen(true);
+}
 </script>
 
 <style>
@@ -12672,7 +12782,12 @@ var ZentraleUI = function(exports) {
     let momente;
     if (g.tag === true) {
       const neu = F.cosMomentNeu("tag"), n2 = F.cosSerie(h2), serie = "Serie: " + n2 + (n2 === 1 ? " Tag" : " Tage") + ".";
-      if (neu) F.cosMomentFeiern("Tag gehalten. " + serie, true);
+      if (neu) {
+        F.cosMomentFeiern("Tag gehalten. " + serie, true);
+        setTimeout(() => {
+          if (!Z$1.blatt) F.cosMorgenAuf();
+        }, 1800);
+      }
       momente = /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-tag" + (neu ? " tg-moment" : ""), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Tag gehalten" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Alles, was du dir vorgenommen hast. " + serie })
@@ -12689,7 +12804,8 @@ var ZentraleUI = function(exports) {
       momente,
       /* @__PURE__ */ jsxRuntimeExports.jsx(ToDo, { d, busy }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "tg-h3 tg-heute-k", children: "Heute" }),
-      d.geplant.length ? geplantZeilen(d) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-leer", children: "Noch nichts mit Uhrzeit." })
+      d.geplant.length ? geplantZeilen(d) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-leer", children: "Noch nichts mit Uhrzeit." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-morgen", onClick: () => F.cosMorgenAuf(), children: "Morgen vorbereiten" })
     ] });
   }
   function TrKq({ k: k2, farbe, klasse }) {
@@ -13150,7 +13266,7 @@ var ZentraleUI = function(exports) {
     const lf2 = cosT && da("cosTrFarbe") ? F.cosTrFarbe({ b, s: F.cosSchrittVon(b) }) : "";
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hz-jetzt" + (feier ? " feier" : "") + (lf2 ? " cos-lauf2" : ""), style: lf2 ? { "--pf": lf2 } : void 0, children: box });
   }
-  function Heute() {
+  function Heute$1() {
     const h2 = A$2.heute(), iso = A$2.tagIso, l2 = F.bloeckeVon(iso).map((b, i2) => ({ b, i: i2 }));
     if (iso === h2 && da("cosTagNeuAn") && F.cosTagNeuAn()) return /* @__PURE__ */ jsxRuntimeExports.jsx(TagNeu, {});
     if (iso === h2 && da("cosTagNeuAn") && F.cosTagAn()) {
@@ -13234,7 +13350,7 @@ var ZentraleUI = function(exports) {
   }
   function FokusFeld() {
     const stand2 = useTeil("fokus");
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "feld", id: "heuteBox", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Heute, {}, stand2 + "|" + zug()) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "feld", id: "heuteBox", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Heute$1, {}, stand2 + "|" + zug()) });
   }
   function FeldZeile({ id: id2, name, zusatz, rechts, children, klasse, onClick, ...rest }) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "feld" + (klasse ? " " + klasse : ""), "data-f": id2, onClick, ...rest, children: [
@@ -35042,7 +35158,7 @@ img.ProseMirror-separator {
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pbetrag", children: p2.betrag + " €" })
     ] });
   }
-  function Liste$1({ f: f2 }) {
+  function Liste$2({ f: f2 }) {
     const l2 = (A$2.zelle(f2.spalte) || {}).liste || [];
     if (!l2.length) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Keine Einträge." });
     const mitZeit = l2.some((p2) => p2.zeit);
@@ -35092,7 +35208,7 @@ img.ProseMirror-separator {
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Pille, { text: A$2.anzeigeVon(f2.spalte), ton: A$2.ton(f2, s) })
         ] }),
-        a ? /* @__PURE__ */ jsxRuntimeExports.jsx(Liste$1, { f: f2 }) : null
+        a ? /* @__PURE__ */ jsxRuntimeExports.jsx(Liste$2, { f: f2 }) : null
       ] }),
       f2.spalte === "Ausgaben" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Sieben, { f: f2 }) : null
     ] });
@@ -35297,7 +35413,7 @@ img.ProseMirror-separator {
   function ListenKarte({ o }) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte klappbar auf", onClick: () => A$2.umklappen(A$2.P.felder.indexOf(o)), children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Bereich, { farbe: o.farbe, name: o.spalte }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Liste$1, { f: o })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Liste$2, { f: o })
     ] });
   }
   function Zeiten$1({ a }) {
@@ -35826,7 +35942,7 @@ img.ProseMirror-separator {
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-leise", children: (p2.art === "extern" ? "extern" : "Ziel") + " · " + (p2.deadline < h2 ? "vorbei" : "noch " + n2 + (n2 === 1 ? " Arbeitstag" : " Arbeitstage")) })
     ] });
   }
-  function Kopf$3({ p: p2, b, farbe, mac: mac2 }) {
+  function Kopf$4({ p: p2, b, farbe, mac: mac2 }) {
     const kq = [];
     b.mods.filter((m2) => m2.zahl).forEach((m2) => {
       for (let i2 = 0; i2 < Math.max(m2.zahl, m2.kq); i2++) kq.push(/* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "kq" + (i2 < Math.min(m2.kq, m2.zahl) ? " an" : i2 < m2.kq ? " an ueber" : ""), style: { "--kf": farbe } }, m2.id + i2));
@@ -36009,7 +36125,7 @@ img.ProseMirror-separator {
   function Projekt({ p: p2, mac: mac2 }) {
     const alle2 = F.cosAlleBloecke(), farbe = F.cosFarbe(p2.bereich), b = F.cosProjektBalken(p2, alle2);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj" + (mac2 ? " mac" : ""), style: { "--kf": farbe }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$3, { p: p2, b, farbe, mac: mac2 }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$4, { p: p2, b, farbe, mac: mac2 }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Notiz, { p: p2, mac: mac2 }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Module, { p: p2, b, farbe }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Erledigt, { p: p2, farbe, alle: alle2 })
@@ -36243,7 +36359,7 @@ img.ProseMirror-separator {
       ] })
     ] });
   }
-  function Kopf$2({ d }) {
+  function Kopf$3({ d }) {
     const jetzt = Date.now(), h2 = A$2.heute();
     const name = d.datum === h2 ? "Tiefe heute" : d.datum === A$2.tagPlus(h2, -1) ? "Tiefe gestern" : "Tiefe " + A$2.label(d.datum);
     const teile = d.teile || [];
@@ -36338,7 +36454,7 @@ img.ProseMirror-separator {
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "sen-link", onClick: () => S.buchNeu(), children: "Buch hinzufügen" })
     ] });
   }
-  const Kopf$1 = ({ name, children }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bereich", children: [
+  const Kopf$2 = ({ name, children }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bereich", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "punkt", style: { background: "var(--sen)" } }),
     name,
     children
@@ -36346,7 +36462,7 @@ img.ProseMirror-separator {
   const audioDa = (d) => !!d.audio;
   function Audio({ d }) {
     const a = d.audio;
-    const kopf2 = /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$1, { name: "Audio", children: a.titel && a.verbunden ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sen-rechts", children: a.titel + " Titel" }) : null });
+    const kopf2 = /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$2, { name: "Audio", children: a.titel && a.verbunden ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sen-rechts", children: a.titel + " Titel" }) : null });
     if (!a.verbunden) {
       if (!("link" in a)) return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte", children: [
         kopf2,
@@ -36402,7 +36518,7 @@ img.ProseMirror-separator {
     };
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$1, { name: "Handy" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$2, { name: "Handy" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-handy", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Abgelegt" }),
@@ -36490,7 +36606,7 @@ img.ProseMirror-separator {
     ] });
   }
   const ABSCHNITTE = [
-    { id: "kopf", breit: true, B: Kopf$2 },
+    { id: "kopf", breit: true, B: Kopf$3 },
     { id: "lesen", B: Lesen },
     { id: "audio", B: Audio, da: audioDa },
     { id: "handy", B: Handy }
@@ -37178,14 +37294,144 @@ img.ProseMirror-separator {
       ] }) : null
     ] });
   }
-  const ARTEN = { schritt: Schritt, projekt: ProjektBlatt, sitzung: Sitzung, einplanen: Einplanen, taskwann: TaskWann, weiter: Weiter, inhalt: Inhalt$1 };
+  function Kopf$1({ b }) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-bk", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosBlattZu(), children: "Später" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Morgen · " + F.cosWt(b.iso) + " " + F.cosDatum(b.iso) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", {})
+    ] });
+  }
+  function Heute({ b }) {
+    const l2 = F.cosMorgenHeute();
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-teil", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-schritt", children: "1 von 3 · Schritte von heute" }),
+      !l2.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-leise", children: "Heute keinen Schritt angefasst." }) : l2.map((x2) => {
+        const e = b.entscheid[x2.s.id] || "";
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-d", style: { "--pf": F.cosFarbe(x2.p.bereich) }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-d-t", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: x2.s.titel }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: x2.p.name + (x2.m ? " · " + x2.m.name : "") })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-wahl", role: "group", "aria-label": "Schritt " + x2.s.titel, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: e === "durch" ? "an" : "", "aria-pressed": String(e === "durch"), onClick: () => F.cosMorgenEntscheid(x2.s.id, "durch"), children: "durch" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: e === "weiter" ? "an" : "", "aria-pressed": String(e === "weiter"), onClick: () => F.cosMorgenEntscheid(x2.s.id, "weiter"), children: "geht weiter" })
+          ] })
+        ] }, x2.s.id);
+      }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-kn", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "mg-haupt", onClick: () => F.cosMorgenPhase(2), children: "Weiter" })
+      ] })
+    ] });
+  }
+  function Einstellen({ b }) {
+    const summe = b.reihe.reduce((n2, id2) => n2 + (b.menge[id2] || 0), 0);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-teil", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-schritt", children: "2 von 3 · Morgen einstellen" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-start", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Start morgen" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "pj-zahlw", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosMorgenStart(-1), "aria-label": "15 Minuten früher", children: "−" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: F.cosUhr(b.start) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosMorgenStart(1), "aria-label": "15 Minuten später", children: "+" })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-leise", children: "Menge und Reihenfolge der Projekte · " + summe + (summe === 1 ? " Kästchen" : " Kästchen") }),
+      b.reihe.map((id2, i2) => {
+        const p2 = F.cosPid(id2);
+        if (!p2) return null;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-e", style: { "--pf": F.cosFarbe(p2.bereich) }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "punkt" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-e-n", children: p2.name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "pj-sz-pf", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosMorgenRuecken(id2, -1), disabled: i2 === 0, "aria-label": "nach vorn", children: "↑" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosMorgenRuecken(id2, 1), disabled: i2 === b.reihe.length - 1, "aria-label": "nach hinten", children: "↓" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "pj-zahlw", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosMorgenMenge(id2, -1), disabled: !b.menge[id2], "aria-label": "weniger", children: "−" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: b.menge[id2] || 0 }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosMorgenMenge(id2, 1), "aria-label": "mehr", children: "+" })
+          ] })
+        ] }, id2);
+      }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-kn", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.cosMorgenPhase(1), children: "Zurück" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "mg-haupt", onClick: () => F.cosMorgenPhase(3), children: "Weiter" })
+      ] })
+    ] });
+  }
+  function Liste$1({ b }) {
+    const proj = b.reihe.map(F.cosPid).filter((p2) => p2 && b.menge[p2.id] > 0);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-teil", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-schritt", children: "3 von 3 · Liste für morgen" }),
+      !proj.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-leise", children: "Morgen nichts vorgenommen." }) : proj.map((p2) => {
+        const l2 = F.cosMorgenListe(p2);
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-g", style: { "--pf": F.cosFarbe(p2.bereich) }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-g-k", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "punkt" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: p2.name }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: b.menge[p2.id] + (b.menge[p2.id] === 1 ? " Kästchen" : " Kästchen") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-leise", children: l2.m ? l2.m.name + " · " + l2.zeige.length + " von 3" : "Kein Modul offen. Im Chief anlegen." }),
+          l2.zeige.map((s, i2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-s", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-nr", children: i2 + 1 }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-s-t", children: s.titel }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "pj-sz-pf", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosMorgenSchrittRuecken(p2.id, s.id, -1), disabled: i2 === 0, "aria-label": "nach oben", children: "↑" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosMorgenSchrittRuecken(p2.id, s.id, 1), disabled: i2 === l2.zeige.length - 1, "aria-label": "nach unten", children: "↓" })
+            ] })
+          ] }, s.id)),
+          l2.versteckt ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-leise", children: l2.versteckt + (l2.versteckt === 1 ? " weiterer bleibt im Modul" : " weitere bleiben im Modul") }) : null,
+          l2.voll ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-leise", children: "3 Schritte reichen für morgen." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-sz-neu", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                id: "mgNeu" + p2.id,
+                "aria-label": "Neuer Schritt unten",
+                placeholder: "Neuer Schritt, kommt unten dran",
+                autoComplete: "off",
+                enterKeyHint: "done",
+                onKeyDown: (e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    F.cosMorgenNeu(p2.id);
+                  }
+                }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onPointerDown: (e) => e.preventDefault(), onClick: () => F.cosMorgenNeu(p2.id), "aria-label": "Schritt unten anfügen", children: "+" })
+          ] })
+        ] }, p2.id);
+      }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-kn", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.cosMorgenPhase(2), children: "Zurück" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "mg-haupt", onClick: () => F.cosMorgenFertig(), children: "Fertig für heute" })
+      ] })
+    ] });
+  }
+  function BlattMorgen({ b }) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$1, { b }),
+      b.phase === 1 ? /* @__PURE__ */ jsxRuntimeExports.jsx(Heute, { b }) : b.phase === 2 ? /* @__PURE__ */ jsxRuntimeExports.jsx(Einstellen, { b }) : b.phase === 3 ? /* @__PURE__ */ jsxRuntimeExports.jsx(Liste$1, { b }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-teil mg-steht", role: "status", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Morgen steht." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: b.steht }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-leise", children: "Morgens nichts entscheiden: Start, Los." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "mg-haupt", onClick: () => F.cosBlattZu(), children: "Schließen" })
+      ] })
+    ] });
+  }
+  const ARTEN = { schritt: Schritt, projekt: ProjektBlatt, sitzung: Sitzung, einplanen: Einplanen, taskwann: TaskWann, weiter: Weiter, inhalt: Inhalt$1, morgen: BlattMorgen };
   function ChiefBlattInhalt({ b }) {
     const Art = ARTEN[b.art] || Zerlegen;
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Art, { b });
   }
   function ChiefBlatt({ zug: zug2, neu }) {
     const b = Z$1.blatt;
-    const nurZu = b && ["zerlegen", "sitzung", "einplanen", "taskwann", "inhalt"].indexOf(b.art) >= 0;
+    const nurZu = b && ["zerlegen", "sitzung", "einplanen", "taskwann", "inhalt", "morgen"].indexOf(b.art) >= 0;
     const hg2 = !b || b.art === "weiter" ? null : nurZu ? () => F.cosBlattZu() : () => F.cosBlattFertig();
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Blatt, { ort: "cosBlatt", art: "cos-blatt", auf: !!b, neu, zug: zug2, hg: hg2, label: b ? b.titel || "Bearbeiten" : void 0, fokus: b && b.fokus, fokusMs: 60, vorne: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-griffleiste" }), children: b ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChiefBlattInhalt, { b }) : null });
   }
@@ -37727,7 +37973,7 @@ img.ProseMirror-separator {
       ] }) });
     },
     "sensi:balken": () => sensiTag((d) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ringe", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Balken, { d }) })),
-    "sensi:kopf": () => sensiTag((d) => /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$2, { d })),
+    "sensi:kopf": () => sensiTag((d) => /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$3, { d })),
     "sensi:lesen": () => sensiTag((d) => /* @__PURE__ */ jsxRuntimeExports.jsx(Lesen, { d })),
     "sensi:handy": () => sensiTag((d) => /* @__PURE__ */ jsxRuntimeExports.jsx(Handy, { d })),
     "sensi:blatt-film": () => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-blatt offen wb-blatt", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-blatt-in", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SensiBlattInhalt, { b: { art: "film", f: { art: "Film", titel: "Perfect Days", link: "", ganz: true, handyWeg: true, ort: "Kino", bewertung: 4 } } }) }) }),
@@ -37738,7 +37984,7 @@ img.ProseMirror-separator {
     "notiz:text": () => /* @__PURE__ */ jsxRuntimeExports.jsx(NotizText, { wert: NOTIZ_PROBE }),
     "geld:posten": () => {
       const g = A$2.P.felder.find((x2) => x2.spalte === "Ausgaben");
-      return g ? /* @__PURE__ */ jsxRuntimeExports.jsx(Liste$1, { f: g }) : null;
+      return g ? /* @__PURE__ */ jsxRuntimeExports.jsx(Liste$2, { f: g }) : null;
     },
     "geld:sieben": () => {
       const g = A$2.P.felder.find((x2) => x2.spalte === "Ausgaben");
@@ -37861,7 +38107,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611250102';
+const PWA_VERSION = '202611250109';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -40098,7 +40344,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 01:02</div>
+<div id="testband">TEST 01:09</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
