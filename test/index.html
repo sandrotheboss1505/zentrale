@@ -38004,8 +38004,21 @@ img.ProseMirror-separator {
     } }),
     "blatt:bk": () => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-blatt-in wb-statisch", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Bk, { titel: "Schritt", fertig: "Fertig" }) }),
     "chief:zeile": () => aktivP() ? /* @__PURE__ */ jsxRuntimeExports.jsx(ProjektZeile, { p: aktivP() }) : null,
-    "chief:projekt-handy": () => aktivP() ? /* @__PURE__ */ jsxRuntimeExports.jsx(Projekt, { p: aktivP(), mitZurueck: true, mac: false }) : null,
-    "chief:projekt-mac": () => aktivP() ? /* @__PURE__ */ jsxRuntimeExports.jsx(Projekt, { p: aktivP(), mitZurueck: false, mac: true }) : null,
+    "chief:projekt-handy": () => aktivP() ? /* @__PURE__ */ jsxRuntimeExports.jsx(Projekt, { p: aktivP(), mac: false }) : null,
+    "chief:projekt-mac": () => aktivP() ? /* @__PURE__ */ jsxRuntimeExports.jsx(Projekt, { p: aktivP(), mac: true }) : null,
+    "blatt:morgen": () => {
+      const proj = (Z$1.C.projekte || []).filter((p2) => p2.status === "aktiv" && p2.bereich !== "System"), menge = {};
+      proj.forEach((p2, i2) => {
+        menge[p2.id] = i2 < 3 ? 2 : 0;
+      });
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-blatt offen wb-blatt", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-blatt-hg" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-blatt-in", role: "dialog", "aria-modal": "true", "aria-label": "Morgen", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-griffleiste" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ChiefBlattInhalt, { b: { art: "morgen", titel: "Morgen", iso: F.cosMorgenIso(), phase: 3, entscheid: {}, menge, start: 540, reihe: proj.map((p2) => p2.id), steht: "" } })
+        ] })
+      ] });
+    },
     "chief:reiter": () => aktivP() ? /* @__PURE__ */ jsxRuntimeExports.jsx(Reiter, { offenP: aktivP() }) : null,
     "tag:tageszahl": () => {
       const f2 = A$2.P.felder.find((x2) => x2.typ === "gross");
@@ -38107,7 +38120,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611250109';
+const PWA_VERSION = '202611250115';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -40344,7 +40357,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 01:09</div>
+<div id="testband">TEST 01:15</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>

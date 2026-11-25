@@ -38004,8 +38004,21 @@ img.ProseMirror-separator {
     } }),
     "blatt:bk": () => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-blatt-in wb-statisch", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Bk, { titel: "Schritt", fertig: "Fertig" }) }),
     "chief:zeile": () => aktivP() ? /* @__PURE__ */ jsxRuntimeExports.jsx(ProjektZeile, { p: aktivP() }) : null,
-    "chief:projekt-handy": () => aktivP() ? /* @__PURE__ */ jsxRuntimeExports.jsx(Projekt, { p: aktivP(), mitZurueck: true, mac: false }) : null,
-    "chief:projekt-mac": () => aktivP() ? /* @__PURE__ */ jsxRuntimeExports.jsx(Projekt, { p: aktivP(), mitZurueck: false, mac: true }) : null,
+    "chief:projekt-handy": () => aktivP() ? /* @__PURE__ */ jsxRuntimeExports.jsx(Projekt, { p: aktivP(), mac: false }) : null,
+    "chief:projekt-mac": () => aktivP() ? /* @__PURE__ */ jsxRuntimeExports.jsx(Projekt, { p: aktivP(), mac: true }) : null,
+    "blatt:morgen": () => {
+      const proj = (Z$1.C.projekte || []).filter((p2) => p2.status === "aktiv" && p2.bereich !== "System"), menge = {};
+      proj.forEach((p2, i2) => {
+        menge[p2.id] = i2 < 3 ? 2 : 0;
+      });
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-blatt offen wb-blatt", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-blatt-hg" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-blatt-in", role: "dialog", "aria-modal": "true", "aria-label": "Morgen", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-griffleiste" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ChiefBlattInhalt, { b: { art: "morgen", titel: "Morgen", iso: F.cosMorgenIso(), phase: 3, entscheid: {}, menge, start: 540, reihe: proj.map((p2) => p2.id), steht: "" } })
+        ] })
+      ] });
+    },
     "chief:reiter": () => aktivP() ? /* @__PURE__ */ jsxRuntimeExports.jsx(Reiter, { offenP: aktivP() }) : null,
     "tag:tageszahl": () => {
       const f2 = A$2.P.felder.find((x2) => x2.typ === "gross");
@@ -38124,7 +38137,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611250109';
+const PWA_VERSION = '202611250115';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -40361,7 +40374,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 01:09</div>
+<div id="testband">TEST 01:15</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 <style id="wbStil">
@@ -40552,7 +40565,7 @@ function wbExtraBloecke(bl) {
 const WB_A = { pt: { p01: 2, p02: 1, p03: 1 }, bloecke: wbExtraBloecke };   // voller Tag: läuft, offen, fertig, Termin, To Do, Projekt gehalten, Start gehalten
 const WB_B = { pt: { p01: 1, p02: 1 } };                                   // Tag gehalten
 const WB_C = { pt: { p01: 2, p02: 1, p03: 1 }, st: 480 };                  // Start 08:00, erster Los 08:30: Start verpasst
-/* U2: ein Block seit 00:00 ohne Fertig, also fast immer über dem Ende (Weiter vergessen) */
+/* T2: ein Block seit 00:00 ohne Fertig, also fast immer über dem Blockende (läuft weiter) */
 const WB_D = { pt: { p01: 2, p02: 1, p03: 1 }, bloecke: bl => { const fw = bl.find(b => b.bereich === 'FW') || bl[0]; return fw ? [Object.assign({}, fw, { key: 'wb-drueber|1', start: '00:00', ende: '00:30', min: 30, gestartet: '00:00', beendet: '', status: '' })] : []; } };
 window.WB_SZENEN = { A: WB_A, B: WB_B, C: WB_C, D: WB_D };   // Stufe 3: für die React Werkbank (ZentraleUI.werkbank 'fokus:A|…')
 
@@ -40585,8 +40598,8 @@ function wbBauteile() {
 { gruppe: 'Kästchen', name: 'Mengen je Projekt mit Bonus', fn: 'fokus/FokusKopf.jsx → .tg-mengen', rahmen: 'tg', react: 'fokus:A|.tg-mengen' },
 
 { gruppe: 'Zeilen', name: 'Geplant: alle Zeilen', fn: 'TagNeu.jsx: Block, Termin', notiz: 'fertig, läuft, Termin, offen', rahmen: 'tg', react: 'fokus:A|.tg-z' },
-{ gruppe: 'Zeilen', name: 'Geplant läuft', fn: 'TagNeu.jsx: Block mit Lauf', rahmen: 'tg', react: 'fokus:A|.tg-z.laeuft' },
-{ gruppe: 'Zeilen', name: 'To Do', fn: 'TagNeu.jsx: Todo', notiz: 'freier Platz und Schritt', rahmen: 'tg', react: 'fokus:A|.tg-t' },
+{ gruppe: 'Zeilen', name: 'Laufendes Kästchen', fn: 'fokus/LaufKasten.jsx → .lk', notiz: 'T2: unter der Jetzt Linie, füllt sich von links, Projektfarbe zu Gold', rahmen: 'tg', react: 'fokus:A|.lk|0' },
+{ gruppe: 'Zeilen', name: 'To Do Zeile', fn: 'TagNeu.jsx: TodoZeile → .td-z', notiz: 'T1: Name, Modul, Kästchen, Los klein', rahmen: 'tg', react: 'fokus:A|.td-z|0' },
 
 { gruppe: 'Momente', name: 'Projekt gehalten', fn: 'TagNeu.jsx → .tg-pg', rahmen: 'tg', react: 'fokus:A|.tg-pg' },
 { gruppe: 'Momente', name: 'Tag gehalten', fn: 'TagNeu.jsx → .tg-tag', rahmen: 'tg', react: 'fokus:B|.tg-tag' },
@@ -40601,10 +40614,9 @@ function wbBauteile() {
     { gruppe: 'Knöpfe', name: 'Knöpfe im Kopf', fn: 'ui/src/basis/gerust.jsx (Kopf, Abzug ohne id)', html: () => '<div class="wb-reihe">' + ['zurueck', 'vor', 'undo', 'neu'].map(id => $(id).outerHTML.replace(/ id="[^"]*"/, '')).join('') + '</div>' },
     { gruppe: 'Knöpfe', name: 'Leiste unten', fn: 'ui/src/basis/gerust.jsx (Leiste, Abzug ohne id)', html: () => '<div class="wb-nav">' + document.querySelector('nav').outerHTML.replace(/ id="[^"]*"/g, '') + '</div>' },
 { gruppe: 'Knöpfe', name: 'Zuordnen und Los', fn: 'TagNeu.jsx → .tg-kn', rahmen: 'tg', react: 'fokus:A|.tg-z.offen .tg-kn|0|tg-z offen' },
-{ gruppe: 'Knöpfe', name: 'Uhr und Los rund', fn: 'TagNeu.jsx → .tg-gr .tg-kn', rahmen: 'tg', react: 'fokus:A|.tg-gr .tg-kn|0|tg-gr' },
-{ gruppe: 'Karte', name: 'To Do Gruppe pro Projekt', fn: 'TagNeu.jsx: Gruppe (B2)', rahmen: 'tg', react: 'fokus:A|.tg-gr|0' },
-{ gruppe: 'Knöpfe', name: '+ Dran, Weiter +30 und Fertig', fn: 'fokus/Lauf.jsx → .tg-lauf', notiz: 'laufendes Kästchen füllt sich von unten', rahmen: 'tg', react: 'fokus:A|.tg-lauf|0' },
-{ gruppe: 'Kästchen', name: 'Weiter vergessen (drüber)', fn: 'fokus/Lauf.jsx → .tg-lauf.drueber', notiz: 'gestrichelt in warnung pro angefangene 30 Min, höchstens 3', rahmen: 'tg', react: 'fokus:D|.tg-lauf|0' },
+{ gruppe: 'Karte', name: 'To Do', fn: 'TagNeu.jsx: ToDo → .td', notiz: 'T1: Kopf n von Menge, Zeilen pro Projekt, Joker und Plus', rahmen: 'tg', react: 'fokus:A|.td|0' },
+{ gruppe: 'Knöpfe', name: '+ Dran und Fertig', fn: 'fokus/LaufKasten.jsx → .lk-kn', notiz: 'T2: klein rechts unten, Fertig als Hauptknopf', rahmen: 'tg', react: 'fokus:A|.lk-kn|0' },
+{ gruppe: 'Kästchen', name: 'Laufendes Kästchen über dem Blockende', fn: 'fokus/LaufKasten.jsx → .lk', notiz: 'T2: läuft weiter ohne Frage, ab 90 Min Kurz Pause?', rahmen: 'tg', react: 'fokus:D|.lk|0' },
 { gruppe: 'Knöpfe', name: 'Joker und Plus', fn: 'TagNeu.jsx → .tg-fuss', rahmen: 'tg', react: 'fokus:A|.tg-fuss|0' },
     { gruppe: 'Knöpfe', name: 'Blatt: Abbrechen, Titel, Fertig', fn: 'ui/src/chief/blattTeile.jsx: Bk', react: 'blatt:bk' },
 
@@ -40645,7 +40657,8 @@ function wbBauteile() {
   const pw = C && C.projekte.find(p => p.status === 'aktiv');
   if (pw) {
     L.push({ gruppe: 'Projekt', name: 'Zeile der Projektliste', fn: 'Uebersicht.jsx: ProjektZeile', rahmen: 'karte', react: 'chief:zeile' });
-    L.push({ gruppe: 'Projekt', name: 'Projektseite Handy', fn: 'Projekt.jsx (mitZurueck)', breit: true, react: 'chief:projekt-handy' });
+    L.push({ gruppe: 'Projekt', name: 'Projektseite Handy', fn: 'Projekt.jsx (C1: Module, Erledigt, Zeit)', breit: true, react: 'chief:projekt-handy' });
+    L.push({ gruppe: 'Blatt', name: 'Blatt Morgen, Liste für morgen', fn: 'ui/src/chief/BlattMorgen.jsx (T3)', breit: true, react: 'blatt:morgen' });
     L.push({ gruppe: 'Projekt', name: 'Projektseite Mac', fn: 'Projekt.jsx (mac)', breit: true, react: 'chief:projekt-mac' });
     L.push({ gruppe: 'Projekt', name: 'Reiter am Mac', fn: 'Projekt.jsx: Reiter', react: 'chief:reiter' });
   }
