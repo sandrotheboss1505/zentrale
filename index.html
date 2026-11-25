@@ -191,6 +191,14 @@
   .tag-zeile .datum { width: 86px; font-weight: 600; white-space: nowrap; flex: none; }
   .tag-zeile .mini { flex: 1; display: flex; flex-wrap: wrap; gap: var(--abstand-2); }
   .mini span { font-size: var(--schrift-klein); padding: var(--abstand-1) var(--abstand-3); border-radius: var(--radius-mittel); background: var(--chip); font-variant-numeric: tabular-nums; }
+  /* Zahlen unter den Balken: Letzte 7 Tage (Alkohol, Sport, Kästchen) und Ott */
+  .wk-gruppe { margin-top: var(--abstand-6); padding-top: var(--abstand-5); border-top: 1px solid var(--linie); }
+  .wk-gruppe h4 { margin: 0 0 var(--abstand-3); font-size: var(--schrift-mini); font-weight: 700; color: var(--leise); text-transform: uppercase; letter-spacing: .06em; }
+  .wk-zahlen { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--abstand-4); }
+  .wk-stat { display: flex; flex-direction: column; gap: var(--abstand-1); min-width: 0; }
+  .wk-stat small { font-size: var(--schrift-mini); color: var(--leise); }
+  .wk-stat span { font-size: var(--schrift-klein); color: var(--leise); white-space: nowrap; }
+  .wk-stat b { font-size: var(--schrift-text); font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
   .posten { display: flex; align-items: center; gap: var(--abstand-4); padding: var(--abstand-3) 0; font-size: var(--schrift-klein); border-top: 1px solid var(--linie); }
   .posten:first-child { border-top: 0; }
   .posten .pzeit { font-size: var(--schrift-klein); color: var(--leise); font-variant-numeric: tabular-nums; width: 38px; flex: none; }
@@ -430,7 +438,7 @@
   body.mac3 .mac-spalten { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   /* V86 Tag am Mac: Fokus links breiter */
   .mac-spalten.tag-spalten { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: var(--abstand-9); }
-  body.mac3 .mac-spalten.tag-spalten { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, .85fr); }
+  body.mac3 .mac-spalten.tag-spalten { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1.05fr) minmax(0, 1fr); }
   body.mac .tag-spalten textarea { min-height: 220px; }
   .mac-spalte { min-width: 0; }
   body.mac .karte { margin-bottom: var(--abstand-8); padding: var(--abstand-7) var(--abstand-7); }
@@ -36373,6 +36381,30 @@ img.ProseMirror-separator {
     const r2 = innen(iso || A$2.tagIso);
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-reihe" + (r2.reif ? " reif" : ""), id: "cosReihe", onClick: r2.reif ? () => F.cosSammeln() : void 0, children: /* @__PURE__ */ jsxRuntimeExports.jsx(React$2.Fragment, { children: r2.el }, stand2 + "|" + zug()) });
   }
+  function zahlen() {
+    const h2 = A$2.tagIso, tag = (k2) => A$2.tagPlus(h2, -k2), bis = (n2) => Array.from({ length: n2 }, (_, k2) => tag(k2));
+    const ja2 = (s, iso) => A$2.wertVon(s, iso) === true, zahl = (s, iso) => {
+      const w2 = A$2.wertVon(s, iso);
+      return typeof w2 === "number" ? w2 : 0;
+    };
+    const sieben = bis(7), zaehlen = (s, l2) => l2.filter((iso) => ja2(s, iso)).length;
+    const drinks = sieben.reduce((a, iso) => a + zahl("Drinks", iso), 0);
+    const kae = da("cosTag") ? sieben.reduce((a, iso) => a + F.cosTag(iso).farben.length, 0) / 7 : null;
+    let zuletzt = null;
+    for (let k2 = 0; k2 < 42 && zuletzt == null; k2++) if (ja2("Ott", tag(k2))) zuletzt = k2;
+    return {
+      oben: [
+        ["Alkohol", A$2.komma(drinks), drinks === 1 ? "Drink" : "Drinks"],
+        ["Sport", zaehlen("Sport", sieben), "×"],
+        ["Kästchen", kae == null ? "" : A$2.komma((Math.round(kae * 10) / 10).toFixed(1)), "am Tag"]
+      ],
+      ott: [
+        ["30 Tage", zaehlen("Ott", bis(30)), "×"],
+        ["7 Tage", zaehlen("Ott", sieben), "×"],
+        zuletzt == null ? ["Zuletzt", "", "länger her"] : zuletzt === 0 ? ["Zuletzt", "heute", ""] : zuletzt === 1 ? ["Zuletzt", "gestern", ""] : ["Zuletzt", "vor " + zuletzt, "Tagen"]
+      ]
+    };
+  }
   function WocheKarte$1() {
     const f2 = A$2.P.felder.find((x2) => x2.typ === "gross");
     if (!f2) return null;
@@ -36383,6 +36415,7 @@ img.ProseMirror-separator {
       return typeof w2 === "number" ? w2 : null;
     });
     const da2 = werte.filter((w2) => w2 != null), schnitt = da2.length ? Math.round(da2.reduce((a, b) => a + b, 0) / da2.length * 10) / 10 : null;
+    const z2 = zahlen();
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte woche-karte", onClick: () => A$2.wocheOeffnen(), children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Bereich, { farbe: f2.farbe, name: "Woche", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "wk-schnitt", children: schnitt == null ? "" : "Ø " + A$2.komma(schnitt.toFixed(1)) }),
@@ -36391,7 +36424,18 @@ img.ProseMirror-separator {
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "wk-balken", children: werte.map((w2, i2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "wk-tag" + (tage[i2] === A$2.tagIso ? " heute" : ""), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "wk-bahn", children: /* @__PURE__ */ jsxRuntimeExports.jsx("i", { style: w2 == null ? { height: "0%" } : { height: Math.max(8, w2 * 10) + "%", background: A$2.stufeFarbe(f2, w2) || f2.farbe } }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "MDMDFSS"[i2] })
-      ] }, i2)) })
+      ] }, i2)) }),
+      [["", z2.oben], ["Ott", z2.ott]].map(([titel, l2]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "wk-gruppe", children: [
+        titel ? /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { children: titel }) : null,
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "wk-zahlen", children: l2.map(([name, zahl, einheit]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "wk-stat", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: zahl }),
+            zahl !== "" && einheit ? " " : "",
+            einheit
+          ] })
+        ] }, name)) })
+      ] }, titel || "sieben"))
     ] });
   }
   function Version() {
@@ -36433,12 +36477,14 @@ img.ProseMirror-separator {
     const sp = Array.from({ length: n2 }, () => []);
     const kopfK = karten.filter((b) => name(b) === "kopf"), notizK = karten.filter((b) => name(b) === "notiz");
     const rest = karten.filter((b) => kopfK.indexOf(b) === -1 && notizK.indexOf(b) === -1);
-    sp[0].push(...fokus.map(teil));
-    sp[1].push(...kopfK.concat(notizK).map(teil), ...listen);
-    const rechts = n2 === 3 ? 2 : 1;
-    if (n2 === 3) sp[2].push(woche);
-    else sp[0].push(woche);
-    sp[rechts].push(...rest.concat(unten).map(teil));
+    if (n2 === 3) {
+      sp[0].push(...fokus.map(teil));
+      sp[1].push(...notizK.map(teil), woche, ...listen, ...unten.map(teil));
+      sp[2].push(...kopfK.map(teil), ...rest.map(teil));
+    } else {
+      sp[0].push(...fokus.map(teil), ...notizK.map(teil), ...listen, ...unten.map(teil));
+      sp[1].push(...kopfK.map(teil), woche, ...rest.map(teil));
+    }
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       kopf2,
       /* @__PURE__ */ jsxRuntimeExports.jsx(Spalten, { spalten: sp, klasse: "tag-spalten" }),
@@ -38898,8 +38944,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611251741';
-const PWA_NAME = "V124 Chief: Woche vor Heute";
+const PWA_VERSION = '202611251825';
+const PWA_NAME = "V125 Mac Aufbau neu, Woche mit Alkohol, Sport, Kästchen und Ott";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
