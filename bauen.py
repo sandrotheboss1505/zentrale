@@ -82,6 +82,7 @@ SEITEN = [
             'chief/ziehen.js',            # Ziehen am Griff mit Pointer Events (Rang), Pfeiltasten
             'chief/fokus.js',             # Fokus Karte: Merken, Termine fix oder flexibel, Anfangen, Los, Weiter +30
             'chief/vornehmen.js',         # Heute vornehmen, Vergessen, Einplanen, Verschieben, Blatt Wann (Handlungen)
+            'chief/dochnicht.js',         # Doch nicht gemacht: geschafftes Kästchen raus, kurz Rückgängig
             'chief/plus.js',              # Blatt Plus, Task Wann, Was kommt rein (Handlungen)
             'chief/mac.js',               # Mac: Leiste ziehen und ablegen, Balken wachsen lassen
             'chief/runde.js',             # Wochenrunde, Mittwochsrunde, Einhängen
