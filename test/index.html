@@ -4614,13 +4614,14 @@ function cosMorgenIso() { let t = tagPlus(heute(), 1); for (let i = 0; i < 7 && 
    Abgehakte zählen nur als Zeile "n Schritte durch" (cosMorgenDurch), Module ohne Schritt aus ow|heute (cosMorgenOhne) */
 function cosMorgenHeute() {
   const h = heute(), out = [], da = {}, ob = cosMerk('ob|' + h);
-  const dazu = s => { if (!s || da[s.id] || !cosOffen(s)) return; const p = cosNachName(s.projekt); if (!p) return; da[s.id] = true; out.push({ s: s, p: p, m: cosModulVon(s) }); };
+  const ent = cosBlatt && cosBlatt.art === 'morgen' ? cosBlatt.entscheid : {};   // im Blatt entschieden: Zeile bleibt, damit geht weiter zurücknimmt
+  const dazu = s => { if (!s || da[s.id] || (!cosOffen(s) && !ent[s.id])) return; const p = cosNachName(s.projekt); if (!p) return; da[s.id] = true; out.push({ s: s, p: p, m: cosModulVon(s) }); };
   (Array.isArray(ob) ? ob : []).forEach(id => dazu(C.schritte.find(s => s.id === id)));
   cosHeuteBloecke().forEach(x => { if (x.s && (x.b.gestartet || x.b.status)) dazu(x.s); });
   return out;
 }
 function cosMorgenOhne() { const ow = cosMerk('ow|' + heute()); return (Array.isArray(ow) ? ow : []).map(cosModulId).filter(Boolean); }
-function cosMorgenDurch() { const h = heute(); return C.schritte.filter(s => s.status === 'fertig' && s.abgehakt === h).length; }
+function cosMorgenDurch() { const h = heute(), ent = cosBlatt && cosBlatt.art === 'morgen' ? cosBlatt.entscheid : {}; return C.schritte.filter(s => s.status === 'fertig' && s.abgehakt === h && !ent[s.id]).length; }
 /* Liste für morgen eines Projekts: Modul, das dran ist, höchstens COS_MORGEN_DECKEL Schritte, der Rest bleibt im Modul */
 function cosMorgenListe(p) {
   const m = cosModulDran(p), o = m ? m.offen : [];
@@ -38648,7 +38649,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611251332';
+const PWA_VERSION = '202611251357';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -40929,7 +40930,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 13:32</div>
+<div id="testband">TEST 13:57</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>

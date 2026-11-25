@@ -785,6 +785,9 @@
   .mg-steht { align-items: flex-start; padding: var(--abstand-6) 0; }
   .mg-steht b { font-size: var(--schrift-titel); }
   @media (prefers-reduced-motion: reduce) { .mg-teil { animation: none; } }
+  /* Modell R13: Knopf Morgen oben im Chief */
+  .mg-knopf-z { display: flex; justify-content: flex-end; margin-bottom: var(--abstand-4); }
+  .mg-knopf { height: 36px; padding: 0 var(--abstand-7); border-radius: var(--radius-rund); background: var(--chip); color: var(--text); font-size: var(--schrift-klein); font-weight: 600; }
   /* ── V59 Fokus neu: Balken aus 6 Kästchen, Als Nächstes als Zeile, Heute vornehmen im Chief ── */
   /* V69: ein durchgehender Balken in einer Farbe. Kräftig geschafft, hell vorgenommen, voll ist 3:00 */
   .cos-fb { position: relative; height: 10px; margin: var(--abstand-6) 0 0; border-radius: var(--radius-rund); background: var(--chip); }
@@ -1224,6 +1227,29 @@
   .tg-eigen button:disabled { opacity: .45; }
   @media (prefers-color-scheme: dark) { .tg-eigen button { background: var(--knopf-blau-dunkel); } }
   @media (prefers-reduced-motion: reduce) { .tg-moment, .tg-puls { animation: none; } }
+  /* Modell (entwuerfe/modell/MODELL.md): Schritt im laufenden Block ganz lesbar mit Kreis, danach, Schritt davor; To Do mit oberstem Schritt groß */
+  .lk-schritt { position: relative; display: flex; align-items: flex-start; gap: var(--abstand-4); min-width: 0; }
+  /* Kreis im Block: Haken springt, Strich läuft durch, alter Schritt steigt weg, der nächste kommt von unten (--hd: schon vergangene Zeit) */
+  .lk-hak { position: absolute; inset: 0; display: flex; align-items: flex-start; gap: var(--abstand-4); pointer-events: none; animation: lkhakweg .4s ease-in calc(var(--hd) + .6s) forwards; }
+  .lk-hak .pj-kreis { margin-top: var(--abstand-1); animation: lkhakpop .4s cubic-bezier(.34,1.6,.64,1) var(--hd) both; }
+  .lk-strich { box-decoration-break: clone; -webkit-box-decoration-break: clone; background: linear-gradient(currentColor, currentColor) 0 55% / 0 var(--abstand-1) no-repeat; animation: lkstrich .3s ease-out calc(var(--hd) + .2s) forwards; }
+  .lk-schritt.rein > .pj-kreis, .lk-schritt.rein > .lk-t { animation: lkrein .4s cubic-bezier(.2,.9,.3,1) calc(var(--hd) + .75s) both; }
+  .lk-plus-hak { animation-delay: calc(var(--hd) + .15s); }
+  @keyframes lkhakpop { 0% { transform: scale(.4); } 60% { transform: scale(1.35); } 100% { transform: scale(1); } }
+  @keyframes lkstrich { to { background-size: 100% var(--abstand-1); opacity: .6; } }
+  @keyframes lkhakweg { to { transform: translateY(calc(-1 * var(--abstand-7))); opacity: 0; } }
+  @keyframes lkrein { from { transform: translateY(var(--abstand-7)); opacity: 0; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .lk-hak { display: none; } .lk-schritt.rein > .pj-kreis, .lk-schritt.rein > .lk-t { animation: none; } }
+  .lk-schritt .pj-kreis { --kf: var(--pf); margin-top: var(--abstand-1); }
+  .lk-schritt .lk-t { white-space: normal; overflow-wrap: anywhere; font-size: var(--schrift-gross); }
+  .lk-danach { font-size: var(--schrift-klein); color: var(--leise); }
+  .lk-davor { height: 36px; padding: 0 var(--abstand-5); border-radius: var(--radius-gross); background: var(--karte); color: var(--text); font-size: var(--schrift-klein); font-weight: 600; }
+  .lk-davor:disabled { opacity: .45; }
+  .lk-davor-feld { position: relative; margin-top: var(--abstand-4); }
+  .td-oben { display: flex; align-items: flex-start; gap: var(--abstand-5); padding: 0 0 var(--abstand-4) var(--abstand-7); font-size: var(--schrift-gross); font-weight: 600; overflow-wrap: anywhere; }
+  .td-oben .pj-kreis { --kf: var(--pf); margin-top: var(--abstand-1); }
+  .td-erst { display: flex; flex-direction: column; gap: var(--abstand-3); padding: 0 0 var(--abstand-5) var(--abstand-7); }
+  .td-ohne { align-self: flex-start; padding: var(--abstand-2) 0; font-size: var(--schrift-klein); color: var(--leise); text-decoration: underline; text-underline-offset: 3px; }
   /* ── V95 Heute vornehmen und Woche als Raster. Maße aus entwuerfe/kaestchen/Chief.dc.html ── */
   :root { --ras-blau: #E7EEFB; --ras-we: #F7F6F2; --ras-we-text: #BDB9B0; --ras-tag-we: #9A968C; --ras-heute: #073763;
     --ras-gruen: #2E7D32; --ras-gruen-hell: #E3F1E4; --ras-warn: #9A5B00; --ras-warn-hell: #FFF4E5; --ras-rot: #C62828; --ras-rot-hell: #FDE7E5; }
@@ -1472,6 +1498,12 @@
   .pj.mac .pj-mod-k { padding: var(--abstand-6) var(--abstand-7); }
   .pj.mac .pj-mod-in { padding: 0 var(--abstand-7) var(--abstand-6); }
   @media (prefers-reduced-motion: reduce) { .pj-mod-in, .pj-mod-form, .pj-sz.frisch { animation: none; } .pj-mod-pf { transition: none; } }
+  /* Modell: fertige Module mit Haken unter den offenen, Bearbeiten mit Name, abschließen, Schritt in ein anderes Modul */
+  .pj-mod.fertig .pj-mod-o b { color: var(--leise); font-weight: 600; }
+  .pj-mod.fertig .pj-kreis { width: 18px; height: 18px; margin-right: var(--abstand-3); }
+  .pj-mod-e { display: flex; flex-wrap: wrap; align-items: center; gap: var(--abstand-5); padding: var(--abstand-4) 0; }
+  .pj-mod-name { flex: 1; min-width: 0; font: inherit; font-weight: 700; padding: var(--abstand-3) var(--abstand-5); border-radius: var(--radius-mittel); border: 0; background: var(--chip); color: var(--text); }
+  .pj-sz-wohin { flex: none; max-width: 40%; font: inherit; font-size: var(--schrift-klein); padding: var(--abstand-2) var(--abstand-3); border-radius: var(--radius-mittel); border: 0; background: var(--chip); color: var(--text); }
 </style>
 <div id="cosBlatt" class="cos-blatt"></div>
 <script>
@@ -1621,8 +1653,23 @@ function cosAnwenden(ops) {
       if (stelle < 0 || stelle > rest.length) stelle = rest.length;
       C.schritte = rest.slice(0, stelle).concat(neu, rest.slice(stelle));
     } else if (o.op === 'kapazitaet') C.kapazitaet = o.n;
+    else if (o.op === 'modul' && C.module) {   // Modell: ein Modul anlegen oder ändern wie cosOpModul_ in Chief.js
+      const q = o.m;
+      let m = C.module.find(x => x.id === q.id);
+      if (!m) {
+        if (!q.pid || !q.name) return;
+        m = { id: q.id, pid: q.pid, name: q.name, zahl: null, status: 'offen', fertigAm: '', keys: [], bl: {} };
+        let i = C.module.findIndex(x => x.id === q.nach);
+        if (i < 0) C.module.forEach((x, k) => { if (x.pid === q.pid) i = k; });
+        C.module.splice(i < 0 ? C.module.length : i + 1, 0, m);
+      }
+      if (q.name) m.name = q.name;
+      if (q.zahl !== undefined) m.zahl = Number(q.zahl) >= 1 ? Math.round(Number(q.zahl)) : null;
+      if (q.status !== undefined && q.status !== null) { m.status = q.status === 'fertig' ? 'fertig' : 'offen'; m.fertigAm = m.status === 'fertig' ? m.fertigAm || heute() : ''; }
+    }
     else if (o.op === 'module') {   // D1: alle Module eines Projekts, Reihenfolge wie die Liste
-      const alt = C.module || [], neu = o.liste.map(x => ({ id: x.id, pid: o.pid, name: x.name, zahl: Number(x.zahl) >= 1 ? Math.round(Number(x.zahl)) : null }));
+      const alt = C.module || [], neu = o.liste.map(x => Object.assign({ status: 'offen', fertigAm: '', keys: [], bl: {} }, alt.find(m => m.id === x.id) || {},   // Modell: Status und Blöcke bleiben
+        { id: x.id, pid: o.pid, name: x.name, zahl: Number(x.zahl) >= 1 ? Math.round(Number(x.zahl)) : null }));
       let stelle = alt.findIndex(m => m.pid === o.pid);
       const rest = alt.filter((m, i) => { const raus = m.pid === o.pid; if (raus && i < stelle) stelle--; return !raus; });
       if (stelle < 0 || stelle > rest.length) stelle = rest.length;
@@ -1656,6 +1703,7 @@ function cosRueck(a) {
     melden('Rückgängig: ' + a.name);
     return;
   }
+  if (typeof cosRueckModell === 'function' && cosRueckModell(a)) return;   // Modell: Fertig, Modul fertig
   const r = cosRueckTag(a);
   if (r === 'warte') { verlauf.push(a); kopfSetzen({ undoAus: false }); melden('Einen Moment, das wird noch angelegt. Dann geht Rückgängig.'); return; }
   if (r) { melden('Rückgängig: ' + a.name); return; }
@@ -1808,8 +1856,8 @@ function cosEtappen(liste) {
   return gruppen;
 }
 
-/* ── Kästchen des Tages: Fokuszeit durch 30. Reihe unter der Tageszahl ── */
-function cosTag(iso) {
+/* ── Kästchen des Tages: Fokuszeit durch 30. Reihe unter der Tageszahl. Modell: cosTag in rechnen_woche.js, vor dem Stichtag und ohne Modell das hier ── */
+function cosTagAlt(iso) {
   const l = bloeckeVon(iso).filter(zaehlt).slice().sort((a, b) => a.start.localeCompare(b.start));
   const farben = [];
   let rest = 0, summe = 0, letzte = null;
@@ -2077,26 +2125,28 @@ function cosNachOk() {
   zeichnen();
 }
 
-/* ── D1 Module: Projekt > Modul (Name, Zahl optional, Reihenfolge) > Schritte (offen oder abgehakt, ohne Zeit).
-   Kästchen hängen an Projekt und Modul: getragen vom Schritt (Blöcke), gezählt pro Modul, pro Tag gerundet wie überall (cosKqVon).
-   Schritte ohne Modul (oder mit unbekanntem) bilden "Allgemein" (ID allg), nur beim Lesen. Dran = erstes Modul mit offenen Schritten ── */
+/* ── Module (D1, Modell entwuerfe/modell/MODELL.md): Projekt > Modul (Name, Zahl optional, Reihenfolge, offen oder fertig) > Schritte.
+   Kästchen gehören dem Modul (Module!G, Teile bei Modulwechsel), nie dem Schritt. Dran (R2) = erstes Modul, das nicht fertig ist, auch leer.
+   Fertig nur auf Ja oder "Modul abschließen" (R3). Ohne Modell (alter Server): wie V120, Allgemein nur beim Lesen, dran = erstes mit offenen Schritten ── */
 const COS_ALLG = 'allg';
 function cosModulRoh(p) { return ((C && C.module) || []).filter(m => m.pid === p.id); }
-function cosModule(p, alle) {
-  alle = alle || cosAlleBloecke();
-  const roh = cosModulRoh(p), mods = roh.map(m => ({ id: m.id, name: m.name, zahl: Number(m.zahl) >= 1 ? Number(m.zahl) : null, allg: false, offen: [], erledigt: [], kq: 0 }));
-  const allg = { id: COS_ALLG, name: 'Allgemein', zahl: null, allg: true, offen: [], erledigt: [], kq: 0 };
+function cosModule(p, ix) {
+  const an = cosModellAn(), roh = cosModulRoh(p);
+  const mods = roh.map(m => ({ id: m.id, name: m.name, zahl: Number(m.zahl) >= 1 ? Number(m.zahl) : null, allg: false, fertig: an && m.status === 'fertig',
+    fertigAm: m.fertigAm || '', offen: [], erledigt: [], kq: 0 }));
+  const allg = { id: COS_ALLG, name: 'Allgemein', zahl: null, allg: true, fertig: false, fertigAm: '', offen: [], erledigt: [], kq: 0 };
   cosListe(p).forEach(s => {
     if (s.status === 'park') return;   // Geparktes gibt es in der neuen Oberfläche nicht, bleibt in der Tabelle
     const m = mods.find(x => x.id === s.modul) || allg;
     (cosOffen(s) ? m.offen : m.erledigt).push(s);
   });
   const out = allg.offen.length || allg.erledigt.length ? mods.concat([allg]) : mods;
-  out.forEach(m => { m.kq = cosModulKq(m.offen.concat(m.erledigt), alle); });
+  if (an) { ix = cosIx(ix); out.forEach(m => { m.kq = m.allg ? 0 : cosModulKqM(m.id, ix); }); }
+  else { const alle = Array.isArray(ix) ? ix : cosAlleBloecke(); out.forEach(m => { m.kq = cosModulKqAlt(m.offen.concat(m.erledigt), alle); }); }
   return out;
 }
-/* Kästchen der Schritte: fertige Blöcke pro Tag, ab 24.11. pro Block ab 15 Minuten gerundet. Läuft der Block noch, zählt er nicht */
-function cosModulKq(schritte, alle) {
+/* Ohne Modell (V120): Kästchen der Schritte, fertige Blöcke pro Tag. Läuft der Block noch, zählt er nicht */
+function cosModulKqAlt(schritte, alle) {
   alle = alle || cosAlleBloecke();
   const h = heute(), tage = {}, dazu = (iso, m) => { (tage[iso] = tage[iso] || []).push(m); };
   schritte.forEach(s => {
@@ -2117,20 +2167,23 @@ function cosModulKq(schritte, alle) {
   });
   return Object.keys(tage).reduce((n, iso) => n + cosKqVon(iso, tage[iso]), 0);
 }
-function cosModulDran(p, alle) { return cosModule(p, alle).find(m => m.offen.length) || null; }
+function cosModulDran(p, ix) { const l = cosModule(p, ix); return cosModellAn() ? l.find(m => !m.fertig) || null : l.find(m => m.offen.length) || null; }
 function cosModulVon(s) { const p = s && cosNachName(s.projekt); return p ? cosModule(p).find(m => m.offen.indexOf(s) >= 0 || m.erledigt.indexOf(s) >= 0) || null : null; }
-/* Text am Modul: "4 von 10", über der Zahl "11 von 10, 3 Schritte offen" und +1 (grau, kein Bonus), ohne Zahl "3 Kästchen" */
+/* Text am Modul: "4 von 10", über der Zahl "11 von 10" und grau +1 (R9), ohne Zahl "3 Kästchen". Fertig: "fertig · n Kästchen, geschätzt m" */
 function cosModulText(m) {
-  const g = m.kq, z = m.zahl, o = m.offen.length;
-  let text = z ? g + ' von ' + z : g ? g + (g === 1 ? ' Kästchen' : ' Kästchen') : 'noch keine Kästchen';
+  const g = m.kq, z = m.zahl, o = m.offen.length, kt = n => n + (n === 1 ? ' Kästchen' : ' Kästchen');
+  if (m.fertig) return { text: 'fertig · ' + kt(g) + (z ? ', geschätzt ' + z : ''), g: g, z: z, o: o, plus: 0 };
+  let text = z ? g + ' von ' + z : g ? kt(g) : 'noch keine Kästchen';
   if (z && g >= z && o) text += ', ' + o + (o === 1 ? ' Schritt offen' : ' Schritte offen');
   return { text: text, g: g, z: z, o: o, plus: z && g > z ? g - z : 0 };
 }
-/* Projektbalken: geschafft (je Modul höchstens seine Zahl) von der Summe der Modulzahlen. Module ohne Zahl zählen nicht mit */
-function cosProjektBalken(p, alle) {
-  const mods = cosModule(p, alle), mit = mods.filter(m => m.zahl);
-  const g = mit.reduce((n, m) => n + Math.min(m.zahl, m.kq), 0), z = mit.reduce((n, m) => n + m.zahl, 0);
-  return { g: g, z: z, ohne: mods.filter(m => !m.zahl && !m.allg).length, mods: mods, kq: mods.reduce((n, m) => n + m.kq, 0) };
+/* Projektbalken (R8): geschafft aller Module durch die Summe aus Zahl (offen, mindestens geschafft) oder geschafft (fertig, ohne Zahl).
+   Ohne Modell wie V120: je Modul höchstens seine Zahl, Module ohne Zahl zählen nicht */
+function cosProjektBalken(p, ix) {
+  const mods = cosModule(p, ix), kq = mods.reduce((n, m) => n + m.kq, 0), ohne = mods.filter(m => !m.zahl && !m.allg && !m.fertig).length;
+  if (cosModellAn()) return { g: kq, z: mods.reduce((n, m) => n + (!m.fertig && m.zahl ? Math.max(m.zahl, m.kq) : m.kq), 0), ohne: ohne, mods: mods, kq: kq };
+  const mit = mods.filter(m => m.zahl);
+  return { g: mit.reduce((n, m) => n + Math.min(m.zahl, m.kq), 0), z: mit.reduce((n, m) => n + m.zahl, 0), ohne: ohne, mods: mods, kq: kq };
 }
 /* Ändern: Module eines Projekts (Liste { id, name, zahl }) und Schritte eines Moduls, jeweils mit Rückweg */
 function cosModuleSetzen(p, liste, name) {
@@ -2326,11 +2379,7 @@ function cosDrueber(b) {
 /* U2: Kästchen aus Fokusminuten. Ab COS_RUNDEN_AB pro Block gerundet (53 = 2, 44 = 1), vorher volle 30 Minuten der Summe.
    m: Minuten (Zahl) oder Minuten pro Block (Liste). Minuten selbst bleiben überall genau */
 const COS_RUNDEN_AB = '2026-11-24';
-function cosKqVon(iso, m) {
-  const l = Array.isArray(m) ? m : [m];
-  if (iso >= COS_RUNDEN_AB) return l.reduce((n, x) => n + Math.round((Number(x) || 0) / COS_MIN), 0);
-  return Math.floor(l.reduce((n, x) => n + (Number(x) || 0), 0) / COS_MIN + 0.01);
-}
+function cosKqVon(iso, m) { return cosKqTag(iso, Array.isArray(m) ? m : [m]); }   // Modell R5: die eine Funktion steht in rechnen_woche.js
 function cosTagDaten() {
   const h = heute(), jm = jetztMin(), tp = cosTagPlan(true), pt = tp.planP || {}, jt = tp.jt || {}, proj = cosRasProjekte(), geplant = [], zahl = {};
   let balkenMin = 0;   // B4: genaue Fokusminuten fertiger Blöcke plus mit Dran bestätigte des laufenden, nur Raster (System zählt nicht)
@@ -2347,11 +2396,12 @@ function cosTagDaten() {
   });
   cosTermine().forEach(t => geplant.push({ art: 'termin', t: t.s, termin: t }));
   geplant.sort((a, b) => a.t - b.t || (a.art === 'termin' ? -1 : 0) + (b.art === 'termin' ? 1 : 0));
-  const todo = [], g = cosGehalten(h), chips = [];
+  const todo = [], g = cosGehalten(h), chips = [], ix = cosModellAn() ? cosModellIndex() : null;
+  const dM = ix ? cosTagProjektKq(h, 'fertig', ix) : null, lM = ix ? cosTagProjektKq(h, 'laeuft', ix) : null;   // Modell R6: Kopf aus den Blöcken, ohne Restzeit
   proj.forEach(p => { tp.ohneZeit.concat(tp.vorschlaege).forEach(o => { if (o.p.id === p.id) todo.push(o); }); });
   let fertigN = 0, gesamtN = 0, summe = 0, menge = 0, ist = 0;
   proj.forEach(p => {
-    const m = Math.max(0, Number(pt[p.id]) || 0), z = zahl[p.id], d = cosKqVon(h, z.dL), l = cosKqVon(h, z.dL.concat(z.lL)) - d;
+    const m = Math.max(0, Number(pt[p.id]) || 0), z = zahl[p.id], d = ix ? dM[p.id] || 0 : cosKqVon(h, z.dL), l = ix ? lM[p.id] || 0 : cosKqVon(h, z.dL.concat(z.lL)) - d;
     const j = Math.min(m, Number(jt[p.id]) || 0), t = todo.filter(o => o.p.id === p.id).length, f = todo.filter(o => o.p.id === p.id && !o.s).length;
     if (!m && !d && !l && !z.o && !t) return;
     const belegt = d + l + z.o + t + j;
@@ -2460,10 +2510,11 @@ function cosGehalten(iso) {
     if (p) (min[p.id] = min[p.id] || []).push(fokusMin(iso, b));
   });
   let soll = 0, ist = 0, joker = 0, ok = true;
+  const kqM = cosModellAn() ? cosTagProjektKq(iso) : null;   // Modell R6: Gehalten aus den Blöcken der Module
   ((C && C.projekte) || []).forEach(p => {
     if (p.bereich === 'System') return;
     const geplant = Math.max(0, Number(pt[p.id]) || 0), j = Math.max(0, Number(jt[p.id]) || 0);
-    const s = Math.max(0, geplant - j), k = cosKqVon(iso, min[p.id] || []);
+    const s = Math.max(0, geplant - j), k = kqM ? kqM[p.id] || 0 : cosKqVon(iso, min[p.id] || []);
     if (!geplant && !k) return;
     proP[p.id] = { soll: s, ist: k, joker: Math.min(j, geplant), ok: k >= s };
     soll += s; ist += Math.min(k, s); joker += Math.min(j, geplant);
@@ -2526,8 +2577,13 @@ function cosRasKurzName(p) {
 }
 /* Zentrale (Bereich System): Kästchen aus den Blöcken der laufenden Woche, höchstens 4, frei, nicht im Tag */
 function cosSystemWoche() {
-  const min = cosRasTage('jetzt').filter(iso => iso <= heute()).reduce((n, iso) => n + bloeckeVon(iso).filter(b => b.bereich === 'System').reduce((m, b) => m + fokusMin(iso, b), 0), 0);
-  return Math.floor(min / COS_MIN + 0.01);
+  // Modell R5: ab dem Stichtag pro Block, Tage davor wie damals (Summe der Woche in vollen 30 Minuten)
+  let alt = 0, neu = 0;
+  cosRasTage('jetzt').filter(iso => iso <= heute()).forEach(iso => {
+    const l = bloeckeVon(iso).filter(b => b.bereich === 'System').map(b => fokusMin(iso, b));
+    if (iso >= COS_KQ_AB) neu += cosKqTag(iso, l); else alt += l.reduce((a, m) => a + m, 0);
+  });
+  return Math.floor(alt / COS_MIN + 0.01) + neu;
 }
 /* Gemessen: Kästchen der Vorwoche und der laufenden Woche bis heute */
 function cosRasGemessen() {
@@ -2567,6 +2623,119 @@ function cosKwVon(iso) {
   const a = iso.split('-').map(Number), t = new Date(Date.UTC(a[0], a[1] - 1, a[2]));
   t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7));
   return Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7);
+}
+
+/* ── Modell (entwuerfe/modell/MODELL.md): Kästchen. Steht hier, damit web/bauen.py keine neue Datei braucht ──
+   R5: Kästchen aus Minuten rechnet nur cosKq (pro Block, ab 15 Minuten ein Kästchen), Summen addieren und runden nie neu.
+   R6: jede Anzeige holt Kästchen über cosKq, cosKqTag, cosBlockKq, cosModul (kq), cosTagProjektKq, cosTag.
+   R7: ein Block kann in Teile zerfallen (Module!G "key#ab-bis"), jeder Teil ist ein Block im Sinn von R5.
+   Ältere Tage (vor COS_KQ_AB) bleiben, wie sie waren: Summe des Tages in vollen 30 Minuten (S13) */
+const COS_KQ_AB = '2026-11-24';   // seit V109 pro Block gerundet (Math.round(min / 30) ist floor((min + 15) / 30)), das Modell übernimmt genau diese Regel
+function cosKq(iso, min) { const m = Math.max(0, Number(min) || 0); return iso >= COS_KQ_AB ? Math.floor((m + 15) / COS_MIN) : Math.floor(m / COS_MIN); }
+function cosKqTag(iso, liste) {
+  const l = Array.isArray(liste) ? liste : [liste];
+  if (iso >= COS_KQ_AB) return l.reduce((n, m) => n + cosKq(iso, m), 0);
+  return Math.floor(l.reduce((n, m) => n + Math.max(0, Number(m) || 0), 0) / COS_MIN + 0.01);
+}
+/* Minuten eines Teils "key#ab-bis" (ms) eines Blocks mit fokus Minuten ab s0 (ms). Wie cosTeilMin_ in Chief.js */
+function cosTeilMin(eintrag, fokus, s0) {
+  const f = Math.max(0, Number(fokus) || 0), t = String(eintrag || '').split('#');
+  if (t.length < 2) return f;
+  const g = t[1].split('-'), ab = Number(g[0]) || 0, bis = Number(g[1]) || 0;
+  const r = ms => Math.max(0, Math.min(f, Math.round((ms - s0) / 60000)));
+  return Math.max(0, (bis ? r(bis) : f) - (ab ? r(ab) : 0));
+}
+function cosEvVon(key) { return String(key || '').split('#')[0].split('|')[0]; }
+function cosMsVon(iso, hm) { const t = iso.split('-').map(Number), u = String(hm).split(':').map(Number); return new Date(t[0], t[1] - 1, t[2], u[0] || 0, u[1] || 0).getTime(); }
+function cosIsoVonMs(ms) { const d = new Date(Number(ms) || 0); return d.getFullYear() + '-' + zwei(d.getMonth() + 1) + '-' + zwei(d.getDate()); }
+function cosS0(iso, b) { return b && /^\d{1,2}:\d{2}/.test(String(b.gestartet || '')) ? cosMsVon(iso, b.gestartet) : Number(String((b && b.key) || '').split('|')[1]) || 0; }
+/* Server kann das Modell (Status und Blöcke am Modul) */
+function cosModellAn() { return cosKann('modul') && !!(C && Array.isArray(C.module)); }
+function cosModulId(id) { return (C && C.module && C.module.find(m => m.id === id)) || null; }
+/* Alle Teile aller Module mit Minuten und Kästchen, live aus den Blöcken im Paket (der laufende zählt mit), sonst der Stand vom Server.
+   Blöcke am Schritt, die in keinem Modul stehen (alte App), gehören dem Modul des Schritts. Ein Block, den Los gerade anlegt, trägt b.modul */
+function cosModellIndex() {
+  const bl = {}, proModul = {}, proEv = {}, gesehen = {}, mods = {};
+  Object.keys((P && P.bloecke) || {}).forEach(iso => P.bloecke[iso].forEach(b => { bl[cosEvVon(b.key)] = { iso: iso, b: b }; }));
+  ((C && C.module) || []).forEach(m => { mods[m.id] = m; proModul[m.id] = []; });
+  const dazu = (md, e, iso, min, b) => {
+    const x = { md: md, e: e, iso: iso, min: min, b: b || null, k: cosKq(iso, min) }, ev = cosEvVon(e);
+    proModul[md.id].push(x); (proEv[ev] = proEv[ev] || []).push(x);
+  };
+  ((C && C.module) || []).forEach(md => (md.keys || []).forEach(e => {
+    const ev = cosEvVon(e), f = bl[ev];
+    gesehen[ev] = true;
+    if (f) dazu(md, e, f.iso, cosTeilMin(e, fokusMin(f.iso, f.b), cosS0(f.iso, f.b)), f.b);
+    else dazu(md, e, cosIsoVonMs(String(e).split('#')[0].split('|')[1]), Number(md.bl && md.bl[e]) || 0, null);
+  }));
+  ((C && C.schritte) || []).forEach(s => {
+    const md = mods[s.modul];
+    if (!md) return;
+    const keys = (s.keys || []).concat(Object.keys(s.bl || {}));
+    Object.keys(cosKeys).forEach(k => { if (cosKeys[k] === s.id) keys.push(k); });
+    keys.forEach(k => {
+      const ev = cosEvVon(k), f = bl[ev];
+      if (gesehen[ev] || k.indexOf('|') < 0) return;
+      gesehen[ev] = true;
+      if (f) dazu(md, k, f.iso, fokusMin(f.iso, f.b), f.b);
+      else if (s.bl && s.bl[k] != null) dazu(md, k, cosIsoVonMs(k.split('|')[1]), Number(s.bl[k]) || 0, null);
+    });
+  });
+  if (P) bloeckeVon(heute()).forEach(b => {
+    const ev = cosEvVon(b.key), md = mods[b.modul];
+    if (md && !gesehen[ev]) { gesehen[ev] = true; dazu(md, b.key, heute(), fokusMin(heute(), b), b); }
+  });
+  Object.keys(bl).forEach(ev => {   // Block, der seinen Schritt selbst trägt (b.schritt: Los der alten App vor der Antwort, Spielwelt)
+    const f = bl[ev], s = !gesehen[ev] && f.b.schritt && C.schritte.find(x => x.id === f.b.schritt), md = s && mods[s.modul];
+    if (md) { gesehen[ev] = true; dazu(md, f.b.key, f.iso, fokusMin(f.iso, f.b), f.b); }
+  });
+  return { proModul: proModul, proEv: proEv };
+}
+function cosIx(ix) { return ix && ix.proModul ? ix : cosModellIndex(); }
+function cosModulKqM(mid, ix) { return ((cosIx(ix).proModul[mid]) || []).reduce((n, x) => n + x.k, 0); }
+function cosBlockTeile(b, ix) { return (cosIx(ix).proEv[cosEvVon(b.key)]) || []; }
+/* Kästchen eines Blocks (erledigte Zeile): Summe seiner Teile, ohne Modul aus seinen Fokusminuten */
+function cosBlockKq(iso, b, ix) { const t = cosModellAn() ? cosBlockTeile(b, ix) : []; return t.length ? t.reduce((n, x) => n + x.k, 0) : cosKq(iso, fokusMin(iso, b)); }
+function cosBlockProjekt(b, ix) {
+  const t = cosBlockTeile(b, ix);
+  if (t.length) return cosPid(t[t.length - 1].md.pid);
+  const s = cosSchrittVon(b);
+  return s ? cosNachName(s.projekt) : null;
+}
+/* Block fertig, läuft oder offen. Eine Sitzung läuft bis Fertig */
+function cosBlockArt(iso, b) {
+  if (b.status || b.beendet || b.nach) return 'fertig';
+  if (!b.gestartet) return 'offen';
+  if (iso !== heute()) return 'fertig';
+  return jetztMin() < minVon(b.ende) || (typeof cosDrueber === 'function' && cosDrueber(b)) ? 'laeuft' : 'fertig';
+}
+/* Kästchen pro Projekt an einem Tag { pid: n }. nur: 'fertig' oder 'laeuft' (Fokus Kopf), sonst alle. Vor dem Stichtag wie damals */
+function cosTagProjektKq(iso, nur, ix) {
+  ix = cosIx(ix);
+  const min = {}, out = {};
+  bloeckeVon(iso).forEach(b => {
+    if (!zaehlt(b) || (nur && cosBlockArt(iso, b) !== nur)) return;
+    const t = cosBlockTeile(b, ix);
+    if (t.length) t.forEach(x => { (min[x.md.pid] = min[x.md.pid] || []).push(x.min); });
+    else { const p = cosBlockProjekt(b, ix); if (p) (min[p.id] = min[p.id] || []).push(fokusMin(iso, b)); }
+  });
+  Object.keys(min).forEach(pid => { out[pid] = cosKqTag(iso, min[pid]); });
+  return out;
+}
+/* Kästchen des Tages (Reihe, Woche, Einsammeln): ab dem Stichtag pro Block, der laufende mit vollen 30 Minuten und Rest. Davor cosTagAlt */
+function cosTag(iso) {
+  if (!cosModellAn() || iso < COS_KQ_AB) return cosTagAlt(iso);
+  const ix = cosModellIndex(), l = bloeckeVon(iso).filter(zaehlt).slice().sort((a, b) => a.start.localeCompare(b.start)), farben = [];
+  let rest = 0, summe = 0, letzte = null;
+  l.forEach(b => {
+    const m = fokusMin(iso, b);
+    if (m <= 0) return;
+    summe += m; letzte = cosFarbe(b.bereich);
+    const lauf = cosBlockArt(iso, b) === 'laeuft', n = lauf ? Math.floor(m / COS_MIN) : cosBlockKq(iso, b, ix);
+    for (let i = 0; i < n; i++) farben.push(letzte);
+    if (lauf) rest = m % COS_MIN;
+  });
+  return { farben: farben, rest: rest, summe: summe, letzte: letzte };
 }
 /* ── Seite Chief: Woche jetzt, Status, Projekt öffnen, Wochenplan, fester Tag. Gezeichnet in React (ui/src/chief/Chief.jsx) ── */
 function cosWocheJetzt() {
@@ -2850,8 +3019,10 @@ function cosModHaken(sid) {
   s.abgehakt = heute();
   cosHakKurz = { sid: sid, t: Date.now(), titel: s.titel, alt: s.status };
   cosHakenSetzen(sid, 'fertig');
-  const p = cosNachName(s.projekt), m = p && cosModule(p).find(x => x.erledigt.indexOf(s) >= 0);
-  if (m && !m.offen.length) { cosModulFrage = { pid: p.id, mid: m.id, name: m.name, art: 'frage', t: Date.now() }; zeichnen(); }   // T2: letzter Schritt, Modul fertig?
+  const p = cosNachName(s.projekt), m = p && cosModule(p).find(x => x.erledigt.indexOf(s) >= 0), lb = typeof cosLaufBlock === 'function' ? cosLaufBlock() : null;
+  if (m && m.offen.length && lb && (cosLaufModul(lb) || {}).id === m.id) cosObenMerken(m.offen[0].id);   // S3: der nächste rückt nach, zählt für Stufe 1
+  const frage = m && !m.offen.length && (!cosModellAn() || (!m.fertig && (cosModulDran(p) || {}).id === m.id));   // Modell R3: nur fragen, nie von selbst fertig
+  if (frage) { cosModulFrage = { pid: p.id, mid: m.id, name: m.name, art: 'frage', t: Date.now() }; zeichnen(); }   // T2: letzter Schritt, Modul fertig?
   clearTimeout(cosModHaken.t);
   cosModHaken.t = setTimeout(() => { if (cosHakKurz && Date.now() - cosHakKurz.t >= COS_HAK_KURZ - 50) { cosHakKurz = null; zeichnen(); } }, COS_HAK_KURZ);
 }
@@ -2889,6 +3060,14 @@ function cosErledigtSchritte(p) {
 }
 /* Zeit: Kästchen pro Tag (fertige Blöcke des Projekts), neueste oben */
 function cosZeitTage(p, alle) {
+  if (cosModellAn()) {   // Modell R6: Zeit pro Tag aus den Blöcken der Module (Teile pro Tag), der laufende zählt erst nach Fertig
+    const ix = cosModellIndex(), t = {}, h = heute();
+    cosModulRoh(p).forEach(m => (ix.proModul[m.id] || []).forEach(x => {
+      if (x.b && (!zaehlt(x.b) || (x.iso === h && cosBlockArt(h, x.b) === 'laeuft'))) return;
+      (t[x.iso] = t[x.iso] || []).push(x.min);
+    }));
+    return Object.keys(t).sort().reverse().map(iso => ({ iso: iso, n: cosKqTag(iso, t[iso]) })).filter(x => x.n > 0);
+  }
   alle = alle || cosAlleBloecke();
   const h = heute(), tage = {};
   alle.forEach(x => {
@@ -2907,7 +3086,12 @@ let cosModulFrage = null;   // { pid, mid, name, art: frage|nein|ja, t }
 function cosModulFrageJa() {
   const f = cosModulFrage, p = f && cosPid(f.pid);
   if (!p) return;
-  const n = cosModulDran(p);
+  let n;
+  if (cosModellAn() && cosModulId(f.mid)) {   // Modell R3, R7: erst jetzt ist das Modul fertig, ein laufender Block wechselt still ans nächste
+    const lb = cosLaufBlock();
+    if (lb && lb.lokal && (cosLaufModul(lb) || {}).id === f.mid) { melden('Einen Moment, das Kästchen wird noch angelegt.'); return; }
+    n = cosModulAbschliessen(cosModulId(f.mid), lb && (cosLaufModul(lb) || {}).id === f.mid ? lb : null);
+  } else n = cosModulDran(p);
   cosModulFrage = { pid: f.pid, mid: f.mid, name: f.name, art: 'ja', t: Date.now(), weiter: n ? n.name : '' };
   haptik(); setTimeout(haptik, 140); setTimeout(haptik, 280);
   melden('Modul ' + f.name + ' fertig.' + (n ? ' Jetzt dran: ' + n.name + '.' : ''));
@@ -2926,6 +3110,39 @@ function cosModulFrageSchritt() {
   cosModulSchritteSetzen(p, f.mid, [s], 'Nächster Schritt');
   melden('Nächster Schritt: ' + s.titel);
 }
+/* ── Modell im Chief: Modul umbenennen, abschließen, wieder öffnen, Schritt in ein anderes Modul (mit Rückgängig) ── */
+function cosModulFeld(md, felder, name) {
+  const alt = { id: md.id };
+  Object.keys(felder).forEach(k => { alt[k] = md[k] === undefined ? null : md[k]; });
+  cosAendern([{ op: 'modul', m: Object.assign({ id: md.id }, felder) }], [{ op: 'modul', m: alt }], name);
+}
+function cosModulName(mid, v) {
+  const md = cosModulId(mid), t = cosTextRein(v).slice(0, 80);
+  if (!md || !t || t === md.name) return;
+  if (cosModulRoh(cosPid(md.pid)).some(m => m !== md && m.name === t)) { melden('Ein Modul "' + t + '" gibt es in dem Projekt schon.'); zeichnen(); return; }
+  cosModulFeld(md, { name: t }, 'Modul umbenannt');
+}
+function cosModulZu(mid) {
+  const md = cosModulId(mid), lb = cosLaufBlock(), hier = lb && (cosLaufModul(lb) || {}).id === mid;
+  if (!md || md.status === 'fertig') return;
+  if (hier && lb.lokal) { melden('Einen Moment, das Kästchen wird noch angelegt.'); return; }
+  const n = cosModulAbschliessen(md, hier ? lb : null);
+  haptik(); setTimeout(haptik, 140);
+  melden('Modul ' + md.name + ' fertig.' + (n ? ' Jetzt dran: ' + n.name + '.' : ''));
+  zeichnen();
+}
+function cosModulAuf(mid) { const md = cosModulId(mid); if (md && md.status === 'fertig') cosModulFeld(md, { status: 'offen' }, 'Modul wieder offen'); }
+function cosSchrittModul(sid, mid) {
+  const s = C && C.schritte.find(x => x.id === sid), md = cosModulId(mid), p = s && cosNachName(s.projekt);
+  if (!s || !md || !p || md.pid !== p.id || s.modul === mid) return;
+  const liste = cosListe(p).filter(x => x.id !== sid), neu = Object.assign({}, s, { modul: mid });
+  let i = -1;
+  liste.forEach((x, k) => { if (x.modul === mid) i = k + 1; });
+  liste.splice(i < 0 ? liste.length : i, 0, neu);
+  cosAendern([{ op: 'schritte', pid: p.id, liste: liste.map(cosPaket) }], [{ op: 'schritte', pid: p.id, liste: cosListe(p).map(cosPaket) }], 'Schritt verschoben');
+  melden('Verschoben nach ' + md.name);
+}
+
 /* ── V95 Woche als Raster: Spalten Mo bis So, Zeilen Start, aktive Projekte ohne System, Summe, Gehalten (laufende Woche).
    Mengen in cos_merk pt|Datum = { ProjektID: n }, Startzeit st|Datum = Minuten (0 frei). Vergangene Tage nur ansehen,
    heute Start gesperrt und Mengen nur Plus (weniger geht über den Joker im Fokus). Vorlage: entwuerfe/kaestchen/Chief.dc.html ── */
@@ -3521,6 +3738,7 @@ function cosWeiterPlus(key) {
 /* V104 */
 /* Start Knopf: Los auf den ersten offenen Platz (geplanter Block, sonst erste To Do Zeile, freier Platz über das Blatt) */
 function cosKopfLos() {
+  if (cosModellAn()) { const z = cosTodoZeilen(cosTagDaten())[0]; if (z) cosModLos(z.p.id); return; }   // Modell S1, R11: Los am ersten Projekt des Tages, ohne feste Länge
   const j = cosTagDaten().jetzt;
   if (!j) return;
   if (j.key) cosLosBlock(j.key);
@@ -3564,6 +3782,7 @@ function cosDran(key) {
 let cosTodoAuf = null;   // Projekt ID mit offenen Schritten
 function cosTodoAufZu(pid) { cosTodoAuf = cosTodoAuf === pid ? null : pid; haptik(); heuteNeu(); }
 function cosTodoLos(pid) {
+  if (cosModellAn()) { cosModLos(pid); return; }   // Modell: Los am Modul, das dran ist
   const p = cosPid(pid);
   if (!p) return;
   if (cosLaeuftEtwas()) { melden('Es läuft schon ein Kästchen. Erst Fertig, dann das nächste.'); return; }
@@ -3604,6 +3823,23 @@ function cosSitzungFertig(key) {
   if (!b) return;
   if (b.lokal) { melden('Einen Moment, das Kästchen wird noch angelegt.'); return; }
   const s = cosSchrittVon(b), st = minVon(b.gestartet || b.start), jm = jetztMin(), min = Math.max(0, jm - st), drueber = cosDrueber(b);
+  if (cosModellAn()) {   // Modell R11: Ende genau, gemacht wie bisher (Punkte gleich), Termin auf volle Kästchen ohne Deckel (appChiefSitzungEnde)
+    const k = Math.max(1, cosKq(h, min)), alt = { min: b.min, ende: b.ende };
+    cosDavorAuf = false;
+    cosGruppe('Fertig', () => {
+      blockFertig(i);
+      const j = bloeckeVon(h).findIndex(x => x.key === key);
+      if (j >= 0) blockSetzen(h, j, 'gemacht');
+      merken({ art: 'cosSitzEnde', tag: tagIso, key: key, min: alt.min, ende: alt.ende, name: 'Fertig' });
+    });
+    b.min = k * COS_MIN; b.ende = cosUhr(minVon(b.start) + k * COS_MIN);
+    cosLaufFx = null;
+    const kq = cosBlockKq(h, b);
+    melden('Fertig · ' + dauerText(min) + (kq ? ', ' + kq + ' Kästchen' : ', zählt als Fokuszeit'));
+    cosNach('appChiefSitzungEnde', key, Date.now());
+    zeichnen();
+    return;
+  }
   const kAlt = Math.max(1, Math.round((b.min || COS_MIN) / COS_MIN)), k = Math.max(1, Math.min(COS_SITZUNG, Math.round(min / COS_MIN))), kq = Math.round(min / COS_MIN);
   cosGruppe('Fertig', () => {
     if (s) cosFertig(i, true); else blockFertig(i);
@@ -3612,6 +3848,160 @@ function cosSitzungFertig(key) {
   cosLaufFx = null;
   melden('Fertig · ' + dauerText(min) + (kq ? ', ' + kq + (kq === 1 ? ' Kästchen' : ' Kästchen') : ', zählt als Fokuszeit'));
   zeichnen();
+}
+/* ── Modell im Tag (entwuerfe/modell/MODELL.md): Los (R11 sofort, nie mit fester Länge), erster Schritt (S2), Schritt davor (S4),
+   Modul fertig im laufenden Block (R7), Fertig fragt nichts (R11). Ohne Modell (alter Server) wie V120 ── */
+let cosTodoErst = null;   // Projekt ID, dessen leeres Modul gerade nach dem ersten Schritt fragt (S2)
+let cosDavorAuf = false;  // Feld "Schritt davor" im laufenden Block offen
+function cosTextRein(t) { return String(t || '').replace(/\s+/g, ' ').trim().slice(0, 160); }
+/* Laufende Sitzung heute und das Modul, das darin gerade dran ist (offener Teil, sonst b.modul, sonst Modul des Schritts) */
+function cosLaufBlock() { const h = heute(); return bloeckeVon(h).find(b => b.gestartet && cosBlockArt(h, b) === 'laeuft') || null; }
+function cosLaufModul(b, ix) {
+  if (!b || !cosModellAn()) return null;
+  const t = cosBlockTeile(b, ix), offen = t.find(x => !/-\d+$/.test(x.e)) || t[t.length - 1];
+  if (offen) return offen.md;
+  if (b.modul && cosModulId(b.modul)) return cosModulId(b.modul);
+  const s = cosSchrittVon(b);
+  return s ? cosModulId(s.modul) : null;
+}
+/* Für die Anzeige des laufenden Blocks: Projekt, Modul (V120 Form mit offen), oberster Schritt, danach */
+function cosLaufInfo(b) {
+  const roh = cosLaufModul(b), p = roh ? cosPid(roh.pid) : (cosSchrittVon(b) ? cosNachName(cosSchrittVon(b).projekt) : null);
+  const m = p ? (roh ? cosModule(p).find(x => x.id === roh.id) : cosModulDran(p)) : null;
+  return { p: p, m: m, s: m && m.offen.length ? m.offen[0] : null, danach: m && m.offen.length > 1 ? m.offen[1] : null };
+}
+/* Stufe 1 im Blatt Morgen: Schritte, die heute während eines Blocks oben standen (ob|Tag), Module ohne Schritt (ow|Tag) */
+function cosMerkListe(k, id) { const l = cosMerk(k), alt = Array.isArray(l) ? l : []; if (id && alt.indexOf(id) < 0) cosMerkSetzen(k, alt.concat([id]).slice(-40), true); }
+function cosObenMerken(sid) { cosMerkListe('ob|' + heute(), sid); }
+function cosModLos(pid) {
+  const p = cosPid(pid);
+  if (!p) return;
+  if (cosLaeuftEtwas() || cosLaufBlock()) { melden('Es läuft schon ein Kästchen. Erst Fertig, dann das nächste.'); return; }   // R12
+  const m = cosModulDran(p);
+  if (!m) { cosLaden(true); return; }
+  cosTodoAuf = null;
+  if (m.offen.length) { cosFlugMerken(pid); cosModStart(p, m.id, m.offen[0].id, ''); return; }
+  cosTodoErst = pid; haptik(); heuteNeu();   // S2: leeres Modul, erst fragen
+}
+function cosTodoErster(text) {
+  const p = cosPid(cosTodoErst), t = cosTextRein(text), m = p && cosModulDran(p);
+  if (!m || !t) return;
+  cosTodoErst = null; cosFlugMerken(p.id);
+  cosModStart(p, m.id, '', t);
+}
+function cosTodoOhne() {
+  const p = cosPid(cosTodoErst), m = p && cosModulDran(p);
+  if (!m) return;
+  cosTodoErst = null; cosFlugMerken(p.id);
+  cosMerkListe('ow|' + heute(), m.id);
+  cosModStart(p, m.id, '', '');
+}
+function cosTodoErstZu() { cosTodoErst = null; heuteNeu(); }
+/* Sitzung sofort als laufend zeigen, der Server legt den offenen Termin an (appChiefLos). text: neuer Schritt oben im Modul (R4) */
+function cosModStart(p, mid, sid, text) {
+  if (cosStartet) return;
+  const h = heute(), jm = jetztMin(), md = cosModulId(mid);
+  let id = sid;
+  if (text) {
+    id = cosId('s');
+    const l = C.schritte, i = l.findIndex(x => x.modul === mid && cosOffen(x));
+    let j = i;
+    if (j < 0) { l.forEach((x, k) => { if (x.projekt === p.name) j = k + 1; }); if (j < 0) j = l.length; }
+    l.splice(j, 0, { id: id, projekt: p.name, abschnitt: '', titel: text, k: 1, fertigWenn: '', status: 'offen', weiterBei: '', wann: '', verschoben: 0, min: 0, bl: {}, keys: [], modul: mid, abgehakt: '' });
+    cosFrisch[id] = Date.now();
+    cosSpeichern();
+  }
+  const s = id ? C.schritte.find(x => x.id === id) : null, min = Math.max(COS_MIN, Math.min(180, 24 * 60 - 1 - jm));
+  const key = 'lokal|' + Date.now(), erster = !bloeckeVon(h).some(x => x.gestartet);
+  const b = { key: key, start: cosUhr(jm), ende: cosUhr(jm + min), bereich: COS_FARBEN[p.bereich] ? p.bereich : 'Sonstiges', titel: s ? s.titel : (md ? md.name : p.name), min: min,
+    status: '', geplant: false, punkte: 0, taskTitel: '', taskFertig: false, task: '', gestartet: cosUhr(jm), sammel: [], beendet: '', nach: false, lokal: true, modul: mid, schritt: id || '' };
+  if (!P.bloecke) P.bloecke = {};
+  P.bloecke[h] = (P.bloecke[h] || []).concat([b]).sort((x, y) => x.start.localeCompare(y.start));
+  cosStartet = key; cosWahl = null; ansicht = 'tag'; tagIso = h;
+  const eintrag = { art: 'cosPlan', tag: h, keys: [key], name: 'Gestartet' };
+  merken(eintrag);
+  haptik();
+  fokusLokal(h);
+  dranMeldung = { key: key, ja: true, t: Date.now(), erster: erster, text: erster ? 'Tag gestartet. Das Kästchen füllt sich.' : 'Läuft. Das Kästchen füllt sich.' };
+  if (id) cosObenMerken(id);
+  cosAusstehend++; cosAenderung = Date.now();
+  zeichnen();
+  cosNach('appChiefLos', p.id, mid, id || '', text || '').then(d => {
+    cosAusstehend--; cosStartet = null;
+    if (d && d.key) {
+      if (d.sid) cosKeys[d.key] = d.sid;
+      if (dranMerk[key]) { dranMerk[d.key] = dranMerk[key]; delete dranMerk[key]; }
+      if (dranMeldung && dranMeldung.key === key) dranMeldung.key = d.key;
+      (P.bloecke[h] || []).forEach(x => { if (x.key === key) { x.key = d.key; x.lokal = false; } });
+      eintrag.keys[0] = d.key;
+      const m = cosModulId(d.mid);
+      if (m && (m.keys || (m.keys = [])).indexOf(d.key) < 0) m.keys.push(d.key);
+    } else {
+      if (P.bloecke[h]) P.bloecke[h] = P.bloecke[h].filter(x => x.key !== key);
+      fokusLokal(h);
+      const j = verlauf.indexOf(eintrag);
+      if (j >= 0) { verlauf.splice(j, 1); kopfSetzen({ undoAus: !verlauf.length }); }
+    }
+    zeichnen();
+    cosLaden(true);
+    if (offen === 0) abfragen(true);
+  });
+}
+/* S4 Schritt davor: steht oben im laufenden Modul, die Zeit läuft weiter */
+function cosDavorAufZu() { cosDavorAuf = !cosDavorAuf; haptik(); zeichnen(); }
+function cosDavor(text) {
+  const t = cosTextRein(text), b = cosLaufBlock(), roh = cosLaufModul(b), p = roh && cosPid(roh.pid);
+  if (!t || !p) return;
+  const m = cosModule(p).find(x => x.id === roh.id), s = { id: cosId('s'), abschnitt: '', titel: t, k: 1, fertigWenn: '', status: 'offen', weiterBei: '', wann: '', verschoben: 0, min: 0, bl: {}, modul: roh.id };
+  cosDavorAuf = false;
+  cosFrisch[s.id] = Date.now();
+  cosModulSchritteSetzen(p, roh.id, [s].concat(m ? m.offen : []), 'Schritt davor');
+  cosObenMerken(s.id);
+  melden('Davor: ' + t);
+}
+/* Modul fertig (Ja oder "Modul abschließen", R3). b: laufender Block an diesem Modul, dann wechselt er still ans nächste (R7) */
+function cosModulAbschliessen(md, b) {
+  const p = cosPid(md.pid), T = Date.now(), key = b ? b.key : '';
+  md.status = 'fertig'; md.fertigAm = heute(); md.keys = md.keys || [];
+  const n = cosModulDran(p), nr = n ? cosModulId(n.id) : null;
+  if (b) {
+    const ev = cosEvVon(key), i = md.keys.findIndex(e => cosEvVon(e) === ev && !/-\d+$/.test(e));
+    const ab = i >= 0 ? ((md.keys[i].split('#')[1] || '').split('-')[0] || '') : '', teil = key + '#' + ab + '-' + T;
+    if (i >= 0) md.keys[i] = teil; else md.keys.push(teil);
+    if (nr) { nr.keys = (nr.keys || []).concat([key + '#' + T + '-']); b.modul = nr.id; }
+  }
+  merken({ art: 'cosModul', tag: tagIso, mid: md.id, key: key, name: 'Modul fertig' });
+  cosSpeichern(); cosAenderung = Date.now();
+  cosAusstehend++;
+  cosNach('appChiefModulFertig', md.id, true, key).then(d => { cosAusstehend--; if (d && d.projekte) { if (cosAusstehend === 0) cosUebernehmen(d); } else cosLaden(true); });
+  return n;
+}
+function cosModulWiederOffen(a) {
+  const md = cosModulId(a.mid);
+  if (md) {
+    md.status = 'offen'; md.fertigAm = '';
+    if (a.key) {
+      const ev = cosEvVon(a.key), i = (md.keys || []).findIndex(e => cosEvVon(e) === ev && /-\d+$/.test(e));
+      if (i >= 0) {
+        const g = md.keys[i].split('#')[1].split('-');
+        md.keys[i] = g[0] ? a.key + '#' + g[0] + '-' : a.key;
+        C.module.forEach(m => { if (m !== md && m.keys) m.keys = m.keys.filter(e => e !== a.key + '#' + g[1] + '-'); });
+      }
+      const b = bloeckeVon(heute()).find(x => x.key === a.key);
+      if (b) b.modul = md.id;
+    }
+  }
+  cosModulFrage = null;
+  cosSpeichern(); cosAenderung = Date.now();
+  zeichnen();
+  cosAusstehend++;
+  cosNach('appChiefModulFertig', a.mid, false, a.key || '').then(d => { cosAusstehend--; if (d && d.projekte) { if (cosAusstehend === 0) cosUebernehmen(d); } else cosLaden(true); });
+}
+/* Rückgängig für das Modell (aus cosRueck): Fertig (Termin wieder offen), Modul fertig */
+function cosRueckModell(a) {
+  if (a.art === 'cosSitzEnde') { const b = bloeckeVon(heute()).find(x => x.key === a.key); if (b) { b.min = a.min; b.ende = a.ende; } cosNach('appChiefSitzungEnde', a.key, 'offen'); return true; }
+  if (a.art === 'cosModul') { cosModulWiederOffen(a); melden('Rückgängig: Modul wieder offen'); return true; }
+  return false;
 }
 /* ── V62 Heute vornehmen: pro Projekt Kästchen, Vorschlag vom Chief, ein Tipp auf Passt. Im Chief immer, im Fokus bis bestätigt ── */
 function cosPlanSetzen(pid, d) {
@@ -4220,14 +4610,18 @@ function chiefOeffnen() { ansicht = 'chief'; cosProjekt = null; zeichnen(); cosL
    Schreibt ins Raster wie die Wochenrunde: pt|Tag, st|Tag, dazu pr|Tag (Reihenfolge, To Do sortiert danach). Morgen = nächster Arbeitstag ── */
 const COS_MORGEN_DECKEL = 3;
 function cosMorgenIso() { let t = tagPlus(heute(), 1); for (let i = 0; i < 7 && !cosArbeitstag(t); i++) t = tagPlus(t, 1); return t; }
-/* Schritte, an denen heute gearbeitet wurde (Block heute) oder die heute abgehakt wurden */
+/* Modell S10 Stufe 1: nur Schritte, die heute während eines Blocks oben standen (ob|heute, dazu die am Block von heute) und nicht abgehakt sind.
+   Abgehakte zählen nur als Zeile "n Schritte durch" (cosMorgenDurch), Module ohne Schritt aus ow|heute (cosMorgenOhne) */
 function cosMorgenHeute() {
-  const h = heute(), out = [], da = {};
-  const dazu = s => { if (!s || da[s.id]) return; const p = cosNachName(s.projekt); if (!p) return; da[s.id] = true; out.push({ s: s, p: p, m: cosModulVon(s) }); };
+  const h = heute(), out = [], da = {}, ob = cosMerk('ob|' + h);
+  const ent = cosBlatt && cosBlatt.art === 'morgen' ? cosBlatt.entscheid : {};   // im Blatt entschieden: Zeile bleibt, damit geht weiter zurücknimmt
+  const dazu = s => { if (!s || da[s.id] || (!cosOffen(s) && !ent[s.id])) return; const p = cosNachName(s.projekt); if (!p) return; da[s.id] = true; out.push({ s: s, p: p, m: cosModulVon(s) }); };
+  (Array.isArray(ob) ? ob : []).forEach(id => dazu(C.schritte.find(s => s.id === id)));
   cosHeuteBloecke().forEach(x => { if (x.s && (x.b.gestartet || x.b.status)) dazu(x.s); });
-  C.schritte.forEach(s => { if (s.status === 'fertig' && s.abgehakt === h) dazu(s); });
   return out;
 }
+function cosMorgenOhne() { const ow = cosMerk('ow|' + heute()); return (Array.isArray(ow) ? ow : []).map(cosModulId).filter(Boolean); }
+function cosMorgenDurch() { const h = heute(), ent = cosBlatt && cosBlatt.art === 'morgen' ? cosBlatt.entscheid : {}; return C.schritte.filter(s => s.status === 'fertig' && s.abgehakt === h && !ent[s.id]).length; }
 /* Liste für morgen eines Projekts: Modul, das dran ist, höchstens COS_MORGEN_DECKEL Schritte, der Rest bleibt im Modul */
 function cosMorgenListe(p) {
   const m = cosModulDran(p), o = m ? m.offen : [];
@@ -4242,11 +4636,10 @@ function cosMorgenAuf() {
   if (!C || !cosRasterAn()) return;
   const iso = cosMorgenIso(), pt = cosPlanLesen(iso), heutePt = cosPlanLesen(heute()) || {}, menge = {};
   cosRasProjekte().forEach(p => { menge[p.id] = Math.max(0, Number((pt || heutePt)[p.id]) || 0); });
-  const entscheid = {};
-  cosMorgenHeute().forEach(x => { if (x.s.status === 'fertig') entscheid[x.s.id] = 'durch'; });
-  cosBlattAuf({ art: 'morgen', titel: 'Morgen', iso: iso, phase: 1, entscheid: entscheid, menge: menge, start: cosStartVon(iso) || COS_START, reihe: cosMorgenReiheVon(iso), steht: '' });
+  const entscheid = {}, erste = cosMorgenHeute().length || cosMorgenOhne().length ? 1 : 2;   // nichts Unklares: gleich Stufe 2
+  cosBlattAuf({ art: 'morgen', titel: 'Morgen', iso: iso, phase: erste, erste: erste, entscheid: entscheid, menge: menge, start: cosStartVon(iso) || COS_START, reihe: cosMorgenReiheVon(iso), steht: '' });
 }
-function cosMorgenPhase(n) { if (!cosBlatt || cosBlatt.art !== 'morgen') return; cosBlatt.phase = n; haptik(); cosBlattZeichnen(true); }
+function cosMorgenPhase(n) { if (!cosBlatt || cosBlatt.art !== 'morgen') return; cosBlatt.phase = Math.max(cosBlatt.erste || 1, n); haptik(); cosBlattZeichnen(true); }
 function cosMorgenEntscheid(sid, art) {
   const b = cosBlatt, s = C && C.schritte.find(x => x.id === sid);
   if (!b || b.art !== 'morgen' || !s) return;
@@ -12192,6 +12585,14 @@ var ZentraleUI = function(exports) {
     get laufFx() {
       return cosLaufFx;
     },
+    get davorAuf() {
+      return typeof cosDavorAuf === "undefined" ? false : cosDavorAuf;
+    },
+    // Modell: Feld Schritt davor im laufenden Block
+    get todoErst() {
+      return typeof cosTodoErst === "undefined" ? null : cosTodoErst;
+    },
+    // Modell: leeres Modul fragt nach dem ersten Schritt
     get todoAuf() {
       return typeof cosTodoAuf === "undefined" ? null : cosTodoAuf;
     },
@@ -12535,11 +12936,11 @@ var ZentraleUI = function(exports) {
         ] })
       ] });
     }
-    const chips = d.chips.filter((c) => c.m || c.d);
+    const chips = d.chips.filter((c) => c.m || c.d), ohneChips = F.cosModellAn();
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Zahl$2, { d, k: k2 }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Bahn$1, { d, k: k2 }),
-      k2.art !== "vorbei" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-mengen", children: [
+      k2.art !== "vorbei" && !ohneChips ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-mengen", children: [
         chips.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(Chip, { c }, c.p.id)),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-fest", children: [
           SCHLOSS,
@@ -12548,7 +12949,8 @@ var ZentraleUI = function(exports) {
       ] }) : null
     ] });
   }
-  const FUNKE_MS = 1300;
+  const FUNKE_MS = 1300, HAK_MS = 1100;
+  let hakFx = null;
   function LaufKasten({ x: x2 }) {
     const b = x2.b, s = x2.s, p2 = s && F.cosNachName(s.projekt), farbe = F.cosFarbe(p2 ? p2.bereich : b.bereich);
     const [, tick] = reactExports.useState(0), ref = reactExports.useRef(null);
@@ -12568,9 +12970,18 @@ var ZentraleUI = function(exports) {
       );
     }, []);
     const min2 = F.cosLaufMin(b), fuell = F.cosLaufFuell(b), seit = F.cosSeitDran(b), voll2 = Math.floor(min2 / 30);
-    const m2 = p2 ? F.cosModulDran(p2) : null, titel = m2 && m2.offen.length ? m2.offen[0].titel : s ? s.titel : b.titel || b.bereich;
+    const modell = F.cosModellAn(), li2 = modell ? F.cosLaufInfo(b) : null;
+    const m2 = modell ? li2.m : p2 ? F.cosModulDran(p2) : null, oben = modell ? li2.s : m2 && m2.offen.length ? m2.offen[0] : null;
+    const titel = oben ? oben.titel : modell ? "ohne Schritt" : s ? s.titel : b.titel || b.bereich;
     const fx = Z$1.laufFx && Z$1.laufFx.key === b.key && Date.now() - Z$1.laufFx.t < FUNKE_MS ? Z$1.laufFx : null;
     if (fx) setTimeout(() => F.heuteNeu(), FUNKE_MS + 50);
+    const hak = hakFx && performance.now() - hakFx.t < HAK_MS ? hakFx : null, hakStil = hak ? { "--hd": -Math.round(performance.now() - hak.t) + "ms" } : null;
+    const haken = (s2) => {
+      hakFx = { titel: s2.titel, t: performance.now() };
+      F.cosModHaken(s2.id);
+      tick((n2) => n2 + 1);
+      setTimeout(() => tick((n2) => n2 + 1), HAK_MS + 30);
+    };
     const pz2 = Math.round(fuell * 1e3) / 10, pause = min2 >= (typeof COS_PAUSE_AB === "undefined" ? 90 : COS_PAUSE_AB);
     const stil2 = { "--pf": farbe, "--fb": pz2 + "%", "--fg": "color-mix(in srgb, var(--gold-funken) " + pz2 + "%, " + farbe + ")", "--fo": (0.55 + 0.3 * fuell).toFixed(2) };
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "lk" + (fx ? " dran" : ""), style: stil2, ref, role: "group", "aria-label": "Läuft: " + (p2 ? p2.name + ", " : "") + titel + ", " + min2 + " Minuten", children: [
@@ -12578,8 +12989,16 @@ var ZentraleUI = function(exports) {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "lk-in", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "lk-o", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "lk-was", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "lk-p", children: p2 ? p2.name : b.bereich }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "lk-t", children: titel })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "lk-p", children: (li2 && li2.p ? li2.p.name : p2 ? p2.name : b.bereich) + (modell && m2 ? " · " + m2.name : "") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "lk-schritt" + (hak ? " rein" : ""), style: hakStil, children: [
+              modell && oben ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-kreis", onClick: () => haken(oben), "aria-label": "abhaken: " + oben.titel }) : null,
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "lk-t", children: titel }),
+              hak ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "lk-hak", "aria-hidden": "true", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-kreis an", children: HAKEN }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "lk-t", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "lk-strich", children: hak.titel }) })
+              ] }) : null
+            ] }),
+            li2 && li2.danach ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "lk-danach", children: "danach: " + li2.danach.titel }) : null
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "lk-zeit", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: min2 + " Min" + (voll2 ? " · " + voll2 + (voll2 === 1 ? " Kästchen" : " Kästchen") : "") }),
@@ -12589,12 +13008,38 @@ var ZentraleUI = function(exports) {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "lk-u", children: [
           pause ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "lk-pause", children: "Kurz Pause?" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "lk-kn", children: [
+            modell ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "lk-davor", onClick: () => F.cosDavorAufZu(), disabled: !m2, children: "Schritt davor" }) : null,
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "lk-dran", onClick: () => F.cosDranJetzt(b.key), children: "+ Dran" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "lk-fertig", onClick: () => F.cosSitzungFertig(b.key), disabled: !!b.lokal, children: "Fertig" })
           ] })
         ] })
       ] }),
+      modell && Z$1.davorAuf ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-sz-neu lk-davor-feld", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "text",
+            id: "lkDavor",
+            autoFocus: true,
+            "aria-label": "Schritt davor",
+            placeholder: "Was ist zuerst nötig?",
+            autoComplete: "off",
+            enterKeyHint: "done",
+            onKeyDown: (e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                F.cosDavor(e.target.value);
+              }
+            }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onPointerDown: (e) => e.preventDefault(), onClick: () => {
+          const el2 = document.getElementById("lkDavor");
+          F.cosDavor(el2 ? el2.value : "");
+        }, "aria-label": "Schritt davor anlegen", children: "+" })
+      ] }) : null,
       fx ? /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "lk-funke", "aria-hidden": "true" }, fx.t) : null,
+      hak ? /* @__PURE__ */ jsxRuntimeExports.jsx("b", { className: "lk-plus lk-plus-hak", style: hakStil, "aria-hidden": "true", children: "Schritt erledigt" }) : null,
       fx && fx.text ? /* @__PURE__ */ jsxRuntimeExports.jsx("b", { className: "lk-plus", "aria-hidden": "true", children: fx.text }, "t" + fx.t) : null
     ] });
   }
@@ -12639,7 +13084,8 @@ var ZentraleUI = function(exports) {
     ] });
   }
   function Erledigt$2({ r: r2 }) {
-    const x2 = r2.x, b = x2.b, titel = F.cosTrTitel(x2), ok2 = F.fokusMin(A$2.heute(), b) > 0 && F.zaehlt(b);
+    const x2 = r2.x, b = x2.b, titel = F.cosTrTitel(x2), fm = F.fokusMin(A$2.heute(), b), modell = F.cosModellAn();
+    const k2 = modell ? F.cosBlockKq(A$2.heute(), b) : x2.k, ok2 = (modell ? k2 > 0 : fm > 0) && F.zaehlt(b);
     const a = Z$1.tagAuf, hier = a && a.key === b.key ? a.art : "";
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -12649,12 +13095,12 @@ var ZentraleUI = function(exports) {
           style: { "--pf": F.cosTrFarbe(x2) },
           onClick: () => F.cosNachAufZu(b.key),
           "aria-expanded": String(hier === "nach"),
-          "aria-label": titel + (ok2 ? ", " + x2.k + " Kästchen" : "") + ", erledigt, antippen zum Nachtragen",
+          "aria-label": titel + (ok2 ? ", " + k2 + " Kästchen" : modell && fm > 0 ? ", " + fm + " Min" : "") + ", erledigt, antippen zum Nachtragen",
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-zeit", children: b.gestartet || b.start }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-was", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-titel", children: titel }) }),
-            ok2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-kq", children: Array.from({ length: x2.k }, (_, j) => /* @__PURE__ */ jsxRuntimeExports.jsx("i", {}, j)) }) : F.zaehlt(b) ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-kq leer", children: "–" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", {})
+            ok2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-kq", children: Array.from({ length: k2 }, (_, j) => /* @__PURE__ */ jsxRuntimeExports.jsx("i", {}, j)) }) : F.zaehlt(b) ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-kq leer", children: modell && fm > 0 ? fm + " Min" : "–" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", {})
           ]
         }
       ),
@@ -12695,11 +13141,11 @@ var ZentraleUI = function(exports) {
       ] }) })
     ] });
   }
-  function geplantZeilen(d) {
+  function geplantZeilen(d, oben) {
     const lauf = d.geplant.find((r2) => r2.art === "block" && r2.status === "laeuft"), liste = d.geplant.filter((r2) => r2 !== lauf);
     const out = liste.map((r2, j) => r2.art === "termin" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Termin$1, { t: r2.termin, jm: d.jm }, "t" + j) : /* @__PURE__ */ jsxRuntimeExports.jsx(Block$1, { r: r2, d }, r2.x.b.key));
     const i2 = liste.findIndex((r2) => r2.t > d.jm), jetzt = [/* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-jetzt-l", role: "img", "aria-label": "Jetzt " + F.cosUhr(d.jm), children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: F.cosUhr(d.jm) }) }, "jetzt")];
-    if (lauf) jetzt.push(/* @__PURE__ */ jsxRuntimeExports.jsx(LaufKasten, { x: lauf.x }, "lk" + lauf.x.b.key.split("|")[0]));
+    if (lauf && !oben) jetzt.push(/* @__PURE__ */ jsxRuntimeExports.jsx(LaufKasten, { x: lauf.x }, "lk" + lauf.x.b.key.split("|")[0]));
     out.splice(i2 < 0 ? out.length : i2, 0, ...jetzt);
     return out;
   }
@@ -12731,25 +13177,63 @@ var ZentraleUI = function(exports) {
     const p2 = z2.p, farbe = F.cosFarbe(p2.bereich), auf2 = Z$1.todoAuf === p2.id, name = p2.name;
     const kq = [];
     for (let i2 = 0; i2 < z2.menge + z2.bonus; i2++) kq.push(/* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: i2 < z2.n ? "an" + (i2 >= z2.menge ? " bonus" : "") : "" }, i2));
+    const modell = F.cosModellAn(), oben = modell && z2.schritte.length ? z2.schritte[0] : null, erst = modell && Z$1.todoErst === p2.id;
     if (z2.laeuft) return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-abdruck", "data-pid": p2.id, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: name }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "läuft unten ↓" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: modell ? "läuft oben ↑" : "läuft unten ↓" })
     ] });
     const info = z2.n + " von " + z2.menge + " Kästchen" + (z2.bonus ? ", " + z2.bonus + " Bonus" : "") + ", " + z2.uebrig + " übrig";
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-z", "data-pid": p2.id, style: { "--pf": farbe }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-o", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "td-was", onClick: () => F.cosTodoAufZu(p2.id), "aria-expanded": String(auf2), disabled: !z2.schritte.length, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "td-was", onClick: () => F.cosTodoAufZu(p2.id), "aria-expanded": String(auf2), disabled: modell ? z2.schritte.length < 2 : !z2.schritte.length, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "td-name", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: name }),
-            z2.modul ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "td-modul", children: z2.modul.name + (z2.schritte.length ? auf2 ? " ▴" : " ▾" : "") }) : null
+            z2.modul ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "td-modul", children: z2.modul.name + (z2.schritte.length > (modell ? 1 : 0) ? auf2 ? " ▴" : " ▾" : "") }) : null
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "td-kq", role: "img", "aria-label": info, children: kq }),
-          !z2.schritte.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "td-frei", children: "frei · Inhalt beim Los" }) : null
+          !z2.schritte.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "td-frei", children: modell ? "noch kein Schritt" : "frei · Inhalt beim Los" }) : null
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-los td-los", onClick: () => F.cosTodoLos(p2.id), disabled: busy, "aria-label": "Los: " + name, children: PLAY })
       ] }),
-      auf2 && z2.schritte.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "td-schritte", children: z2.schritte.map((s, i2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-s" + (i2 === 0 ? " naechst" : ""), children: [
+      oben ? (
+        /* Modell: oberster Schritt des Moduls, das dran ist, groß und ganz lesbar, ohne Aufklappen */
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-oben", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-kreis", onClick: () => F.cosModHaken(oben.id), "aria-label": "abhaken: " + oben.titel }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: oben.titel })
+        ] })
+      ) : null,
+      erst ? (
+        /* Modell S2: leeres Modul, Los fragt nach dem ersten Schritt */
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-erst", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-sz-neu", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                id: "tdErst" + p2.id,
+                autoFocus: true,
+                "aria-label": "Was ist der erste Schritt?",
+                placeholder: "Was ist der erste Schritt?",
+                autoComplete: "off",
+                enterKeyHint: "go",
+                onKeyDown: (e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    F.cosTodoErster(e.target.value);
+                  } else if (e.key === "Escape") F.cosTodoErstZu();
+                }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onPointerDown: (e) => e.preventDefault(), onClick: () => {
+              const el2 = document.getElementById("tdErst" + p2.id);
+              F.cosTodoErster(el2 ? el2.value : "");
+            }, "aria-label": "Starten", children: PLAY })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "td-ohne", onClick: () => F.cosTodoOhne(), children: "ohne Schritt starten" })
+        ] })
+      ) : null,
+      auf2 && z2.schritte.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "td-schritte", children: (modell ? z2.schritte.slice(1) : z2.schritte).map((s, i2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-s" + (i2 === 0 && !modell ? " naechst" : ""), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-kreis", onClick: () => F.cosModHaken(s.id), "aria-label": "abhaken: " + s.titel }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: s.titel })
       ] }, s.id)) }) : null
@@ -12794,15 +13278,16 @@ var ZentraleUI = function(exports) {
       return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-pg" + (neu ? " tg-moment" : ""), style: { "--pf": f2(c) }, children: name + " gehalten" }, c.p.id);
     });
     if (k2.art === "leer" && !d.geplant.length && !d.todo.length) return /* @__PURE__ */ jsxRuntimeExports.jsx(FokusLeer, {});
-    const busy = F.cosLaeuftEtwas();
+    const busy = F.cosLaeuftEtwas(), modell = F.cosModellAn(), lauf = modell ? d.geplant.find((r2) => r2.art === "block" && r2.status === "laeuft") : null;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(FokusKopf, { d, k: k2 }),
+      lauf ? /* @__PURE__ */ jsxRuntimeExports.jsx(LaufKasten, { x: lauf.x }, "lk" + lauf.x.b.key.split("|")[0]) : null,
       momente,
       /* @__PURE__ */ jsxRuntimeExports.jsx(ToDo, { d, busy }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "tg-h3 tg-heute-k", children: "Heute" }),
       k2.art !== "leer" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Start, { d, k: k2 }) : null,
-      d.geplant.length ? geplantZeilen(d) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-leer", children: "Noch nichts mit Uhrzeit." }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-morgen", onClick: () => F.cosMorgenAuf(), children: "Morgen vorbereiten" })
+      d.geplant.length ? geplantZeilen(d, modell) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-leer", children: "Noch nichts mit Uhrzeit." }),
+      modell ? null : /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-morgen", onClick: () => F.cosMorgenAuf(), children: "Morgen vorbereiten" })
     ] });
   }
   function TrKq({ k: k2, farbe, klasse }) {
@@ -36006,18 +36491,19 @@ img.ProseMirror-separator {
     ] });
   }
   const PFEIL = /* @__PURE__ */ jsxRuntimeExports.jsx("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M6 9l6 6 6-6" }) });
-  function Modul({ p: p2, m: m2, dran, auf: auf2, farbe }) {
-    const t2 = F.cosModulText(m2), sort = pjm.sort === m2.id, kurz2 = pjm.hakKurz, alleSchritte = m2.offen.slice();
+  function Modul({ p: p2, m: m2, dran, auf: auf2, farbe, alle: alle2 }) {
+    const modell = F.cosModellAn(), t2 = F.cosModulText(m2), sort = pjm.sort === m2.id, kurz2 = pjm.hakKurz, alleSchritte = m2.offen.slice();
     if (kurz2 && Date.now() - kurz2.t < 4e3) {
       const s = Z$1.C.schritte.find((x2) => x2.id === kurz2.sid);
       if (s && m2.erledigt.indexOf(s) >= 0) alleSchritte.unshift({ kurz: true, s });
     }
     const kq = [];
     if (m2.zahl) for (let i2 = 0; i2 < Math.max(m2.zahl, m2.kq); i2++) kq.push(/* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "kq" + (i2 < Math.min(m2.kq, m2.zahl) ? " an" : i2 < m2.kq ? " an ueber" : ""), style: { "--kf": farbe } }, i2));
-    const unter = t2.o ? t2.o + (t2.o === 1 ? " Schritt" : " Schritte") + " · zuerst: " + m2.offen[0].titel : "noch keine Schritte";
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-mod" + (dran ? " dran" : ""), children: [
+    const unter = m2.fertig ? m2.erledigt.length + (m2.erledigt.length === 1 ? " Schritt abgehakt" : " Schritte abgehakt") : t2.o ? t2.o + (t2.o === 1 ? " Schritt" : " Schritte") + " · zuerst: " + m2.offen[0].titel : "noch keine Schritte";
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-mod" + (dran ? " dran" : "") + (m2.fertig ? " fertig" : ""), children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "pj-mod-k", onClick: () => F.cosModAufZu(p2.id, m2.id), "aria-expanded": String(auf2), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-mod-o", children: [
+          m2.fertig ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-kreis an", children: HAKEN }) : null,
           /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: m2.name }),
           dran ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-dran", children: "dran" }) : null,
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-mod-sp" }),
@@ -36025,7 +36511,7 @@ img.ProseMirror-separator {
           t2.plus ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-mod-plus", children: "+" + t2.plus }) : null,
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-mod-pf" + (auf2 ? " auf" : ""), children: PFEIL })
         ] }),
-        kq.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "kr pj-mod-kq", children: kq }) : null,
+        kq.length && !m2.fertig ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "kr pj-mod-kq", children: kq }) : null,
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-mod-u", children: unter })
       ] }),
       auf2 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-mod-in", children: [
@@ -36037,6 +36523,10 @@ img.ProseMirror-separator {
         ] }, "k" + x2.s.id) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-sz" + (Z$1.frisch[x2.id] && Date.now() - Z$1.frisch[x2.id] < 1500 ? " frisch" : ""), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-kreis", onClick: () => F.cosModHaken(x2.id), "aria-label": "abhaken: " + x2.titel }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-sz-t", children: x2.titel }),
+          sort && modell && alle2.length > 1 ? (
+            /* Modell: Schritt in ein anderes Modul */
+            /* @__PURE__ */ jsxRuntimeExports.jsx("select", { className: "pj-sz-wohin", value: m2.id, onChange: (e) => F.cosSchrittModul(x2.id, e.target.value), "aria-label": "Modul für " + x2.titel, children: alle2.map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: o.id, children: o.name }, o.id)) })
+          ) : null,
           sort ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "pj-sz-pf", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosModSchrittRuecken(p2.id, m2.id, x2.id, -1), disabled: x2 === m2.offen[0], "aria-label": "nach oben", children: "↑" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosModSchrittRuecken(p2.id, m2.id, x2.id, 1), disabled: x2 === m2.offen[m2.offen.length - 1], "aria-label": "nach unten", children: "↓" })
@@ -36046,6 +36536,27 @@ img.ProseMirror-separator {
           /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", id: "modNeu" + m2.id, "aria-label": "Neuer Schritt unten", placeholder: "Neuer Schritt: Verb plus Gegenstand", autoComplete: "off", enterKeyHint: "done", onKeyDown: (e) => F.cosModSchrittTaste(e, p2.id, m2.id) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onPointerDown: (e) => e.preventDefault(), onClick: () => F.cosModSchrittNeu(p2.id, m2.id), "aria-label": "Schritt unten anfügen", children: "+" })
         ] }),
+        sort && modell && !m2.allg ? (
+          /* Modell: umbenennen, abschließen oder wieder öffnen (R1: auch Allgemein) */
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-mod-e", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                className: "pj-mod-name",
+                defaultValue: m2.name,
+                "aria-label": "Name des Moduls",
+                autoComplete: "off",
+                enterKeyHint: "done",
+                onBlur: (e) => F.cosModulName(m2.id, e.target.value),
+                onKeyDown: (e) => {
+                  if (e.key === "Enter") e.target.blur();
+                }
+              }
+            ),
+            m2.fertig ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.cosModulAuf(m2.id), children: "Wieder öffnen" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.cosModulZu(m2.id), children: "Modul abschließen" })
+          ] })
+        ) : null,
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-mod-f", children: [
           sort && !m2.allg ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "pj-zahlw", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Zahl" }),
@@ -36081,7 +36592,8 @@ img.ProseMirror-separator {
     ] });
   }
   function Module({ p: p2, b, farbe }) {
-    const dran = b.mods.find((m2) => m2.offen.length), auf2 = F.cosModOffen(p2), offen2 = b.mods.reduce((n2, m2) => n2 + m2.offen.length, 0);
+    const md2 = F.cosModellAn() ? F.cosModulDran(p2) : null, dran = md2 ? b.mods.find((m2) => m2.id === md2.id) : b.mods.find((m2) => m2.offen.length);
+    const auf2 = F.cosModOffen(p2), offen2 = b.mods.reduce((n2, m2) => n2 + m2.offen.length, 0), reihe = b.mods.filter((m2) => !m2.fertig).concat(b.mods.filter((m2) => m2.fertig));
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "karte pj-module", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-k", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Module" }),
@@ -36089,7 +36601,7 @@ img.ProseMirror-separator {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(ModulFrage, { pid: p2.id }),
       !b.mods.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "pj-leer", children: "Noch kein Modul." }) : null,
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-mod-l", children: b.mods.map((m2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Modul, { p: p2, m: m2, dran: m2 === dran, auf: auf2 === m2.id, farbe }, m2.id)) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-mod-l", children: reihe.map((m2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Modul, { p: p2, m: m2, dran: m2 === dran, auf: auf2 === m2.id, farbe, alle: b.mods.filter((o) => !o.allg) }, m2.id)) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(NeuModul, { p: p2 })
     ] });
   }
@@ -36230,6 +36742,7 @@ img.ProseMirror-separator {
     return true;
   }
   const Woche = () => F.cosRasterAn() ? /* @__PURE__ */ jsxRuntimeExports.jsx(Raster, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(WocheKarte, {});
+  const MorgenKnopf = () => F.cosModellAn() ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mg-knopf-z", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "mg-knopf", onClick: () => F.cosMorgenAuf(), children: "Morgen" }) }) : null;
   function Chief() {
     const C2 = Z$1.C;
     if (Z$1.fehlt && !C2) return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte", children: [
@@ -36253,6 +36766,7 @@ img.ProseMirror-separator {
     ] });
     if (A$2.macSpalten() < 2) return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       alt,
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MorgenKnopf, {}),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Reiter, { offenP }),
       seite,
       /* @__PURE__ */ jsxRuntimeExports.jsx(Vornehmen, {}),
@@ -36264,6 +36778,7 @@ img.ProseMirror-separator {
       alt,
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-zwei", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(MorgenKnopf, {}),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Vornehmen, {}),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Woche, {}),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Runde, {}),
@@ -37307,10 +37822,10 @@ img.ProseMirror-separator {
     ] });
   }
   function Heute({ b }) {
-    const l2 = F.cosMorgenHeute();
+    const l2 = F.cosMorgenHeute(), ohne = F.cosMorgenOhne(), durch = F.cosMorgenDurch();
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-teil", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-schritt", children: "1 von 3 · Schritte von heute" }),
-      !l2.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-leise", children: "Heute keinen Schritt angefasst." }) : l2.map((x2) => {
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-schritt", children: "1 von 3 · Was ist mit diesen Schritten?" }),
+      l2.map((x2) => {
         const e = b.entscheid[x2.s.id] || "";
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-d", style: { "--pf": F.cosFarbe(x2.p.bereich) }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-d-t", children: [
@@ -37326,6 +37841,14 @@ img.ProseMirror-separator {
           ] })
         ] }, x2.s.id);
       }),
+      ohne.map((m2) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mg-d", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-d-t", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: m2.name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "ohne Schritt gearbeitet" })
+        ] })
+      ] }) }, m2.id)),
+      durch ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-leise", children: durch === 1 ? "1 Schritt durch" : durch + " Schritte durch" }) : null,
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-kn", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "mg-haupt", onClick: () => F.cosMorgenPhase(2), children: "Weiter" })
@@ -37363,7 +37886,7 @@ img.ProseMirror-separator {
         ] }, id2);
       }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-kn", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.cosMorgenPhase(1), children: "Zurück" }),
+        (b.erste || 1) < 2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.cosMorgenPhase(1), children: "Zurück" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "mg-haupt", onClick: () => F.cosMorgenPhase(3), children: "Weiter" })
       ] })
     ] });
@@ -37389,6 +37912,7 @@ img.ProseMirror-separator {
               /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosMorgenSchrittRuecken(p2.id, s.id, 1), disabled: i2 === l2.zeige.length - 1, "aria-label": "nach unten", children: "↓" })
             ] })
           ] }, s.id)),
+          l2.m && !l2.zeige.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-leise", children: "Ohne Schritt entscheidest du morgen früh." }) : null,
           l2.versteckt ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-leise", children: l2.versteckt + (l2.versteckt === 1 ? " weiterer bleibt im Modul" : " weitere bleiben im Modul") }) : null,
           l2.voll ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-leise", children: "3 Schritte reichen für morgen." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-sz-neu", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -38125,8 +38649,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611251019';
-const PWA_NAME = "V120 Werkbank Tag: laufendes Kästchen, To Do, Dran, Start unter Heute, Joker im Blatt";
+const PWA_VERSION = '202611251357';
+const PWA_NAME = "V121 Modell: Module, Tag neu, Zeitraffer";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
