@@ -1621,7 +1621,6 @@
   .pj-kopf { background: var(--kf-schleier); }
   .pj-reit.an { background: var(--kf-schleier); }
   .pj-reit .punkt { flex: none; background: var(--kf); }
-  .pj-reit .punkt.zweit { margin-left: calc(-1 * var(--abstand-5)); background: var(--kz); }
   .pj-mod:not(.fertig) { border-color: var(--kf-mittel); }
   .pj-mod:not(.fertig) > .pj-mod-k { background: var(--kf-schleier); border-radius: var(--radius-gross); }
   .pj-mod.dran > .pj-mod-k { background: var(--kf-tief); color: var(--auf-tief); }
@@ -37019,9 +37018,8 @@ img.ProseMirror-separator {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-reiter", role: "group", "aria-label": "Projekte", children: [
       liste.map((p2) => {
         const ziehen = p2.status === "aktiv" ? { draggable: "true", onDragStart: (e) => F.pjReitStart(e), onDragOver: (e) => F.pjReitUeber(e), onDragLeave: (e) => F.pjReitRaus(e), onDrop: (e) => F.pjReitAblegen(e), onDragEnd: (e) => F.pjReitEnde(e) } : {};
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "pj-reit" + (p2 === offenP ? " an" : ""), "data-id": p2.id, ...ziehen, onClick: () => F.cosOeffnenId(p2.id), "aria-pressed": String(p2 === offenP), style: { "--kf": F.cosProjektFarbe(p2), "--kz": F.cosZweitFarbe(p2) }, children: [
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "pj-reit" + (p2 === offenP ? " an" : ""), "data-id": p2.id, ...ziehen, onClick: () => F.cosOeffnenId(p2.id), "aria-pressed": String(p2 === offenP), style: { "--kf": F.cosProjektFarbe(p2) }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "punkt" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "punkt zweit" }),
           p2.name
         ] }, p2.id);
       }),
@@ -39017,7 +39015,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611251930';
+const PWA_VERSION = '202611251932';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -41302,7 +41300,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 19:30</div>
+<div id="testband">TEST 19:32</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
