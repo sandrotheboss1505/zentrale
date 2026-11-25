@@ -64,6 +64,7 @@ SEITEN = [
         [
             'chief/chief.css',            # Kästchen, Seite Chief, Projekt, Ziehen, Woche am Mac, Blätter
             'chief/fokus.css',            # Fokus im Tag: Balken, Liste nach Uhrzeit, Tasks, Leiste am Mac
+            'chief/fokus_ac.css',         # Ac: Fokus Karte (Balken mit Feldern, Jetzt, To Do) und Heute Karte (Kalender)
             'chief/woche.css',            # V95 Heute vornehmen und Woche als Raster
             'chief/projekt.css',          # V98 Projektseite, Projektliste, Mac Reiter
         ],
@@ -73,6 +74,7 @@ SEITEN = [
             'chief/rechnen.js',           # Rechnen: Blöcke, Minuten, Kästchen der Projekte, Reihenfolge, Etappen, Einsammeln, Haken
             'chief/rechnen_tag.js',       # Stufe 3: Rechnen für den Tag (Plan, Termine, Startzeiten, Empfehlung, Gehalten, Fokus Daten)
             'chief/rechnen_woche.js',     # Stufe 3: Rechnen für die Woche (Raster, Joker, Serie)
+            'chief/rechnen_kal.js',       # Ac: Heute Karte, Kalender gestaucht und Termine ab jetzt
             'chief/seite.js',             # Seite Chief: Woche jetzt, Status, Projekt öffnen, Wochenplan, fester Tag
             'chief/projekt.js',           # V98 Projektseite: Zahlen, Notiz, frei, Erledigt, Reiter ziehen
             'chief/woche.js',             # V95 Raster ändern: Zelle wählen, Mengen, Startzeit, Verteilen, Joker, Momente
