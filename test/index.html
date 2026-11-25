@@ -191,6 +191,14 @@
   .tag-zeile .datum { width: 86px; font-weight: 600; white-space: nowrap; flex: none; }
   .tag-zeile .mini { flex: 1; display: flex; flex-wrap: wrap; gap: var(--abstand-2); }
   .mini span { font-size: var(--schrift-klein); padding: var(--abstand-1) var(--abstand-3); border-radius: var(--radius-mittel); background: var(--chip); font-variant-numeric: tabular-nums; }
+  /* Zahlen unter den Balken: Letzte 7 Tage (Alkohol, Sport, Kästchen) und Ott */
+  .wk-gruppe { margin-top: var(--abstand-6); padding-top: var(--abstand-5); border-top: 1px solid var(--linie); }
+  .wk-gruppe h4 { margin: 0 0 var(--abstand-3); font-size: var(--schrift-mini); font-weight: 700; color: var(--leise); text-transform: uppercase; letter-spacing: .06em; }
+  .wk-zahlen { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--abstand-4); }
+  .wk-stat { display: flex; flex-direction: column; gap: var(--abstand-1); min-width: 0; }
+  .wk-stat small { font-size: var(--schrift-mini); color: var(--leise); }
+  .wk-stat span { font-size: var(--schrift-klein); color: var(--leise); white-space: nowrap; }
+  .wk-stat b { font-size: var(--schrift-text); font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
   .posten { display: flex; align-items: center; gap: var(--abstand-4); padding: var(--abstand-3) 0; font-size: var(--schrift-klein); border-top: 1px solid var(--linie); }
   .posten:first-child { border-top: 0; }
   .posten .pzeit { font-size: var(--schrift-klein); color: var(--leise); font-variant-numeric: tabular-nums; width: 38px; flex: none; }
@@ -430,7 +438,7 @@
   body.mac3 .mac-spalten { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   /* V86 Tag am Mac: Fokus links breiter */
   .mac-spalten.tag-spalten { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: var(--abstand-9); }
-  body.mac3 .mac-spalten.tag-spalten { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, .85fr); }
+  body.mac3 .mac-spalten.tag-spalten { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1.05fr) minmax(0, 1fr); }
   body.mac .tag-spalten textarea { min-height: 220px; }
   .mac-spalte { min-width: 0; }
   body.mac .karte { margin-bottom: var(--abstand-8); padding: var(--abstand-7) var(--abstand-7); }
@@ -1386,6 +1394,12 @@
   .hk-min { flex: none; color: var(--leise); }
   .hk-rest { position: absolute; left: 42%; right: 0; box-sizing: border-box; pointer-events: none; border-radius: var(--radius-klein);
     background: color-mix(in srgb, var(--knopf-blau) 45%, var(--karte)); display: flex; align-items: center; justify-content: center; font-size: var(--schrift-mini); color: var(--leise); white-space: nowrap; }
+  .hk-fe { position: absolute; left: calc(42% - var(--abstand-2)); right: calc(-1 * var(--abstand-2)); box-sizing: border-box; pointer-events: none;
+    border: 1px dashed var(--kreis); border-radius: var(--radius-klein); }
+  .hk-fe.vorbei { opacity: .55; }
+  .hk-fe span { position: absolute; left: var(--abstand-2); top: calc(-1 * var(--abstand-3)); padding: 0 var(--abstand-1); background: var(--karte);
+    font-size: var(--schrift-mini); line-height: 14px; color: var(--leise); white-space: nowrap; }
+  .hk-z.fe .hk-t, .hk-z.fe .hk-zeit { color: var(--leise); }
   .hk-jetzt { position: absolute; left: 36px; right: 0; height: 2px; border-radius: var(--radius-klein); background: var(--jetzt-linie); }
   .hk-jetzt-t { position: absolute; left: 0; width: 32px; text-align: right; font-size: var(--schrift-mini); line-height: 16px; font-weight: 700; color: var(--jetzt-linie); }
   @media (prefers-reduced-motion: reduce) { .hk-f.laeuft { animation: none; } }
@@ -2921,7 +2935,8 @@ function cosTag(iso) {
 }
 /* ── Ac Heute Karte (entwuerfe/neu/TagAc): Kalender in einer Spalte, gestaucht. Nur Rechnen, gezeichnet in ui/src/fokus/HeuteKarte.jsx.
    Maßstab 64 px pro Stunde. Wo etwas liegt (Termin, Fokus Block, Jetzt bis voll), läuft die Zeit maßstäblich, mit 6 Minuten Rand.
-   Durchgehend ohne Brüche. Der Rest bis voll liegt blau auf den freien Stücken ab jetzt ── */
+   Durchgehend ohne Brüche. Der Rest bis voll liegt blau auf den freien Stücken ab jetzt.
+   Arbeitsfenster (Kalender Fokus) liegen als leiser Rahmen dahinter, mit Ort und Platz in Kästchen ── */
 const KAL_PXH = 64, KAL_RAND = 6;
 function cosKalDauer(m) { return m >= 60 ? Math.floor(m / 60) + ':' + zwei(m % 60) : m + ' Min'; }
 function cosKalDatum(iso) {
@@ -2956,11 +2971,18 @@ function cosKalReste(jm, rest, termine, fokus, ende) {
   }
   return out;
 }
+/* Arbeitsfenster aus dem Kalender Fokus (Server: Blockspeicher.js, P.fenster). Titel = Ort, Platz in vollen Kästchen */
+function cosFenster(iso) {
+  return ((P && P.fenster && P.fenster[iso]) || []).map(f => ({ s: minVon(f.start), e: minVon(f.ende), ort: f.ort || 'Fokus', k: Math.floor((Number(f.min) || 0) / COS_MIN) }))
+    .filter(f => f.e > f.s);
+}
+function cosFensterKq(iso) { return cosFenster(iso).reduce((n, f) => n + f.k, 0); }
+function cosFensterText(f) { return f.ort + ' · ' + f.k + (f.k === 1 ? ' Kästchen' : ' Kästchen'); }
 function cosKalender(d) {
   const jm = d.jm, pxm = KAL_PXH / 60, rest = cosKalRest(d), ende = 24 * 60;
-  const termine = cosTermine().filter(t => t.e > t.s), fokus = cosKalFokus(d);
+  const termine = cosTermine().filter(t => t.e > t.s), fokus = cosKalFokus(d), fenster = cosFenster(d.h);
   const reste = cosKalReste(jm, rest, termine, fokus, ende);
-  const roh = termine.map(t => [t.s, t.e]).concat(fokus.map(f => [f.t0, f.t1])).concat(reste.length ? reste : [[jm, Math.min(ende, jm + 20)]]);
+  const roh = termine.map(t => [t.s, t.e]).concat(fokus.map(f => [f.t0, f.t1])).concat(fenster.map(f => [f.s, f.e])).concat(reste.length ? reste : [[jm, Math.min(ende, jm + 20)]]);
   roh.sort((a, b) => a[0] - b[0]);
   const a0 = roh[0][0] - KAL_RAND, b0 = Math.max.apply(null, roh.map(r => r[1])) + KAL_RAND, hoehe = (b0 - a0) * pxm;   // durchgehend, ohne Brüche
   const y = t => Math.round(Math.max(0, Math.min(1, (t - a0) / Math.max(1, b0 - a0))) * hoehe);
@@ -2981,8 +3003,9 @@ function cosKalender(d) {
   const rl = reste.map(r => ({ top: y(r[0]) + (r[0] === jm ? 5 : 1), h: y(r[1]) - y(r[0]) - (r[0] === jm ? 6 : 2) })).filter(r => r.h >= 6);
   const gross = rl.find(r => r.h >= 18);
   if (gross) gross.text = 'noch ' + cosKalDauer(rest) + ' bis voll';
+  const kfe = fenster.map(f => ({ key: 'fe' + f.s, top: y(f.s), h: Math.max(8, y(f.e) - y(f.s)), text: cosFensterText(f), vorbei: f.e <= jm }));
   return {
-    hoehe: Math.round(hoehe), stunden: stunden, termine: kt, fokus: kf,
+    hoehe: Math.round(hoehe), stunden: stunden, termine: kt, fokus: kf, fenster: kfe,
     reste: rl,
     jetzt: { y: yj, text: cosUhr(jm) }
   };
@@ -2990,7 +3013,9 @@ function cosKalender(d) {
 /* Zugeklappt: Termine ab jetzt, Uhrzeit und Name. Beim laufenden "läuft", beim nächsten "in n Min" */
 function cosKommt(d) {
   const jm = d.jm, l = cosTermine().filter(t => t.e > jm), nt = l.find(t => t.s > jm);
-  return l.map(t => ({ key: t.key, zeit: cosUhr(t.s), t: t.t, rechts: t.s <= jm ? 'läuft' : t === nt ? 'in ' + cosKalDauer(t.s - jm) : '' }));
+  const out = l.map(t => ({ key: t.key, s: t.s, zeit: cosUhr(t.s), t: t.t, rechts: t.s <= jm ? 'läuft' : t === nt ? 'in ' + cosKalDauer(t.s - jm) : '' }));
+  cosFenster(d.h).filter(f => f.e > jm).forEach(f => out.push({ key: 'fe' + f.s, s: f.s, zeit: cosUhr(f.s), t: f.ort, rechts: f.k + (f.k === 1 ? ' Kästchen' : ' Kästchen') + ' Platz', fenster: true }));
+  return out.sort((a, b) => a.s - b.s);
 }
 /* ── Seite Chief: Woche jetzt, Status, Projekt öffnen, Wochenplan, fester Tag. Gezeichnet in React (ui/src/chief/Chief.jsx) ── */
 function cosWocheJetzt() {
@@ -13229,7 +13254,7 @@ var ZentraleUI = function(exports) {
   };
   function Kommt({ d, auf: auf2 }) {
     const l2 = F.cosKommt(d);
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "hk-liste", onClick: auf2, "aria-label": "Kalender aufklappen", children: l2.length ? l2.map((e) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "hk-z", children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "hk-liste", onClick: auf2, "aria-label": "Kalender aufklappen", children: l2.length ? l2.map((e) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "hk-z" + (e.fenster ? " fe" : ""), children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hk-zeit", children: e.zeit }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hk-t", children: e.t }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hk-r", children: e.rechts })
@@ -13254,6 +13279,7 @@ var ZentraleUI = function(exports) {
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hk-stdt" + (s.weg ? " weg" : ""), style: { top: s.y - 7 + "px" }, children: s.text })
         ] }, s.text)),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hk-spur", children: [
+          k2.fenster.map((f2) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hk-fe" + (f2.vorbei ? " vorbei" : ""), style: { top: f2.top + "px", height: f2.h + "px" }, "aria-label": "Arbeitsfenster " + f2.text, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: f2.text }) }, f2.key)),
           k2.termine.map((t2) => {
             const kl2 = "hk-t" + (t2.ueber ? " ueber" : "") + (t2.klein ? " klein" : "") + (t2.vorbei ? " vorbei" : "") + (t2.flex ? " flex" : "");
             const st = { top: t2.top + "px", height: t2.h + "px", lineHeight: t2.klein ? t2.h + "px" : void 0 }, innen2 = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -36373,6 +36399,30 @@ img.ProseMirror-separator {
     const r2 = innen(iso || A$2.tagIso);
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-reihe" + (r2.reif ? " reif" : ""), id: "cosReihe", onClick: r2.reif ? () => F.cosSammeln() : void 0, children: /* @__PURE__ */ jsxRuntimeExports.jsx(React$2.Fragment, { children: r2.el }, stand2 + "|" + zug()) });
   }
+  function zahlen() {
+    const h2 = A$2.tagIso, tag = (k2) => A$2.tagPlus(h2, -k2), bis = (n2) => Array.from({ length: n2 }, (_, k2) => tag(k2));
+    const ja2 = (s, iso) => A$2.wertVon(s, iso) === true, zahl = (s, iso) => {
+      const w2 = A$2.wertVon(s, iso);
+      return typeof w2 === "number" ? w2 : 0;
+    };
+    const sieben = bis(7), zaehlen = (s, l2) => l2.filter((iso) => ja2(s, iso)).length;
+    const drinks = sieben.reduce((a, iso) => a + zahl("Drinks", iso), 0);
+    const kae = da("cosTag") ? sieben.reduce((a, iso) => a + F.cosTag(iso).farben.length, 0) / 7 : null;
+    let zuletzt = null;
+    for (let k2 = 0; k2 < 42 && zuletzt == null; k2++) if (ja2("Ott", tag(k2))) zuletzt = k2;
+    return {
+      oben: [
+        ["Alkohol", A$2.komma(drinks), drinks === 1 ? "Drink" : "Drinks"],
+        ["Sport", zaehlen("Sport", sieben), "×"],
+        ["Kästchen", kae == null ? "" : A$2.komma((Math.round(kae * 10) / 10).toFixed(1)), "am Tag"]
+      ],
+      ott: [
+        ["30 Tage", zaehlen("Ott", bis(30)), "×"],
+        ["7 Tage", zaehlen("Ott", sieben), "×"],
+        zuletzt == null ? ["Zuletzt", "", "länger her"] : zuletzt === 0 ? ["Zuletzt", "heute", ""] : zuletzt === 1 ? ["Zuletzt", "gestern", ""] : ["Zuletzt", "vor " + zuletzt, "Tagen"]
+      ]
+    };
+  }
   function WocheKarte$1() {
     const f2 = A$2.P.felder.find((x2) => x2.typ === "gross");
     if (!f2) return null;
@@ -36383,6 +36433,7 @@ img.ProseMirror-separator {
       return typeof w2 === "number" ? w2 : null;
     });
     const da2 = werte.filter((w2) => w2 != null), schnitt = da2.length ? Math.round(da2.reduce((a, b) => a + b, 0) / da2.length * 10) / 10 : null;
+    const z2 = zahlen();
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte woche-karte", onClick: () => A$2.wocheOeffnen(), children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Bereich, { farbe: f2.farbe, name: "Woche", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "wk-schnitt", children: schnitt == null ? "" : "Ø " + A$2.komma(schnitt.toFixed(1)) }),
@@ -36391,7 +36442,18 @@ img.ProseMirror-separator {
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "wk-balken", children: werte.map((w2, i2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "wk-tag" + (tage[i2] === A$2.tagIso ? " heute" : ""), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "wk-bahn", children: /* @__PURE__ */ jsxRuntimeExports.jsx("i", { style: w2 == null ? { height: "0%" } : { height: Math.max(8, w2 * 10) + "%", background: A$2.stufeFarbe(f2, w2) || f2.farbe } }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "MDMDFSS"[i2] })
-      ] }, i2)) })
+      ] }, i2)) }),
+      [["", z2.oben], ["Ott", z2.ott]].map(([titel, l2]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "wk-gruppe", children: [
+        titel ? /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { children: titel }) : null,
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "wk-zahlen", children: l2.map(([name, zahl, einheit]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "wk-stat", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: zahl }),
+            zahl !== "" && einheit ? " " : "",
+            einheit
+          ] })
+        ] }, name)) })
+      ] }, titel || "sieben"))
     ] });
   }
   function Version() {
@@ -36433,12 +36495,14 @@ img.ProseMirror-separator {
     const sp = Array.from({ length: n2 }, () => []);
     const kopfK = karten.filter((b) => name(b) === "kopf"), notizK = karten.filter((b) => name(b) === "notiz");
     const rest = karten.filter((b) => kopfK.indexOf(b) === -1 && notizK.indexOf(b) === -1);
-    sp[0].push(...fokus.map(teil));
-    sp[1].push(...kopfK.concat(notizK).map(teil), ...listen);
-    const rechts = n2 === 3 ? 2 : 1;
-    if (n2 === 3) sp[2].push(woche);
-    else sp[0].push(woche);
-    sp[rechts].push(...rest.concat(unten).map(teil));
+    if (n2 === 3) {
+      sp[0].push(...fokus.map(teil));
+      sp[1].push(...notizK.map(teil), woche, ...listen, ...unten.map(teil));
+      sp[2].push(...kopfK.map(teil), ...rest.map(teil));
+    } else {
+      sp[0].push(...fokus.map(teil), ...notizK.map(teil), ...listen, ...unten.map(teil));
+      sp[1].push(...kopfK.map(teil), woche, ...rest.map(teil));
+    }
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       kopf2,
       /* @__PURE__ */ jsxRuntimeExports.jsx(Spalten, { spalten: sp, klasse: "tag-spalten" }),
@@ -38105,7 +38169,7 @@ img.ProseMirror-separator {
     ] });
   }
   function Einstellen({ b }) {
-    const summe = b.reihe.reduce((n2, id2) => n2 + (b.menge[id2] || 0), 0);
+    const summe = b.reihe.reduce((n2, id2) => n2 + (b.menge[id2] || 0), 0), platz2 = F.cosFensterKq(F.cosMorgenIso());
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-teil", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-schritt", children: "2 von 3 · Morgen einstellen" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-start", children: [
@@ -38116,7 +38180,7 @@ img.ProseMirror-separator {
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosMorgenStart(1), "aria-label": "15 Minuten später", children: "+" })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-leise", children: "Menge und Reihenfolge der Projekte · " + summe + (summe === 1 ? " Kästchen" : " Kästchen") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-leise", children: "Menge und Reihenfolge der Projekte · " + summe + " Kästchen" + (platz2 ? summe > platz2 ? ", nur " + platz2 + " Platz in deinen Fenstern" : " von " + platz2 + " Platz" : "") }),
       b.reihe.map((id2, i2) => {
         const p2 = F.cosPid(id2);
         if (!p2) return null;
@@ -38898,7 +38962,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611251740';
+const PWA_VERSION = '202611251827';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -39380,7 +39444,10 @@ function paket(m, H, tagPlus, aenderungen, vorBloecke) {
   Object.keys(vorBloecke || {}).forEach(iso => { if (iso !== H) bloecke[iso] = vorBloecke[iso].map(b => blk(b.key, b.a, b.min, b.bereich, b.titel, b.extra)); });   // V95: Blöcke früherer Tage
   return { stand: 's' + Date.now() + Math.random(), erstellt: Date.now(), felder, ziele, tage, werte,
     termine: { [H]: [{ key: 'tm0', zeit: '11:00', titel: 'Telefonat Produktion', kalender: 'Arbeit' }, { key: 'tm1', zeit: '12:00', titel: 'Seminar Theorie', kalender: 'Uni' },
-      { key: 'tm2', zeit: '15:00', titel: 'Zahnarzt', kalender: 'Privat' }, { key: 'tm3', zeit: '18:30', titel: 'Kino', kalender: 'Privat' }] }, bloecke, fokTasks: {}, regeln: [{ ab: tagPlus(-30), w }] };
+      { key: 'tm2', zeit: '15:00', titel: 'Zahnarzt', kalender: 'Privat' }, { key: 'tm3', zeit: '18:30', titel: 'Kino', kalender: 'Privat' }] }, bloecke,
+    // Blockspeicher: Arbeitsfenster aus dem Kalender Fokus (Titel = Ort), heute und morgen
+    fenster: { [H]: [{ start: '13:00', ende: '14:30', ort: 'Bib', min: 90 }, { start: '16:00', ende: '18:00', ort: 'Zuhause Büro', min: 120 }],
+      [tagPlus(1)]: [{ start: '10:00', ende: '12:00', ort: 'Bib', min: 120 }] }, fokTasks: {}, regeln: [{ ab: tagPlus(-30), w }] };
 }
 
 // Eine Spielwelt: nachgebaute Tabelle, Kalender und Tasks. antwort(q) beantwortet einen Aufruf { fn, args } wie doPost.
@@ -41180,7 +41247,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 17:40</div>
+<div id="testband">TEST 18:27</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
