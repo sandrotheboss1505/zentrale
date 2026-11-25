@@ -1411,6 +1411,14 @@
   .hk-spur .hk-t.flex { background: var(--karte); border: 1px dashed var(--kreis); border-left: 3px dotted var(--kreis); color: var(--leise); }
   .hk-zu { flex: none; font-size: var(--schrift-mini); font-weight: 600; color: var(--pf); }
   .hk .cos-tf { margin-top: var(--abstand-4); }
+  /* Vortage (ui/src/fokus/Vortag.jsx): Balken mit einem Feld pro Kästchen, Punkt und Bonus der Chips wie V96 bis V100 */
+  .tg-vortag .tg-balken { display: flex; gap: var(--abstand-2); margin-top: var(--abstand-6); }
+  .tg-vortag .tg-balken i { flex: 1; height: 10px; border-radius: var(--radius-rund); background: var(--hell); }
+  .tg-vortag .tg-balken i.voll { background: var(--pf); }
+  .tg-vortag .tg-balken i.joker { background: var(--tg-joker); }
+  .tg-vortag .tg-punkt { width: 8px; height: 8px; border-radius: var(--radius-rund); background: var(--pf); }
+  .tg-vortag .tg-bonus { font-size: var(--schrift-klein); color: var(--pf); }
+  .tg-vortag .tg-startk { margin-top: var(--abstand-6); }
   /* ── V95 Heute vornehmen und Woche als Raster. Maße aus entwuerfe/kaestchen/Chief.dc.html ── */
   :root { --ras-blau: #E7EEFB; --ras-we: #F7F6F2; --ras-we-text: #BDB9B0; --ras-tag-we: #9A968C; --ras-heute: #073763;
     --ras-gruen: #2E7D32; --ras-gruen-hell: #E3F1E4; --ras-warn: #9A5B00; --ras-warn-hell: #FFF4E5; --ras-rot: #C62828; --ras-rot-hell: #FDE7E5; }
@@ -2801,6 +2809,36 @@ function cosModulNeuZiel(p) {
   if (d && !d.allg) return d.id;
   const l = cosModulRoh(p);
   return l.length ? l[l.length - 1].id : '';
+}
+/* ── Vortage: jeder vergangene Tag im System, das live war, als er der aktuelle Tag war (nur lesen). Stand nach Datum:
+   20.11. V95 (Balken V69, voll ist 3:00), 21. und 22.11. V96 (ein Feld pro Kästchen), 23.11. V104 (durchgehender Balken aus Kästchen, Chips),
+   24.11. V111 bis V119 (Balken aus genauen Minuten), ab 25.11. Ac (Felder nach Projekten). Älter als 20.11.: wie bisher (null) ── */
+const COS_VORTAG_STAENDE = [['2026-11-20', 'v95'], ['2026-11-21', 'v96'], ['2026-11-23', 'v104'], ['2026-11-24', 'v111'], ['2026-11-25', 'ac']];
+function cosVortagStand(iso) { let s = null; COS_VORTAG_STAENDE.forEach(x => { if (iso >= x[0]) s = x[1]; }); return iso < heute() ? s : null; }
+/* Zahlen eines vergangenen Tages wie cosTagDaten, aber ohne Laufendes und Offenes: Kästchen pro Projekt aus den Fokusminuten der Blöcke (cosKqVon,
+   gerundet nach der Regel des Tages), Menge aus pt|Datum minus jt|Datum. zeilen: Blöcke mit Los oder Status, für die Liste */
+function cosVortagDaten(iso) {
+  const pt = cosPlanLesen(iso), jtRoh = cosMerk('jt|' + iso), jt = jtRoh && typeof jtRoh === 'object' ? jtRoh : {}, min = {}, zeilen = [];
+  bloeckeVon(iso).forEach((b, i) => {
+    const s = cosSchrittVon(b), p = s && cosNachName(s.projekt), m = fokusMin(iso, b);
+    if (zaehlt(b) && p && p.bereich !== 'System') (min[p.id] = min[p.id] || []).push(m);
+    if (b.status || b.gestartet) zeilen.push({ b: b, i: i, s: s, p: p, m: m, k: Math.max(1, Math.round((b.min || COS_MIN) / COS_MIN)) });
+  });
+  zeilen.sort((a, b) => minVon(a.b.gestartet || a.b.start) - minVon(b.b.gestartet || b.b.start));
+  const chips = [];
+  let summe = 0, menge = 0, ist = 0, fertigN = 0, gesamtN = 0, balkenMin = 0, n95 = 0;
+  if (pt) Object.keys(pt).forEach(id => { n95 += Math.max(0, Number(pt[id]) || 0); });
+  ((C && C.projekte) || []).forEach(p => {
+    if (p.bereich === 'System') return;
+    const m = pt ? Math.max(0, Number(pt[p.id]) || 0) : 0, l = min[p.id] || [], d = cosKqVon(iso, l);
+    if (!m && !d) return;
+    const j = Math.min(m, Math.max(0, Number(jt[p.id]) || 0)), bMin = l.reduce((a, x) => a + x, 0);
+    chips.push({ p: p, m: m, j: j, d: d, l: 0, v: 0, f: Math.max(0, m - j - d), o: Math.max(0, m - j - d), bMin: bMin, wart: 0, bonus: Math.max(0, d + j - m) });
+    summe += m; menge += m - j; ist += d; fertigN += d + j; gesamtN += Math.max(m, d + j);
+    balkenMin += bMin;
+  });
+  return { h: iso, jm: 24 * 60, pt: pt, chips: chips, summe: summe, menge: menge, ist: ist, fertigN: fertigN, gesamtN: gesamtN, balkenMin: balkenMin,
+    n95: n95, geschafft95: cosTag(iso).farben.length, fokus: fokusTagMin(iso), g: cosGehalten(iso), st: cosStartVon(iso), zeilen: zeilen };
 }
 /* ── Rechnen für die Woche: Raster (Mengen, Summe, Gemessen, System), Joker, Serie, Kalenderwoche ──
    Stufe 3: aus woche.js und runde.js hierher, unverändert. Nur Lesen und Rechnen, nichts zeichnen. */
@@ -13143,7 +13181,7 @@ var ZentraleUI = function(exports) {
   const BAHN_MS = 1600, WACHS_STOSS = 450;
   const BFUNKEN = [[-26, -20], [-14, -32], [0, -38], [14, -32], [26, -20], [-32, -4], [32, -4], [-18, 14], [18, 14], [0, 20]];
   let bahnAlt = null, bahnFx = null, fxGesehen = 0;
-  const pz = (a) => Math.round(Math.max(0, Math.min(1, a)) * 1e3) / 10 + "%";
+  const pz$1 = (a) => Math.round(Math.max(0, Math.min(1, a)) * 1e3) / 10 + "%";
   function bahnFxVon(d, k2, B2) {
     const m2 = d.balkenMin || 0, jetzt = Date.now(), lf2 = Z$1.laufFx, proj = {};
     const dran = lf2 && (lf2.art === "dran" || lf2.art === "nach") && lf2.t !== fxGesehen && jetzt - lf2.t < BAHN_MS;
@@ -13179,14 +13217,14 @@ var ZentraleUI = function(exports) {
       "--gd": (3.2 - 1.6 * q2).toFixed(2) + "s"
     };
   }
-  function Bahn$1({ d, k: k2 }) {
+  function Bahn$1({ d, k: k2, still }) {
     if (k2.art === "leer") return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-bahn leer", role: "img", "aria-label": "Noch keine Kästchen festgelegt" });
     const B2 = F.cosBalkenFelder(d);
     if (!B2.n) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-bahn leer", role: "img", "aria-label": "Noch keine Kästchen festgelegt" });
     const label2 = d.ist + " von " + d.menge + " Kästchen geschafft, " + Math.max(0, d.menge - d.ist) + " offen" + (k2.ueber ? ", über der Menge" : "");
-    const neu = bahnFxVon(d, k2, B2);
+    const neu = still ? null : bahnFxVon(d, k2, B2);
     if (neu) bahnFx = neu;
-    const vb2 = bahnFx && bahnFx.tag === d.h ? Date.now() - bahnFx.t : BAHN_MS, fx = vb2 < BAHN_MS ? bahnFx : null;
+    const vb2 = bahnFx && bahnFx.tag === d.h ? Date.now() - bahnFx.t : BAHN_MS, fx = !still && vb2 < BAHN_MS ? bahnFx : null;
     const stil2 = Object.assign({ gridTemplateColumns: "repeat(" + B2.n + ", minmax(0, 1fr))" }, glanzStil(B2.q, fx));
     if (fx) {
       stil2["--vb"] = vb2 + "ms";
@@ -13197,19 +13235,19 @@ var ZentraleUI = function(exports) {
     B2.gruppen.forEach((gr, gi2) => gr.felder.forEach((z2, j) => {
       const alt = fx && fx.wachs && fx.proj ? Math.max(0, Math.min(30, (fx.proj[gr.p.id] || 0) - 30 * j)) : z2.m, waechst = alt !== z2.m;
       const kl2 = "tg-fz" + (j === 0 ? " erst" : "") + (j === gr.felder.length - 1 ? " letzt" : "") + (j === 0 && gi2 > 0 ? " gruppe" : "");
-      const fs = { width: pz(z2.m / 30), "--i": (i2 * 0.1).toFixed(2) + "s" };
-      if (waechst) fs["--von"] = pz(alt / 30);
+      const fs = { width: pz$1(z2.m / 30), "--i": (i2 * 0.1).toFixed(2) + "s" };
+      if (waechst) fs["--von"] = pz$1(alt / 30);
       zellen.push(
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: kl2, style: { "--pf": gr.farbe }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-ffuell" + (z2.m > 0 ? " an" : "") + (waechst ? " wachs" : ""), style: fs, children: B2.q >= 0.5 && z2.m > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "tg-fglanz" }) : null }, waechst ? "w" + fx.t : "f"),
-          z2.g > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-fwart", style: { left: pz(z2.m / 30), width: pz(z2.g / 30) } }) : null
+          z2.g > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-fwart", style: { left: pz$1(z2.m / 30), width: pz$1(z2.g / 30) } }) : null
         ] }, gr.p.id + j)
       );
       i2++;
     }));
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-bahn ac" + (B2.ganz ? " ganz" : "") + (fx ? " stoss" : ""), style: stil2, role: "img", "aria-label": label2, children: [
       zellen,
-      fx ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-bkopf" + (fx.kante > 0.6 ? " links" : ""), style: { left: pz(fx.kante) }, "aria-hidden": "true", children: [
+      fx ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-bkopf" + (fx.kante > 0.6 ? " links" : ""), style: { left: pz$1(fx.kante) }, "aria-hidden": "true", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("em", {}),
         /* @__PURE__ */ jsxRuntimeExports.jsx("u", {}),
         BFUNKEN.map(([dx, dy], j) => /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: j % 2 ? "gold" : "", style: { "--dx": dx + "px", "--dy": dy + "px", "--w": j * 20 + "ms" } }, j)),
@@ -13217,7 +13255,7 @@ var ZentraleUI = function(exports) {
       ] }, "k" + fx.t) : null
     ] });
   }
-  function Start({ d, k: k2 }) {
+  function Start$1({ d, k: k2 }) {
     if (!k2.st) return null;
     const g = d.g, uhr2 = F.cosUhr(k2.st), los = () => F.cosKopfLos();
     if (k2.art === "vor") {
@@ -13367,7 +13405,7 @@ var ZentraleUI = function(exports) {
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Heute" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hk-datum", children: F.cosKalDatum(d.h) + " " + (auf2 ? "▴" : "▾") })
       ] }) }),
-      k2.art !== "leer" && (auf2 || startOben) ? /* @__PURE__ */ jsxRuntimeExports.jsx(Start, { d, k: k2 }) : null,
+      k2.art !== "leer" && (auf2 || startOben) ? /* @__PURE__ */ jsxRuntimeExports.jsx(Start$1, { d, k: k2 }) : null,
       auf2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hk-auf", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Kalender, { d }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Kommt, { d, auf: wechseln })
     ] });
   }
@@ -13997,6 +14035,148 @@ var ZentraleUI = function(exports) {
       }) }) : null
     ] }, "erledigt");
   }
+  const pz = (x2) => (Math.max(0, Math.min(1, x2)) * 100).toFixed(2) + "%";
+  const bfarbe = (c) => F.cosFarbe(c.p.bereich);
+  function Balken95({ d }) {
+    const ziel = K.FB_N * K.MIN, p2 = Math.min(1, d.fokus / ziel), n2 = d.pt ? d.n95 : 0, g = d.geschafft95, voll2 = d.fokus >= ziel;
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-fb" + (voll2 ? " voll" : ""), role: "img", "aria-label": "Fokus: " + Math.min(Math.floor(d.fokus / K.MIN), K.FB_N) + " von " + K.FB_N + " Kästchen, vorgenommen " + n2, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "cos-fb-plan", style: { width: pz(n2 / K.FB_N) } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "cos-fb-voll", style: { width: pz(p2) } })
+      ] }),
+      d.pt ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-fs", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: n2 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: g }),
+          " von " + n2 + " Kästchen"
+        ] }) : "Ohne Kästchen" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: n2 && g >= n2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "gold", children: "Alles geschafft" }) : "" })
+      ] }) : null
+    ] });
+  }
+  function Start({ d }) {
+    if (!d.st) return null;
+    const g = d.g, rechts = g.erster === null ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-gest", children: "nicht gestartet" }) : g.start ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-gest gut", title: "Start gehalten", children: [
+      HAKEN_G,
+      "gestartet " + F.cosUhr(g.erster)
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-gest", children: "gestartet " + F.cosUhr(g.erster) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-startk", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-start-l", children: [
+        GLOCKE,
+        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Start " + F.cosUhr(d.st) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-fest-k", children: [
+          SCHLOSS,
+          "fest"
+        ] })
+      ] }),
+      rechts
+    ] });
+  }
+  function Kopf96({ d }) {
+    const seg = [], teil2 = (n2, kl2, c) => {
+      for (let i2 = 0; i2 < n2; i2++) seg.push(/* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: kl2, style: c ? { "--pf": bfarbe(c) } : void 0 }, seg.length));
+    };
+    d.chips.forEach((c) => teil2(c.d, "voll", c));
+    d.chips.forEach((c) => teil2(c.o, "", c));
+    d.chips.forEach((c) => teil2(c.j, "joker"));
+    const chips = d.chips.filter((c) => c.m).map((c) => {
+      const voll2 = Math.min(c.d, c.m - c.j), q2 = [];
+      for (let i2 = 0; i2 < c.m; i2++) q2.push(/* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: i2 < voll2 ? "voll" : i2 < c.m - c.j ? "frei" : "joker" }, i2));
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-chip", style: { "--pf": bfarbe(c) }, "aria-label": c.p.name + ": " + (c.d + c.j) + " von " + c.m, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-punkt" }),
+        F.cosRasKurzName(c.p),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-q", children: q2 }),
+        c.bonus ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-bonus", children: "+" + c.bonus }) : null
+      ] }, c.p.id);
+    });
+    const g = d.g, gehalten = g.tag === true ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-tag", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Tag gehalten" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Alles, was du dir vorgenommen hast." })
+    ] }) : d.chips.filter((c) => g.proP[c.p.id] && g.proP[c.p.id].ok && c.m).map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-pg", style: { "--pf": bfarbe(c) }, children: F.cosRasKurzName(c.p) + " gehalten" }, c.p.id));
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-kopf", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Fokus" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: d.fertigN }),
+          " von " + d.gesamtN + " Kästchen"
+        ] })
+      ] }),
+      seg.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-balken", role: "img", "aria-label": d.fertigN + " von " + d.gesamtN + " Kästchen geschafft", children: seg }) : null,
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Start, { d }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-mengen", children: [
+        chips,
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-fest", children: [
+          SCHLOSS,
+          "fest aus dem Chief"
+        ] })
+      ] }),
+      gehalten
+    ] });
+  }
+  function Kopf104({ d, k: k2, minuten }) {
+    const anteil = d.menge > 0 ? minuten ? d.balkenMin / (d.menge * K.MIN) : d.ist / d.menge : 0, a = Math.min(1, anteil);
+    const zeigen2 = d.ist > 0 || minuten && d.balkenMin > 0;
+    const stil2 = Object.assign({ width: k2.ueber ? "100%" : pz(a) }, F.cosBalkenStil(a, k2.ueber));
+    const chips = d.chips.filter((c) => c.m || c.d).map((c) => {
+      const soll = c.m - c.j, art = [];
+      for (let i2 = 0; i2 < c.d; i2++) art.push("voll");
+      while (art.length < soll) art.push("frei");
+      for (let i2 = 0; i2 < c.j; i2++) art.push("joker");
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-chip", style: { "--pf": bfarbe(c) }, "aria-label": c.p.name + ": " + c.d + " von " + soll, children: [
+        F.cosRasKurzName(c.p),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-q", children: art.map((x2, i2) => /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: x2 + (i2 >= soll && x2 !== "joker" ? " bonus" : "") }, i2)) })
+      ] }, c.p.id);
+    });
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Zahl$2, { d, k: k2 }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-bahn", role: "img", "aria-label": d.ist + " von " + d.menge + " Kästchen geschafft", children: zeigen2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-fuell" + (k2.ueber ? " ueber" : ""), style: stil2 }) : null }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Start, { d }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-mengen", children: [
+        chips,
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-fest", children: [
+          SCHLOSS,
+          "fest aus dem Chief"
+        ] })
+      ] })
+    ] });
+  }
+  function Zeilen({ d, alt }) {
+    if (!d.zeilen.length) return null;
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "tg-h3", children: "Erledigt" }),
+      d.zeilen.map((x2) => {
+        const b = x2.b, ok2 = x2.m > 0 && F.zaehlt(b), farbe = alt ? F.cosFarbe(x2.p ? x2.p.bereich : b.bereich) : F.cosTrFarbe(x2);
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-z fertig tg-erl", style: { "--pf": farbe }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-zeit", children: b.gestartet || b.start }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-was", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-titel", children: F.cosTrTitel(x2) }) }),
+          ok2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-kq", children: Array.from({ length: x2.k }, (_, j) => /* @__PURE__ */ jsxRuntimeExports.jsx("i", {}, j)) }) : F.zaehlt(b) ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-kq leer", children: "–" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", {})
+        ] }, b.key || x2.i);
+      })
+    ] });
+  }
+  function Vortag({ iso, stand: stand2, kopfAlt, erledigtAlt }) {
+    const d = F.cosVortagDaten(iso), k2 = { art: d.summe ? "normal" : "leer", ueber: d.menge > 0 && d.ist > d.menge };
+    if (stand2 === "v95" || stand2 === "v96" && !d.pt) return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      kopfAlt,
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Balken95, { d }),
+      erledigtAlt
+    ] });
+    let kopf2;
+    if (k2.art === "leer") kopf2 = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Zahl$2, { d, k: k2 }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-bahn leer", role: "img", "aria-label": "Keine Kästchen festgelegt" })
+    ] });
+    else if (stand2 === "v96") kopf2 = /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf96, { d });
+    else if (stand2 === "ac") kopf2 = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Zahl$2, { d, k: k2 }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Bahn$1, { d, k: k2, still: true })
+    ] });
+    else kopf2 = /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf104, { d, k: k2, minuten: stand2 === "v111" });
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg tg-vortag", children: [
+      kopf2,
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Zeilen, { d, alt: stand2 !== "ac" })
+    ] });
+  }
   function FokusBalken({ iso, l: l2 }) {
     const teile = l2.filter((x2) => F.zaehlt(x2.b)).sort((a, b) => a.b.start.localeCompare(b.b.start)).map((x2) => {
       const fm = F.fokusMin(iso, x2.b), breite = Math.max(x2.b.min || 0, fm, 1);
@@ -14104,16 +14284,19 @@ var ZentraleUI = function(exports) {
     const summe = A$2.fokusTagMin(iso), geplant = l2.reduce((n2, x2) => n2 + (x2.b.min || 0), 0);
     const dm = Z$1.dranMeldung, frisch = iso === h2 && dm && dm.ja && Date.now() - dm.t < 2500 ? dm : null;
     const cosAn = iso === h2 && da("cosTagAn") && F.cosTagAn();
-    const kopf2 = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hz-kopf", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "n", children: "Fokus" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "hz-zeitbox", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hz-zeit" + (frisch ? " pop" : ""), children: A$2.hm(summe) }),
-          frisch && frisch.plus > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hz-flug", children: "+" + F.dauerText(frisch.plus) }) : null
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hz-von", children: "von " + F.dauerText(F.fokusZielMin(iso)) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "hz-plus", onClick: () => F.plusOeffnen(), "aria-label": "Planen", children: "+" })
+    const hzKopf = /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hz-kopf", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "n", children: "Fokus" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "hz-zeitbox", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hz-zeit" + (frisch ? " pop" : ""), children: A$2.hm(summe) }),
+        frisch && frisch.plus > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hz-flug", children: "+" + F.dauerText(frisch.plus) }) : null
       ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hz-von", children: "von " + F.dauerText(F.fokusZielMin(iso)) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "hz-plus", onClick: () => F.plusOeffnen(), "aria-label": "Planen", children: "+" })
+    ] });
+    const vortag = iso < h2 && da("cosVortagStand") ? F.cosVortagStand(iso) : null;
+    if (vortag) return /* @__PURE__ */ jsxRuntimeExports.jsx(Vortag, { iso, stand: vortag, kopfAlt: hzKopf, erledigtAlt: erledigt(iso, l2) });
+    const kopf2 = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      hzKopf,
       cosAn ? /* @__PURE__ */ jsxRuntimeExports.jsx(Balken$1, {}) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(FokusBalken, { iso, l: l2 }),
         geplant ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hz-leg", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Geplant " + F.dauerText(geplant) }) }) : null
@@ -39019,7 +39202,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611252330';
+const PWA_VERSION = '202611252339';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -41304,7 +41487,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 23:30</div>
+<div id="testband">TEST 23:39</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
