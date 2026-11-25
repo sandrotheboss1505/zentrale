@@ -1499,8 +1499,8 @@
   .pj-notiz textarea { display: block; width: 100%; min-height: 104px; margin-top: var(--abstand-4); padding: var(--abstand-5) var(--abstand-6); border: 0; border-radius: var(--radius-gross);
     background: var(--pj-notiz); font: inherit; font-size: var(--schrift-text); line-height: 1.45; color: var(--text); resize: none; }
   .pj-notiz textarea:focus-visible { outline: 2px solid var(--akzent); outline-offset: 2px; }
-  .pj-sichern { width: 100%; height: 44px; margin-top: var(--abstand-5); border-radius: var(--radius-gross); background: var(--knopf-blau); color: var(--weiss); font-weight: 700; }
-  @media (prefers-color-scheme: dark) { .pj-sichern { background: var(--knopf-blau-dunkel); } }
+  .pj-sichern { display: block; min-height: 32px; margin: var(--abstand-2) 0 0 auto; padding: 0 var(--abstand-2); font-size: var(--schrift-klein); font-weight: 600; color: var(--leise); }   /* Archivieren: klein, unscheinbar */
+  .pj-sichern:not(:disabled):hover { color: var(--text); }
   .pj-sichern:disabled { opacity: .4; cursor: default; }
   .pj-meldung { margin-top: var(--abstand-4); font-size: var(--schrift-klein); color: var(--gruen); animation: pjrein .3s ease-out; }
   .pj-archiv { display: flex; flex-direction: column; gap: var(--abstand-4); margin-top: var(--abstand-5); animation: pjrein .25s ease-out; }
@@ -1560,7 +1560,6 @@
   .pj-k + .pj-notiz-r { margin-top: var(--abstand-4); }
   .pj-notiz-r .notiz-feld { flex: 1; min-width: 0; }
   .pj-notiz-r textarea { flex: 1; min-height: 76px; margin: 0; }
-  .pj-notiz-r .pj-sichern { flex: none; width: 150px; height: auto; margin: 0; }
   .pj.mac .pj-z { grid-template-columns: 22px minmax(0, 1fr) auto; gap: var(--abstand-6); }
   .pj.mac .pj-kaesten { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--abstand-6); }
   .pj.mac .pj-erl-l { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--abstand-9); }
@@ -36830,7 +36829,7 @@ img.ProseMirror-separator {
     if (!F.cosKann("notiz")) return null;
     const t2 = String(p2.notiz || ""), archiv = Array.isArray(p2.archiv) ? p2.archiv : [], nm = pj.notizMeldung;
     const frisch = nm && nm.pid === p2.id && Date.now() - nm.t < 4e3;
-    const knopf = /* @__PURE__ */ jsxRuntimeExports.jsx(Knopf$1, { className: "pj-sichern", id: "pjSichern", onClick: () => F.pjNotizSichern(p2.id), aus: !t2.trim(), children: "Sichern und leeren" });
+    const knopf = /* @__PURE__ */ jsxRuntimeExports.jsx(Knopf$1, { className: "pj-sichern", id: "pjSichern", onClick: () => F.pjNotizSichern(p2.id), aus: !t2.trim(), children: "Archivieren" });
     const archivK = /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.pjArchivKlappen(), "aria-expanded": String(pj.archivAuf), children: "Archiv · " + archiv.length });
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "karte pj-notiz", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -36845,10 +36844,7 @@ img.ProseMirror-separator {
           kopfKlasse: "pj-k",
           tippen: (v2) => F.pjNotizTippen(p2.id, v2),
           raus: () => F.pjNotizRaus(p2.id),
-          kinder: (feld) => mac2 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-notiz-r", children: [
-            feld,
-            knopf
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          kinder: (feld) => /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             feld,
             knopf
           ] })
@@ -39015,7 +39011,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611251933';
+const PWA_VERSION = '202611251938';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -41300,7 +41296,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 19:33</div>
+<div id="testband">TEST 19:38</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
