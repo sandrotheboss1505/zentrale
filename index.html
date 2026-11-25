@@ -29,6 +29,10 @@
     --abstand-1: 2px; --abstand-2: 4px; --abstand-3: 6px; --abstand-4: 8px; --abstand-5: 10px; --abstand-6: 12px; --abstand-7: 16px; --abstand-8: 20px; --abstand-9: 24px; --abstand-10: 32px;
     /* Bereiche (COS_FARBEN, MAC_FARBEN lesen daraus) und Ringe (RINGE) */
     --bereich-fw: #C2507F; --bereich-projekte: #A391D9; --bereich-hfbk: #75A5AF; --bereich-admin: #EF9E26; --bereich-sport: #6AA77A; --bereich-system: #8C8C8C; --bereich-claude: #D97757; --bereich-ablenkung: #B3261E; --bereich-sonstiges: #CFCBC2; --bereich-ohne: #9A968C;
+    /* Projektfarben (Projekte Spalte J, COS_PFARBEN) */
+    --projekt-rosa: #C2507F; --projekt-rot: #D25A54; --projekt-terrakotta: #D97757; --projekt-orange: #EF9E26; --projekt-gelb: #D4B03C;
+    --projekt-oliv: #9AA24A; --projekt-gruen: #6AA77A; --projekt-tuerkis: #3FA597; --projekt-petrol: #75A5AF; --projekt-blau: #5B8DD9;
+    --projekt-indigo: #7474D6; --projekt-lila: #A391D9; --projekt-violett: #B467C4; --projekt-braun: #A47A58; --projekt-grau: #8C8C8C;
     --ring-fokus: #6F5CE6; --ring-koerper: #0C9A6C; --ring-kopf: #E0447A;
     /* Feste Farben nach Rolle */
     --abdunkeln-blatt: rgba(20,20,18,.42); --abdunkeln-mac: rgba(0,0,0,.4); --anf-puls: rgba(17, 85, 204, .32);
@@ -731,6 +735,12 @@
   .cos-bereiche { display: flex; flex-wrap: wrap; gap: var(--abstand-3); }
   .cos-bereiche button { height: 40px; padding: 0 var(--abstand-6); border-radius: var(--radius-gross); box-shadow: inset 0 0 0 1.5px var(--linie); display: flex; align-items: center; gap: var(--abstand-3); }
   .cos-bereiche button.an { box-shadow: inset 0 0 0 2px var(--kf); background: var(--chip); font-weight: 700; }
+  /* Projektfarbe: Punkte, der erste ist die Farbe des Bereichs */
+  .cos-farben { display: flex; flex-wrap: wrap; gap: var(--abstand-4); }
+  .cos-farben button { width: 32px; height: 32px; border-radius: var(--radius-rund); background: var(--kf); transition: transform .15s, box-shadow .15s; }
+  .cos-farben button.wie { background: none; box-shadow: inset 0 0 0 2px var(--kf); }
+  .cos-farben button.an { box-shadow: 0 0 0 2px var(--karte), 0 0 0 4px var(--kf); transform: scale(1.08); }
+  .cos-farben button.wie.an { box-shadow: inset 0 0 0 2px var(--kf), 0 0 0 2px var(--karte), 0 0 0 4px var(--kf); }
   .cos-info { background: var(--gold-hell); color: var(--gold); border-radius: var(--radius-gross); padding: var(--abstand-5) var(--abstand-6); font-size: var(--schrift-klein); }
   .cos-info.rosa { background: var(--rosa-hell); color: var(--rosa); }
   .cos-info .knoepfe { display: flex; flex-wrap: wrap; gap: var(--abstand-3); margin-top: var(--abstand-4); }
@@ -1355,8 +1365,6 @@
   .hk-std { position: absolute; left: 36px; right: 0; border-top: 1px solid var(--linie); }
   .hk-stdt { position: absolute; left: 0; width: 28px; text-align: right; font-size: var(--schrift-mini); line-height: 14px; color: var(--leise); }
   .hk-stdt.weg { opacity: 0; }
-  .hk-bruch { position: absolute; left: 0; right: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: var(--schrift-mini); color: var(--leise);
-    background: color-mix(in srgb, var(--chip) 50%, var(--karte)); border-top: 1px dashed var(--kreis); border-bottom: 1px dashed var(--kreis); }
   .hk-spur { position: absolute; left: 40px; right: 0; top: 0; bottom: 0; }
   .hk-spur .hk-t { position: absolute; left: 0; right: 0; box-sizing: border-box; padding: var(--abstand-1) var(--abstand-3); border-radius: var(--radius-klein); background: var(--chip);
     border-left: 3px dotted var(--kreis); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: var(--schrift-klein); line-height: 17px; }
@@ -1376,8 +1384,8 @@
   .hk-kq { flex: none; display: inline-flex; gap: var(--abstand-2); padding-right: var(--abstand-1); }
   .hk-kq i { width: 10px; height: 10px; border-radius: var(--radius-klein); background: var(--pf); box-shadow: 0 0 0 1.5px var(--gold-funken); }
   .hk-min { flex: none; color: var(--leise); }
-  .hk-rest { position: absolute; left: 42%; right: 0; box-sizing: border-box; pointer-events: none; border: 1.5px dashed var(--kreis); border-radius: var(--radius-klein);
-    display: flex; align-items: center; justify-content: center; font-size: var(--schrift-mini); color: var(--leise); white-space: nowrap; }
+  .hk-rest { position: absolute; left: 42%; right: 0; box-sizing: border-box; pointer-events: none; border-radius: var(--radius-klein);
+    background: color-mix(in srgb, var(--knopf-blau) 45%, var(--karte)); display: flex; align-items: center; justify-content: center; font-size: var(--schrift-mini); color: var(--leise); white-space: nowrap; }
   .hk-jetzt { position: absolute; left: 36px; right: 0; height: 2px; border-radius: var(--radius-klein); background: var(--jetzt-linie); }
   .hk-jetzt-t { position: absolute; left: 0; width: 32px; text-align: right; font-size: var(--schrift-mini); line-height: 16px; font-weight: 700; color: var(--jetzt-linie); }
   @media (prefers-reduced-motion: reduce) { .hk-f.laeuft { animation: none; } }
@@ -1654,6 +1662,10 @@ const COS_FARBEN = { FW: stilWert('--bereich-fw'), Projekte: stilWert('--bereich
   Admin: stilWert('--bereich-admin'), Sport: stilWert('--bereich-sport'), System: stilWert('--bereich-system') };
 const COS_FARBE_OHNE = stilWert('--bereich-ohne');
 const COS_BEREICHE = ['FW', 'Projekte', 'HFBK', 'Admin', 'Sport', 'System'];
+/* Eigene Farbe pro Projekt (Projekte Spalte J, gleiche Namen wie COS.FARBEN in Chief.js). Leer = Farbe des Bereichs */
+const COS_PFARBEN_NAMEN = ['rosa', 'rot', 'terrakotta', 'orange', 'gelb', 'oliv', 'gruen', 'tuerkis', 'petrol', 'blau', 'indigo', 'lila', 'violett', 'braun', 'grau'];
+const COS_PFARBEN = {};
+COS_PFARBEN_NAMEN.forEach(n => { COS_PFARBEN[n] = stilWert('--projekt-' + n); });
 const COS_WT = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 
 let C = null;                 // Chief Paket vom Server
@@ -1670,6 +1682,7 @@ let cosZieh = null;           // laufendes Ziehen
 try { C = JSON.parse(localStorage.getItem(COS_SPEICHER) || 'null'); } catch (e) { C = null; }
 
 function cosFarbe(bereich) { return COS_FARBEN[bereich] || COS_FARBE_OHNE; }
+function cosProjektFarbe(p) { return !p ? COS_FARBE_OHNE : (p.farbe && COS_PFARBEN[p.farbe]) || cosFarbe(p.bereich); }
 function cosUhr(min) { return zwei(Math.floor(min / 60)) + ':' + zwei(min % 60); }
 function cosTageBis(von, bis) {
   const a = von.split('-').map(Number), b = bis.split('-').map(Number);
@@ -1757,13 +1770,13 @@ function cosAnwenden(ops) {
         if (p) { const name = p.name; C.projekte = C.projekte.filter(x => x !== p); C.schritte = C.schritte.filter(s => s.projekt !== name); }
         return;
       }
-      if (!p) { p = { id: q.id, name: '', bereich: '', status: 'aktiv', deadline: '', art: 'ziel', wofuer: '', reserve: 0 }; C.projekte.push(p); }
+      if (!p) { p = { id: q.id, name: '', bereich: '', status: 'aktiv', deadline: '', art: 'ziel', wofuer: '', reserve: 0, farbe: '' }; C.projekte.push(p); }
       if (q.name && q.name !== p.name) {
         const alt = p.name;
         C.schritte.forEach(s => { if (s.projekt === alt) s.projekt = q.name; });
         p.name = q.name;
       }
-      ['bereich', 'status', 'deadline', 'art', 'wofuer', 'reserve'].forEach(k => { if (q[k] !== undefined) p[k] = q[k]; });
+      ['bereich', 'status', 'deadline', 'art', 'wofuer', 'reserve', 'farbe'].forEach(k => { if (q[k] !== undefined) p[k] = q[k]; });
       if (!p.deadline) p.art = 'ziel';
     } else if (o.op === 'reihe') {
       const r = {};
@@ -1900,6 +1913,8 @@ function cosAlleBloecke() {
   Object.keys((P && P.bloecke) || {}).forEach(iso => P.bloecke[iso].forEach(b => out.push({ iso: iso, b: b })));
   return out;
 }
+/* Farbe eines Blocks: die des Projekts, an dessen Schritt er hängt, sonst die seines Bereichs */
+function cosBlockFarbe(b) { const s = cosSchrittVon(b), p = s && cosNachName(s.projekt); return p ? cosProjektFarbe(p) : cosFarbe(b && b.bereich); }
 function cosSchrittVon(b) {
   if (!C || !b) return null;
   const id = b.schritt || cosKeys[b.key];
@@ -2058,7 +2073,7 @@ let cosFlugFarbe = null;
 function cosBeiDran(b) {
   const neu = cosEinsammeln();
   if (!neu) return '';
-  cosFlugFarbe = cosFarbe(b.bereich);
+  cosFlugFarbe = cosBlockFarbe(b);
   return cosSammelText(neu);
 }
 function cosNachDran() {
@@ -2607,7 +2622,7 @@ function cosBalkenFelder(d) {
       voll += m;
     }
     if (lp && lp.id === c.p.id) kante = n + Math.min(k, c.bMin / COS_MIN);
-    felder.push({ p: c.p, farbe: cosFarbe(c.p.bereich), felder: gruppe });
+    felder.push({ p: c.p, farbe: cosProjektFarbe(c.p), felder: gruppe });
     n += k;
   });
   const q = n ? voll / (n * COS_MIN) : 0;
@@ -2631,7 +2646,7 @@ function cosTrWeiter(x) {
   const n = bloeckeVon(heute()).filter(y => !y.status && !y.gestartet && cosSchrittVon(y) === s).sort((a, b) => a.start.localeCompare(b.start))[0];
   return n && n.key === x.b.key ? 'Weiter bei: ' + s.weiterBei : '';
 }
-function cosTrFarbe(x) { const p = x.s && cosNachName(x.s.projekt); return cosFarbe(p ? p.bereich : x.b.bereich); }
+function cosTrFarbe(x) { const p = x.s && cosNachName(x.s.projekt); return p ? cosProjektFarbe(p) : cosFarbe(x.b.bereich); }
 function cosPlanVorschlag() {
   const tp = cosTagPlan(true, true), out = {};
   C.projekte.filter(p => p.status === 'aktiv').forEach(p => {
@@ -2897,7 +2912,7 @@ function cosTag(iso) {
   l.forEach(b => {
     const m = fokusMin(iso, b);
     if (m <= 0) return;
-    summe += m; letzte = cosFarbe(b.bereich);
+    summe += m; letzte = cosBlockFarbe(b);
     const lauf = cosBlockArt(iso, b) === 'laeuft', n = lauf ? Math.floor(m / COS_MIN) : cosBlockKq(iso, b, ix);
     for (let i = 0; i < n; i++) farben.push(letzte);
     if (lauf) rest = m % COS_MIN;
@@ -2906,8 +2921,8 @@ function cosTag(iso) {
 }
 /* ── Ac Heute Karte (entwuerfe/neu/TagAc): Kalender in einer Spalte, gestaucht. Nur Rechnen, gezeichnet in ui/src/fokus/HeuteKarte.jsx.
    Maßstab 64 px pro Stunde. Wo etwas liegt (Termin, Fokus Block, Jetzt bis voll), läuft die Zeit maßstäblich, mit 6 Minuten Rand.
-   Leere Strecken ab 30 Minuten werden zu einem festen Streifen "n frei" ── */
-const KAL_PXH = 64, KAL_BRUCH = 26, KAL_RAND = 6, KAL_LUECKE = 30;
+   Durchgehend ohne Brüche. Der Rest bis voll liegt blau auf den freien Stücken ab jetzt ── */
+const KAL_PXH = 64, KAL_RAND = 6;
 function cosKalDauer(m) { return m >= 60 ? Math.floor(m / 60) + ':' + zwei(m % 60) : m + ' Min'; }
 function cosKalDatum(iso) {
   const t = new Date(iso + 'T12:00:00');
@@ -2928,37 +2943,32 @@ function cosKalFokus(d) {
       ohne: r.status === 'offen' && !r.x.s && zaehlt(b) && !b.lokal };   // ohne Schritt: Antippen ordnet zu
   });
 }
+/* Rest bis voll auf die freien Stücke ab jetzt verteilt: feste Termine und Fokus Blöcke sind belegt, flexible Termine gelten als frei */
+function cosKalReste(jm, rest, termine, fokus, ende) {
+  const belegt = termine.filter(t => !t.flex).map(t => [t.s, t.e]).concat(fokus.filter(f => f.art !== 'fertig').map(f => [f.t0, f.t1]))
+    .filter(r => r[1] > jm).sort((a, b) => a[0] - b[0]);
+  const out = [];
+  let t = jm, r = rest;
+  for (let i = 0; i <= belegt.length && r > 0 && t < ende; i++) {
+    const g = belegt[i], bis = Math.min(ende, g ? g[0] : ende);
+    if (bis > t) { const n = Math.min(r, bis - t); out.push([t, t + n]); r -= n; t += n; }
+    if (g) t = Math.max(t, g[1]);
+  }
+  return out;
+}
 function cosKalender(d) {
   const jm = d.jm, pxm = KAL_PXH / 60, rest = cosKalRest(d), ende = 24 * 60;
   const termine = cosTermine().filter(t => t.e > t.s), fokus = cosKalFokus(d);
-  const roh = termine.map(t => [t.s, t.e]).concat(fokus.map(f => [f.t0, f.t1])).concat([[jm, Math.min(ende, jm + Math.max(rest, 20))]]);
+  const reste = cosKalReste(jm, rest, termine, fokus, ende);
+  const roh = termine.map(t => [t.s, t.e]).concat(fokus.map(f => [f.t0, f.t1])).concat(reste.length ? reste : [[jm, Math.min(ende, jm + 20)]]);
   roh.sort((a, b) => a[0] - b[0]);
-  const iv = [];
-  roh.forEach(r => {
-    const a = r[0] - KAL_RAND, b = r[1] + KAL_RAND, l = iv[iv.length - 1];
-    if (l && a - l[1] < KAL_LUECKE) l[1] = Math.max(l[1], b); else iv.push([a, b]);
-  });
-  const segs = [];
-  let yy = 0;
-  iv.forEach((s, i) => {
-    if (i > 0) { segs.push({ a: iv[i - 1][1], b: s[0], y: yy, h: KAL_BRUCH, bruch: true }); yy += KAL_BRUCH; }
-    const hh = (s[1] - s[0]) * pxm;
-    segs.push({ a: s[0], b: s[1], y: yy, h: hh, bruch: false });
-    yy += hh;
-  });
-  const y = t => {
-    for (let i = 0; i < segs.length; i++) {
-      const g = segs[i];
-      if (t <= g.b) return Math.round(g.y + Math.max(0, Math.min(1, (t - g.a) / Math.max(1, g.b - g.a))) * g.h);
-    }
-    return Math.round(yy);
-  };
+  const a0 = roh[0][0] - KAL_RAND, b0 = Math.max.apply(null, roh.map(r => r[1])) + KAL_RAND, hoehe = (b0 - a0) * pxm;   // durchgehend, ohne Brüche
+  const y = t => Math.round(Math.max(0, Math.min(1, (t - a0) / Math.max(1, b0 - a0))) * hoehe);
   const yj = y(jm), stunden = [];
   for (let h = 0; h <= 24; h++) {
     const t = h * 60;
-    if (segs.some(g => !g.bruch && t >= g.a && t <= g.b)) stunden.push({ y: y(t), text: zwei(h), weg: Math.abs(y(t) - yj) < 14 });
+    if (t >= a0 && t <= b0) stunden.push({ y: y(t), text: zwei(h), weg: Math.abs(y(t) - yj) < 14 });
   }
-  const brueche = segs.filter(g => g.bruch).map(g => ({ y: Math.round(g.y), h: KAL_BRUCH, text: cosKalDauer(Math.round(g.b - g.a + 2 * KAL_RAND)) + ' frei' }));
   const kt = termine.map(t => {
     const hh = Math.max(14, y(t.e) - y(t.s) - 2), ueber = termine.some(o => o !== t && o.s < t.s && o.e > t.s);
     return { key: t.key, s: t.s, flex: t.flex, top: y(t.s) + 1, h: hh, klein: hh < 22, ueber: ueber, vorbei: t.e <= jm, t: t.t,
@@ -2968,10 +2978,12 @@ function cosKalender(d) {
     const hh = Math.max(5, y(f.t1) - y(f.t0) - 1);
     return Object.assign({}, f, { top: y(f.t0), h: hh, gross: hh >= 16, mittel: hh >= 24 });
   });
-  const restH = y(Math.min(ende, jm + rest)) - yj - 5;
+  const rl = reste.map(r => ({ top: y(r[0]) + (r[0] === jm ? 5 : 1), h: y(r[1]) - y(r[0]) - (r[0] === jm ? 6 : 2) })).filter(r => r.h >= 6);
+  const gross = rl.find(r => r.h >= 18);
+  if (gross) gross.text = 'noch ' + cosKalDauer(rest) + ' bis voll';
   return {
-    hoehe: Math.round(yy), stunden: stunden, brueche: brueche, termine: kt, fokus: kf,
-    rest: rest > 0 && restH >= 12 ? { top: yj + 5, h: restH, text: 'noch ' + cosKalDauer(rest) + ' bis voll' } : null,
+    hoehe: Math.round(hoehe), stunden: stunden, termine: kt, fokus: kf,
+    reste: rl,
     jetzt: { y: yj, text: cosUhr(jm) }
   };
 }
@@ -3639,7 +3651,7 @@ function cosBlattAktion(was) {
 /* Projekt anlegen und bearbeiten */
 function cosProjektNeu() {
   cosBlattAuf({ art: 'projekt', titel: 'Neues Projekt', neu: true, fokus: 'cbName',
-    d: { id: cosId('p'), name: '', bereich: '', status: 'aktiv', deadline: '', art: 'ziel', wofuer: '', reserve: 0 } });
+    d: { id: cosId('p'), name: '', bereich: '', status: 'aktiv', deadline: '', art: 'ziel', wofuer: '', reserve: 0, farbe: '' } });
 }
 function cosProjektOeffnen(pid) {
   const p = cosPid(pid);
@@ -3647,6 +3659,8 @@ function cosProjektOeffnen(pid) {
   cosBlattAuf({ art: 'projekt', titel: 'Projekt', neu: false, d: cosKopie(p), keineDl: !p.deadline });
 }
 function cosBlattBereich(x) { cosBlattLesen(); cosBlatt.d.bereich = cosBlatt.d.bereich === x ? '' : x; haptik(); cosBlattZeichnen(); }
+/* Projektfarbe: Name aus COS_PFARBEN_NAMEN, leer = Farbe des Bereichs */
+function cosBlattFarbe(x) { cosBlattLesen(); cosBlatt.d.farbe = x || ''; haptik(); cosBlattZeichnen(); }
 function cosBlattReserve(i) { cosBlattLesen(); cosBlatt.d.reserve = cosBlatt.d.reserve === i ? i - 1 : i; haptik(); cosBlattZeichnen(); }
 function cosBlattArt(m) {
   const d = cosBlatt.d;
@@ -3671,10 +3685,10 @@ function cosProjektSpeichern() {
   d.name = d.name.replace(/\s+/g, ' ').trim();
   if (!d.name) { melden('Das Projekt braucht einen Namen.'); return; }
   if (C.projekte.some(p => p.id !== d.id && p.name === d.name)) { melden('Ein Projekt mit dem Namen gibt es schon.'); return; }
-  const neu = { id: d.id, name: d.name, bereich: d.bereich, status: d.status, deadline: d.deadline || '', art: d.deadline ? d.art : 'ziel', wofuer: d.wofuer.trim(), reserve: d.reserve };
+  const neu = { id: d.id, name: d.name, bereich: d.bereich, status: d.status, deadline: d.deadline || '', art: d.deadline ? d.art : 'ziel', wofuer: d.wofuer.trim(), reserve: d.reserve, farbe: d.farbe || '' };
   const p = cosPid(d.id);
   cosBlattZu();
-  if (p && JSON.stringify(neu) === JSON.stringify({ id: p.id, name: p.name, bereich: p.bereich, status: p.status, deadline: p.deadline, art: p.deadline ? p.art : 'ziel', wofuer: p.wofuer, reserve: p.reserve })) return;
+  if (p && JSON.stringify(neu) === JSON.stringify({ id: p.id, name: p.name, bereich: p.bereich, status: p.status, deadline: p.deadline, art: p.deadline ? p.art : 'ziel', wofuer: p.wofuer, reserve: p.reserve, farbe: p.farbe || '' })) return;
   cosProjektAendern(neu, b.neu ? 'Projekt angelegt' : 'Projekt geändert');
   if (b.neu) { cosProjekt = d.id; zeichnen(); melden('Angelegt. Jetzt ein Kästchen beschreiben.'); }
 }
@@ -12859,8 +12873,8 @@ var ZentraleUI = function(exports) {
     get BEREICHE() {
       return COS_BEREICHE;
     },
-    get SYSTEM_MAX() {
-      return COS_SYSTEM_MAX;
+    get PFARBEN() {
+      return COS_PFARBEN_NAMEN;
     },
     get RAS_KURZ() {
       return COS_RAS_KURZ;
@@ -13239,7 +13253,6 @@ var ZentraleUI = function(exports) {
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hk-std", style: { top: s.y + "px" }, "aria-hidden": "true" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hk-stdt" + (s.weg ? " weg" : ""), style: { top: s.y - 7 + "px" }, children: s.text })
         ] }, s.text)),
-        k2.brueche.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hk-bruch", style: { top: b.y + "px", height: b.h + "px" }, children: b.text }, "b" + b.y)),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hk-spur", children: [
           k2.termine.map((t2) => {
             const kl2 = "hk-t" + (t2.ueber ? " ueber" : "") + (t2.klein ? " klein" : "") + (t2.vorbei ? " vorbei" : "") + (t2.flex ? " flex" : "");
@@ -13250,7 +13263,7 @@ var ZentraleUI = function(exports) {
             return t2.vorbei ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: kl2, style: st, children: innen2 }, t2.key + t2.top) : /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: kl2, style: st, onClick: () => F.cosTerminTippen(t2.s), "aria-expanded": String(Z$1.terminOffen === t2.key), "aria-label": "Termin " + t2.t + ": fix oder flexibel", children: innen2 }, t2.key + t2.top);
           }),
           k2.fokus.map((f2) => /* @__PURE__ */ jsxRuntimeExports.jsx(FokusBlock, { f: f2 }, f2.key)),
-          k2.rest ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hk-rest", style: { top: k2.rest.top + "px", height: k2.rest.h + "px" }, children: k2.rest.text }) : null
+          k2.reste.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hk-rest", style: { top: r2.top + "px", height: r2.h + "px" }, children: r2.text || null }, "r" + r2.top))
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hk-jetzt", style: { top: k2.jetzt.y - 1 + "px" }, role: "img", "aria-label": "Jetzt " + k2.jetzt.text }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hk-jetzt-t", style: { top: k2.jetzt.y - 8 + "px" }, "aria-hidden": "true", children: k2.jetzt.text })
@@ -13302,7 +13315,7 @@ var ZentraleUI = function(exports) {
         { duration: 700, easing: "cubic-bezier(.34,1.4,.64,1)" }
       );
     }, []);
-    const li2 = F.cosLaufInfo(b), s = x2.s, p2 = li2.p || s && F.cosNachName(s.projekt), farbe = F.cosFarbe(p2 ? p2.bereich : b.bereich);
+    const li2 = F.cosLaufInfo(b), s = x2.s, p2 = li2.p || s && F.cosNachName(s.projekt), farbe = p2 ? F.cosProjektFarbe(p2) : F.cosFarbe(b.bereich);
     const oben = li2.s, seit = F.cosSeitDran(b), warm = seit >= WARM;
     const c = p2 && d ? d.chips.find((y2) => y2.p.id === p2.id) : null, voll2 = !!c && c.m - c.j > 0 && c.bMin + c.wart >= (c.m - c.j) * 30;
     const i2 = F.bloeckeVon(A$2.heute()).indexOf(b), name = p2 ? p2.name : b.bereich;
@@ -13392,7 +13405,7 @@ var ZentraleUI = function(exports) {
   function AlsNaechstes({ d }) {
     const n2 = F.cosAlsNaechstes(d);
     if (!n2) return d.menge > 0 && d.ist >= d.menge ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "jz-fertig", children: "Alles für heute geschafft." }) : null;
-    const p2 = n2.z.p, s = n2.z.schritte[0], farbe = F.cosFarbe(p2.bereich);
+    const p2 = n2.z.p, s = n2.z.schritte[0], farbe = F.cosProjektFarbe(p2);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "jz-naechst", style: { "--pf": farbe }, onClick: () => F.cosTodoLos(p2.id), "aria-label": (n2.pause ? "Pause, weiter mit " : "Als Nächstes: ") + p2.name, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "jz-nt", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "jz-nv", children: (n2.pause ? "Pause · weiter mit" : "Als Nächstes") + " · " + p2.name }),
@@ -13406,7 +13419,7 @@ var ZentraleUI = function(exports) {
     if (!f2 || pid && f2.pid !== pid) return null;
     const p2 = F.cosPid(f2.pid);
     if (!p2) return null;
-    const farbe = F.cosFarbe(p2.bereich);
+    const farbe = F.cosProjektFarbe(p2);
     if (f2.art === "ja") return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mf mf-ja", style: { "--pf": farbe }, role: "status", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Modul " + f2.name + " fertig" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: f2.weiter ? "Jetzt dran: " + f2.weiter : "Im Chief das nächste Modul anlegen" })
@@ -13442,7 +13455,7 @@ var ZentraleUI = function(exports) {
     ] });
   }
   function TodoZeile({ z: z2, busy, c }) {
-    const p2 = z2.p, farbe = F.cosFarbe(p2.bereich), auf2 = Z$1.todoAuf === p2.id, name = p2.name, erst = Z$1.todoErst === p2.id;
+    const p2 = z2.p, farbe = F.cosProjektFarbe(p2), auf2 = Z$1.todoAuf === p2.id, name = p2.name, erst = Z$1.todoErst === p2.id;
     const drin = c ? Math.round(c.bMin) % K.MIN : 0, s0 = z2.schritte[0];
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-ac", "data-pid": p2.id, style: { "--pf": farbe }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-ac-o", children: [
@@ -13616,7 +13629,7 @@ var ZentraleUI = function(exports) {
   function Morgen() {
     const v2 = F.cosPlanAktuell(), aktiv = Z$1.C.projekte.filter((p2) => p2.status === "aktiv"), n2 = aktiv.reduce((a, p2) => a + (v2[p2.id] || 0), 0);
     const teile = aktiv.filter((p2) => v2[p2.id]).map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("i", { style: { background: F.cosFarbe(p2.bereich) } }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("i", { style: { background: F.cosProjektFarbe(p2) } }),
       F.cosKurz(p2.name, 16) + " ",
       /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: v2[p2.id] })
     ] }, p2.id));
@@ -13774,7 +13787,7 @@ var ZentraleUI = function(exports) {
     if (jetzt && A$2.minVon(jetzt.b.start) - jm <= 30) return null;
     const l2 = F.cosKandidatenJetzt();
     if (!l2.length) return null;
-    const x2 = l2[0], h2 = A$2.heute(), farbe = F.cosFarbe(x2.p.bereich);
+    const x2 = l2[0], h2 = A$2.heute(), farbe = F.cosProjektFarbe(x2.p);
     let min2 = F.cosSitzung(x2.s, x2.min);
     if (F.cosTagAn()) {
       const tp = F.cosTagPlan(true), rest = x2.fest ? tp.n - tp.belegtK : tp.offenP[x2.p.name] || 0;
@@ -13801,7 +13814,7 @@ var ZentraleUI = function(exports) {
       ] });
     }
     const danach = l2.slice(1, 3).map((y2) => {
-      const f2 = F.cosFarbe(y2.p.bereich);
+      const f2 = F.cosProjektFarbe(y2.p);
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "cos-danach", onClick: () => F.cosWaehlen(y2.s.id), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "punkt", style: { background: f2 } }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "t", children: y2.s.titel }),
@@ -36467,7 +36480,7 @@ img.ProseMirror-separator {
     const zeilen = proj.map((p2) => {
       const s = Z$1.C.schritte.find((x2) => x2.projekt === p2.name && F.cosOffen(x2)), k2 = F.cosRasMenge(h2, p2.id), gp = Math.floor((minP[p2.name] || 0) / K.MIN + 0.01);
       const unter = (gp ? gp + " geschafft · " : "") + (s ? F.cosKurz(s.titel, 30) : "nichts offen") + (p2.deadline ? " · bis " + F.cosWt(p2.deadline) + " " + F.cosDatum(p2.deadline) + (p2.art === "extern" ? " extern" : "") : "");
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-pl cos-hv" + (k2 ? "" : " null") + (pop && pop.pid === p2.id ? " pop" : ""), style: { "--pf": F.cosFarbe(p2.bereich) }, children: [
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-pl cos-hv" + (k2 ? "" : " null") + (pop && pop.pid === p2.id ? " pop" : ""), style: { "--pf": F.cosProjektFarbe(p2) }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cos-streif" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cos-pl-t", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: p2.name }),
@@ -36511,7 +36524,7 @@ img.ProseMirror-separator {
     const zeilen = aktiv.map((p2) => {
       const s = Z$1.C.schritte.find((x2) => x2.projekt === p2.name && F.cosOffen(x2)), k2 = pl2[p2.id], gp = Math.floor((minP[p2.name] || 0) / K.MIN + 0.01);
       const unter = (gp ? gp + " geschafft · " : "") + (s ? F.cosKurz(s.titel, 30) : "nichts offen") + (p2.deadline ? " · bis " + F.cosWt(p2.deadline) + " " + F.cosDatum(p2.deadline) : "");
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-pl" + (k2 ? "" : " null") + (pop && pop.pid === p2.id ? " pop" : ""), style: { "--pf": F.cosFarbe(p2.bereich) }, children: [
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-pl" + (k2 ? "" : " null") + (pop && pop.pid === p2.id ? " pop" : ""), style: { "--pf": F.cosProjektFarbe(p2) }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cos-streif" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cos-pl-t", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: F.cosKurz(p2.name, 24) }),
@@ -36563,12 +36576,12 @@ img.ProseMirror-separator {
     const C2 = Z$1.C, w2 = Z$1.rasWoche, diese = w2 === "jetzt", tage = F.cosRasTage(w2), h2 = A$2.heute(), kap = Number(C2.kapazitaet) || K.KAP;
     const proj = F.cosRasProjekte(), rw = Z$1.rasWahl, sel = rw && rw.w === w2 ? rw : null;
     const istWahl = (z2, iso) => sel && sel.z === z2 && sel.iso === iso;
-    const zelle2 = (z2, iso, i2, text2, extra, groesse, label2) => {
+    const zelle2 = (z2, iso, i2, text, extra, groesse, label2) => {
       const we2 = i2 > 4;
       let css = extra || (we2 ? "background:var(--ras-we);color:var(--ras-we-text)" : "background:var(--chip);color:var(--text)");
       if (istWahl(z2, iso)) css += ";box-shadow:inset 0 0 0 2px var(--akzent)";
       const klick = z2 === "summe" || z2 === "erg" ? null : () => F.cosRasWaehle(z2, iso);
-      return /* @__PURE__ */ jsxRuntimeExports.jsx(Zelle, { css, text: text2, label: label2 + " " + K.RAS_KURZ[i2] + " " + F.cosDatum(iso), klick, groesse, kl: z2 === "start" ? "start" : z2 === "summe" || z2 === "erg" ? z2 : "menge" }, z2 + iso);
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(Zelle, { css, text, label: label2 + " " + K.RAS_KURZ[i2] + " " + F.cosDatum(iso), klick, groesse, kl: z2 === "start" ? "start" : z2 === "summe" || z2 === "erg" ? z2 : "menge" }, z2 + iso);
     };
     const zeilen = [/* @__PURE__ */ jsxRuntimeExports.jsx("span", {}, "leer"), ...tage.map((iso, i2) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ras-tag" + (diese && iso === h2 ? " heute" : i2 > 4 ? " we" : ""), children: K.RAS_KURZ[i2] }, "t" + i2))];
     const zeile = (key, name, farbe, zellen, titel) => {
@@ -36582,7 +36595,7 @@ img.ProseMirror-separator {
       return zelle2("start", iso, i2, m2 ? uhr(m2) : "", gesperrt && diese ? "background:var(--ras-blau);color:var(--akzent)" : null, "var(--schrift-mini)", "Start");
     }));
     proj.forEach((p2) => {
-      zeile(p2.id, F.cosRasKurzName(p2), F.cosFarbe(p2.bereich), tage.map((iso, i2) => {
+      zeile(p2.id, F.cosRasKurzName(p2), F.cosProjektFarbe(p2), tage.map((iso, i2) => {
         const n2 = F.cosRasMenge(iso, p2.id), we2 = i2 > 4;
         return zelle2(p2.id, iso, i2, n2 ? String(n2) : we2 ? "" : "0", n2 || we2 ? null : "background:var(--karte);color:var(--ras-we-text);box-shadow:inset 0 0 0 1px var(--linie)", "var(--schrift-klein)", p2.name);
       }), p2.name);
@@ -36618,9 +36631,7 @@ img.ProseMirror-separator {
         ] })
       ] });
     }
-    const summe = tage.reduce((a, iso) => a + F.cosRasSumme(iso), 0), sys = diese ? F.cosSystemWoche() : 0;
-    const leer2 = tage.filter((iso, i2) => i2 < 5 && iso > h2 && !F.cosPlanLesen(iso)).length;
-    const text = diese ? F.cosRasGemessen() + " Start von heute ist gesperrt, ändern geht bis zum Vorabend." : "Gesetzt in der Wochenrunde. Zelle antippen, dann Plus oder Minus. Sa und So bleiben frei.";
+    const summe = tage.reduce((a, iso) => a + F.cosRasSumme(iso), 0);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "karte ras-karte", id: "cosRaster", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ras-k", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "ras-h2", children: "2 · Woche" }),
@@ -36631,16 +36642,11 @@ img.ProseMirror-separator {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ras-gitter", children: zeilen }),
       auswahl,
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ras-fuss", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "ras-kap", onClick: () => F.cosRasWaehle("kap", ""), "aria-label": "Kästchen pro Woche ändern", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: summe + " von " + kap }),
-          " ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "leise", children: "geplant" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ras-sys" + (sys > K.SYSTEM_MAX ? " rot" : ""), children: "Zentrale " + (diese ? sys + " von " + K.SYSTEM_MAX : "höchstens " + K.SYSTEM_MAX) + " · frei, nicht im Tag" })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ras-text", children: text }),
-      leer2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "cos-link ras-verteilen", onClick: () => F.cosRasVerteilen(), children: "Chief verteilen · " + (leer2 === 1 ? "1 leerer Tag" : leer2 + " leere Tage") }) : null
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ras-fuss", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "ras-kap", onClick: () => F.cosRasWaehle("kap", ""), "aria-label": "Kästchen pro Woche ändern", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: summe + " von " + kap }),
+        " ",
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "leise", children: "geplant" })
+      ] }) })
     ] });
   }
   function Knopf$1({ aus, children, ...rest }) {
@@ -36882,7 +36888,7 @@ img.ProseMirror-separator {
     ] });
   }
   function Projekt({ p: p2, mac: mac2 }) {
-    const alle2 = F.cosAlleBloecke(), farbe = F.cosFarbe(p2.bereich), b = F.cosProjektBalken(p2, alle2);
+    const alle2 = F.cosAlleBloecke(), farbe = F.cosProjektFarbe(p2), b = F.cosProjektBalken(p2, alle2);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj" + (mac2 ? " mac" : ""), style: { "--kf": farbe }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$4, { p: p2, b, farbe, mac: mac2 }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Notiz, { p: p2, mac: mac2 }),
@@ -36896,7 +36902,7 @@ img.ProseMirror-separator {
       liste.map((p2) => {
         const ziehen = p2.status === "aktiv" ? { draggable: "true", onDragStart: (e) => F.pjReitStart(e), onDragOver: (e) => F.pjReitUeber(e), onDragLeave: (e) => F.pjReitRaus(e), onDrop: (e) => F.pjReitAblegen(e), onDragEnd: (e) => F.pjReitEnde(e) } : {};
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "pj-reit" + (p2 === offenP ? " an" : ""), "data-id": p2.id, ...ziehen, onClick: () => F.cosOeffnenId(p2.id), "aria-pressed": String(p2 === offenP), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "punkt", style: { background: F.cosFarbe(p2.bereich) } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "punkt", style: { background: F.cosProjektFarbe(p2) } }),
           p2.name
         ] }, p2.id);
       }),
@@ -36925,7 +36931,7 @@ img.ProseMirror-separator {
     ] });
   }
   function ProjektZeile({ p: p2 }) {
-    const z2 = F.pjZahlen(p2, F.cosAlleBloecke()), farbe = F.cosFarbe(p2.bereich), anteil = z2.gesamt ? Math.round(z2.geschafft / z2.gesamt * 100) : 0;
+    const z2 = F.pjZahlen(p2, F.cosAlleBloecke()), farbe = F.cosProjektFarbe(p2), anteil = z2.gesamt ? Math.round(z2.geschafft / z2.gesamt * 100) : 0;
     const unter = z2.geschafft + " von " + z2.gesamt + " · " + (z2.nKonkret ? z2.nKonkret + " konkret" : "noch nichts konkret") + (z2.frei ? ", " + z2.frei + " frei" : "");
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-pz", "data-zieh": "p", "data-id": p2.id, style: { "--kf": farbe }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "cos-griff cos-pz-griff", onPointerDown: (e) => F.cosZiehStart(e), onKeyDown: (e) => F.cosGriffTaste(e), "aria-label": "Rang von " + p2.name + " ändern. Ziehen oder Pfeiltasten", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}) }),
@@ -36945,7 +36951,7 @@ img.ProseMirror-separator {
   function ParkListe() {
     const park = Z$1.C.projekte.filter((p2) => p2.status === "parkplatz"), fertig = Z$1.C.projekte.filter((p2) => p2.status === "fertig");
     const zeile = (p2, knopf) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-zeile", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "punkt", style: { background: F.cosFarbe(p2.bereich) } }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "punkt", style: { background: F.cosProjektFarbe(p2) } }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "t", style: { textAlign: "left", minHeight: "44px" }, onClick: () => F.cosOeffnenId(p2.id), children: p2.name }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "cos-klein", onClick: () => F.cosStatus(p2.id, "aktiv"), children: knopf })
     ] }, p2.id);
@@ -36956,17 +36962,6 @@ img.ProseMirror-separator {
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "s", children: fertig.length ? fertig.length + (fertig.length === 1 ? " fertiges Projekt" : " fertige Projekte") : "Fertige Projekte" })
       ] }),
       Z$1.auf.fertig ? fertig.map((p2) => zeile(p2, "Zurückholen")) : null
-    ] });
-  }
-  function Runde() {
-    const r2 = F.cosRundeFaellig();
-    if (!r2) return null;
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-runde-karte", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "cos-runde-los", onClick: () => F.cosRundeStart(), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: (r2.art === "so" ? "Wochenrunde" : "Mittwochsrunde") + " fällig" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "mit Claude ›" })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "gestr", onClick: () => F.cosRundeFertig(), children: "Erledigt" })
     ] });
   }
   const RundeLink = () => /* @__PURE__ */ jsxRuntimeExports.jsx("a", { className: "cos-runde", target: "_blank", rel: "noopener", href: K.CLAUDE, children: "Wochenrunde mit Claude" });
@@ -37021,7 +37016,6 @@ img.ProseMirror-separator {
       seite,
       /* @__PURE__ */ jsxRuntimeExports.jsx(Vornehmen, {}),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Woche, {}),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Runde, {}),
       /* @__PURE__ */ jsxRuntimeExports.jsx(MacFuss, {})
     ] });
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -37031,7 +37025,6 @@ img.ProseMirror-separator {
           /* @__PURE__ */ jsxRuntimeExports.jsx(MorgenKnopf, {}),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Vornehmen, {}),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Woche, {}),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Runde, {}),
           /* @__PURE__ */ jsxRuntimeExports.jsx(MacFuss, {})
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -37646,7 +37639,7 @@ img.ProseMirror-separator {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Bk, { titel: "Schritt", fertig: null }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Den Schritt gibt es nicht mehr." })
     ] });
-    const h2 = A$2.heute(), morgen = A$2.tagPlus(h2, 1), farbe = F.cosFarbe(p2.bereich), done = Math.floor(F.cosMin(s) / K.MIN);
+    const h2 = A$2.heute(), morgen = A$2.tagPlus(h2, 1), farbe = F.cosProjektFarbe(p2), done = Math.floor(F.cosMin(s) / K.MIN);
     const modus = !d.wann ? "chief" : d.wann === h2 && !b.datum ? "heute" : d.wann === morgen && !b.datum ? "morgen" : "datum";
     const gruppen = F.cosEtappen(F.cosListe(p2)).map((g) => g.name);
     if (gruppen.indexOf(d.abschnitt) < 0) gruppen.push(d.abschnitt);
@@ -37734,6 +37727,16 @@ img.ProseMirror-separator {
         ] }, x2)) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-feld", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "l", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Farbe" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: d.farbe ? "" : "wie Bereich" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-farben", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "wie" + (d.farbe ? "" : " an"), style: { "--kf": F.cosFarbe(d.bereich) }, onClick: () => F.cosBlattFarbe(""), "aria-label": "wie Bereich", "aria-pressed": String(!d.farbe) }),
+          K.PFARBEN.map((x2) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: d.farbe === x2 ? "an" : "", style: { "--kf": F.cosProjektFarbe({ farbe: x2 }) }, onClick: () => F.cosBlattFarbe(x2), "aria-label": x2, "aria-pressed": String(d.farbe === x2) }, x2))
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-feld", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "l", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Status" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-seg", children: [["aktiv", "Aktiv"], ["parkplatz", "Parkplatz"], ["fertig", "Fertig"]].map((x2) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: d.status === x2[0] ? "an" : "", onClick: () => F.cosBlattSetzen("status", x2[0]), children: x2[1] }, x2[0])) })
       ] }),
@@ -37782,7 +37785,7 @@ img.ProseMirror-separator {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Bk, { titel: "Zerlegen", fertig: null }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Den Schritt gibt es nicht mehr." })
     ] });
-    const farbe = F.cosFarbe(p2.bereich), done = Math.floor(F.cosMin(s) / K.MIN), orig = s.k;
+    const farbe = F.cosProjektFarbe(p2), done = Math.floor(F.cosMin(s) / K.MIN), orig = s.k;
     const summe = b.teile.reduce((n22, t2) => n22 + t2.k, 0), mitText = b.teile.filter((t2) => t2.t.trim()).length;
     const n2 = Math.min(Math.max(summe, orig), 30), bil = [];
     for (let i2 = 0; i2 < n2; i2++) bil.push(/* @__PURE__ */ jsxRuntimeExports.jsx(Kq, { farbe, klasse: i2 < Math.min(summe, orig) ? "" : i2 < orig ? "gr" : "aus" }, i2));
@@ -37873,7 +37876,7 @@ img.ProseMirror-separator {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Bk, { titel: "Wann?", fertig: null }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Das gibt es nicht mehr." })
     ] });
-    const farbe = F.cosFarbe(p2 ? p2.bereich : bl2.bereich);
+    const farbe = p2 ? F.cosProjektFarbe(p2) : F.cosFarbe(bl2.bereich);
     const titel = s ? s.titel : F.titelTeile(bl2).was || bl2.bereich;
     const unter = s && p2 ? p2.name + " · " + F.cosGrund(p2, F.cosUeber(F.cosAlleBloecke())) : bl2.bereich === "Sonstiges" ? "Aus dem Kalender" : bl2.bereich + " · aus dem Kalender";
     const geaendert = !b.key || b.start !== b.alt || b.k !== b.altK || b.jetzt || !!b.zuordnen;
@@ -37930,7 +37933,7 @@ img.ProseMirror-separator {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           b.such.trim() ? null : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-ab", style: { marginBottom: "var(--abstand-3)" }, children: b.modus === "alle" ? "Alle aktiven Projekte" : "Vom Chief" }),
           liste.length ? liste.map((o) => {
-            const f2 = F.cosFarbe(o.p.bereich), an = o.s.id === b.sid;
+            const f2 = F.cosProjektFarbe(o.p), an = o.s.id === b.sid;
             return /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "cos-wahlzeile" + (an ? " an" : ""), onClick: () => F.cosEinplanenWahl(o.s.id), "aria-pressed": String(an), children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "punkt", style: { background: f2 } }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "t", children: [
@@ -38015,7 +38018,7 @@ img.ProseMirror-separator {
     const p2 = F.cosPid(b.pid);
     if (!p2) return /* @__PURE__ */ jsxRuntimeExports.jsx(Bk, { titel: "Was kommt rein?", fertig: null });
     const l2 = F.cosInhaltListe(b), platz2 = !!b.platz;
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-blatt", style: { "--pf": F.cosFarbe(p2.bereich) }, children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-blatt", style: { "--pf": F.cosProjektFarbe(p2) }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("b", { className: "tg-blatt-t", children: "Was kommt rein?" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-blatt-u", children: p2.name + " · schon beschrieben" })
@@ -38073,7 +38076,7 @@ img.ProseMirror-separator {
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-schritt", children: "1 von 3 · Was ist mit diesen Schritten?" }),
       l2.map((x2) => {
         const e = b.entscheid[x2.s.id] || "";
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-d", style: { "--pf": F.cosFarbe(x2.p.bereich) }, children: [
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-d", style: { "--pf": F.cosProjektFarbe(x2.p) }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-d-t", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -38117,7 +38120,7 @@ img.ProseMirror-separator {
       b.reihe.map((id2, i2) => {
         const p2 = F.cosPid(id2);
         if (!p2) return null;
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-e", style: { "--pf": F.cosFarbe(p2.bereich) }, children: [
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-e", style: { "--pf": F.cosProjektFarbe(p2) }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "punkt" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-e-n", children: p2.name }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "pj-sz-pf", children: [
@@ -38143,7 +38146,7 @@ img.ProseMirror-separator {
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-schritt", children: "3 von 3 · Liste für morgen" }),
       !proj.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mg-leise", children: "Morgen nichts vorgenommen." }) : proj.map((p2) => {
         const l2 = F.cosMorgenListe(p2);
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-g", style: { "--pf": F.cosFarbe(p2.bereich) }, children: [
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-g", style: { "--pf": F.cosProjektFarbe(p2) }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mg-g-k", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "punkt" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: p2.name }),
@@ -38895,8 +38898,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611251642';
-const PWA_NAME = "V122 Tag Ac: Fokus Karte und Heute Karte";
+const PWA_VERSION = '202611251730';
+const PWA_NAME = "V123 Farbe pro Projekt";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
