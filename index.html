@@ -14154,12 +14154,12 @@ var ZentraleUI = function(exports) {
       })
     ] });
   }
-  function Vortag({ iso, stand: stand2, kopfAlt, erledigtAlt }) {
+  function Vortag$1({ iso, stand: stand2, kopfAlt }) {
     const d = F.cosVortagDaten(iso), k2 = { art: d.summe ? "normal" : "leer", ueber: d.menge > 0 && d.ist > d.menge };
     if (stand2 === "v95" || stand2 === "v96" && !d.pt) return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       kopfAlt,
       /* @__PURE__ */ jsxRuntimeExports.jsx(Balken95, { d }),
-      erledigtAlt
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg tg-vortag", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Zeilen, { d, alt: true }) })
     ] });
     let kopf2;
     if (k2.art === "leer") kopf2 = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -14294,7 +14294,7 @@ var ZentraleUI = function(exports) {
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "hz-plus", onClick: () => F.plusOeffnen(), "aria-label": "Planen", children: "+" })
     ] });
     const vortag = iso < h2 && da("cosVortagStand") ? F.cosVortagStand(iso) : null;
-    if (vortag) return /* @__PURE__ */ jsxRuntimeExports.jsx(Vortag, { iso, stand: vortag, kopfAlt: hzKopf, erledigtAlt: erledigt(iso, l2) });
+    if (vortag) return /* @__PURE__ */ jsxRuntimeExports.jsx(Vortag$1, { iso, stand: vortag, kopfAlt: hzKopf });
     const kopf2 = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       hzKopf,
       cosAn ? /* @__PURE__ */ jsxRuntimeExports.jsx(Balken$1, {}) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -36573,7 +36573,14 @@ img.ProseMirror-separator {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Spalten, { spalten: sp })
     ] });
   }
+  function Vortag({ iso }) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-tasks-k", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cos-ab gold", children: "Tasks · unter 30 Minuten" }) }),
+      erledigt(iso, []) || /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-tipp", style: { padding: "var(--abstand-1) 0 var(--abstand-5)" }, children: "Keine Tasks erledigt." })
+    ] });
+  }
   function Innen$1() {
+    if (A$2.tagIso < A$2.heute()) return /* @__PURE__ */ jsxRuntimeExports.jsx(Vortag, { iso: A$2.tagIso });
     const h2 = A$2.heute(), ht = Z$1.heuteTasks || [], zeiten = F.cosMerk("tz|" + h2) || {};
     const kopf2 = /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-tasks-k", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cos-ab gold", children: "Tasks · unter 30 Minuten" }),
@@ -36613,7 +36620,8 @@ img.ProseMirror-separator {
   }
   function TasksKarte() {
     const stand2 = useTeil("tasks");
-    if (!F.cosTagAn()) return null;
+    const vortag = A$2.tagIso < A$2.heute() && da("cosVortagStand") && !!F.cosVortagStand(A$2.tagIso);
+    if (!F.cosTagAn() && !vortag) return null;
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "karte cos-tasks", id: "cosTasksBox", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Innen$1, {}, stand2 + "|" + zug()) });
   }
   function innen(iso) {
@@ -39202,8 +39210,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611252358';
-const PWA_NAME = "V129 Raster: Summe neutral, System sichtbar; Vortage im System von damals";
+const PWA_VERSION = '202611260009';
+const PWA_NAME = "V130 Vortage: Karte Tasks mit den erledigten Tasks des Tages";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
