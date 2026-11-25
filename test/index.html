@@ -38648,7 +38648,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611251207';
+const PWA_VERSION = '202611251215';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -38693,6 +38693,36 @@ if ('serviceWorker' in navigator) window.addEventListener('load', () => navigato
   sp.getItem = function (k) { return lesen.call(this, VOR + k); };
   sp.setItem = function (k, v) { return schreiben.call(this, VOR + k, v); };
   sp.removeItem = function (k) { return weg.call(this, VOR + k); };
+
+  // Uhr der Testseite: Knopf "+10 Min" unten rechts über der Leiste stellt sie vor, damit sich ein Verlauf (laufender Block, Pause, Tagesende) prüfen lässt.
+  // Ersetzt Date vor der Spielwelt, so sehen App und Spielwelt dieselbe Zeit. Neu laden stellt sie zurück. Nicht im Browsertest (webdriver)
+  let versatz = 0;
+  const Echt = Date;
+  class Uhr extends Echt {
+    constructor(...a) { if (a.length) super(...a); else super(Echt.now() + versatz); }
+    static now() { return Echt.now() + versatz; }
+    static [Symbol.hasInstance](x) { return x instanceof Echt; }
+  }
+  window.Date = Uhr;
+  function vorstellen(min) {
+    versatz += min * 60000;
+    const d = new Uhr(), z = n => String(n).padStart(2, '0');
+    if (typeof zeichnen === 'function') zeichnen();
+    if (typeof heuteNeu === 'function') heuteNeu();
+    if (typeof melden === 'function') melden('Uhr der Testseite: ' + z(d.getHours()) + ':' + z(d.getMinutes()) + ' (+' + Math.round(versatz / 60000) + ' Min)');
+  }
+  window.__testUhr = { vorstellen, versatz: () => versatz };
+  function knopfAn() {
+    if (navigator.webdriver) return;
+    const k = document.createElement('button');
+    k.type = 'button';
+    k.textContent = '+10 Min';
+    k.setAttribute('aria-label', 'Uhr der Testseite 10 Minuten vorstellen');
+    k.style.cssText = 'position:fixed;right:var(--abstand-4);bottom:calc(env(safe-area-inset-bottom) + var(--abstand-10) * 2);z-index:99999;padding:var(--abstand-2) var(--abstand-5);border-radius:var(--radius-rund);font-size:var(--schrift-klein);font-weight:600;background:var(--meldung-grund);color:var(--weiss);opacity:.85';
+    k.addEventListener('click', () => vorstellen(10));
+    document.body.appendChild(k);
+  }
+  if (document.body) knopfAn(); else addEventListener('DOMContentLoaded', knopfAn);
 
   const teile = {};
   function laden(name, f) { const m = { exports: {} }; f(m, m.exports, n => teile[n]); teile[name] = m.exports; }
@@ -40899,7 +40929,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 12:07</div>
+<div id="testband">TEST 12:15</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
