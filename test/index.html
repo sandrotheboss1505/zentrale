@@ -2486,12 +2486,14 @@ function cosGrund(p, ueber) {
 }
 /* Der Plan für heute: Erledigtes, Laufendes, Eingeplantes, ohne Uhrzeit, Als Nächstes und Vorschläge bis zu n Kästchen */
 /* V62 Plan pro Projekt für einen Tag: pt|Datum = { ProjektID: Kästchen }. Fehlt er, gilt der Vorschlag */
+/* Ab diesem Tag ist System im Raster nur sichtbar: System Einträge in pt zählen nicht für die Kästchen des Tages */
+const COS_SYS_RAS_AB = '2026-11-26';
 function cosPlanLesen(iso) { const v = cosMerk('pt|' + iso); return v && typeof v === 'object' && !Array.isArray(v) ? v : null; }
 function cosTagPlan(ohneJetzt, ohnePlan) {
   const h = heute(), jm = jetztMin(), alle = cosAlleBloecke(), empf = cosEmpfehlung(), ueber = cosUeber(alle);
   const planP = ohnePlan ? null : cosPlanLesen(h);
   const wahl = Number(cosMerk('n|' + h)) || 0;
-  let n = planP ? Object.keys(planP).reduce((a, id) => a + (cosPid(id) && cosPid(id).status === 'aktiv' ? Math.max(0, Number(planP[id]) || 0) : 0), 0) : wahl || empf.n;
+  let n = planP ? Object.keys(planP).reduce((a, id) => a + (cosPid(id) && cosPid(id).status === 'aktiv' && !(h >= COS_SYS_RAS_AB && cosPid(id).bereich === 'System') ? Math.max(0, Number(planP[id]) || 0) : 0), 0) : wahl || empf.n;
   const bl = cosHeuteBloecke(), geschafft = cosTag(h).farben.length;
   const laeuft = bl.filter(x => !x.b.status && x.b.gestartet && !x.b.beendet && (jm < minVon(x.b.ende) || cosDrueber(x.b)));
   const kommend = bl.filter(x => !x.b.status && !x.b.gestartet && minVon(x.b.ende) > jm);
@@ -2807,6 +2809,10 @@ function cosKann(was) { return !!(C && Array.isArray(C.kann) && C.kann.indexOf(w
 function cosMontag(iso) { const t = iso.split('-').map(Number), wt = (new Date(Date.UTC(t[0], t[1] - 1, t[2])).getUTCDay() + 6) % 7; return tagPlus(iso, -wt); }
 function cosRasTage(w) { const mo = tagPlus(cosMontag(heute()), w === 'naechste' ? 7 : 0), out = []; for (let i = 0; i < 7; i++) out.push(tagPlus(mo, i)); return out; }
 function cosRasProjekte() { return C.projekte.filter(p => p.status === 'aktiv' && p.bereich !== 'System'); }
+/* Zeilen im Raster: dazu die aktiven System Projekte am Ende. Nur sichtbar, zählen nicht für Summe, Tag und gehalten */
+function cosRasZeilen() { return cosRasProjekte().concat(C.projekte.filter(p => p.status === 'aktiv' && p.bereich === 'System')); }
+/* System Kästchen eines Projekts in der Woche von iso (Summe pt Mo bis So), Deckel COS_SYSTEM_MAX */
+function cosRasSystemWoche(iso, pid) { const mo = cosMontag(iso); let n = 0; for (let i = 0; i < 7; i++) n += cosRasMenge(tagPlus(mo, i), pid); return n; }
 /* Menge eines Projekts an einem Tag. Heute ohne pt: der Vorschlag (wie Heute vornehmen) */
 function cosRasMenge(iso, pid) {
   const pt = cosPlanLesen(iso);
@@ -3472,7 +3478,7 @@ function cosSchrittModul(sid, mid) {
   melden('Verschoben nach ' + md.name);
 }
 
-/* ── V95 Woche als Raster: Spalten Mo bis So, Zeilen Start, aktive Projekte ohne System, Summe, Gehalten (laufende Woche).
+/* ── V95 Woche als Raster: Spalten Mo bis So, Zeilen Start, aktive Projekte (System nur sichtbar, Deckel 4 pro Woche), Summe, Gehalten (laufende Woche).
    Mengen in cos_merk pt|Datum = { ProjektID: n }, Startzeit st|Datum = Minuten (0 frei). Vergangene Tage nur ansehen,
    heute Start gesperrt und Mengen nur Plus (weniger geht über den Joker im Fokus). Vorlage: entwuerfe/kaestchen/Chief.dc.html ── */
 const COS_RAS_KURZ = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
@@ -3515,7 +3521,9 @@ function cosRasAendern(d) {
 /* Menge eines Projekts an einem Tag. Heute geht Minus nur bis zur Menge vom Vortag (pb|Tag = Kopie von pt vor dem ersten Plus
    des Tages), darunter zeigt es den Joker Hinweis. So lässt sich ein Plus zum Ausprobieren zurücknehmen */
 function cosMengeSetzen(iso, pid, d) {
-  if (iso === heute()) {
+  const sys = cosPid(pid) && cosPid(pid).bereich === 'System';
+  if (sys && d > 0 && cosRasSystemWoche(iso, pid) >= COS_SYSTEM_MAX) { haptik(); melden('Zentrale höchstens ' + COS_SYSTEM_MAX + ' pro Woche.'); return; }
+  if (iso === heute() && !sys) {
     const pt = cosPlanLesen(iso);
     if (!pt) { cosPlanSetzen(pid, d); return; }
     const pb = cosPlanBasis(iso), jetzt = Math.max(0, Number(pt[pid]) || 0), basis = pb ? Math.max(0, Number(pb[pid]) || 0) : jetzt;
@@ -3552,7 +3560,7 @@ function cosRasVerteilen() {
   let n = 0;
   cosGruppe('Chief verteilt', () => {
     leer.forEach(iso => {
-      const t = plan.find(x => x.iso === iso), pt = {};
+      const t = plan.find(x => x.iso === iso), pt = Object.assign({}, cosPlanLesen(iso) || {});
       proj.forEach(p => { pt[p.id] = t ? t.items.filter(x => x.p.id === p.id).reduce((a, x) => a + x.k, 0) : 0; n += pt[p.id]; });
       cosMerkSetzen('pt|' + iso, pt);
     });
@@ -5002,7 +5010,7 @@ function cosMorgenNeu(pid) {
 function cosMorgenFertig() {
   const b = cosBlatt;
   if (!b || b.art !== 'morgen') return;
-  const pt = {};
+  const pt = Object.assign({}, cosPlanLesen(b.iso) || {});   // System Einträge aus dem Raster bleiben
   cosRasProjekte().forEach(p => { pt[p.id] = Math.max(0, Number(b.menge[p.id]) || 0); });
   cosGruppe('Morgen vorbereitet', () => {
     cosMerkSetzen('pt|' + b.iso, pt);
@@ -36687,7 +36695,7 @@ img.ProseMirror-separator {
   }
   function Raster() {
     const C2 = Z$1.C, w2 = Z$1.rasWoche, diese = w2 === "jetzt", tage = F.cosRasTage(w2), h2 = A$2.heute(), kap = Number(C2.kapazitaet) || K.KAP;
-    const proj = F.cosRasProjekte(), rw = Z$1.rasWahl, sel = rw && rw.w === w2 ? rw : null;
+    const proj = F.cosRasZeilen(), rw = Z$1.rasWahl, sel = rw && rw.w === w2 ? rw : null;
     const istWahl = (z2, iso) => sel && sel.z === z2 && sel.iso === iso;
     const zelle2 = (z2, iso, i2, text, extra, groesse, label2) => {
       const we2 = i2 > 4;
@@ -36709,13 +36717,13 @@ img.ProseMirror-separator {
     }));
     proj.forEach((p2) => {
       zeile(p2.id, F.cosRasKurzName(p2), F.cosProjektFarbe(p2), tage.map((iso, i2) => {
-        const n2 = F.cosRasMenge(iso, p2.id), we2 = i2 > 4;
-        return zelle2(p2.id, iso, i2, n2 ? String(n2) : we2 ? "" : "0", n2 || we2 ? null : "background:var(--karte);color:var(--ras-we-text);box-shadow:inset 0 0 0 1px var(--linie)", "var(--schrift-klein)", p2.name);
+        const n2 = F.cosRasMenge(iso, p2.id), we2 = i2 > 4, sys = p2.bereich === "System";
+        return zelle2(p2.id, iso, i2, n2 ? String(n2) : we2 || sys ? "" : "0", sys && n2 ? "background:var(--chip);color:var(--leise)" : n2 || we2 || sys ? null : "background:var(--karte);color:var(--ras-we-text);box-shadow:inset 0 0 0 1px var(--linie)", "var(--schrift-klein)", p2.name);
       }), p2.name);
     });
     zeile("summe", "Summe", "var(--titel)", tage.map((iso, i2) => {
       const n2 = F.cosRasSumme(iso);
-      return zelle2("summe", iso, i2, n2 ? String(n2) : "", n2 > K.FB_N ? "background:var(--ras-rot-hell);color:var(--ras-rot)" : "background:var(--karte);color:var(--titel);font-weight:800", "var(--schrift-klein)", "Summe");
+      return zelle2("summe", iso, i2, n2 ? String(n2) : "", "background:var(--karte);color:var(--titel);font-weight:800", "var(--schrift-klein)", "Summe");
     }));
     if (diese) zeile("erg", "Gehalten", "var(--ras-gruen)", tage.map((iso, i2) => {
       if (iso > h2) return zelle2("erg", iso, i2, "", "background:transparent", "", "Gehalten");
@@ -36814,7 +36822,7 @@ img.ProseMirror-separator {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-link", onClick: () => F.cosProjektOeffnen(p2.id), children: "Bearbeiten" })
       ] }),
-      p2.bereich === "System" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-hinweis", children: "Nicht im Tagesraster, zählt nicht für gehalten" }) : null,
+      p2.bereich === "System" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-hinweis", children: "Im Raster planbar, zählt nicht für Summe und gehalten" }) : null,
       kq.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "kr pj-balken", role: "img", "aria-label": text, children: kq }) : null,
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-zahl", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
@@ -39011,7 +39019,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611251938';
+const PWA_VERSION = '202611252330';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -41296,7 +41304,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 19:38</div>
+<div id="testband">TEST 23:30</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
