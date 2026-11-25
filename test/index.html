@@ -1303,6 +1303,10 @@
   .jz-dran.puls { animation: jzpuls 1.4s ease-in-out infinite; }
   @keyframes jzpuls { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--gold-funken) 0%, transparent); } 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--gold-funken) 40%, transparent); } }
   .jz-pause { display: flex; align-items: center; gap: var(--abstand-3); background: var(--karte); font-weight: 600 !important; }
+  .jz-erl { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--abstand-2); font-size: var(--schrift-klein); color: var(--leise); }
+  .jz-erl li { display: flex; align-items: center; gap: var(--abstand-3); min-width: 0; }
+  .jz-erl svg { flex: none; width: 12px; height: 12px; color: var(--pf); }
+  .jz-erl span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .jz-zeitfeld .hz-seit { justify-content: flex-start; margin-top: 0; }
   .jz-naechst { display: flex; align-items: center; justify-content: space-between; gap: var(--abstand-5); width: 100%; min-height: 60px; box-sizing: border-box;
     padding: var(--abstand-5) var(--abstand-6); border-radius: var(--radius-gross); text-align: left; color: var(--text); background: color-mix(in srgb, var(--pf) 14%, var(--karte)); }
@@ -13271,7 +13275,8 @@ var ZentraleUI = function(exports) {
       auf2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hk-auf", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Kalender, { d }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Kommt, { d, auf: wechseln })
     ] });
   }
-  const WARM = 25;
+  const WARM = 25, HAK_MS = 1100;
+  let hakFx = null;
   let zeitAufKey = null;
   const PAUSE = /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { width: "10", height: "10", viewBox: "0 0 10 10", "aria-hidden": "true", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1", y: "1", width: "3", height: "8", rx: "1", fill: "currentColor" }),
@@ -13301,6 +13306,15 @@ var ZentraleUI = function(exports) {
     const oben = li2.s, seit = F.cosSeitDran(b), warm = seit >= WARM;
     const c = p2 && d ? d.chips.find((y2) => y2.p.id === p2.id) : null, voll2 = !!c && c.m - c.j > 0 && c.bMin + c.wart >= (c.m - c.j) * 30;
     const i2 = F.bloeckeVon(A$2.heute()).indexOf(b), name = p2 ? p2.name : b.bereich;
+    const hak = hakFx && performance.now() - hakFx.t < HAK_MS ? hakFx : null, hakStil = hak ? { "--hd": -Math.round(performance.now() - hak.t) + "ms" } : null;
+    const haken = (s2) => {
+      hakFx = { titel: s2.titel, t: performance.now() };
+      F.haptik();
+      F.cosModHaken(s2.id);
+      tick((n2) => n2 + 1);
+      setTimeout(() => tick((n2) => n2 + 1), HAK_MS + 30);
+    };
+    const heute2 = A$2.heute(), erl = p2 ? F.cosErledigtSchritte(p2).filter((e) => e.s.abgehakt === heute2).map((e) => e.s) : [];
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "jz", style: { "--pf": farbe }, ref, role: "group", "aria-label": "Läuft: " + name, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "jz-o", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "jz-p", children: [
@@ -13309,10 +13323,17 @@ var ZentraleUI = function(exports) {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "jz-seit", children: "seit " + b.gestartet })
       ] }),
-      oben ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "jz-s", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-kreis", onClick: () => F.cosModHaken(oben.id), "aria-label": "abhaken: " + oben.titel }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: oben.titel })
-      ] }, oben.id) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "jz-ohne", children: "ohne Schritt" }),
+      oben ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "jz-s lk-schritt" + (hak ? " rein" : ""), style: hakStil, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-kreis", onClick: () => haken(oben), "aria-label": "abhaken: " + oben.titel }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "lk-t", children: oben.titel }),
+        hak ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "lk-hak", "aria-hidden": "true", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-kreis an", children: HAKEN }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "lk-t", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "lk-strich", children: hak.titel }) })
+        ] }) : null
+      ] }, oben.id) : hak ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "jz-s lk-schritt", style: hakStil, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "lk-hak", "aria-hidden": "true", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-kreis an", children: HAKEN }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "lk-t", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "lk-strich", children: hak.titel }) })
+      ] }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "jz-ohne", children: "ohne Schritt" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "jz-u", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "jz-davor", onClick: () => F.cosDavorAufZu(), disabled: !li2.m, children: "Schritt davor" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "jz-kn", children: [
@@ -13337,6 +13358,10 @@ var ZentraleUI = function(exports) {
           ] })
         ] })
       ] }),
+      erl.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "jz-erl", "aria-label": "Heute erledigt", children: erl.map((e) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
+        HAKEN_G,
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: e.titel })
+      ] }, e.id)) }) : null,
       zeitAuf && i2 >= 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "jz-zeitfeld", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Seit, { iso: A$2.heute(), i: i2, text: "Früher angefangen?" }) }) : null,
       Z$1.davorAuf ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pj-sz-neu lk-davor-feld", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -38870,7 +38895,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611251635';
+const PWA_VERSION = '202611251640';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -41151,7 +41176,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 16:35</div>
+<div id="testband">TEST 16:40</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
