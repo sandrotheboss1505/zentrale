@@ -1095,50 +1095,47 @@
   .tg-los { width: 36px; height: 36px; border-radius: var(--radius-rund); background: var(--pf); display: grid; place-items: center; transition: transform .1s; }
   .tg-los:active, .tg-wann:active { transform: scale(.94); }
   .tg-wann { height: 36px; padding: 0 var(--abstand-5); border-radius: var(--radius-gross); background: var(--chip); font-size: var(--schrift-klein); font-weight: 600; }
-  .tg-lauf { display: flex; flex-direction: column; gap: var(--abstand-4); padding: var(--abstand-5); border-radius: var(--radius-gross); background: var(--hell); }
-  .tg-lauf-k { display: flex; align-items: center; gap: var(--abstand-4); font-size: var(--schrift-klein); }
-  .tg-lauf-k .leise { color: var(--leise); }
   .tg-puls { width: 8px; height: 8px; border-radius: var(--radius-rund); background: var(--pf); animation: tgpuls 1.6s ease-in-out infinite; }
   @keyframes tgpuls { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
-  .tg-lauf-k { flex-wrap: wrap; row-gap: var(--abstand-1); }
-  .tg-lauf-k b { white-space: nowrap; }
-  .tg-lauf-k .tg-puls { flex: none; }
-  .tg-lauf-kn.zwei { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .tg-lauf-kn .tg-pause { grid-column: 1 / -1; }
-  .tg-lauf-k .warn { color: var(--warnung); font-weight: 600; }
-  .tg-lauf-kn { display: grid; grid-template-columns: repeat(3, minmax(max-content, 1fr)); gap: var(--abstand-3); }
-  .tg-dran, .tg-weiter, .tg-fertig { height: 44px; padding: 0 var(--abstand-3); border-radius: var(--radius-gross); font-size: var(--schrift-text); font-weight: 600; white-space: nowrap; transition: transform .1s; }
-  .tg-dran:active, .tg-weiter:active, .tg-fertig:active { transform: scale(.96); }
-  .tg-dran { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1.5px var(--pf); }
-  .tg-weiter { background: var(--karte); color: var(--text); }
-  .tg-fertig { background: var(--akzent); color: var(--weiss); }
-  @media (prefers-color-scheme: dark) { .tg-fertig { background: var(--knopf-blau-dunkel); } }
-  .tg-weiter:disabled, .tg-fertig:disabled { opacity: .45; }
-  /* U2 Kästchen des laufenden Blocks: das letzte füllt sich von unten, drüber gestrichelt in warnung */
-  .tg-lq { display: inline-flex; gap: var(--abstand-2); min-height: 12px; }
-  .tg-lq i { position: relative; width: 12px; height: 12px; border-radius: var(--radius-klein); background: var(--pf); }
-  .tg-lq i.lauf { background: linear-gradient(to top, var(--pf) var(--f), var(--tg-strich) var(--f)); }
-  .tg-lq i.drueber { box-sizing: border-box; background: none; border: 1.5px dashed var(--warnung); }
-  .tg-lq i.puls { animation: tglqpuls .6s ease-out; }
-  .tg-lq i.rein { animation: tglqrein .45s cubic-bezier(.3, 1.6, .5, 1); }
-  @keyframes tglqpuls { 0% { transform: scale(1); } 35% { transform: scale(1.5); box-shadow: 0 0 10px var(--gold-funken); } 100% { transform: scale(1); } }
-  @keyframes tglqrein { from { transform: translateY(-14px) scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
-  .tg-funken { position: absolute; left: 50%; top: 50%; pointer-events: none; }
-  .tg-funken i { position: absolute; width: 5px; height: 5px; translate: -50% -50%; border-radius: var(--radius-rund); background: var(--pf); opacity: 0;
-    animation: cosfunke .8s ease-out var(--w, 0ms) forwards; }
-  .tg-funken i.gold { background: var(--gold-funken); }
-  .tg-funken b { position: absolute; left: var(--abstand-5); bottom: 0; white-space: nowrap; font-size: var(--schrift-klein); font-weight: 700; color: var(--gold-funken); animation: tgdrantext 1s ease-out both; }
-  @keyframes tgdrantext { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-28px); opacity: 0; } }
-  .tg-lauf .tg-feld { margin: 0; background: var(--karte); }
-  .tg-lauf .tg-feld .tg-antwort { background: var(--hell); }
-  .tg-lauf .tg-feld .tg-antwort.haupt { background: var(--akzent); }
-  @media (prefers-color-scheme: dark) { .tg-lauf .tg-feld .tg-antwort.haupt { background: var(--knopf-blau-dunkel); } }
-  @media (prefers-reduced-motion: reduce) { .tg-lq i.puls, .tg-lq i.rein { animation: none; } .tg-funken { display: none; } .tg-dran, .tg-weiter, .tg-fertig { transition: none; } }
-  .tg-pause { flex: 1; display: grid; place-items: center; font-size: var(--schrift-klein); color: var(--leise); text-align: center; }
-  .tg-lauf-u { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--abstand-2) var(--abstand-6); font-size: var(--schrift-klein); color: var(--leise); }
-  .tg-lauf-u .cos-schritt-fertig { width: auto; height: auto; margin: 0; padding: var(--abstand-2) 0; background: none; font-size: var(--schrift-klein); }
-  .tg-lauf-u .hz-seit { margin: 0; }
-  .tg-lauf .cos-doch { margin: 0; }
+  /* T2 laufendes Kästchen unter der Jetzt Linie (ersetzt U2 Lauf): Füllung von links, Projektfarbe zu Gold, Dran und Fertig klein rechts */
+  .lk { position: relative; overflow: hidden; margin: var(--abstand-2) 0 var(--abstand-5); border-radius: var(--radius-karte); background: var(--karte); box-shadow: 0 0 0 1px var(--linie), var(--schatten); }
+  .lk-fuell { position: absolute; left: 0; top: 0; bottom: 0; width: var(--fb); background: var(--fg); opacity: var(--fo); transition: width .8s cubic-bezier(.2,.9,.3,1), background-color .8s ease; }
+  .lk.dran .lk-fuell { filter: brightness(1.5); box-shadow: 0 0 16px var(--pf); }
+  .lk-in { position: relative; display: flex; flex-direction: column; gap: var(--abstand-5); padding: var(--abstand-6); }
+  .lk-o { display: flex; justify-content: space-between; gap: var(--abstand-5); }
+  .lk-was { display: flex; flex-direction: column; gap: var(--abstand-1); min-width: 0; }
+  .lk-p { font-size: var(--schrift-klein); font-weight: 700; color: var(--pf); }
+  .lk-t { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lk-zeit { display: flex; flex-direction: column; align-items: flex-end; gap: var(--abstand-1); flex: none; }
+  .lk-zeit span { font-size: var(--schrift-klein); color: var(--leise); }
+  .lk-u { display: flex; justify-content: space-between; align-items: center; gap: var(--abstand-4); }
+  .lk-kn { display: flex; gap: var(--abstand-3); }
+  .lk-dran, .lk-fertig { height: 36px; padding: 0 var(--abstand-6); border-radius: var(--radius-gross); font-size: var(--schrift-klein); font-weight: 600; }
+  .lk-dran { color: var(--text); box-shadow: inset 0 0 0 1.5px var(--pf); background: color-mix(in srgb, var(--karte) 70%, transparent); }
+  .lk-fertig { background: var(--knopf-blau); color: var(--weiss); }
+  @media (prefers-color-scheme: dark) { .lk-fertig { background: var(--knopf-blau-dunkel); } }
+  .lk-fertig:disabled { opacity: .45; }
+  .lk-pause { font-size: var(--schrift-klein); color: var(--warnung); font-weight: 600; }
+  .lk-funke { position: absolute; left: var(--fb); top: 50%; width: 14px; height: 14px; translate: -50% 0; border-radius: var(--radius-rund); pointer-events: none;
+    background: radial-gradient(circle, var(--weiss), var(--gold-funken) 45%, transparent 70%); animation: lkfunke 1.2s ease-out forwards; }
+  @keyframes lkfunke { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-120px) scale(.4); opacity: 0; } }
+  .lk-plus { position: absolute; right: var(--abstand-6); top: var(--abstand-2); font-size: var(--schrift-klein); color: var(--gold-funken); pointer-events: none; animation: lkplus 1.2s ease-out forwards; }
+  @keyframes lkplus { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-28px); opacity: 0; } }
+  /* T2 Modul fertig? */
+  .mf { display: flex; flex-direction: column; gap: var(--abstand-5); margin: var(--abstand-5) 0; padding: var(--abstand-6); border-radius: var(--radius-gross); box-shadow: inset 0 0 0 1.5px var(--pf); animation: tgrein .3s ease-out; }
+  .mf-k { display: flex; justify-content: space-between; align-items: baseline; gap: var(--abstand-4); }
+  .mf-k span { font-size: var(--schrift-klein); color: var(--leise); }
+  .mf-kn { display: flex; justify-content: flex-end; gap: var(--abstand-4); flex-wrap: wrap; }
+  .mf-kn button { min-height: 40px; padding: 0 var(--abstand-6); border-radius: var(--radius-gross); font-size: var(--schrift-klein); font-weight: 600; }
+  .mf-nein { background: var(--chip); }
+  .mf-jaK { background: var(--pf); color: var(--weiss); }
+  .mf-neu { display: flex; gap: var(--abstand-4); }
+  .mf-neu input { flex: 1; min-width: 0; font: inherit; padding: var(--abstand-4) var(--abstand-5); border-radius: var(--radius-gross); border: 0; background: var(--bg); color: var(--text); }
+  .mf-neu button { width: 44px; border-radius: var(--radius-gross); background: var(--pf); color: var(--weiss); font-size: var(--schrift-gross); font-weight: 700; }
+  .mf-ja { background: var(--pf); color: var(--weiss); box-shadow: 0 0 24px color-mix(in srgb, var(--gold-funken) 55%, transparent); animation: tgrein .4s cubic-bezier(.34,1.56,.64,1); }
+  .mf-ja b { font-size: var(--schrift-titel); }
+  .mf-ja span { font-size: var(--schrift-klein); opacity: .9; }
+  @media (prefers-reduced-motion: reduce) { .lk-fuell { transition: none; } .lk-funke, .lk-plus, .mf, .mf-ja { animation: none; } .lk-funke { display: none; } }
   .tg-z.termin .tg-zeit { color: var(--leise); font-weight: 600; }
   .tg-z.termin .tg-streif { width: 0; justify-self: center; background: none; border-left: 3px dotted var(--tg-grau); border-radius: 0; }
   .tg-z.termin .tg-titel { color: var(--leise); font-weight: 500; }
@@ -2365,7 +2362,8 @@ function cosDranMin(iso, b) {
   if (!z || !b.gestartet) return 0;
   const t = new Date(z);
   if (isoVon(t) !== iso) return 0;
-  return Math.max(0, Math.min(fokusMin(iso, b), t.getHours() * 60 + t.getMinutes() - minVon(b.gestartet)));
+  const bis = cosDrueber(b) ? jetztMin() - minVon(b.gestartet) : fokusMin(iso, b);   // T2: Sitzung läuft über das Blockende weiter
+  return Math.max(0, Math.min(bis, t.getHours() * 60 + t.getMinutes() - minVon(b.gestartet)));
 }
 /* Farbe und Glühen des Balkens als CSS Variablen: stufenlos grau (0), halb (60 %), gold (voll), Glühen ab 45 %,
    Blur 4 bis 16 px und Deckkraft 15 bis 65 %. Über der Menge Goldverlauf (Klasse ueber), Glühen dort am stärksten */
@@ -2820,6 +2818,8 @@ function cosModHaken(sid) {
   s.abgehakt = heute();
   cosHakKurz = { sid: sid, t: Date.now(), titel: s.titel, alt: s.status };
   cosHakenSetzen(sid, 'fertig');
+  const p = cosNachName(s.projekt), m = p && cosModule(p).find(x => x.erledigt.indexOf(s) >= 0);
+  if (m && !m.offen.length) { cosModulFrage = { pid: p.id, mid: m.id, name: m.name, art: 'frage', t: Date.now() }; zeichnen(); }   // T2: letzter Schritt, Modul fertig?
   clearTimeout(cosModHaken.t);
   cosModHaken.t = setTimeout(() => { if (cosHakKurz && Date.now() - cosHakKurz.t >= COS_HAK_KURZ - 50) { cosHakKurz = null; zeichnen(); } }, COS_HAK_KURZ);
 }
@@ -2870,6 +2870,30 @@ function cosZeitTage(p, alle) {
 }
 function cosErlKlappen() { cosErlAlle = !cosErlAlle; zeichnen(); }
 function cosZeitKlappen() { cosZeitAlle = !cosZeitAlle; zeichnen(); }
+/* ── T2 Modul fertig? Ja: großer Moment, das nächste Modul ist dran. Nein: Feld für den nächsten Schritt im selben Modul ── */
+let cosModulFrage = null;   // { pid, mid, name, art: frage|nein|ja, t }
+function cosModulFrageJa() {
+  const f = cosModulFrage, p = f && cosPid(f.pid);
+  if (!p) return;
+  const n = cosModulDran(p);
+  cosModulFrage = { pid: f.pid, mid: f.mid, name: f.name, art: 'ja', t: Date.now(), weiter: n ? n.name : '' };
+  haptik(); setTimeout(haptik, 140); setTimeout(haptik, 280);
+  melden('Modul ' + f.name + ' fertig.' + (n ? ' Jetzt dran: ' + n.name + '.' : ''));
+  zeichnen();
+  setTimeout(() => { if (cosModulFrage && cosModulFrage.art === 'ja' && Date.now() - cosModulFrage.t >= 3900) { cosModulFrage = null; zeichnen(); } }, 4000);
+}
+function cosModulFrageNein() { if (!cosModulFrage) return; cosModulFrage.art = 'nein'; haptik(); zeichnen(); setTimeout(() => { const el = $('modFrageIn'); if (el) el.focus(); }, 30); }
+function cosModulFrageZu() { cosModulFrage = null; zeichnen(); }
+function cosModulFrageSchritt() {
+  const f = cosModulFrage, p = f && cosPid(f.pid), el = $('modFrageIn'), t = el ? String(el.value || '').replace(/\s+/g, ' ').trim() : '';
+  if (!p) return;
+  if (!t) { if (el) el.focus(); return; }
+  const s = { id: cosId('s'), abschnitt: '', titel: t.slice(0, 160), k: 1, fertigWenn: '', status: 'offen', weiterBei: '', wann: '', verschoben: 0, min: 0, bl: {}, modul: f.mid === COS_ALLG ? '' : f.mid };
+  cosModulFrage = null;
+  cosFrisch[s.id] = Date.now();
+  cosModulSchritteSetzen(p, f.mid, [s], 'Nächster Schritt');
+  melden('Nächster Schritt: ' + s.titel);
+}
 /* ── V95 Woche als Raster: Spalten Mo bis So, Zeilen Start, aktive Projekte ohne System, Summe, Gehalten (laufende Woche).
    Mengen in cos_merk pt|Datum = { ProjektID: n }, Startzeit st|Datum = Minuten (0 frei). Vergangene Tage nur ansehen,
    heute Start gesperrt und Mengen nur Plus (weniger geht über den Joker im Fokus). Vorlage: entwuerfe/kaestchen/Chief.dc.html ── */
@@ -3514,8 +3538,48 @@ function cosTodoLos(pid) {
   const z = cosTodoZeilen(cosTagDaten()).find(x => x.p.id === pid), k = Math.max(1, Math.min(COS_SITZUNG, z ? z.uebrig : 1));
   const m = cosModulDran(p);
   cosTodoAuf = null;
+  cosFlugMerken(pid);
   if (m && m.offen.length) { cosStart(m.offen[0].id, k); return; }
   cosInhaltOeffnen(pid, '', '', 'platzlos');
+}
+/* ── T2 laufendes Kästchen: Sitzung läuft bis Fertig (auch über das Blockende), Füllung pro Kästchen, Dran schickt Zeit in den Balken.
+   Fertig fragt nichts: Ende jetzt, Minuten genau, Kalenderblock auf die gerundeten Kästchen (ab 15 Min, höchstens 3) ── */
+let cosFlugVon = null;   // { r: Lage der To Do Zeile, t }: das Kästchen gleitet von dort nach Heute
+const COS_PAUSE_AB = 90;
+function cosLaufMin(b) { return b && b.gestartet ? Math.max(0, jetztMin() - minVon(b.gestartet)) : 0; }
+/* Füllung des aktuellen Kästchens 0 bis 1 (genau auf der Grenze voll) */
+function cosLaufFuell(b) { const m = cosLaufMin(b); return m ? ((m % COS_MIN) / COS_MIN || 1) : 0; }
+function cosSeitDran(b) {
+  const z = dranVon(b.key).zuletzt, m = cosLaufMin(b);
+  if (!z) return m;
+  const t = new Date(z);
+  return isoVon(t) === heute() ? Math.max(0, Math.min(m, jetztMin() - (t.getHours() * 60 + t.getMinutes()))) : m;
+}
+function cosFlugMerken(pid) {
+  const el = document.querySelector('.td-z[data-pid="' + pid + '"]');
+  cosFlugVon = el ? { r: el.getBoundingClientRect(), t: Date.now() } : null;
+}
+function cosDranJetzt(key) {
+  const b = bloeckeVon(heute()).find(x => x.key === key);
+  if (!b) return;
+  const vorher = cosSeitDran(b);
+  cosDranMerken(b);
+  cosLaufFx = { key: b.key, art: 'dran', t: Date.now(), text: vorher ? '+' + vorher + ' Min' : '' };
+  zeichnen();
+}
+function cosSitzungFertig(key) {
+  const h = heute(), i = bloeckeVon(h).findIndex(x => x.key === key), b = bloeckeVon(h)[i];
+  if (!b) return;
+  if (b.lokal) { melden('Einen Moment, das Kästchen wird noch angelegt.'); return; }
+  const s = cosSchrittVon(b), st = minVon(b.gestartet || b.start), jm = jetztMin(), min = Math.max(0, jm - st), drueber = cosDrueber(b);
+  const kAlt = Math.max(1, Math.round((b.min || COS_MIN) / COS_MIN)), k = Math.max(1, Math.min(COS_SITZUNG, Math.round(min / COS_MIN))), kq = Math.round(min / COS_MIN);
+  cosGruppe('Fertig', () => {
+    if (s) cosFertig(i, true); else blockFertig(i);
+    if (k !== kAlt || drueber) cosVerschieben(b.key, st, k, false, null, jm);
+  });
+  cosLaufFx = null;
+  melden('Fertig · ' + dauerText(min) + (kq ? ', ' + kq + (kq === 1 ? ' Kästchen' : ' Kästchen') : ', zählt als Fokuszeit'));
+  zeichnen();
 }
 /* ── V62 Heute vornehmen: pro Projekt Kästchen, Vorschlag vom Chief, ein Tipp auf Passt. Im Chief immer, im Fokus bis bestätigt ── */
 function cosPlanSetzen(pid, d) {
@@ -12021,9 +12085,6 @@ var ZentraleUI = function(exports) {
     get todoAuf() {
       return typeof cosTodoAuf === "undefined" ? null : cosTodoAuf;
     },
-    get todoLaeuftAbdruck() {
-      return typeof cosTodoAbdruck === "undefined" ? false : cosTodoAbdruck;
-    },
     set spaeter(v2) {
       spaeterZeichnen = v2;
     }
@@ -12378,75 +12439,98 @@ var ZentraleUI = function(exports) {
       ] }) : null
     ] });
   }
-  let zeit = 0;
-  function doch(b) {
-    const v2 = Z$1.verlauf, a = v2[v2.length - 1];
-    if (!a || !(a.art === "start" && a.key === b.key) && !(a.art === "cosPlan" && a.keys.indexOf(b.key) >= 0)) return null;
-    clearTimeout(zeit);
-    zeit = setTimeout(() => {
-      if (A$2.ansicht === "tag" && A$2.tagIso === A$2.heute()) F.heuteNeu();
-    }, 12500);
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "cos-doch", onClick: () => F.cosDochNicht(b.key), children: "Doch nicht starten" }, "doch");
-  }
-  const FUNKEN = [[-22, -26], [-8, -34], [8, -36], [22, -24], [-28, -8], [28, -10], [0, -42]];
-  const FX_MS = 1100;
-  function LaufKaestchen({ k: k2, fuell, drueber, fx }) {
-    const n2 = drueber ? Math.min(K.SITZUNG, Math.ceil(drueber / K.MIN)) : 0;
-    const frisch = fx && Date.now() - fx.t < FX_MS;
-    const funken = frisch && fx.art !== "weiter" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-funken", "aria-hidden": "true", children: [
-      FUNKEN.map(([dx, dy], j) => /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: j % 2 ? "gold" : "", style: { "--dx": dx + "px", "--dy": dy + "px", "--w": j * 25 + "ms" } }, j)),
-      fx.text ? /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: fx.text }) : null
-    ] }, fx.t) : null;
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-lq", role: "img", "aria-label": k2 + " Kästchen" + (n2 ? ", " + n2 + " drüber" : ""), children: [
-      Array.from({ length: k2 }, (_, j) => {
-        const lauf = j === k2 - 1 && !drueber, hier = frisch && Math.max(0, Math.min(k2 - 1, fx.i)) === j;
-        const kl2 = (lauf ? "lauf" : "voll") + (hier ? fx.art === "dran" ? " puls" : " rein" : "");
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: kl2, style: lauf ? { "--f": Math.round(fuell * 100) + "%" } : void 0, children: hier ? funken : null }, j);
-      }),
-      Array.from({ length: n2 }, (_, j) => /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "drueber" }, "d" + j))
+  const FUNKE_MS = 1300;
+  function LaufKasten({ x: x2 }) {
+    const b = x2.b, s = x2.s, p2 = s && F.cosNachName(s.projekt), farbe = F.cosFarbe(p2 ? p2.bereich : b.bereich);
+    const [, tick] = reactExports.useState(0), ref = reactExports.useRef(null);
+    reactExports.useEffect(() => {
+      const t2 = setInterval(() => tick((n2) => n2 + 1), 15e3);
+      return () => clearInterval(t2);
+    }, []);
+    reactExports.useLayoutEffect(() => {
+      const v2 = typeof cosFlugVon === "undefined" ? null : cosFlugVon, el2 = ref.current;
+      if (!v2 || !el2 || Date.now() - v2.t > 2500) return;
+      cosFlugVon = null;
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches || !el2.animate) return;
+      const z2 = el2.getBoundingClientRect(), dx = v2.r.left - z2.left, dy = v2.r.top - z2.top, sx = v2.r.width / z2.width;
+      el2.animate(
+        [{ transform: "translate(" + dx + "px," + dy + "px) scale(" + sx + "," + Math.min(1, v2.r.height / z2.height) + ")", opacity: 0.6 }, { transform: "none", opacity: 1 }],
+        { duration: 700, easing: "cubic-bezier(.34,1.4,.64,1)" }
+      );
+    }, []);
+    const min2 = F.cosLaufMin(b), fuell = F.cosLaufFuell(b), seit = F.cosSeitDran(b), voll2 = Math.floor(min2 / 30);
+    const m2 = p2 ? F.cosModulDran(p2) : null, titel = m2 && m2.offen.length ? m2.offen[0].titel : s ? s.titel : b.titel || b.bereich;
+    const fx = Z$1.laufFx && Z$1.laufFx.key === b.key && Date.now() - Z$1.laufFx.t < FUNKE_MS ? Z$1.laufFx : null;
+    if (fx) setTimeout(() => F.heuteNeu(), FUNKE_MS + 50);
+    const pz2 = Math.round(fuell * 1e3) / 10, pause = min2 >= (typeof COS_PAUSE_AB === "undefined" ? 90 : COS_PAUSE_AB);
+    const stil2 = { "--pf": farbe, "--fb": pz2 + "%", "--fg": "color-mix(in srgb, var(--gold-funken) " + pz2 + "%, " + farbe + ")", "--fo": (0.55 + 0.3 * fuell).toFixed(2) };
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "lk" + (fx ? " dran" : ""), style: stil2, ref, role: "group", "aria-label": "Läuft: " + (p2 ? p2.name + ", " : "") + titel + ", " + min2 + " Minuten", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "lk-fuell", "aria-hidden": "true" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "lk-in", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "lk-o", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "lk-was", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "lk-p", children: p2 ? p2.name : b.bereich }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "lk-t", children: titel })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "lk-zeit", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: min2 + " Min" + (voll2 ? " · " + voll2 + (voll2 === 1 ? " Kästchen" : " Kästchen") : "") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: seit > 0 ? seit + " Min seit Dran" : min2 ? "gerade bestätigt" : "läuft seit " + b.gestartet })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "lk-u", children: [
+          pause ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "lk-pause", children: "Kurz Pause?" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "lk-kn", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "lk-dran", onClick: () => F.cosDranJetzt(b.key), children: "+ Dran" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "lk-fertig", onClick: () => F.cosSitzungFertig(b.key), disabled: !!b.lokal, children: "Fertig" })
+          ] })
+        ] })
+      ] }),
+      fx ? /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "lk-funke", "aria-hidden": "true" }, fx.t) : null,
+      fx && fx.text ? /* @__PURE__ */ jsxRuntimeExports.jsx("b", { className: "lk-plus", "aria-hidden": "true", children: fx.text }, "t" + fx.t) : null
     ] });
   }
-  function Wann({ b }) {
-    const w2 = F.cosWannDaten(b), kt = (n2) => n2 + " Kästchen";
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-feld tg-wann-feld", role: "group", "aria-label": "Wann warst du fertig?", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Wann warst du fertig?" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "tg-antwort haupt", onClick: () => F.cosJetztFertig(), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: w2.deckel ? "Bis " + F.cosUhr(w2.ende) + " fertig · 3 am Stück" : "Jetzt erst fertig · " + F.cosUhr(w2.ende) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: kt(w2.k) + ", die Zeit drüber zählt mit" })
+  function ModulFrage({ pid }) {
+    const f2 = typeof cosModulFrage === "undefined" ? null : cosModulFrage;
+    if (!f2 || pid && f2.pid !== pid) return null;
+    const p2 = F.cosPid(f2.pid);
+    if (!p2) return null;
+    const farbe = F.cosFarbe(p2.bereich);
+    if (f2.art === "ja") return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mf mf-ja", style: { "--pf": farbe }, role: "status", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Modul " + f2.name + " fertig" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: f2.weiter ? "Jetzt dran: " + f2.weiter : "Im Chief das nächste Modul anlegen" })
+    ] });
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mf", style: { "--pf": farbe }, role: "group", "aria-label": "Modul fertig?", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mf-k", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Modul fertig?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: p2.name + " · " + f2.name })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "tg-antwort", onClick: () => F.cosPlanFertig(), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Um " + F.cosUhr(w2.planEnde) + " fertig" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: kt(w2.kAlt) + ", Rest zählt nicht" })
+      f2.art === "nein" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mf-neu", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "text",
+            id: "modFrageIn",
+            "aria-label": "Nächster Schritt",
+            placeholder: "Nächster Schritt: Verb plus Gegenstand",
+            autoComplete: "off",
+            enterKeyHint: "done",
+            onKeyDown: (e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                F.cosModulFrageSchritt();
+              }
+            }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onPointerDown: (e) => e.preventDefault(), onClick: () => F.cosModulFrageSchritt(), "aria-label": "Schritt anlegen", children: "+" })
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mf-kn", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "mf-nein", onClick: () => F.cosModulFrageNein(), children: "Nein, da kommt noch was" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "mf-jaK", onClick: () => F.cosModulFrageJa(), children: "Ja, fertig" })
       ] })
     ] });
   }
-  function Lauf({ x: x2, i: i2 }) {
-    const b = x2.b, k2 = x2.k, aus = !!b.lokal, jm = A$2.jetztMin(), drueber = F.cosDrueber(b);
-    const s0 = A$2.minVon(b.start), fuell = Math.max(0, Math.min(1, (jm - s0) / K.MIN - (k2 - 1)));
-    const dm = Z$1.dranMeldung, d = dm && dm.key === b.key && Date.now() - dm.t < 12e3 ? doch(b) : null;
-    const fx = Z$1.laufFx && Z$1.laufFx.key === b.key ? Z$1.laufFx : null;
-    if (fx && Date.now() - fx.t < FX_MS) setTimeout(() => F.heuteNeu(), FX_MS + 50);
-    const a = Z$1.tagAuf, wann = a && a.art === "wann" && a.key === b.key;
-    const rest = drueber ? drueber + " Min drüber, Weiter vergessen?" : "noch " + Math.max(0, A$2.minVon(b.ende) - jm) + " Min bis " + b.ende;
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-lauf" + (drueber ? " drueber" : ""), children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(LaufKaestchen, { k: k2, fuell, drueber, fx }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-lauf-k", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-puls" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "läuft seit " + b.gestartet }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: drueber ? "warn" : "leise", children: rest })
-      ] }),
-      wann ? /* @__PURE__ */ jsxRuntimeExports.jsx(Wann, { b }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-lauf-kn" + (k2 < K.SITZUNG ? "" : " zwei"), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-dran", onClick: () => F.cosDran(b.key), children: "+ Dran" }),
-        k2 < K.SITZUNG ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-weiter", onClick: () => F.cosWeiterPlus(b.key), disabled: aus, children: "Weiter +30" }) : null,
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-fertig", onClick: () => F.cosFertigFrage(i2), disabled: aus, children: "Fertig" }),
-        k2 < K.SITZUNG ? null : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-pause", children: "3 am Stück. Kurz Pause?" })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-lauf-u", children: b.lokal ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Wird im Kalender angelegt …" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Seit, { iso: A$2.heute(), i: i2, text: "Früher angefangen?" }) }),
-      d
-    ] });
-  }
   function Erledigt$2({ r: r2 }) {
-    const x2 = r2.x, b = x2.b, s = x2.s, titel = F.cosTrTitel(x2), ok2 = F.fokusMin(A$2.heute(), b) > 0 && F.zaehlt(b), erl = !!s && s.status === "fertig";
+    const x2 = r2.x, b = x2.b, titel = F.cosTrTitel(x2), ok2 = F.fokusMin(A$2.heute(), b) > 0 && F.zaehlt(b);
     const a = Z$1.tagAuf, hier = a && a.key === b.key ? a.art : "";
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -12456,32 +12540,16 @@ var ZentraleUI = function(exports) {
           style: { "--pf": F.cosTrFarbe(x2) },
           onClick: () => F.cosNachAufZu(b.key),
           "aria-expanded": String(hier === "nach"),
-          "aria-label": titel + (ok2 ? ", " + x2.k + " Kästchen" : "") + ", erledigt" + (s ? erl ? ", Aufgabe erledigt" : ", Aufgabe offen" : "") + ", antippen zum Nachtragen",
+          "aria-label": titel + (ok2 ? ", " + x2.k + " Kästchen" : "") + ", erledigt, antippen zum Nachtragen",
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-zeit", children: b.gestartet || b.start }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-was", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-titel", children: titel }),
-              s ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-aufg" + (erl ? " ja" : ""), children: erl ? "Aufgabe erledigt" : "Aufgabe offen" }) : null
-            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-was", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-titel", children: titel }) }),
             ok2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-kq", children: Array.from({ length: x2.k }, (_, j) => /* @__PURE__ */ jsxRuntimeExports.jsx("i", {}, j)) }) : F.zaehlt(b) ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-kq leer", children: "–" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", {})
           ]
         }
       ),
-      hier === "frage" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Frage, {}) : hier === "nach" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Nachtragen, { b, a }) : null
-    ] });
-  }
-  function Frage() {
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-feld", role: "group", "aria-label": "Aufgabe ganz erledigt?", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Aufgabe ganz erledigt?" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "tg-antwort haupt", onClick: () => F.cosFrageJa(), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Ja, erledigt" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "geht im Chief auf erledigt" })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "tg-antwort", onClick: () => F.cosFrageNein(), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Nein, nur die Kästchen" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Aufgabe bleibt offen" })
-      ] })
+      hier === "nach" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Nachtragen, { b, a }) : null
     ] });
   }
   function Nachtragen({ b, a }) {
@@ -12493,40 +12561,37 @@ var ZentraleUI = function(exports) {
         /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: F.dauerText(a.k * K.MIN) }, a.k),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosNachDauer(1), disabled: a.k >= max, "aria-label": "30 Minuten mehr", children: "+" })
       ] }),
-      a.sid ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-seg", role: "group", "aria-label": "Aufgabe", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: a.erledigt ? "" : "an", "aria-pressed": String(!a.erledigt), onClick: () => F.cosNachErledigt(false), children: "Aufgabe offen" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: a.erledigt ? "an" : "", "aria-pressed": String(a.erledigt), onClick: () => F.cosNachErledigt(true), children: "Erledigt" })
-      ] }) : null,
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-ok", onClick: () => F.cosNachOk(), disabled: !!b.lokal, children: "OK" })
     ] });
   }
   function Block$1({ r: r2, d }) {
     if (r2.status === "fertig") return /* @__PURE__ */ jsxRuntimeExports.jsx(Erledigt$2, { r: r2 });
-    const x2 = r2.x, b = x2.b, s = x2.s, key = b.key, i2 = F.bloeckeVon(d.h).indexOf(b), titel = F.cosTrTitel(x2), offen2 = r2.status === "offen";
+    const x2 = r2.x, b = x2.b, s = x2.s, key = b.key;
+    F.bloeckeVon(d.h).indexOf(b);
+    const titel = F.cosTrTitel(x2), offen2 = r2.status === "offen";
     const zeit2 = offen2 ? b.start : b.gestartet || b.start;
     const klick = !offen2 ? null : s && r2.p ? () => F.cosInhaltOeffnen(r2.p.id, key, s.id) : () => F.cosSitzungOeffnen(key);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-z " + r2.status, style: { "--pf": F.cosTrFarbe(x2) }, children: [
       offen2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-zeit", onClick: () => F.cosSitzungOeffnen(key), "aria-label": "Uhrzeit ändern", children: zeit2 }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-zeit", children: zeit2 }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-inhalt", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-oben", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-was", children: [
-            klick ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-titel", onClick: klick, children: titel }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-titel", children: titel }),
-            x2.k > 1 && r2.status !== "laeuft" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-unter", children: x2.k + " Kästchen" }) : null
-          ] }),
-          offen2 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-kn", children: [
-            !s && F.zaehlt(b) && !b.lokal ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-wann", onClick: () => F.cosSitzungOeffnen(key), children: "Zuordnen" }) : null,
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-los", onClick: () => F.cosLosBlock(key), "aria-label": "Los: " + titel, children: PLAY })
-          ] }) : null
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-inhalt", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-oben", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-was", children: [
+          klick ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-titel", onClick: klick, children: titel }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-titel", children: titel }),
+          x2.k > 1 && r2.status !== "laeuft" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-unter", children: x2.k + " Kästchen" }) : null
         ] }),
-        r2.status === "laeuft" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Lauf, { x: x2, i: i2 }) : null
-      ] })
+        offen2 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-kn", children: [
+          !s && F.zaehlt(b) && !b.lokal ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-wann", onClick: () => F.cosSitzungOeffnen(key), children: "Zuordnen" }) : null,
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-los", onClick: () => F.cosLosBlock(key), "aria-label": "Los: " + titel, children: PLAY })
+        ] }) : null
+      ] }) })
     ] });
   }
   function geplantZeilen(d) {
-    const out = d.geplant.map((r2, j) => r2.art === "termin" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Termin$1, { t: r2.termin, jm: d.jm }, "t" + j) : /* @__PURE__ */ jsxRuntimeExports.jsx(Block$1, { r: r2, d }, r2.x.b.key));
-    const i2 = d.geplant.findIndex((r2) => r2.t > d.jm);
-    out.splice(i2 < 0 ? out.length : i2, 0, /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-jetzt-l", role: "img", "aria-label": "Jetzt " + F.cosUhr(d.jm), children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: F.cosUhr(d.jm) }) }, "jetzt"));
+    const lauf = d.geplant.find((r2) => r2.art === "block" && r2.status === "laeuft"), liste = d.geplant.filter((r2) => r2 !== lauf);
+    const out = liste.map((r2, j) => r2.art === "termin" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Termin$1, { t: r2.termin, jm: d.jm }, "t" + j) : /* @__PURE__ */ jsxRuntimeExports.jsx(Block$1, { r: r2, d }, r2.x.b.key));
+    const i2 = liste.findIndex((r2) => r2.t > d.jm), jetzt = [/* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-jetzt-l", role: "img", "aria-label": "Jetzt " + F.cosUhr(d.jm), children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: F.cosUhr(d.jm) }) }, "jetzt")];
+    if (lauf) jetzt.push(/* @__PURE__ */ jsxRuntimeExports.jsx(LaufKasten, { x: lauf.x }, "lk" + lauf.x.b.key.split("|")[0]));
+    out.splice(i2 < 0 ? out.length : i2, 0, ...jetzt);
     return out;
   }
   function TerminWahl({ t: t2, kurz: kurz2 }) {
@@ -12557,12 +12622,12 @@ var ZentraleUI = function(exports) {
     const p2 = z2.p, farbe = F.cosFarbe(p2.bereich), auf2 = Z$1.todoAuf === p2.id, name = p2.name;
     const kq = [];
     for (let i2 = 0; i2 < z2.menge + z2.bonus; i2++) kq.push(/* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: i2 < z2.n ? "an" + (i2 >= z2.menge ? " bonus" : "") : "" }, i2));
-    if (z2.laeuft && Z$1.todoLaeuftAbdruck) return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-abdruck", children: [
+    if (z2.laeuft) return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-abdruck", "data-pid": p2.id, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: name }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "läuft unten ↓" })
     ] });
     const info = z2.n + " von " + z2.menge + " Kästchen" + (z2.bonus ? ", " + z2.bonus + " Bonus" : "") + ", " + z2.uebrig + " übrig";
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-z", style: { "--pf": farbe }, children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-z", "data-pid": p2.id, style: { "--pf": farbe }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-o", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-streif" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "td-was", onClick: () => F.cosTodoAufZu(p2.id), "aria-expanded": String(auf2), disabled: !z2.schritte.length, children: [
@@ -12584,6 +12649,7 @@ var ZentraleUI = function(exports) {
   function ToDo({ d, busy }) {
     const zeilen = F.cosTodoZeilen(d), rest = F.cosJokerRest(), aus = rest <= 0 || !F.cosJokerZiel(d);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "td", "aria-label": "To Do", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ModulFrage, {}),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "td-k", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "To Do" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
@@ -12912,6 +12978,16 @@ var ZentraleUI = function(exports) {
       ] }),
       danach.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-dl", children: danach }) : null
     ] });
+  }
+  let zeit = 0;
+  function doch(b) {
+    const v2 = Z$1.verlauf, a = v2[v2.length - 1];
+    if (!a || !(a.art === "start" && a.key === b.key) && !(a.art === "cosPlan" && a.keys.indexOf(b.key) >= 0)) return null;
+    clearTimeout(zeit);
+    zeit = setTimeout(() => {
+      if (A$2.ansicht === "tag" && A$2.tagIso === A$2.heute()) F.heuteNeu();
+    }, 12500);
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "cos-doch", onClick: () => F.cosDochNicht(b.key), children: "Doch nicht starten" }, "doch");
   }
   function erledigt(iso, l2) {
     const tf2 = A$2.P.felder.find((x2) => x2.typ === "tasks");
@@ -35898,6 +35974,7 @@ img.ProseMirror-separator {
         /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Module" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pj-leise", children: b.mods.length + (b.mods.length === 1 ? " Modul · " : " Module · ") + offen2 + (offen2 === 1 ? " Schritt offen" : " Schritte offen") })
       ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ModulFrage, { pid: p2.id }),
       !b.mods.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "pj-leer", children: "Noch kein Modul." }) : null,
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-mod-l", children: b.mods.map((m2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Modul, { p: p2, m: m2, dran: m2 === dran, auf: auf2 === m2.id, farbe }, m2.id)) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(NeuModul, { p: p2 })
@@ -37784,7 +37861,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611250043';
+const PWA_VERSION = '202611250102';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -37860,7 +37937,8 @@ const datum = s => { const t = s.split('-').map(Number); return new Date(t[0], t
 // opt.jetzt (ms): feste Uhr für Chief.js (V96, Browsertest mit fester Uhrzeit), sonst die echte
 exports.neu = function (H, tagPlus, quelle, opt) {
   const T = opt && opt.jetzt, Echt = Date;
-  const Uhr = T ? class extends Echt { constructor(...a) { if (a.length) super(...a); else super(T); } static now() { return T; } static [Symbol.hasInstance](x) { return x instanceof Echt; } } : Echt;
+  const jz = () => (typeof T === 'function' ? T() : T);   // T2: opt.jetzt darf eine Funktion sein (Uhr läuft im Browsertest mit)
+  const Uhr = T ? class extends Echt { constructor(...a) { if (a.length) super(...a); else super(jz()); } static now() { return jz(); } static [Symbol.hasInstance](x) { return x instanceof Echt; } } : Echt;
   const P = new Blatt('Projekte', [
     ['    PROJEKTE', '', '', '', '', '', '', '', 'Kästchen pro Woche', 14],
     ['Projekt', 'Bereich', 'Status', 'Deadline', 'Art', 'Wofür', 'Reserve', 'ID'],
@@ -38298,7 +38376,7 @@ exports.welt = function (H, tagPlus, quelle, sensiQuelle, sensiOpt, opt) {
         d = { frei: true, start: '10:35', ende: '11:05', tag: H, belegt };
       } else if (q.fn === 'appBlockPlanen') d = m.ruf('blkPlanen_', [q.args[0]]);
       else if (q.fn === 'appBlockStarten') { const e = m.kal.events.find(x => x.id + '|' + x.s === q.args[0]); if (e) e.gestartet = q.args[1] === false ? '' : '10:30'; }
-      else if (q.fn === 'appBlockBeenden') { const e = m.kal.events.find(x => x.id + '|' + x.s === q.args[0]); if (e) e.beendet = q.args[1] === false ? '' : '10:31'; }
+      else if (q.fn === 'appBlockBeenden') { const e = m.kal.events.find(x => x.id + '|' + x.s === q.args[0]); if (e) e.beendet = q.args[1] === false ? '' : extra.uhrEcht || '10:31'; }   // T2: Browsertest mit laufender Uhr schickt uhrEcht
       else if (q.fn === 'appBlockSetzen') { const e = m.kal.events.find(x => x.id + '|' + x.s === q.args[0]); if (e) e.status = q.args[1] || ''; }
       else if (q.fn === 'appBlockLoeschen') m.kal.events = m.kal.events.filter(x => x.id + '|' + x.s !== q.args[0]);
       else if (q.fn === 'appHeuteTasks') d = (extra.alt || extra.altTasks) ? ohneStufe(tasks) : tasks;
@@ -40020,7 +40098,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 00:43</div>
+<div id="testband">TEST 01:02</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
