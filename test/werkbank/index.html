@@ -36507,24 +36507,8 @@ img.ProseMirror-separator {
     ] });
   }
   function Neben({ n: n2 }) {
-    if (!n2) return null;
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Alkfrei" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("b", { children: [
-          n2.alkohol,
-          " von 7"
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Ottfrei" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("b", { children: [
-          n2.ott,
-          " von 7"
-        ] })
-      ] }),
-      n2.folge ? /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "tw-whitespace-normal", children: n2.folge }) : null
-    ] });
+    if (!n2 || !n2.folge) return null;
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "tw-whitespace-normal", children: n2.folge });
   }
   function Tageszahl({ f: f2, oben, koe }) {
     const live = A$2.tagLive(A$2.tagIso), w2 = live != null ? live : A$2.wertVon(f2.spalte), s = A$2.stufe(f2, w2);
@@ -39335,7 +39319,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611262344';
+const PWA_VERSION = '202611270003';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -41925,7 +41909,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(false), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht. Aus dem Server Cache (10 Minuten), frisch holen die Fenster beim Öffnen selbst
 })();
 </script>
-<div id="testband">TEST 23:44</div>
+<div id="testband">TEST 00:03</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 <style id="wbStil">
