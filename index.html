@@ -1297,7 +1297,10 @@
   .tg-bahn.stoss .tg-ffuell.wachs { animation: tgfwachs .9s cubic-bezier(.2, 1.35, .4, 1) calc(0ms - var(--vb)) both; }
   @keyframes tgfwachs { from { width: var(--von); } }
   .tg-bahn.ac .tg-bkopf { top: 6px; }
-  @media (prefers-reduced-motion: reduce) { .tg-fglanz { display: none; } .tg-bahn.stoss .tg-ffuell.wachs { animation: none; } }
+  /* Das Feld, das gerade läuft: Rand in Projektfarbe, atmet (cosBalkenFelder lauf) */
+  .tg-fz.lauf { box-shadow: 0 0 0 1px var(--pf), 0 0 8px var(--pf); animation: tgflauf 1.6s ease-in-out infinite; }
+  @keyframes tgflauf { 50% { box-shadow: 0 0 0 1px var(--pf), 0 0 2px color-mix(in srgb, var(--pf) 40%, transparent); } }
+  @media (prefers-reduced-motion: reduce) { .tg-fglanz { display: none; } .tg-bahn.stoss .tg-ffuell.wachs { animation: none; } .tg-fz.lauf { animation: none; } }
   /* Moment: steht 4 s golden unter dem Balken (Projekt gehalten, Tag gehalten) */
   .tg-mom { margin-top: var(--abstand-6); padding: var(--abstand-5) var(--abstand-6); border-radius: var(--radius-gross); font-size: var(--schrift-klein); font-weight: 700;
     color: var(--gold); background: linear-gradient(90deg, var(--gold-hell), color-mix(in srgb, var(--gold-hell) 50%, var(--karte)));
@@ -1310,7 +1313,10 @@
   .jz-p { display: flex; align-items: center; gap: var(--abstand-3); font-weight: 700; min-width: 0; }
   .jz-punkt { flex: none; width: 8px; height: 8px; border-radius: var(--radius-rund); background: var(--pf); animation: jzpunkt 1.6s ease-in-out infinite; }
   @keyframes jzpunkt { 50% { opacity: .35; } }
-  .jz-seit { flex: none; color: var(--leise); }
+  .jz-seit { flex: none; margin-left: auto; color: var(--leise); }
+  /* Kästchen löschen: klein und leise neben seit, ganz raus (cosKaestchenLoeschen), oben kurz Rückgängig */
+  .jz-weg { flex: none; min-width: 30px; min-height: 30px; padding: 0; background: none; font-size: var(--schrift-gross); line-height: 1; color: var(--leise); opacity: .5; }
+  .jz-weg:active { opacity: 1; }
   .jz-s { display: flex; align-items: center; gap: var(--abstand-4); font-size: var(--schrift-gross); font-weight: 600; }
   .jz-s .pj-kreis { --kf: var(--pf); }
   .jz-ohne { font-style: italic; color: var(--leise); }
@@ -2688,10 +2694,10 @@ function cosBalkenFelder(d) {
   (d.chips || []).forEach(c => {
     const k = Math.max(0, c.m - c.j);
     if (!k) return;
-    const mehr = lp && lp.id === c.p.id ? c.wart || 0 : 0, gruppe = [];
+    const mehr = lp && lp.id === c.p.id ? c.wart || 0 : 0, gruppe = [], jl = lp && lp.id === c.p.id ? Math.min(k - 1, Math.floor(c.bMin / COS_MIN)) : -1;   // jl: das Feld, das gerade läuft (leuchtet)
     for (let j = 0; j < k; j++) {
       const m = Math.max(0, Math.min(COS_MIN, c.bMin - COS_MIN * j));
-      gruppe.push({ m: m, g: Math.max(0, Math.min(COS_MIN, c.bMin + mehr - COS_MIN * j)) - m });
+      gruppe.push({ m: m, g: Math.max(0, Math.min(COS_MIN, c.bMin + mehr - COS_MIN * j)) - m, lauf: j === jl });
       voll += m;
     }
     if (lp && lp.id === c.p.id) kante = n + Math.min(k, c.bMin / COS_MIN);
@@ -4560,6 +4566,7 @@ function cosRueckTag(a) {
   if (a.art === 'cosPlanZeit') { if (lokal(a.key)) return 'warte'; cosVerschieben(a.key, a.alt, a.altK, true, null, a.altEnde); return true; }
   if (a.art === 'cosZuord') { if (lokal(a.key)) return 'warte'; cosZuordnen(a.key, a.alt, true); return true; }
   if (a.art === 'cosNachV') { cosVergessenZurueck(a); return true; }
+  if (a.art === 'cosDochNicht') { cosDochNichtZurueck(a); return true; }
   if (a.art === 'cosPlanWeg') {
     const b = a.b, k = Math.max(1, Math.round((b.min || COS_MIN) / COS_MIN));
     if (a.sid) cosEinplanen([{ id: a.sid, start: b.start, k: Math.min(COS_SITZUNG, k) }], true);
@@ -4643,6 +4650,43 @@ function cosSitzNichtHeute() {
 }
 function cosSitzLoeschen() { const b = cosBlatt; cosBlattZu(); cosAusplanen(b.key); melden('Aus dem Kalender gelöscht. Oben geht Rückgängig.'); }
 
+/* ── Kästchen löschen: das kleine X am laufenden Kästchen (Jetzt) nimmt es ganz raus, sofort aus Kalender und Balken. Der Server löscht den Termin erst nach COS_WEG_MS oder wenn die Seite in den Hintergrund geht. Bis dahin holt Rückgängig
+   es genau so zurück, wie es war (ein gelöschter Termin ließe sich nicht mit Start, Ende und Status wiederherstellen) ── */
+const COS_WEG_MS = 8000;
+let cosWegOffen = [];
+function cosKaestchenLoeschen(key) {
+  const h = heute(), l = bloeckeVon(h), i = l.findIndex(x => x.key === key), b = l[i];
+  if (!b) return;
+  if (b.lokal) { melden('Einen Moment, das Kästchen wird noch angelegt.'); return; }
+  const eintrag = { art: 'cosDochNicht', tag: tagIso, h: h, b: b, i: i, name: 'Kästchen gelöscht' };
+  cosLaufFx = null; cosDavorAuf = false;
+  P.bloecke[h] = l.filter(x => x !== b);
+  fokusLokal(h);
+  eintrag.zeit = setTimeout(() => cosWegSenden(eintrag), COS_WEG_MS);
+  cosWegOffen.push(eintrag);
+  merken(eintrag);
+  haptik();
+  melden('Kästchen gelöscht. Oben geht kurz Rückgängig.');
+  zeichnen();
+}
+function cosWegSenden(eintrag) {
+  clearTimeout(eintrag.zeit);
+  cosWegOffen = cosWegOffen.filter(x => x !== eintrag);
+  const j = verlauf.indexOf(eintrag);
+  if (j >= 0) { verlauf.splice(j, 1); kopfSetzen({ undoAus: !verlauf.length }); }
+  cosNach('appChiefAusplanen', eintrag.b.key).then(() => { cosLaden(true); cosBelegtLaden(true); if (offen === 0) abfragen(true); });
+}
+/* Rückgängig (aus cosRueckTag): noch nicht gesendet, also nur lokal zurück an seine Stelle */
+function cosDochNichtZurueck(a) {
+  clearTimeout(a.zeit);
+  cosWegOffen = cosWegOffen.filter(x => x !== a);
+  const l = (P.bloecke[a.h] || []).slice();
+  if (!l.some(x => x.key === a.b.key)) l.splice(Math.min(a.i, l.length), 0, a.b);
+  P.bloecke[a.h] = l;
+  fokusLokal(a.h);
+  zeichnen();
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') cosWegOffen.slice().forEach(cosWegSenden); });
 /* ── Blatt: Plus. Kästchen aus dem Chief, aus allen Projekten oder ohne Projekt. Tasks und Nachtragen wie bisher ── */
 function cosEinplanenOeffnen() {
   if (!cosTagAn()) { planOeffnen(false); return; }
@@ -5567,6 +5611,12 @@ var ZentraleUI = function(exports) {
     set kette(v2) {
       kette = v2;
     },
+    get geschrieben() {
+      return geschrieben;
+    },
+    set geschrieben(v2) {
+      geschrieben = v2;
+    },
     get letzterTipp() {
       return letzterTipp;
     },
@@ -5610,6 +5660,10 @@ var ZentraleUI = function(exports) {
     zeitText: (x2) => zeitText(x2),
     /* Server über dieselbe Schnittstelle wie die alte App (fn und args) */
     server: (fn, ...args) => server(fn, ...args),
+    serverSicher: (fn, ...args) => serverSicher(fn, ...args),
+    nichtGespeichert: (e) => nichtGespeichert(e),
+    abfragen: (erzwingen) => abfragen(erzwingen),
+    lokalZahl: (iso, spalte, wert2) => lokalZahl(iso, spalte, wert2),
     /* Rückmeldung und Ablauf */
     melden: (t2) => melden(t2),
     merken: (a) => merken(a),
@@ -12722,7 +12776,7 @@ var ZentraleUI = function(exports) {
   const ARTEN$2 = ["rauchen", "nikotin", "drink"];
   const NAMEN = { rauchen: "Zigarette", nikotin: "Nikotin", drink: "Drink" };
   const KO = {}, laedt = {}, geladen$1 = {};
-  let ausstehend = 0, letzte = 0;
+  let ausstehend = 0, letzte = 0, zuletzt = 0;
   const K$1 = {
     fehlt: false,
     // alter Server ohne Koerper.js
@@ -12792,11 +12846,12 @@ var ZentraleUI = function(exports) {
     ausstehend++;
     letzte = Date.now();
     let erg = null;
-    A$2.kette = A$2.kette.then(() => A$2.server(fn, ...args).then((d) => {
+    A$2.kette = A$2.kette.then(() => A$2.serverSicher(fn, ...args).then((d) => {
       erg = d;
+      A$2.geschrieben = A$2.geschrieben + 1;
     }).catch((e) => {
       erg = null;
-      if (!K$1.fehlt) A$2.melden(e.message || String(e));
+      if (!K$1.fehlt) A$2.nichtGespeichert(e);
     })).then(() => {
       A$2.offen = A$2.offen - 1;
       ausstehend--;
@@ -12804,9 +12859,14 @@ var ZentraleUI = function(exports) {
         KO[erg.paket.datum] = erg.paket;
         neuZeichnen(erg.paket.datum);
       } else if (!erg && ausstehend === 0) laden(A$2.tagIso, true);
+      if (!erg && A$2.offen === 0) A$2.abfragen(true);
     });
     return A$2.kette.then(() => erg);
   }
+  const tageNehmen = (iso, spalte) => (r2) => {
+    if (r2 && r2.tage != null && A$2.offen === 0) A$2.lokalZahl(iso, spalte, r2.tage);
+    return r2;
+  };
   const uhr$1 = (ms) => {
     const d = new Date(ms);
     return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
@@ -12815,19 +12875,19 @@ var ZentraleUI = function(exports) {
     const name = art === "rauchen" ? a.n === 1 ? "Zigarette" : "Zigaretten" : "Nikotin";
     A$2.melden(a.n + " " + name + " heute · gestern " + a.gestern + " · Ø " + A$2.komma(a.schnitt));
   }
-  function plus(art, ohneVerlauf, zeitMs) {
-    const iso = A$2.tagIso, a = stand$1(iso).arten[art];
+  function plus(art, ohneVerlauf, zeitMs, spalte) {
+    const iso = A$2.tagIso, a = stand$1(iso).arten[art], t2 = zeitMs || (zuletzt = Math.max(Date.now(), zuletzt + 1));
     a.n++;
-    a.zeiten = a.zeiten.concat(uhr$1(zeitMs || Date.now())).sort();
+    a.zeiten = a.zeiten.concat(uhr$1(t2)).sort();
     if (!ohneVerlauf) A$2.merken({ art: "koe", tag: iso, was: art, plus: true, name: NAMEN[art] });
     if (art !== "drink") {
       A$2.haptik();
       A$2.zeichnen();
       meldung(art, a);
     }
-    return nach("appKoerperPlus", art, iso, zeitMs || null);
+    return spalte ? nach("appKoerperPlus", art, iso, t2, spalte).then(tageNehmen(iso, spalte)) : nach("appKoerperPlus", art, iso, t2);
   }
-  function minus(art, ohneVerlauf) {
+  function minus(art, ohneVerlauf, spalte) {
     const iso = A$2.tagIso, a = stand$1(iso).arten[art];
     if (!a.n && art !== "drink") return Promise.resolve(null);
     const eintrag = { art: "koe", tag: iso, was: art, plus: false, zeit: null, name: NAMEN[art] };
@@ -12841,7 +12901,7 @@ var ZentraleUI = function(exports) {
       A$2.zeichnen();
       meldung(art, a);
     }
-    return nach("appKoerperMinus", art, iso).then((r2) => {
+    return (spalte ? nach("appKoerperMinus", art, iso, spalte).then(tageNehmen(iso, spalte)) : nach("appKoerperMinus", art, iso)).then((r2) => {
       if (r2) eintrag.zeit = r2.zeit;
       return r2;
     });
@@ -13235,7 +13295,7 @@ var ZentraleUI = function(exports) {
     const zellen = [];
     B2.gruppen.forEach((gr, gi2) => gr.felder.forEach((z2, j) => {
       const alt = fx && fx.wachs && fx.proj ? Math.max(0, Math.min(30, (fx.proj[gr.p.id] || 0) - 30 * j)) : z2.m, waechst = alt !== z2.m;
-      const kl2 = "tg-fz" + (j === 0 ? " erst" : "") + (j === gr.felder.length - 1 ? " letzt" : "") + (j === 0 && gi2 > 0 ? " gruppe" : "");
+      const kl2 = "tg-fz" + (j === 0 ? " erst" : "") + (j === gr.felder.length - 1 ? " letzt" : "") + (j === 0 && gi2 > 0 ? " gruppe" : "") + (z2.lauf && !still ? " lauf" : "");
       const fs = { width: pz$1(z2.m / 30), "--i": (i2 * 0.1).toFixed(2) + "s" };
       if (waechst) fs["--von"] = pz$1(alt / 30);
       zellen.push(
@@ -13455,7 +13515,8 @@ var ZentraleUI = function(exports) {
           /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "jz-punkt", "aria-hidden": "true" }),
           name
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "jz-seit", children: "seit " + b.gestartet })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "jz-seit", children: "seit " + b.gestartet }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "jz-weg", onClick: () => F.cosKaestchenLoeschen(b.key), disabled: !!b.lokal, "aria-label": "Kästchen löschen", children: "×" })
       ] }),
       oben ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "jz-s lk-schritt" + (hak ? " rein" : ""), style: hakStil, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-kreis", onClick: () => haken(oben), "aria-label": "abhaken: " + oben.titel }),
@@ -36102,7 +36163,7 @@ img.ProseMirror-separator {
   }
   function Notiz$2({ wert: wert2, tippen, raus, id: id2, platzhalter, label: label2, className, nurLesen, kopf: kopf2, rechts, kopfKlasse, kinder }) {
     const [an, setAn] = reactExports.useState(false), [, neu] = reactExports.useState(0);
-    const zuletzt = reactExports.useRef(String(wert2 || "")), fn = reactExports.useRef({});
+    const zuletzt2 = reactExports.useRef(String(wert2 || "")), fn = reactExports.useRef({});
     fn.current = { tippen, raus };
     const ed2 = useEditor({
       extensions: erweiterungen(platzhalter),
@@ -36112,7 +36173,7 @@ img.ProseMirror-separator {
       editorProps: { attributes: { id: id2 || "", class: "notiz-ed", role: "textbox", "aria-multiline": "true", "aria-label": label2 || platzhalter || "Notiz" } },
       onUpdate: ({ editor }) => {
         const md2 = jsonZuMd(editor.getJSON());
-        zuletzt.current = md2;
+        zuletzt2.current = md2;
         if (fn.current.tippen) fn.current.tippen(md2);
       },
       onSelectionUpdate: () => neu((n2) => n2 + 1),
@@ -36124,8 +36185,8 @@ img.ProseMirror-separator {
     });
     reactExports.useEffect(() => {
       const w2 = String(wert2 || "");
-      if (ed2 && w2 !== zuletzt.current && !ed2.isFocused) {
-        zuletzt.current = w2;
+      if (ed2 && w2 !== zuletzt2.current && !ed2.isFocused) {
+        zuletzt2.current = w2;
         ed2.commands.setContent(mdZuJson(w2), { emitUpdate: false });
       }
     }, [wert2, ed2]);
@@ -36668,8 +36729,8 @@ img.ProseMirror-separator {
     const sieben = bis(7), zaehlen = (s, l2) => l2.filter((iso) => ja2(s, iso)).length;
     const drinks = sieben.reduce((a, iso) => a + zahl("Drinks", iso), 0);
     const kae = da("cosTag") ? sieben.reduce((a, iso) => a + F.cosTag(iso).farben.length, 0) / 7 : null;
-    let zuletzt = null;
-    for (let k2 = 0; k2 < 42 && zuletzt == null; k2++) if (ja2("Ott", tag(k2))) zuletzt = k2;
+    let zuletzt2 = null;
+    for (let k2 = 0; k2 < 42 && zuletzt2 == null; k2++) if (ja2("Ott", tag(k2))) zuletzt2 = k2;
     return {
       oben: [
         ["Alkohol", A$2.komma(drinks), drinks === 1 ? "Drink" : "Drinks"],
@@ -36679,7 +36740,7 @@ img.ProseMirror-separator {
       ott: [
         ["30 Tage", zaehlen("Ott", bis(30)), "×"],
         ["7 Tage", zaehlen("Ott", sieben), "×"],
-        zuletzt == null ? ["Zuletzt", "", "länger her"] : zuletzt === 0 ? ["Zuletzt", "heute", ""] : zuletzt === 1 ? ["Zuletzt", "gestern", ""] : ["Zuletzt", "vor " + zuletzt, "Tagen"]
+        zuletzt2 == null ? ["Zuletzt", "", "länger her"] : zuletzt2 === 0 ? ["Zuletzt", "heute", ""] : zuletzt2 === 1 ? ["Zuletzt", "gestern", ""] : ["Zuletzt", "vor " + zuletzt2, "Tagen"]
       ]
     };
   }
@@ -39223,8 +39284,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611260056';
-const PWA_NAME = "V133 Handyfrei 7 Tage";
+const PWA_VERSION = '202611260115';
+const PWA_NAME = "V134 Kästchen löschen";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -39316,15 +39377,27 @@ function server(fn, ...args) {
     })
     .catch(e => { throw (navigator.onLine === false ? new Error('Kein Netz. Versuch es gleich nochmal.') : e); });
 }
+/* Schreibt der Server nicht (Sperre belegt, Netz weg), fragt die App noch zweimal nach, aber nur bei Aufrufen,
+   die doppelt nichts doppelt machen: appSpeichern setzt einen Wert, appKoerperPlus erkennt seine Uhrzeit (Schlüssel). */
+const NOCHMAL_FN = new Set(['appSpeichern', 'appKoerperPlus']), NOCHMAL_MS = [1500, 4000];
+function serverSicher(fn, ...args) {
+  const versuch = n => server(fn, ...args).catch(e => {
+    if (!NOCHMAL_FN.has(fn) || n >= NOCHMAL_MS.length || /Schlüssel|Unbekannte|gibt es/.test(String(e && e.message))) throw e;
+    return new Promise(ok => setTimeout(ok, NOCHMAL_MS[n])).then(() => versuch(n + 1));
+  });
+  return versuch(0);
+}
+/* Ging trotzdem nicht: Meldung bleibt stehen bis zum nächsten Tippen, statt nach drei Sekunden still zu verschwinden */
+function nichtGespeichert(e) { melden('Nicht gespeichert: ' + (e && e.message ? e.message : String(e)), true); }
 function nacheinander(fn, ...args) {
   offen++;
-  kette = kette.then(() => server(fn, ...args)
+  kette = kette.then(() => serverSicher(fn, ...args)
     .then(d => {
       offen--; geschrieben++;
       // Der Server bestätigt nur noch. Ist die Warteschlange leer, einmal frisch holen.
       if (offen === 0) { if (d && d.werte) uebernehmen(d); else abfragen(true); }
     })
-    .catch(e => { offen--; melden(e.message || String(e)); if (offen === 0) abfragen(true); }));
+    .catch(e => { offen--; nichtGespeichert(e); if (offen === 0) abfragen(true); }));
   return kette;
 }
 
@@ -39397,9 +39470,12 @@ function zeitText(x) {
   const min = Math.round(x * 1440) % 1440;
   return zwei(Math.floor(min / 60)) + ':' + zwei(min % 60);
 }
-function melden(text) {
+function melden(text, bleibt) {
   kopfSetzen({ meldung: text, meldungAn: true });
-  clearTimeout(melden.t); melden.t = setTimeout(() => kopfSetzen({ meldungAn: false }), 3200);
+  clearTimeout(melden.t); document.removeEventListener('pointerdown', melden.weg, true);
+  melden.weg = () => { document.removeEventListener('pointerdown', melden.weg, true); kopfSetzen({ meldungAn: false }); };
+  if (bleibt) melden.t = setTimeout(() => document.addEventListener('pointerdown', melden.weg, true), 400);   // bleibt bis zum nächsten Tippen
+  else melden.t = setTimeout(melden.weg, 3200);
 }
 /* Kopfleiste, Leiste unten, Meldung und Schlüssel zeichnet React (ui/src/basis/gerust.jsx). Hier nur den Zustand ändern */
 function kopfSetzen(o) { if (typeof ZentraleUI !== 'undefined') ZentraleUI.kopf(o); }
@@ -40474,6 +40550,14 @@ function taskFertig(iso, i) {
 
 /* ── Aktionen ── */
 function feldVon(id) { return P.felder[Number(id.slice(1))]; }
+/* Zahl, die der Server gemeldet hat (Drinks nach Plus oder Minus), für einen Tag übernehmen und zeichnen, wenn sie sich ändert */
+function lokalZahl(iso, spalte, wert) {
+  const t = P && P.werte[iso];
+  if (!t) return;
+  const x = t[spalte] || (t[spalte] = { wert: null, anzeige: '' });
+  if (x.wert === wert) return;
+  x.wert = wert; x.anzeige = komma(wert); zeichnen();
+}
 function lokal(f, wert) {
   const t = werteVon();
   const x = t[f.spalte] || (t[f.spalte] = { wert: null, anzeige: '' });
@@ -40617,9 +40701,12 @@ function setzen(id, wert, ohneVerlauf) {
     const alt = wertVon(f.spalte);
     merken({ art: 'feld', tag: tagIso, id: id, alt: alt == null ? '' : alt, name: nameVon(f) });
   }
-  if (f.typ === 'zahl' && kleinName(f) === 'drinks' && !koeFehlt) {   // V81: jeder Drink auch mit Uhrzeit in Signale
+  // Drinks: jeder Drink ist eine Anfrage, die Uhrzeit in Signale und die Zahl in Tage zusammen schreibt (26.11.2026),
+  // vorher zwei getrennte, und ging die zweite schief, liefen Signale und Tage auseinander. Ohne Körper am Server wie früher
+  const ueberKoe = f.typ === 'zahl' && kleinName(f) === 'drinks' && !koeFehlt;
+  if (ueberKoe) {
     const d = (Number(wert) || 0) - (Number(wertVon(f.spalte)) || 0);
-    for (let k = 0; k < Math.abs(d); k++) { if (d > 0) koePlus('drink', true); else koeMinus('drink', true); }
+    for (let k = 0; k < Math.abs(d); k++) { if (d > 0) koePlus('drink', true, undefined, f.spalte); else koeMinus('drink', true, f.spalte); }
   }
   const vor = ansicht === 'sensi' ? tagWertRechnen(tagIso, tagIso === heute() && tagIso >= ZEIT_AB ? fokusTagMin(tagIso) : undefined) : null;
   lokal(f, wert); zeichnen();
@@ -40627,7 +40714,7 @@ function setzen(id, wert, ohneVerlauf) {
     const nach = tagWertRechnen(tagIso, tagIso === heute() && tagIso >= ZEIT_AB ? fokusTagMin(tagIso) : undefined), r1 = x => komma((Math.round(x * 10) / 10).toFixed(1));
     if (nach != null && r1(nach) !== r1(vor)) melden('Tag ' + r1(vor) + ' → ' + r1(nach));
   }
-  nacheinander('appSpeichern', tagIso, f.spalte, wert, f.typ);
+  if (!ueberKoe) nacheinander('appSpeichern', tagIso, f.spalte, wert, f.typ);
 }
 function eintragLokal(f, liste) {
   const t = werteVon();
