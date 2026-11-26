@@ -7,7 +7,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Zentrale">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#073763">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#151514">
+<meta name="theme-color" content="#F4F3EF">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <meta charset="utf-8">
@@ -33,6 +34,7 @@
     --projekt-rosa: #C2507F; --projekt-rot: #D25A54; --projekt-terrakotta: #D97757; --projekt-orange: #EF9E26; --projekt-gelb: #D4B03C;
     --projekt-oliv: #9AA24A; --projekt-gruen: #6AA77A; --projekt-tuerkis: #3FA597; --projekt-petrol: #75A5AF; --projekt-blau: #5B8DD9;
     --projekt-indigo: #7474D6; --projekt-lila: #A391D9; --projekt-violett: #B467C4; --projekt-braun: #A47A58; --projekt-grau: #8C8C8C;
+    --logo: #CB3394;   /* Logo oben: <333 */
     --ring-fokus: #6F5CE6; --ring-koerper: #0C9A6C; --ring-kopf: #E0447A;
     /* Feste Farben nach Rolle */
     --abdunkeln-blatt: rgba(20,20,18,.42); --abdunkeln-mac: rgba(0,0,0,.4); --anf-puls: rgba(17, 85, 204, .32);
@@ -50,8 +52,8 @@
   body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
   button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
 
-  .logo { background: var(--knopf-blau); padding: calc(var(--abstand-7) + env(safe-area-inset-top)) var(--abstand-7) var(--abstand-7); text-align: center; }
-  .logo span { font: italic 800 var(--schrift-zahl)/1 Inter, -apple-system, sans-serif; color: var(--weiss); letter-spacing: .01em; }
+  .logo { background: var(--bg); padding: calc(var(--abstand-7) + env(safe-area-inset-top)) var(--abstand-7) var(--abstand-7); text-align: center; }
+  .logo span { font: italic 800 var(--schrift-zahl)/1 Inter, -apple-system, sans-serif; color: var(--logo); letter-spacing: .01em; }
   header { position: sticky; top: 0; z-index: 5; background: var(--bg);
     padding: var(--abstand-5) var(--abstand-7); display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--abstand-4); }
   /* V78: links und rechts gleich breit, der Titel steht genau in der Mitte */
@@ -458,7 +460,8 @@
   @media (prefers-reduced-motion: reduce) { #inhalt.wechsel * { animation: none !important; } }
   .ringe { display: flex; flex-direction: column; align-items: center; gap: var(--abstand-3); }
   .ringe-kreis { position: relative; display: grid; place-items: center; }
-  .ringe-kreis.mit, .ringe-kreis:has(svg) { width: 168px; height: 168px; }
+  .ringe-kreis.mit, .ringe-kreis:has(svg) { width: 168px; height: 96px; }   /* Säulen: so hoch wie die Zahl */
+  .ringe-kreis.mit .zahl, .ringe-kreis:has(svg) .zahl { justify-self: start; }   /* Säulen: Zahl links, Säulen rechts */
   .ringe-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .ringe-svg .ring { transition: stroke-dasharray .9s cubic-bezier(.2, .8, .2, 1), opacity .25s; }
   .ringe-leg { display: flex; gap: var(--abstand-5); font-size: var(--schrift-mini); font-weight: 600; color: var(--leise); font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -602,7 +605,7 @@
 </head>
 <body>
 <label id="haptik" aria-hidden="true" style="position:absolute;left:-9999px;top:0"><input type="checkbox" switch tabindex="-1"></label>
-<div class="logo"><span>ZENTRALE</span></div>
+<div class="logo"><span>&lt;333</span></div>
 <header></header>
 <main id="inhalt"><div class="laden">Lädt …</div></main>
 <nav></nav>
@@ -5117,13 +5120,11 @@ function cosMorgenFertig() {
   .sen-zahl b { font-size: var(--schrift-zahl); font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; color: var(--text); }
   .sen-zahl b.pop { animation: senpop .55s cubic-bezier(.3, 1.6, .5, 1); color: var(--sen); }
   @keyframes senpop { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
-  /* V83: Balken 1 bis 10 statt Wochenring, gleich hoch wie die Ringe im Tag */
-  .sen-balken { width: 168px; height: 168px; box-sizing: border-box; padding-top: 88px; display: flex; flex-direction: column; justify-content: center; gap: var(--abstand-6); }
+  /* V83: Balken 1 bis 10 statt Wochenring, seit Säulen so hoch wie die Tageszahl im Tag (96) */
+  .sen-balken { width: 168px; height: 96px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; gap: var(--abstand-6); }
   .sen-balken-bahn { position: relative; height: 18px; border-radius: var(--radius-rund); background: var(--linie); overflow: hidden; }
   .sen-balken-voll { position: absolute; inset: 0 auto 0 0; border-radius: var(--radius-mittel); background: var(--sen); transition: width .7s cubic-bezier(.2, .8, .2, 1); }
   .sen-balken-skala { display: flex; justify-content: space-between; font-size: var(--schrift-mini); font-weight: 600; color: var(--leise); font-variant-numeric: tabular-nums; margin-top: calc(-1 * var(--abstand-3)); }
-  .sen-kopf .ringe-leg span b { color: var(--sen); font-weight: 700; }
-  .sen-kopf .ringe-leg span.neu { animation: ciein .4s ease-out; }
 
   .sen-rechts { margin-left: auto; font-size: var(--schrift-mini); font-weight: 600; color: var(--leise); text-transform: none; letter-spacing: 0; font-variant-numeric: tabular-nums; }
   .sen-buch { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: var(--abstand-6); align-items: center; }
@@ -5710,6 +5711,9 @@ var ZentraleUI = function(exports) {
     ringDash: (i2, anteil) => ringDash(i2, anteil),
     get RING_R() {
       return RING_R;
+    },
+    get SAEULE() {
+      return SAEULE;
     },
     taskPunkte: (x2) => taskPunkte(x2),
     /* Chief da? (Reihe unter der Tageszahl). Chief selbst: ui/src/chief/daten.js */
@@ -12983,9 +12987,6 @@ var ZentraleUI = function(exports) {
     get vnHinweis() {
       return cosVnHinweis;
     },
-    get landet() {
-      return cosLandet;
-    },
     get fbAlt() {
       return cosFbAlt;
     },
@@ -13344,7 +13345,7 @@ var ZentraleUI = function(exports) {
       HAKEN_G,
       "gestartet " + F.cosUhr(g.erster)
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-gest", children: "gestartet " + F.cosUhr(g.erster) });
-    const innen2 = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    const innen = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "tg-start-l", children: [
         GLOCKE,
         /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "Start " + uhr2 }),
@@ -13355,7 +13356,7 @@ var ZentraleUI = function(exports) {
       ] }),
       rechts
     ] });
-    return g.erster === null ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-startk", onClick: los, children: innen2 }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-startk", children: innen2 });
+    return g.erster === null ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "tg-startk", onClick: los, children: innen }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-startk", children: innen });
   }
   function FokusLeer() {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg", children: [
@@ -13382,13 +13383,13 @@ var ZentraleUI = function(exports) {
     ] });
   }
   const MERK = "zentrale_heute_kal";
-  function TerminWahl({ t: t2, kurz: kurz2 }) {
+  function TerminWahl({ t: t2, kurz }) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-tf", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-seg", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: t2.flex ? "" : "an", onClick: () => F.cosTerminSetzen(t2.s, false), children: "Fix" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: t2.flex ? "an" : "", onClick: () => F.cosTerminSetzen(t2.s, true), children: "Flexibel" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-tipp", children: kurz2 || !t2.flex ? "Flexibel: Die Zeit gilt als frei, Kästchen dürfen dorthin." : "Die Zeit gilt als frei. Kästchen dürfen dorthin." })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-tipp", children: kurz || !t2.flex ? "Flexibel: Die Zeit gilt als frei, Kästchen dürfen dorthin." : "Die Zeit gilt als frei. Kästchen dürfen dorthin." })
     ] });
   }
   const lesen = () => {
@@ -13415,12 +13416,12 @@ var ZentraleUI = function(exports) {
   function FokusBlock({ f: f2 }) {
     const stil2 = { "--pf": f2.farbe, top: f2.top + "px", height: f2.h + "px" };
     const kl2 = "hk-f " + f2.art + (f2.gross ? "" : " klein") + (f2.mittel ? " mittel" : "");
-    const innen2 = f2.gross ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    const innen = f2.gross ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hk-ft", children: f2.art === "laeuft" ? "läuft" : f2.t }),
       f2.ohne ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hk-zu", children: "Zuordnen" }) : f2.art === "fertig" && f2.k ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hk-kq", children: Array.from({ length: Math.min(f2.k, 3) }, (_, j) => /* @__PURE__ */ jsxRuntimeExports.jsx("i", {}, j)) }) : f2.art === "fertig" ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hk-min", children: f2.min + " Min" }) : null
     ] }) : null;
     const label2 = f2.t + (f2.art === "laeuft" ? ", läuft" : f2.art === "fertig" ? ", " + (f2.k ? f2.k + " Kästchen" : f2.min + " Min") : ", geplant");
-    return f2.art === "offen" ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: kl2, style: stil2, onClick: () => F.cosSitzungOeffnen(f2.key), "aria-label": label2, children: innen2 }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: kl2, style: stil2, "aria-label": label2, children: innen2 });
+    return f2.art === "offen" ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: kl2, style: stil2, onClick: () => F.cosSitzungOeffnen(f2.key), "aria-label": label2, children: innen }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: kl2, style: stil2, "aria-label": label2, children: innen });
   }
   function Kalender({ d }) {
     const k2 = F.cosKalender(d), offen2 = k2.termine.find((t2) => !t2.vorbei && Z$1.terminOffen === t2.key);
@@ -13434,11 +13435,11 @@ var ZentraleUI = function(exports) {
           k2.fenster.map((f2) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hk-fe" + (f2.vorbei ? " vorbei" : ""), style: { top: f2.top + "px", height: f2.h + "px" }, "aria-label": "Arbeitsfenster " + f2.text, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: f2.text }) }, f2.key)),
           k2.termine.map((t2) => {
             const kl2 = "hk-t" + (t2.ueber ? " ueber" : "") + (t2.klein ? " klein" : "") + (t2.vorbei ? " vorbei" : "") + (t2.flex ? " flex" : "");
-            const st = { top: t2.top + "px", height: t2.h + "px", lineHeight: t2.klein ? t2.h + "px" : void 0 }, innen2 = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            const st = { top: t2.top + "px", height: t2.h + "px", lineHeight: t2.klein ? t2.h + "px" : void 0 }, innen = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
               t2.t,
               t2.unter ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hk-unter", children: t2.unter }) : null
             ] });
-            return t2.vorbei ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: kl2, style: st, children: innen2 }, t2.key + t2.top) : /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: kl2, style: st, onClick: () => F.cosTerminTippen(t2.s), "aria-expanded": String(Z$1.terminOffen === t2.key), "aria-label": "Termin " + t2.t + ": fix oder flexibel", children: innen2 }, t2.key + t2.top);
+            return t2.vorbei ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: kl2, style: st, children: innen }, t2.key + t2.top) : /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: kl2, style: st, onClick: () => F.cosTerminTippen(t2.s), "aria-expanded": String(Z$1.terminOffen === t2.key), "aria-label": "Termin " + t2.t + ": fix oder flexibel", children: innen }, t2.key + t2.top);
           }),
           k2.fokus.map((f2) => /* @__PURE__ */ jsxRuntimeExports.jsx(FokusBlock, { f: f2 }, f2.key))
         ] }),
@@ -13790,7 +13791,7 @@ var ZentraleUI = function(exports) {
   }
   function Termin({ t: t2, jm }) {
     const bis = t2.e < 24 * 60 ? " bis " + F.cosUhr(t2.e) : "", vorbei = t2.e <= jm, auf2 = !vorbei && Z$1.terminOffen === t2.key;
-    const innen2 = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    const innen = /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cos-tr-zeit", children: F.cosUhr(t2.s) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cos-tr-strich" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cos-tr-was", children: [
@@ -13798,9 +13799,9 @@ var ZentraleUI = function(exports) {
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: t2.flex ? "flexibel · Zeit frei" + bis : "Termin" + bis })
       ] })
     ] });
-    if (vorbei) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-tr termin vorbei" + (t2.flex ? " flex" : ""), children: innen2 });
+    if (vorbei) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-tr termin vorbei" + (t2.flex ? " flex" : ""), children: innen });
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-tr termin" + (t2.flex ? " flex" : ""), children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "cos-tr-in", onClick: () => F.cosTerminTippen(t2.s), "aria-expanded": String(auf2), "aria-label": "Termin " + t2.t + ": fix oder flexibel", children: innen2 }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-tr termin" + (t2.flex ? " flex" : ""), children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "cos-tr-in", onClick: () => F.cosTerminTippen(t2.s), "aria-expanded": String(auf2), "aria-label": "Termin " + t2.t + ": fix oder flexibel", children: innen }) }),
       auf2 ? /* @__PURE__ */ jsxRuntimeExports.jsx(TerminWahl, { t: t2 }) : null
     ] });
   }
@@ -36415,9 +36416,10 @@ img.ProseMirror-separator {
   const spalten = () => A$2.macSpalten();
   function RingeSvg({ stand: stand2 }) {
     if (!stand2) return null;
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("svg", { className: "ringe-svg", viewBox: "0 0 168 168", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntimeExports.jsx("g", { transform: "rotate(-90 84 84)", fill: "none", strokeWidth: "9", strokeLinecap: "round", children: A$2.RINGE.map((r2, i2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(React$2.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { "data-spur": i2, cx: "84", cy: "84", r: A$2.RING_R[i2], stroke: r2[2], opacity: ".24" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { className: "ring", "data-ring": i2, cx: "84", cy: "84", r: A$2.RING_R[i2], stroke: r2[2], strokeDasharray: A$2.ringDash(i2, stand2.alt[i2]), style: stand2.alt[i2] > 4e-3 ? void 0 : { opacity: 0 } })
+    const S2 = A$2.SAEULE;
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("svg", { className: "ringe-svg", viewBox: "0 36 168 96", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntimeExports.jsx("g", { fill: "none", strokeWidth: "14", strokeLinecap: "round", children: A$2.RINGE.map((r2, i2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(React$2.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("line", { "data-spur": i2, x1: S2.x[i2], y1: S2.unten, x2: S2.x[i2], y2: S2.oben, stroke: r2[2], opacity: ".18" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("line", { className: "ring", "data-ring": i2, x1: S2.x[i2], y1: S2.unten, x2: S2.x[i2], y2: S2.oben, stroke: r2[2], strokeDasharray: A$2.ringDash(i2, stand2.alt[i2]), style: stand2.alt[i2] > 4e-3 ? void 0 : { opacity: 0 } })
     ] }, i2)) }) });
   }
   function RingeLegende({ stand: stand2 }) {
@@ -36455,19 +36457,15 @@ img.ProseMirror-separator {
       /* @__PURE__ */ jsxRuntimeExports.jsx("b", { style: stil(A$2.ton(o, A$2.stufe(o, A$2.wertVon(o.spalte)))), children: A$2.anzeigeVon(o.spalte) || "–" })
     ] });
   }
-  function Tageszahl({ f: f2, oben, koe, reihe }) {
+  function Tageszahl({ f: f2, oben, koe }) {
     const live = A$2.tagLive(A$2.tagIso), w2 = live != null ? live : A$2.wertVon(f2.spalte), s = A$2.stufe(f2, w2);
     const ringe = A$2.ringeRechnen(A$2.tagIso);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tageszahl", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "neben links" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ringe", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ringe-kreis", id: "tagRinge", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(RingeSvg, { stand: ringe }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Zahl, { css: A$2.ton(f2, s) || "background:var(--chip)", text: live != null ? live.toFixed(1).replace(".", ",") : A$2.anzeigeVon(f2.spalte) || "–" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(RingeLegende, { stand: ringe }),
-        reihe
-      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ringe", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ringe-kreis", id: "tagRinge", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(RingeSvg, { stand: ringe }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Zahl, { css: A$2.ton(f2, s) || "background:var(--chip)", text: live != null ? live.toFixed(1).replace(".", ",") : A$2.anzeigeVon(f2.spalte) || "–" })
+      ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "neben", children: [
         koe ? null : /* @__PURE__ */ jsxRuntimeExports.jsx(Schnitt, { f: f2 }),
         oben.map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx(Oben, { o }, o.spalte))
@@ -36602,18 +36600,6 @@ img.ProseMirror-separator {
       })
     ] });
   }
-  function koeOffen() {
-    return A$2.P.felder.filter((f2) => A$2.koeFeld(f2) && ["kaestchen", "mac", "oben", "wert"].indexOf(f2.typ) === -1 && f2.typ !== "gross").filter((f2) => {
-      if (A$2.istCheckin(f2)) return A$2.checkinFehlt(f2);
-      const w2 = A$2.wertVon(f2.spalte);
-      return w2 == null || w2 === "";
-    }).length;
-  }
-  function Reihe$1() {
-    if (!A$2.P || !A$2.P.bloecke || !A$2.hatCosReihe()) return null;
-    const offen2 = A$2.tagIso === A$2.heute() ? koeOffen() : 0;
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-reihe koe-reihe", children: offen2 ? offen2 + " noch offen" : "" });
-  }
   function vorKoe() {
     A$2.tagKopf(true);
     if (!A$2.werteVon()) return;
@@ -36627,7 +36613,7 @@ img.ProseMirror-separator {
     if (!A$2.werteVon()) return /* @__PURE__ */ jsxRuntimeExports.jsx(LeerKarte, {});
     const P2 = A$2.P, gross = P2.felder.filter((f2) => f2.typ === "gross");
     const oben = P2.felder.filter((f2) => f2.typ === "oben" && A$2.koeFeld(f2));
-    const kopf2 = gross.map((f2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Tageszahl, { f: f2, oben, koe: true, reihe: /* @__PURE__ */ jsxRuntimeExports.jsx(Reihe$1, {}) }, f2.spalte));
+    const kopf2 = gross.map((f2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Tageszahl, { f: f2, oben, koe: true }, f2.spalte));
     const listen = offeneListen(oben).map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx(ListenKarte, { o }, "l" + o.spalte));
     const alle2 = bereicheBilden(true), rang = (b) => {
       const i2 = A$2.KOE_KARTEN.findIndex((x2) => x2[0] === b.name);
@@ -36710,29 +36696,6 @@ img.ProseMirror-separator {
     if (!F.cosTagAn() && !vortag) return null;
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "karte cos-tasks", id: "cosTasksBox", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Innen$1, {}, stand2 + "|" + zug()) });
   }
-  function innen(iso) {
-    const t2 = F.cosTag(iso), h2 = A$2.heute(), n2 = t2.farben.length;
-    const reif = iso === h2 ? Math.max(0, n2 - F.cosGesammelt(iso)) : 0;
-    const landet = Date.now() - Z$1.landet < 900;
-    const k2 = t2.farben.map((f2, i2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Kq, { farbe: f2, klasse: "an" + (i2 >= n2 - reif ? " neu" : "") + (landet && i2 === n2 - 1 ? " landet" : "") }, i2));
-    const laeuft = iso === h2 && F.bloeckeVon(h2).some((b) => b.gestartet && !b.beendet && !b.status && A$2.jetztMin() < A$2.minVon(b.ende));
-    if (iso === h2 && (t2.rest > 0 || laeuft)) k2.push(/* @__PURE__ */ jsxRuntimeExports.jsx(Kq, { farbe: t2.letzte || "var(--leise)", klasse: "", teil: t2.rest / K.MIN }, "r"));
-    if (!k2.length) return iso === h2 ? { el: /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Kq, { farbe: "var(--leise)", klasse: "" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Heute noch kein Kästchen" })
-    ] }), reif: 0 } : { el: null, reif: 0 };
-    const plus2 = iso === h2 && n2 ? F.zuwachsText(F.tagZuwachs(iso, n2 * K.MIN, 0)) : "";
-    return { el: /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "kr", children: k2 }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: reif ? reif + " Kästchen einsammeln" : n2 + " Kästchen" + (plus2 ? " · Tag " + plus2 : "") })
-    ] }), reif };
-  }
-  function Reihe({ iso }) {
-    const stand2 = useTeil("reihe");
-    if (!A$2.P || !A$2.P.bloecke) return null;
-    const r2 = innen(iso || A$2.tagIso);
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-reihe" + (r2.reif ? " reif" : ""), id: "cosReihe", onClick: r2.reif ? () => F.cosSammeln() : void 0, children: /* @__PURE__ */ jsxRuntimeExports.jsx(React$2.Fragment, { children: r2.el }, stand2 + "|" + zug()) });
-  }
   function zahlen() {
     const h2 = A$2.tagIso, tag = (k2) => A$2.tagPlus(h2, -k2), bis = (n2) => Array.from({ length: n2 }, (_, k2) => tag(k2));
     const ja2 = (s, iso) => A$2.wertVon(s, iso) === true, zahl = (s, iso) => {
@@ -36809,7 +36772,7 @@ img.ProseMirror-separator {
     if (!A$2.werteVon()) return /* @__PURE__ */ jsxRuntimeExports.jsx(LeerKarte, {});
     const P2 = A$2.P, gross = P2.felder.filter((f2) => f2.typ === "gross");
     const oben = P2.felder.filter((f2) => f2.typ === "oben" && !A$2.koeFeld(f2));
-    const kopf2 = gross.map((f2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Tageszahl, { f: f2, oben, reihe: da("cosTag") ? /* @__PURE__ */ jsxRuntimeExports.jsx(Reihe, { iso: A$2.tagIso }) : null }, f2.spalte));
+    const kopf2 = gross.map((f2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Tageszahl, { f: f2, oben }, f2.spalte));
     const listen = offeneListen(oben).map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx(ListenKarte, { o }, "l" + o.spalte));
     const alle2 = bereicheBilden(false);
     const fokus = alle2.filter((b) => b.bloecke), unten = alle2.filter((b) => b.unten && !b.bloecke);
@@ -37145,9 +37108,9 @@ img.ProseMirror-separator {
   }
   const PFEIL = /* @__PURE__ */ jsxRuntimeExports.jsx("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M6 9l6 6 6-6" }) });
   function Modul({ p: p2, m: m2, dran, auf: auf2, farbe, alle: alle2 }) {
-    const modell = F.cosModellAn(), t2 = F.cosModulText(m2), sort = pjm.sort === m2.id, kurz2 = pjm.hakKurz, alleSchritte = m2.offen.slice();
-    if (kurz2 && Date.now() - kurz2.t < 4e3) {
-      const s = Z$1.C.schritte.find((x2) => x2.id === kurz2.sid);
+    const modell = F.cosModellAn(), t2 = F.cosModulText(m2), sort = pjm.sort === m2.id, kurz = pjm.hakKurz, alleSchritte = m2.offen.slice();
+    if (kurz && Date.now() - kurz.t < 4e3) {
+      const s = Z$1.C.schritte.find((x2) => x2.id === kurz.sid);
       if (s && m2.erledigt.indexOf(s) >= 0) alleSchritte.unshift({ kurz: true, s });
     }
     const kq = [];
@@ -37485,11 +37448,6 @@ img.ProseMirror-separator {
     filmAnsicht: (id2) => senFilmAnsicht(id2),
     filmWeg: () => senFilmWeg()
   };
-  function kurz(t2) {
-    const x2 = String(t2.text || "");
-    if (t2.art === "lesen") return (x2.match(/^Lesen \d+ (min|S\.)/) || ["Lesen"])[0];
-    return { buch: "Buch fertig", film: "Film", serie: "Serie", album: "Album ganz" }[t2.art] || x2.split(" ")[0];
-  }
   function wert(d) {
     const t2 = Number(d && d.tiefe) || 0;
     return t2 > 0 ? Math.min(10, t2) : null;
@@ -37515,21 +37473,12 @@ img.ProseMirror-separator {
   function Kopf$3({ d }) {
     const jetzt = Date.now(), h2 = A$2.heute();
     const name = d.datum === h2 ? "Tiefe heute" : d.datum === A$2.tagPlus(h2, -1) ? "Tiefe gestern" : "Tiefe " + A$2.label(d.datum);
-    const teile = d.teile || [];
-    const leg = teile.map((t2, i2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: jetzt < S.neuBis && i2 === teile.length - 1 ? "neu" : void 0, title: t2.text, children: [
-      kurz(t2) + (t2.punkte ? " " : ""),
-      t2.punkte ? /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "+" + S.zahl(t2.punkte) }) : null
-    ] }, i2));
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-kopf", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-zahl", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: name }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("b", { id: "senHeute", className: jetzt < S.popBis ? "pop" : void 0, children: S.zahl(d.tiefe) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ringe", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Balken, { d }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ringe-leg", children: leg.length ? leg : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: " " }) }),
-        A$2.P && A$2.P.bloecke ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-reihe", children: leg.length ? "" : "Lesen und Filme geben Tiefe." }) : null
-      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ringe", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Balken, { d }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-zahl", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Tiefe Woche" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("b", { id: "senWoche", children: S.zahl(d.woche) })
@@ -39297,8 +39246,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611260202';
-const PWA_NAME = "V137 V.. Chief Module ruhiger";
+const PWA_VERSION = '202611260211';
+const PWA_NAME = "V138 Säulen statt Ringe, Logo <333";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -39797,16 +39746,17 @@ function bloeckeVon(iso) { return (P && P.bloecke && P.bloecke[iso]) || []; }
 function begonnen(iso, b) { const h = heute(); return iso < h || (iso === h && b.start <= jetztZeit()); }
 function dauerText(min) { return min >= 60 ? Math.floor(min / 60) + ':' + zwei(min % 60) + ' h' : min + ' min'; }
 
-/* ── Ringe um die Tageszahl: Fokus, Körper, Kopf. Voll heißt: alles geholt, was der Bereich heute bringen kann ── */
+/* ── Ringe (seit Säulen: drei Säulen neben der Tageszahl): Fokus, Körper, Kopf. Voll heißt: alles geholt, was der Bereich heute bringen kann ── */
 const RINGE = [['fokus', 'Fokus', stilWert('--ring-fokus')], ['koerper', 'Körper', stilWert('--ring-koerper')], ['kopf', 'Kopf', stilWert('--ring-kopf')]];   // V67 kräftiger, Stufe 2: Farben aus basis.css
-const RING_R = [78, 67, 56];
+const RING_R = [78, 67, 56];   // bis Säulen: Radien der Ringe, nur noch für alte Aufrufer
+const SAEULE = { x: [110, 132, 154], unten: 125, oben: 43 };   // Säulen rechts neben der Zahl (Skizze 15), so hoch wie ihre Scheibe (36 bis 132), wachsen von unten
 let ringStand = { iso: null, teile: null, alt: null };   // zuletzt gezeigt, damit die Ringe vom alten Stand aus wachsen
 function ringTeile(iso) {
   const aus = {}, x = tagWertRechnen(iso, iso === heute() && iso >= ZEIT_AB ? fokusTagMin(iso) : undefined, null, aus);
   if (x == null || !aus.fokus) return null;
   return RINGE.map(([k]) => { const a = aus[k][0], b = aus[k][1]; return b > 0 ? Math.max(0, Math.min(1, a / b)) : 0; });
 }
-function ringDash(i, anteil) { const u = 2 * Math.PI * RING_R[i]; return (u * anteil).toFixed(1) + ' ' + u.toFixed(1); }
+function ringDash(i, anteil) { const l = SAEULE.unten - SAEULE.oben; return (l * anteil).toFixed(1) + ' ' + (2 * l).toFixed(1); }
 /* Stand der Ringe für das Zeichnen (React, ui/src/tag/Ringe.jsx): teile = wie voll, alt = von wo sie wachsen. Merkt sich den Stand.
    null: keine Ringe (alter Tag ohne Fokus) */
 function ringeRechnen(iso) {
