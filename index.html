@@ -36507,24 +36507,8 @@ img.ProseMirror-separator {
     ] });
   }
   function Neben({ n: n2 }) {
-    if (!n2) return null;
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Alkfrei" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("b", { children: [
-          n2.alkohol,
-          " von 7"
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Ottfrei" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("b", { children: [
-          n2.ott,
-          " von 7"
-        ] })
-      ] }),
-      n2.folge ? /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "tw-whitespace-normal", children: n2.folge }) : null
-    ] });
+    if (!n2 || !n2.folge) return null;
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "tw-whitespace-normal", children: n2.folge });
   }
   function Tageszahl({ f: f2, oben, koe }) {
     const live = A$2.tagLive(A$2.tagIso), w2 = live != null ? live : A$2.wertVon(f2.spalte), s = A$2.stufe(f2, w2);
@@ -36868,7 +36852,7 @@ img.ProseMirror-separator {
     const rest = karten.filter((b) => kopfK.indexOf(b) === -1 && notizK.indexOf(b) === -1);
     if (n2 === 3) {
       sp[0].push(...fokus.map(teil));
-      sp[1].push(...notizK.map(teil), woche, ...listen, ...unten.map(teil));
+      sp[1].push(woche, ...notizK.map(teil), ...listen, ...unten.map(teil));
       sp[2].push(...kopfK.map(teil), ...rest.map(teil));
     } else {
       sp[0].push(...fokus.map(teil), ...notizK.map(teil), ...listen, ...unten.map(teil));
@@ -39318,8 +39302,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611262348';
-const PWA_NAME = "V144 Tempo sichere Schritte";
+const PWA_VERSION = '202611270011';
+const PWA_NAME = "V145 Woche über Notiz am Mac, Alkfrei und Ottfrei raus";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
