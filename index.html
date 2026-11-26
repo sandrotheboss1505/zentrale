@@ -5110,8 +5110,8 @@ function cosMorgenFertig() {
 
 <style>
   /* ── Sensi: Tiefe, Lesen, Gesehen, Handy. Eigene Klassen mit sen-, Farben und Abstände wie der Rest der App ── */
-  :root { --sen: #3E7F86; --sen-hell: #E2F0F0; --sen-auf: #FFFFFF; }
-  @media (prefers-color-scheme: dark) { :root { --sen: #86C7C9; --sen-hell: rgba(134,199,201,.16); --sen-auf: #10302F; } }
+  :root { --sen: #8B2A2A; --sen-hell: #F3E2E0; --sen-auf: #FFFFFF; }
+  @media (prefers-color-scheme: dark) { :root { --sen: #D27A72; --sen-hell: rgba(210,122,114,.16); --sen-auf: #3A1412; } }
 
   /* V79: Kopf genau so groß wie in Tag und Köö (Ring 168, Legende, Zeile darunter), damit beim Wechseln nichts verrutscht */
   .sen-kopf { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--abstand-7); padding: var(--abstand-5) 0 var(--abstand-8); }
@@ -5141,6 +5141,7 @@ function cosMorgenFertig() {
   .sen-fort i { display: block; height: 100%; background: var(--sen); border-radius: var(--radius-rund); transition: width .8s cubic-bezier(.2, .8, .2, 1); }
   .sen-knopf { display: block; width: 100%; height: 46px; margin-top: var(--abstand-6); border-radius: var(--radius-gross); background: var(--sen); color: var(--sen-auf); font-weight: 700; font-size: var(--schrift-text); }
   .sen-knopf.hell { background: var(--sen-hell); color: var(--sen); }
+  .sen-knopf.ruhig { height: 34px; margin-top: var(--abstand-5); background: var(--sen-hell); color: var(--sen); font-weight: 600; font-size: var(--schrift-klein); }
   .sen-knopf:active { transform: scale(.97); }
   .sen-uhr { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--abstand-6); margin-top: var(--abstand-6); padding: var(--abstand-5) var(--abstand-5) var(--abstand-5) var(--abstand-7);
     border-radius: var(--radius-gross); background: var(--sen-hell); animation: ciein .3s ease-out; }
@@ -37535,7 +37536,7 @@ img.ProseMirror-separator {
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-seite", children: "S. " + (haupt.seite || 0) + (haupt.umfang ? " von " + haupt.umfang : "") }),
           haupt.umfang ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sen-fort", children: /* @__PURE__ */ jsxRuntimeExports.jsx("i", { style: { width: pr + "%" } }) }) : null
         ] }) }),
-        laeuft ? /* @__PURE__ */ jsxRuntimeExports.jsx(Uhr, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "sen-knopf", onClick: () => S.seiteBlatt(haupt.id), "aria-label": "Gelesene Seiten eintragen", children: "+ Seiten" })
+        laeuft ? /* @__PURE__ */ jsxRuntimeExports.jsx(Uhr, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "sen-knopf ruhig", onClick: () => S.seiteBlatt(haupt.id), "aria-label": "Gelesene Seiten eintragen", children: "+ Seiten" })
       ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Noch kein Buch. Mit Buch hinzufügen geht es los." }),
       andere.length || sitz.length ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-liste", children: [
         andere.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-zeile", children: [
@@ -37607,31 +37608,9 @@ img.ProseMirror-separator {
   }
   function Handy({ d }) {
     const hd2 = d.handy || {};
-    const wann = (x2) => {
-      if (!x2) return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "–" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "noch nichts" })
-      ] });
-      const h2 = A$2.heute(), t2 = x2.kal === h2 ? "heute" : x2.kal === A$2.tagPlus(h2, -1) ? "gestern" : A$2.label(x2.kal);
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: x2.zeit }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2 })
-      ] });
-    };
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$2, { name: "Handy" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-handy", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Abgelegt" }),
-            wann(hd2.abgelegt)
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Aufgenommen" }),
-            wann(hd2.aufgenommen)
-          ] })
-        ] }),
-        !hd2.abgelegt && !hd2.aufgenommen ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Kommt per Kurzbefehl vom Ladegerät." }) : null,
         /* @__PURE__ */ jsxRuntimeExports.jsx(Frei, { hd: hd2 })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Felder, { hd: hd2 })
@@ -39246,8 +39225,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611260211';
-const PWA_NAME = "V138 Säulen statt Ringe, Logo <333";
+const PWA_VERSION = '202611260219';
+const PWA_NAME = "V139 Sensi dunkelrot, Handy ohne Abgelegt, + Seiten ruhiger";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
