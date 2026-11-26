@@ -84,7 +84,7 @@
     font-size: var(--schrift-zahl); font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
 
   .feld { padding: var(--abstand-5) 0; border-top: 1px solid var(--linie); }
-  .bereich + .feld { border-top: 0; }
+  .bereich + .feld, .karte > .tag-notiz:first-child { border-top: 0; }
   .zeile { display: flex; align-items: center; justify-content: space-between; gap: var(--abstand-6); min-height: 28px; }
   .name { font-size: var(--schrift-text); }
   .name small { color: var(--leise); font-size: var(--schrift-klein); margin-left: var(--abstand-3); }
@@ -36135,6 +36135,8 @@ img.ProseMirror-separator {
   }
   const mdBloecke = (md2) => mdZuJson(md2).content;
   const erweiterungen = (platz2) => [src_default$4, src_default$3, src_default$2, src_default$1.configure({ levels: [2] }), src_default, BulletList, ListItem, UndoRedo, Placeholder.configure({ placeholder: platz2 || "" })];
+  const LISTE = { type: "doc", content: [{ type: "bulletList", content: [{ type: "listItem", content: [{ type: "paragraph" }] }] }] };
+  const ohneLeere = (md2) => md2.split("\n").filter((z2) => z2.trim() !== "-").join("\n");
   const KNOEPFE = [
     { name: "Überschrift", an: (e) => e.isActive("heading"), tun: (c) => c.toggleHeading({ level: 2 }), bild: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "notiz-h", children: "Ü" }) },
     { name: "Fett", an: (e) => e.isActive("bold"), tun: (c) => c.toggleBold(), bild: /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: "F" }) },
@@ -36164,7 +36166,7 @@ img.ProseMirror-separator {
   function NotizText({ wert: wert2, className }) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "notiz-text" + (className ? " " + className : ""), children: mdBloecke(wert2).map((k2, i2) => k2.type === "heading" ? /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: inhalt(k2.content) }, i2) : k2.type === "bulletList" ? /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { children: k2.content.map((li2, j) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: inhalt(li2.content[0].content) }, j)) }, i2) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: k2.content ? inhalt(k2.content) : /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}) }, i2)) });
   }
-  function Notiz$2({ wert: wert2, tippen, raus, id: id2, platzhalter, label: label2, className, nurLesen, kopf: kopf2, rechts, kopfKlasse, kinder }) {
+  function Notiz$2({ wert: wert2, tippen, raus, id: id2, platzhalter, label: label2, className, nurLesen, kopf: kopf2, rechts, kopfKlasse, kinder, liste }) {
     const [an, setAn] = reactExports.useState(false), [, neu] = reactExports.useState(0);
     const zuletzt2 = reactExports.useRef(String(wert2 || "")), fn = reactExports.useRef({});
     fn.current = { tippen, raus };
@@ -36175,14 +36177,22 @@ img.ProseMirror-separator {
       immediatelyRender: true,
       editorProps: { attributes: { id: id2 || "", class: "notiz-ed", role: "textbox", "aria-multiline": "true", "aria-label": label2 || platzhalter || "Notiz" } },
       onUpdate: ({ editor }) => {
-        const md2 = jsonZuMd(editor.getJSON());
+        let md2 = jsonZuMd(editor.getJSON());
+        if (liste) md2 = ohneLeere(md2);
         zuletzt2.current = md2;
         if (fn.current.tippen) fn.current.tippen(md2);
       },
       onSelectionUpdate: () => neu((n2) => n2 + 1),
-      onFocus: () => setAn(true),
-      onBlur: () => {
+      onFocus: ({ editor }) => {
+        setAn(true);
+        if (liste && editor.isEmpty) {
+          editor.commands.setContent(LISTE, { emitUpdate: false });
+          editor.commands.focus("end");
+        }
+      },
+      onBlur: ({ editor }) => {
         setAn(false);
+        if (liste && !ohneLeere(jsonZuMd(editor.getJSON())).trim()) editor.commands.setContent(mdZuJson(""), { emitUpdate: false });
         if (fn.current.raus) fn.current.raus();
       }
     });
@@ -36216,16 +36226,22 @@ img.ProseMirror-separator {
       kinder ? kinder(/* @__PURE__ */ jsxRuntimeExports.jsx(EditorContent, { editor: ed2, className: "notiz-feld" })) : /* @__PURE__ */ jsxRuntimeExports.jsx(EditorContent, { editor: ed2, className: "notiz-feld" })
     ] });
   }
+  const ART = {
+    Notiz: { name: "Tagebuch", id: "tagNotiz", platz: "Was machst du gerade?", liste: true },
+    Gedanken: { name: "Gedanken", id: "tagGedanken", platz: "Was geht dir durch den Kopf?" }
+  };
   function Notiz$1({ f: f2, id: id2, w: w2 }) {
     const v2 = w2 == null ? "" : String(w2), getippt = reactExports.useRef(null);
+    const a = ART[f2.spalte] || { name: f2.spalte, id: "tag" + String(f2.spalte).replace(/\W/g, ""), platz: "Was war heute?" };
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "feld tag-notiz", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       Notiz$2,
       {
-        id: "tagNotiz",
+        id: a.id,
         wert: v2,
-        platzhalter: "Was war heute?",
-        label: f2.spalte,
-        kopf: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "name", children: f2.spalte }),
+        platzhalter: a.platz,
+        label: a.name,
+        liste: a.liste,
+        kopf: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "name", children: a.name }),
         tippen: (t2) => {
           getippt.current = t2;
         },
@@ -36475,8 +36491,9 @@ img.ProseMirror-separator {
   function Karte({ b, nachFeld, unten }) {
     const offen2 = b.bloecke ? 0 : A$2.checkinOffen(b.felder);
     const ruhig = String(b.name || "").toLowerCase() === "geld";
+    const ohneKopf = String(b.name || "").toLowerCase() === "notiz";
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte" + (ruhig ? " ruhig" : ""), children: [
-      b.bloecke ? null : /* @__PURE__ */ jsxRuntimeExports.jsx(Bereich, { farbe: b.farbe, name: b.name, children: offen2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ci-offen", children: offen2 + " offen" }) : null }),
+      b.bloecke || ohneKopf ? null : /* @__PURE__ */ jsxRuntimeExports.jsx(Bereich, { farbe: b.farbe, name: b.name, children: offen2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ci-offen", children: offen2 + " offen" }) : null }),
       b.felder.map((f2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(React$2.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Feld, { f: f2 }),
         nachFeld ? nachFeld(f2) : null
@@ -39287,7 +39304,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611260121';
+const PWA_VERSION = '202611260151';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -39711,7 +39728,8 @@ function paket(m, H, tagPlus, aenderungen, vorBloecke) {
     feld('Struktur', 'Mac', 'mac', '', '#6D6A8A'),
     feld('Geld', 'Ausgaben', 'zahl', 'Ausgaben', '#3B6D11'),
     feld('Geld', 'Kontostand', 'wert', '', '#3B6D11', { liste: true }),
-    feld('Notiz', 'Notiz', 'notiz', '', '#8C8C8C')
+    feld('Notiz', 'Notiz', 'notiz', '', '#8C8C8C'),   // Tagebuch (Stichpunkte)
+    feld('Notiz', 'Gedanken', 'notiz', '', '#8C8C8C')
   ];
   const t = (h, mi) => (h * 60 + mi) / 1440;
   // Gut von, gut bis, halb von, halb bis. Gleiche Grenzen für Regeln (Tageswert) und Ziele (Farben)
@@ -39752,7 +39770,8 @@ function paket(m, H, tagPlus, aenderungen, vorBloecke) {
     if (alt) Object.assign(r, {
       'Energie 1/10': z(4 + k), 'Konzentration 1/10': z(6 + k % 2), 'Vb': z(['si', 'hmm', 'si'][k]), 'X Handy Frühstück': z(k !== 1), 'Elvanse': zt(t(7, 30 + 10 * k)),
       'Einschlaf': zt(t(23, 10 + 15 * k)), 'X Handy Schlafen': z(k === 0), 'Sport': z(k === 2), 'Knieübung': z(k !== 0), 'Drinks': z(k === 1 ? 2 : 0), 'Ott': z(false),
-      'Notiz': z(i === 5 ? 'Drehtag, lang aber gut.' : '', i === 5 ? 'Drehtag, lang aber gut.' : '')
+      'Notiz': z(i === 5 ? '- Drehtag Hafen\n- Abends Schnitt Akt 2' : '', i === 5 ? '- Drehtag Hafen\n- Abends Schnitt Akt 2' : ''),
+      'Gedanken': z(i === 5 ? 'Lang, aber gut. Ende B fühlt sich richtig an.' : '', i === 5 ? 'Lang, aber gut. Ende B fühlt sich richtig an.' : '')
     });
     werte[tag] = r;
   });
@@ -41617,7 +41636,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 01:21</div>
+<div id="testband">TEST 01:51</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
