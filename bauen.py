@@ -50,6 +50,7 @@ SEITEN = [
             'woche/woche.js',             # Woche öffnen, Farbe der Stufe
             'tag/felder.js',              # Felder: Farben am Mac, Check ins, Skala, Aufklappen
             'geld/geld.js',               # Geld Karte letzte 7 Tage aufklappen
+            '../Punkte.js',               # Seit 26.11.2026: neues Punktesystem (PKT26), dieselbe Datei wie im Apps Script
             'tag/tageswert.js',           # Fokuspunkte, Tageswert wie in Tage, Fokuszeit, Blöcke
             'tag/ringe.js',               # Ringe um die Tageszahl rechnen und wachsen lassen, Plus fliegt
             'tag/heute.js',               # Fokus Karte: Dran, Los, Fertig, Stufen, heuteNeu (gezeichnet in React, ui/src/fokus/)
