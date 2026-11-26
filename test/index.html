@@ -1297,7 +1297,10 @@
   .tg-bahn.stoss .tg-ffuell.wachs { animation: tgfwachs .9s cubic-bezier(.2, 1.35, .4, 1) calc(0ms - var(--vb)) both; }
   @keyframes tgfwachs { from { width: var(--von); } }
   .tg-bahn.ac .tg-bkopf { top: 6px; }
-  @media (prefers-reduced-motion: reduce) { .tg-fglanz { display: none; } .tg-bahn.stoss .tg-ffuell.wachs { animation: none; } }
+  /* Das Feld, das gerade läuft: Rand in Projektfarbe, atmet (cosBalkenFelder lauf) */
+  .tg-fz.lauf { box-shadow: 0 0 0 1px var(--pf), 0 0 8px var(--pf); animation: tgflauf 1.6s ease-in-out infinite; }
+  @keyframes tgflauf { 50% { box-shadow: 0 0 0 1px var(--pf), 0 0 2px color-mix(in srgb, var(--pf) 40%, transparent); } }
+  @media (prefers-reduced-motion: reduce) { .tg-fglanz { display: none; } .tg-bahn.stoss .tg-ffuell.wachs { animation: none; } .tg-fz.lauf { animation: none; } }
   /* Moment: steht 4 s golden unter dem Balken (Projekt gehalten, Tag gehalten) */
   .tg-mom { margin-top: var(--abstand-6); padding: var(--abstand-5) var(--abstand-6); border-radius: var(--radius-gross); font-size: var(--schrift-klein); font-weight: 700;
     color: var(--gold); background: linear-gradient(90deg, var(--gold-hell), color-mix(in srgb, var(--gold-hell) 50%, var(--karte)));
@@ -1310,7 +1313,10 @@
   .jz-p { display: flex; align-items: center; gap: var(--abstand-3); font-weight: 700; min-width: 0; }
   .jz-punkt { flex: none; width: 8px; height: 8px; border-radius: var(--radius-rund); background: var(--pf); animation: jzpunkt 1.6s ease-in-out infinite; }
   @keyframes jzpunkt { 50% { opacity: .35; } }
-  .jz-seit { flex: none; color: var(--leise); }
+  .jz-seit { flex: none; margin-left: auto; color: var(--leise); }
+  /* Kästchen löschen: klein und leise neben seit, ganz raus (cosKaestchenLoeschen), oben kurz Rückgängig */
+  .jz-weg { flex: none; min-width: 30px; min-height: 30px; padding: 0; background: none; font-size: var(--schrift-gross); line-height: 1; color: var(--leise); opacity: .5; }
+  .jz-weg:active { opacity: 1; }
   .jz-s { display: flex; align-items: center; gap: var(--abstand-4); font-size: var(--schrift-gross); font-weight: 600; }
   .jz-s .pj-kreis { --kf: var(--pf); }
   .jz-ohne { font-style: italic; color: var(--leise); }
@@ -2688,10 +2694,10 @@ function cosBalkenFelder(d) {
   (d.chips || []).forEach(c => {
     const k = Math.max(0, c.m - c.j);
     if (!k) return;
-    const mehr = lp && lp.id === c.p.id ? c.wart || 0 : 0, gruppe = [];
+    const mehr = lp && lp.id === c.p.id ? c.wart || 0 : 0, gruppe = [], jl = lp && lp.id === c.p.id ? Math.min(k - 1, Math.floor(c.bMin / COS_MIN)) : -1;   // jl: das Feld, das gerade läuft (leuchtet)
     for (let j = 0; j < k; j++) {
       const m = Math.max(0, Math.min(COS_MIN, c.bMin - COS_MIN * j));
-      gruppe.push({ m: m, g: Math.max(0, Math.min(COS_MIN, c.bMin + mehr - COS_MIN * j)) - m });
+      gruppe.push({ m: m, g: Math.max(0, Math.min(COS_MIN, c.bMin + mehr - COS_MIN * j)) - m, lauf: j === jl });
       voll += m;
     }
     if (lp && lp.id === c.p.id) kante = n + Math.min(k, c.bMin / COS_MIN);
@@ -4644,29 +4650,23 @@ function cosSitzNichtHeute() {
 }
 function cosSitzLoeschen() { const b = cosBlatt; cosBlattZu(); cosAusplanen(b.key); melden('Aus dem Kalender gelöscht. Oben geht Rückgängig.'); }
 
-/* ── Doch nicht gemacht: ein geschafftes Kästchen in Heute (aufgeklappter Kalender) antippen, das Blatt fragt. Es geht sofort aus Kalender
-   und Balken. Der Server löscht den Termin erst nach COS_WEG_MS oder wenn die Seite in den Hintergrund geht. Bis dahin holt Rückgängig
+/* ── Kästchen löschen: das kleine X am laufenden Kästchen (Jetzt) nimmt es ganz raus, sofort aus Kalender und Balken. Der Server löscht den Termin erst nach COS_WEG_MS oder wenn die Seite in den Hintergrund geht. Bis dahin holt Rückgängig
    es genau so zurück, wie es war (ein gelöschter Termin ließe sich nicht mit Start, Ende und Status wiederherstellen) ── */
 const COS_WEG_MS = 8000;
 let cosWegOffen = [];
-function cosGeschafftOeffnen(key) {
-  const b = bloeckeVon(heute()).find(x => x.key === key);
+function cosKaestchenLoeschen(key) {
+  const h = heute(), l = bloeckeVon(h), i = l.findIndex(x => x.key === key), b = l[i];
   if (!b) return;
   if (b.lokal) { melden('Einen Moment, das Kästchen wird noch angelegt.'); return; }
-  cosBlattAuf({ art: 'geschafft', titel: 'Geschafft', key: key });
-}
-function cosDochNicht() {
-  const key = cosBlatt && cosBlatt.key, h = heute(), l = bloeckeVon(h), i = l.findIndex(x => x.key === key), b = l[i];
-  cosBlattZu();
-  if (!b) return;
-  const eintrag = { art: 'cosDochNicht', tag: tagIso, h: h, b: b, i: i, name: 'Doch nicht gemacht' };
+  const eintrag = { art: 'cosDochNicht', tag: tagIso, h: h, b: b, i: i, name: 'Kästchen gelöscht' };
+  cosLaufFx = null; cosDavorAuf = false;
   P.bloecke[h] = l.filter(x => x !== b);
   fokusLokal(h);
   eintrag.zeit = setTimeout(() => cosWegSenden(eintrag), COS_WEG_MS);
   cosWegOffen.push(eintrag);
   merken(eintrag);
   haptik();
-  melden('Kästchen raus. Oben geht kurz Rückgängig.');
+  melden('Kästchen gelöscht. Oben geht kurz Rückgängig.');
   zeichnen();
 }
 function cosWegSenden(eintrag) {
@@ -13279,7 +13279,7 @@ var ZentraleUI = function(exports) {
     const zellen = [];
     B2.gruppen.forEach((gr, gi2) => gr.felder.forEach((z2, j) => {
       const alt = fx && fx.wachs && fx.proj ? Math.max(0, Math.min(30, (fx.proj[gr.p.id] || 0) - 30 * j)) : z2.m, waechst = alt !== z2.m;
-      const kl2 = "tg-fz" + (j === 0 ? " erst" : "") + (j === gr.felder.length - 1 ? " letzt" : "") + (j === 0 && gi2 > 0 ? " gruppe" : "");
+      const kl2 = "tg-fz" + (j === 0 ? " erst" : "") + (j === gr.felder.length - 1 ? " letzt" : "") + (j === 0 && gi2 > 0 ? " gruppe" : "") + (z2.lauf && !still ? " lauf" : "");
       const fs = { width: pz$1(z2.m / 30), "--i": (i2 * 0.1).toFixed(2) + "s" };
       if (waechst) fs["--von"] = pz$1(alt / 30);
       zellen.push(
@@ -13408,7 +13408,7 @@ var ZentraleUI = function(exports) {
       f2.ohne ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hk-zu", children: "Zuordnen" }) : f2.art === "fertig" && f2.k ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hk-kq", children: Array.from({ length: Math.min(f2.k, 3) }, (_, j) => /* @__PURE__ */ jsxRuntimeExports.jsx("i", {}, j)) }) : f2.art === "fertig" ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hk-min", children: f2.min + " Min" }) : null
     ] }) : null;
     const label2 = f2.t + (f2.art === "laeuft" ? ", läuft" : f2.art === "fertig" ? ", " + (f2.k ? f2.k + " Kästchen" : f2.min + " Min") : ", geplant");
-    return f2.art === "offen" ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: kl2, style: stil2, onClick: () => F.cosSitzungOeffnen(f2.key), "aria-label": label2, children: innen2 }) : f2.art === "fertig" ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: kl2, style: stil2, onClick: () => F.cosGeschafftOeffnen(f2.key), "aria-label": label2 + ", antippen zum Rausnehmen", children: innen2 }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: kl2, style: stil2, "aria-label": label2, children: innen2 });
+    return f2.art === "offen" ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: kl2, style: stil2, onClick: () => F.cosSitzungOeffnen(f2.key), "aria-label": label2, children: innen2 }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: kl2, style: stil2, "aria-label": label2, children: innen2 });
   }
   function Kalender({ d }) {
     const k2 = F.cosKalender(d), offen2 = k2.termine.find((t2) => !t2.vorbei && Z$1.terminOffen === t2.key);
@@ -13499,7 +13499,8 @@ var ZentraleUI = function(exports) {
           /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "jz-punkt", "aria-hidden": "true" }),
           name
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "jz-seit", children: "seit " + b.gestartet })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "jz-seit", children: "seit " + b.gestartet }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "jz-weg", onClick: () => F.cosKaestchenLoeschen(b.key), disabled: !!b.lokal, "aria-label": "Kästchen löschen", children: "×" })
       ] }),
       oben ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "jz-s lk-schritt" + (hak ? " rein" : ""), style: hakStil, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "pj-kreis", onClick: () => haken(oben), "aria-label": "abhaken: " + oben.titel }),
@@ -38431,41 +38432,6 @@ img.ProseMirror-separator {
       ] }) : null
     ] });
   }
-  function Geschafft({ b }) {
-    const h2 = A$2.heute(), bl2 = F.bloeckeVon(h2).find((x2) => x2.key === b.key);
-    if (!bl2) return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Bk, { titel: "Geschafft", fertig: null }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Das gibt es nicht mehr." })
-    ] });
-    const s = F.cosSchrittVon(bl2), p2 = s && F.cosNachName(s.projekt);
-    const farbe = p2 ? F.cosProjektFarbe(p2) : F.cosFarbe(bl2.bereich);
-    const titel = s ? s.titel : F.titelTeile(bl2).was || bl2.bereich;
-    const kq = F.cosBlockKq(h2, bl2), min2 = F.fokusMin(h2, bl2);
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Bk, { titel: "Geschafft", fertig: null }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-vor", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "punkt", style: { background: farbe } }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "n", children: (p2 ? p2.name : bl2.bereich) + " · ab " + (bl2.gestartet || bl2.start) })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-gross", style: { marginBottom: 0 }, children: titel })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-feld", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "l", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Geschafft" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("em", { children: [
-            kq ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: kq }),
-              " Kästchen · "
-            ] }) : null,
-            F.dauerText(min2)
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-tipp", children: "Aus Versehen gestartet? Dann nimm es raus. Es verschwindet aus Kalender und Balken." })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-unten", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "cos-sekundaer rot", onClick: () => F.cosDochNicht(), children: "Doch nicht gemacht" }) })
-    ] });
-  }
   function Kopf$1({ b }) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-bk", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosBlattZu(), children: "Später" }),
@@ -38605,14 +38571,14 @@ img.ProseMirror-separator {
       ] })
     ] });
   }
-  const ARTEN = { schritt: Schritt, projekt: ProjektBlatt, sitzung: Sitzung, einplanen: Einplanen, taskwann: TaskWann, weiter: Weiter, inhalt: Inhalt$1, morgen: BlattMorgen, geschafft: Geschafft };
+  const ARTEN = { schritt: Schritt, projekt: ProjektBlatt, sitzung: Sitzung, einplanen: Einplanen, taskwann: TaskWann, weiter: Weiter, inhalt: Inhalt$1, morgen: BlattMorgen };
   function ChiefBlattInhalt({ b }) {
     const Art = ARTEN[b.art] || Zerlegen;
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Art, { b });
   }
   function ChiefBlatt({ zug: zug2, neu }) {
     const b = Z$1.blatt;
-    const nurZu = b && ["zerlegen", "sitzung", "einplanen", "taskwann", "inhalt", "morgen", "geschafft"].indexOf(b.art) >= 0;
+    const nurZu = b && ["zerlegen", "sitzung", "einplanen", "taskwann", "inhalt", "morgen"].indexOf(b.art) >= 0;
     const hg2 = !b || b.art === "weiter" ? null : nurZu ? () => F.cosBlattZu() : () => F.cosBlattFertig();
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Blatt, { ort: "cosBlatt", art: "cos-blatt", auf: !!b, neu, zug: zug2, hg: hg2, label: b ? b.titel || "Bearbeiten" : void 0, fokus: b && b.fokus, fokusMs: 60, vorne: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-griffleiste" }), children: b ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChiefBlattInhalt, { b }) : null });
   }
@@ -39302,7 +39268,7 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'spielwelt';
-const PWA_VERSION = '202611260059';
+const PWA_VERSION = '202611260109';
 const PWA_NAME = "Test";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
@@ -41592,7 +41558,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
 })();
 </script>
-<div id="testband">TEST 00:59</div>
+<div id="testband">TEST 01:09</div>
 <style>#testband { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 60; pointer-events: none;
   background: #C62828; color: #fff; font: 700 11px/1 -apple-system, sans-serif; letter-spacing: .08em; padding: 5px 9px; border-radius: 999px; }</style>
 </body>
