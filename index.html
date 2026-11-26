@@ -1623,7 +1623,7 @@
   .pj-balken .kq.ueber, .pj-mod-kq .kq.ueber { background: var(--leise); box-shadow: none; }
   .pj-mod-l { display: flex; flex-direction: column; gap: var(--abstand-5); margin-top: var(--abstand-5); }
   .pj-mod { border: 1px solid var(--linie); border-radius: var(--radius-gross); }
-  .pj-mod.dran { border: 1.5px solid var(--kf); }
+  .pj-mod.dran { border: 1px solid var(--kf); }
   .pj-mod-k { display: block; width: 100%; text-align: left; padding: var(--abstand-5) var(--abstand-6); }
   .pj-mod-o { display: flex; align-items: center; gap: var(--abstand-4); min-height: 24px; }
   /* Zwei Farben (Haupt, Zweit aus cosZweitFarbe), jede in Stufen aus --kf gemischt, nichts gespeichert. Jedes Element mit eigener --kf rechnet seine Stufen selbst:
@@ -1634,17 +1634,10 @@
   .pj-kopf { background: var(--kf-schleier); }
   .pj-reit.an { background: var(--kf-schleier); }
   .pj-reit .punkt { flex: none; background: var(--kf); }
-  .pj-mod:not(.fertig) { border-color: var(--kf-mittel); }
-  .pj-mod:not(.fertig) > .pj-mod-k { background: var(--kf-schleier); border-radius: var(--radius-gross); }
-  .pj-mod.dran > .pj-mod-k { background: var(--kf-tief); color: var(--auf-tief); }
-  .pj-mod:has(.pj-mod-in) > .pj-mod-k { border-radius: var(--radius-gross) var(--radius-gross) 0 0; }
-  .pj-mod.dran > .pj-mod-k .pj-mod-u, .pj-mod.dran > .pj-mod-k .pj-mod-z { color: color-mix(in srgb, var(--auf-tief) 70%, transparent); }
-  .pj-mod.dran > .pj-mod-k .kq { border-color: var(--kf-blass); }
-  .pj-mod.dran > .pj-mod-k .kq.an { background: var(--kf-blass); }
-  .pj-mod.dran .pj-mod-punkt { background: var(--kf-blass); }
-  .pj-mod.dran { border-color: var(--kf-tief); }
+  .pj-mod:not(.fertig) { border-color: var(--linie); }
+  .pj-mod.dran { border-color: var(--kf-mittel); background: color-mix(in srgb, var(--kf) 6%, var(--bg)); }
+  .pj-mod.dran .pj-sz-neu input { background: var(--karte); }
   .pj-mod.dran .pj-dran { background: var(--kf-blass); color: var(--kf-tief); }
-  .pj-mod.dran .pj-mod-in { background: var(--kf-schleier); border-radius: 0 0 var(--radius-gross) var(--radius-gross); }
   .pj-mod-punkt { flex: none; width: 8px; height: 8px; border-radius: var(--radius-rund); background: var(--kf); }
   .pj-mod.fertig .pj-mod-punkt { display: none; }
   .pj-mod-o b { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1672,7 +1665,7 @@
   .pj-sz-pf button { width: 36px; height: 36px; border-radius: var(--radius-mittel); background: var(--chip); font-weight: 700; }
   .pj-sz-pf button:disabled { opacity: .3; }
   .pj-sz-neu { display: flex; gap: var(--abstand-4); padding-top: var(--abstand-4); border-top: 1px solid var(--linie); }
-  .pj-sz-neu input, .pj-mod-form input { flex: 1; min-width: 0; font: inherit; font-size: var(--schrift-text); padding: var(--abstand-4) var(--abstand-5); border-radius: var(--radius-gross); border: 0; background: var(--bg); color: var(--text); }
+  .pj-sz-neu input, .pj-mod-form input { flex: 1; min-width: 0; text-align: left; font: inherit; font-size: var(--schrift-text); padding: var(--abstand-4) var(--abstand-5); border-radius: var(--radius-gross); border: 0; background: var(--bg); color: var(--text); }
   .pj-sz-neu button { flex: none; width: 44px; height: 40px; border-radius: var(--radius-gross); background: var(--kf); color: var(--weiss); font-size: var(--schrift-gross); font-weight: 700; }
   .pj-mod-f { display: flex; justify-content: space-between; align-items: center; margin-top: var(--abstand-4); }
   .pj-zahlw { display: inline-flex; align-items: center; gap: var(--abstand-4); font-size: var(--schrift-klein); color: var(--leise); }
@@ -37262,7 +37255,7 @@ img.ProseMirror-separator {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(ModulFrage, { pid: p2.id }),
       !b.mods.length ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "pj-leer", children: "Noch kein Modul." }) : null,
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-mod-l", children: reihe.map((m2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Modul, { p: p2, m: m2, dran: m2 === dran, auf: auf2 === m2.id, farbe: F.cosModulFarbe(p2, b.mods.indexOf(m2)), alle: b.mods.filter((o) => !o.allg) }, m2.id)) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pj-mod-l", children: reihe.map((m2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Modul, { p: p2, m: m2, dran: m2 === dran, auf: auf2 === m2.id, farbe, alle: b.mods.filter((o) => !o.allg) }, m2.id)) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(NeuModul, { p: p2 })
     ] });
   }
@@ -39304,8 +39297,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611260154';
-const PWA_NAME = "V136 Buch und Gedanken";
+const PWA_VERSION = '202611260202';
+const PWA_NAME = "V137 V.. Chief Module ruhiger";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
