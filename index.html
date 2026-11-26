@@ -4650,43 +4650,46 @@ function cosSitzNichtHeute() {
 }
 function cosSitzLoeschen() { const b = cosBlatt; cosBlattZu(); cosAusplanen(b.key); melden('Aus dem Kalender gelöscht. Oben geht Rückgängig.'); }
 
-/* ── Kästchen löschen: das kleine X am laufenden Kästchen (Jetzt) nimmt es ganz raus, sofort aus Kalender und Balken. Der Server löscht den Termin erst nach COS_WEG_MS oder wenn die Seite in den Hintergrund geht. Bis dahin holt Rückgängig
-   es genau so zurück, wie es war (ein gelöschter Termin ließe sich nicht mit Start, Ende und Status wiederherstellen) ── */
-const COS_WEG_MS = 8000;
-let cosWegOffen = [];
+/* ── Kästchen löschen: das kleine X am laufenden Kästchen (Jetzt) nimmt es ganz raus, sofort aus Balken und Blockspeicher.
+   Der Server (appChiefKaestchenWeg in Chief.js) löscht gleich und gibt zurück, was Rückgängig braucht. Rückgängig legt es dort
+   neu an (appChiefKaestchenZurueck), mit neuem Schlüssel, und hängt es wieder an Schritt und Modul ── */
 function cosKaestchenLoeschen(key) {
   const h = heute(), l = bloeckeVon(h), i = l.findIndex(x => x.key === key), b = l[i];
   if (!b) return;
   if (b.lokal) { melden('Einen Moment, das Kästchen wird noch angelegt.'); return; }
-  const eintrag = { art: 'cosDochNicht', tag: tagIso, h: h, b: b, i: i, name: 'Kästchen gelöscht' };
+  const eintrag = { art: 'cosDochNicht', tag: tagIso, h: h, b: b, i: i, name: 'Kästchen gelöscht', weg: null };
   cosLaufFx = null; cosDavorAuf = false;
   P.bloecke[h] = l.filter(x => x !== b);
   fokusLokal(h);
-  eintrag.zeit = setTimeout(() => cosWegSenden(eintrag), COS_WEG_MS);
-  cosWegOffen.push(eintrag);
+  eintrag.fertig = cosNach('appChiefKaestchenWeg', b.key).then(d => {
+    eintrag.weg = d && d.weg ? d.weg : null;
+    cosLaden(true); cosBelegtLaden(true);
+    if (offen === 0) abfragen(true);
+  });
   merken(eintrag);
   haptik();
-  melden('Kästchen gelöscht. Oben geht kurz Rückgängig.');
+  melden('Kästchen gelöscht. Oben geht Rückgängig.');
   zeichnen();
 }
-function cosWegSenden(eintrag) {
-  clearTimeout(eintrag.zeit);
-  cosWegOffen = cosWegOffen.filter(x => x !== eintrag);
-  const j = verlauf.indexOf(eintrag);
-  if (j >= 0) { verlauf.splice(j, 1); kopfSetzen({ undoAus: !verlauf.length }); }
-  cosNach('appChiefAusplanen', eintrag.b.key).then(() => { cosLaden(true); cosBelegtLaden(true); if (offen === 0) abfragen(true); });
-}
-/* Rückgängig (aus cosRueckTag): noch nicht gesendet, also nur lokal zurück an seine Stelle */
+/* Rückgängig (aus cosRueckTag): sofort wieder sichtbar, der Server legt es neu an, sobald das Löschen durch ist */
 function cosDochNichtZurueck(a) {
-  clearTimeout(a.zeit);
-  cosWegOffen = cosWegOffen.filter(x => x !== a);
   const l = (P.bloecke[a.h] || []).slice();
   if (!l.some(x => x.key === a.b.key)) l.splice(Math.min(a.i, l.length), 0, a.b);
   P.bloecke[a.h] = l;
+  a.b.lokal = true;
   fokusLokal(a.h);
   zeichnen();
+  (a.fertig || Promise.resolve()).then(() => (a.weg ? cosNach('appChiefKaestchenZurueck', a.weg) : null)).then(d => {
+    a.b.lokal = false;
+    if (d && d.key) {
+      if (cosKeys[a.b.key]) { cosKeys[d.key] = cosKeys[a.b.key]; delete cosKeys[a.b.key]; }
+      a.b.key = d.key;
+    }
+    cosLaden(true); cosBelegtLaden(true);
+    if (offen === 0) abfragen(true);
+    zeichnen();
+  });
 }
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') cosWegOffen.slice().forEach(cosWegSenden); });
 /* ── Blatt: Plus. Kästchen aus dem Chief, aus allen Projekten oder ohne Projekt. Tasks und Nachtragen wie bisher ── */
 function cosEinplanenOeffnen() {
   if (!cosTagAn()) { planOeffnen(false); return; }
@@ -39284,8 +39287,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611260115';
-const PWA_NAME = "V134 Kästchen löschen";
+const PWA_VERSION = '202611260124';
+const PWA_NAME = "V135 Kästchen löschen am Server";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
