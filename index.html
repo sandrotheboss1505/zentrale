@@ -1439,6 +1439,7 @@
   .ras-karte .cos-vn-k b { font-size: var(--schrift-titel); }
   .ras-start { display: flex; align-items: center; gap: var(--abstand-4); margin: var(--abstand-5) 0 var(--abstand-2); font-size: var(--schrift-klein); }
   .ras-start svg { flex: none; color: var(--akzent); }
+  .ras-start .ras-st { margin-left: auto; }   /* Morgen vornehmen: Start früher, später */
   .cos-pl.cos-hv { display: grid; grid-template-columns: 4px minmax(0, 1fr) auto; gap: var(--abstand-5); align-items: center; padding: var(--abstand-4) 0; border-top: 1px solid var(--linie); }
   .cos-pl.cos-hv .cos-streif { min-height: 0; }
   .cos-pl.cos-hv .cos-pl-t b { font-size: var(--schrift-text); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1756,7 +1757,7 @@ function cosZweitFarbe(p) {
 }
 /* Modulfarbe: Modul 1, 3, … in der Hauptfarbe, 2, 4, … in der Zweitfarbe, jede mit eigenen Stufen (projekt.css) */
 function cosModulFarbe(p, i) { return i % 2 ? cosZweitFarbe(p) : cosProjektFarbe(p); }
-function cosUhr(min) { return zwei(Math.floor(min / 60) % 24) + ':' + zwei(min % 60); }
+function cosUhr(min) { return zwei(Math.floor(min / 60)) + ':' + zwei(min % 60); }
 function cosTageBis(von, bis) {
   const a = von.split('-').map(Number), b = bis.split('-').map(Number);
   return Math.round((Date.UTC(b[0], b[1] - 1, b[2]) - Date.UTC(a[0], a[1] - 1, a[2])) / 864e5);
@@ -1779,7 +1780,7 @@ function cosTagName(iso) {
   return iso === h ? 'Heute' : iso === tagPlus(h, 1) ? 'Morgen' : cosWt(iso) + ' ' + cosDatum(iso);
 }
 function cosKw() {
-  const [y, m, dd] = heute().split('-').map(Number), t = new Date(Date.UTC(y, m - 1, dd));   // Tagesgrenze 3 Uhr
+  const d = new Date(), t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7));
   return Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7);
 }
@@ -2081,7 +2082,7 @@ function cosEtappen(liste) {
 
 /* ── Kästchen des Tages: Fokuszeit durch 30. Reihe unter der Tageszahl. Modell: cosTag in rechnen_woche.js, vor dem Stichtag und ohne Modell das hier ── */
 function cosTagAlt(iso) {
-  const l = bloeckeVon(iso).filter(zaehlt).slice().sort((a, b) => nachStart(a, b, iso));
+  const l = bloeckeVon(iso).filter(zaehlt).slice().sort((a, b) => a.start.localeCompare(b.start));
   const farben = [];
   let rest = 0, summe = 0, letzte = null;
   l.forEach(b => {
@@ -2198,7 +2199,7 @@ function cosStart(id, k) {
     titel: s.weiterBei || s.titel, min: min, status: '', geplant: false, punkte: 0, taskTitel: '', taskFertig: false, task: '', gestartet: cosUhr(jm), sammel: [],
     beendet: '', nach: false, lokal: true, schritt: s.id };
   if (!P.bloecke) P.bloecke = {};
-  P.bloecke[h] = (P.bloecke[h] || []).concat([b]).sort(nachStart);
+  P.bloecke[h] = (P.bloecke[h] || []).concat([b]).sort((x, y) => x.start.localeCompare(y.start));
   cosStartet = key; cosWahl = null; ansicht = 'tag'; tagIso = h;
   const eintrag = { art: 'cosPlan', tag: h, keys: [key], name: 'Gestartet' };   // V70: Rückweg sofort, Ausplanen nimmt auch den Schlüssel am Schritt raus
   merken(eintrag);
@@ -2718,7 +2719,7 @@ function cosTrTitel(x) { return x.s ? x.s.titel : (titelTeile(x.b).was || x.b.be
 function cosTrWeiter(x) {
   const s = x.s;
   if (!s || !s.weiterBei || x.b.gestartet || x.b.status) return '';
-  const n = bloeckeVon(heute()).filter(y => !y.status && !y.gestartet && cosSchrittVon(y) === s).sort(nachStart)[0];
+  const n = bloeckeVon(heute()).filter(y => !y.status && !y.gestartet && cosSchrittVon(y) === s).sort((a, b) => a.start.localeCompare(b.start))[0];
   return n && n.key === x.b.key ? 'Weiter bei: ' + s.weiterBei : '';
 }
 function cosTrFarbe(x) { const p = x.s && cosNachName(x.s.projekt); return p ? cosProjektFarbe(p) : cosFarbe(x.b.bereich); }
@@ -2826,7 +2827,7 @@ function cosVortagDaten(iso) {
     if (zaehlt(b) && p && p.bereich !== 'System') (min[p.id] = min[p.id] || []).push(m);
     if (b.status || b.gestartet) zeilen.push({ b: b, i: i, s: s, p: p, m: m, k: Math.max(1, Math.round((b.min || COS_MIN) / COS_MIN)) });
   });
-  zeilen.sort((a, b) => minVon(a.b.gestartet || a.b.start, iso) - minVon(b.b.gestartet || b.b.start, iso));
+  zeilen.sort((a, b) => minVon(a.b.gestartet || a.b.start) - minVon(b.b.gestartet || b.b.start));
   const chips = [];
   let summe = 0, menge = 0, ist = 0, fertigN = 0, gesamtN = 0, balkenMin = 0, n95 = 0;
   if (pt) Object.keys(pt).forEach(id => { n95 += Math.max(0, Number(pt[id]) || 0); });
@@ -2887,7 +2888,7 @@ function cosRasEditierbar(iso, z) {
   const h = heute();
   if (z === 'kap') return true;
   if (iso < h) return false;
-  return !(iso === h && z === 'start');
+  return !(iso === h && z === 'start' && !cosNachtFrei(iso));   // bis 3 Uhr nachts noch frei (woche.js)
 }
 function cosPlanBasis(iso) { const v = cosMerk('pb|' + iso); return v && typeof v === 'object' && !Array.isArray(v) ? v : null; }
 function cosJokerTag(iso) { const v = cosMerk('jt|' + iso); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }
@@ -3016,7 +3017,7 @@ function cosTagProjektKq(iso, nur, ix) {
 /* Kästchen des Tages (Reihe, Woche, Einsammeln): ab dem Stichtag pro Block, der laufende mit vollen 30 Minuten und Rest. Davor cosTagAlt */
 function cosTag(iso) {
   if (!cosModellAn() || iso < COS_KQ_AB) return cosTagAlt(iso);
-  const ix = cosModellIndex(), l = bloeckeVon(iso).filter(zaehlt).slice().sort((a, b) => nachStart(a, b, iso)), farben = [];
+  const ix = cosModellIndex(), l = bloeckeVon(iso).filter(zaehlt).slice().sort((a, b) => a.start.localeCompare(b.start)), farben = [];
   let rest = 0, summe = 0, letzte = null;
   l.forEach(b => {
     const m = fokusMin(iso, b);
@@ -3531,7 +3532,7 @@ const cosAnkerUhr = {};         // Startzeit zum Server, kurz gesammelt pro Tag
 function cosRasZeig(w) { if (cosRasWoche === w) return; cosRasWoche = w; cosRasWahl = null; haptik(); zeichnen(); }
 function cosRasWaehle(z, iso) {
   if (!cosRasEditierbar(iso, z)) {
-    melden(iso === heute() ? 'Start von heute ist gesperrt. Ändern geht bis zum Vorabend.' : 'Vergangene Tage sind nur zum Ansehen.');
+    melden(iso === heute() ? 'Start von heute ist gesperrt. Ändern geht bis 3 Uhr nachts.' : 'Vergangene Tage sind nur zum Ansehen.');
     return;
   }
   const gleich = cosRasWahl && cosRasWahl.w === cosRasWoche && cosRasWahl.z === z && cosRasWahl.iso === iso;
@@ -3544,26 +3545,36 @@ function cosRasAendern(d) {
   if (!s) return;
   if (s.z === 'kap') { cosKapazitaet(d); return; }
   if (!cosRasEditierbar(s.iso, s.z)) return;
-  if (s.z === 'start') {
-    const v = cosStartVon(s.iso);
-    let neu = !v ? (d > 0 ? COS_START : 0) : v + d * 15;
-    if (neu && neu < 8 * 60) neu = 0;           // unter 08:00 heißt frei
-    neu = Math.min(13 * 60, neu);
-    if (neu === v) return;
-    haptik();
-    cosMerkSetzen('st|' + s.iso, neu);
-    cosAnkerSetzen(s.iso);
-    zeichnen();
-    return;
-  }
+  if (s.z === 'start') { cosStartAendern(s.iso, d); return; }
   cosMengeSetzen(s.iso, s.z, d);
 }
+/* Startzeit eines Tages in 15 Minuten Schritten, unter 08:00 heißt frei, höchstens 13:00. Mit Termin Start */
+function cosStartAendern(iso, d) {
+  if (!cosRasEditierbar(iso, 'start')) return;
+  const v = cosStartVon(iso);
+  let neu = !v ? (d > 0 ? COS_START : 0) : v + d * 15;
+  if (neu && neu < 8 * 60) neu = 0;
+  neu = Math.min(13 * 60, neu);
+  if (neu === v) return;
+  haptik();
+  cosMerkSetzen('st|' + iso, neu);
+  cosAnkerSetzen(iso);
+  zeichnen();
+}
+/* Morgen vornehmen (Karte im Chief, 26.11.2026): der nächste Arbeitstag. Bis 3 Uhr nachts ist das noch der Tag, der gerade
+   begonnen hat (um 1 Uhr in der Nacht auf Freitag also Freitag), und der bleibt bis dahin frei änderbar wie ein kommender Tag */
+const COS_NACHT = 3;
+function cosNachtFrei(iso) { return iso === heute() && new Date().getHours() < COS_NACHT && !(typeof tagAlsAn === 'function' && tagAlsAn()); }
+function cosVornehmenIso() { const h = heute(); return cosNachtFrei(h) && cosArbeitstag(h) ? h : cosMorgenIso(); }
+/* Karte da, auch wenn im Tag gerade ein anderer Tag offen ist (nachts öffnet die App noch den Vortag) */
+function cosVornehmenAn() { return !!(P && C && !C.fehlt && C.merk && typeof C.merk === 'object' && !cosServerAlt()); }
+function cosVnMenge(iso, pid, d) { cosPlanPop = { pid: pid, t: Date.now() }; cosMengeSetzen(iso, pid, d); }
 /* Menge eines Projekts an einem Tag. Heute geht Minus nur bis zur Menge vom Vortag (pb|Tag = Kopie von pt vor dem ersten Plus
    des Tages), darunter zeigt es den Joker Hinweis. So lässt sich ein Plus zum Ausprobieren zurücknehmen */
 function cosMengeSetzen(iso, pid, d) {
   const sys = cosPid(pid) && cosPid(pid).bereich === 'System';
   if (sys && d > 0 && cosRasSystemWoche(iso, pid) >= COS_SYSTEM_MAX) { haptik(); melden('Zentrale höchstens ' + COS_SYSTEM_MAX + ' pro Woche.'); return; }
-  if (iso === heute() && !sys) {
+  if (iso === heute() && !sys && !cosNachtFrei(iso)) {
     const pt = cosPlanLesen(iso);
     if (!pt) { cosPlanSetzen(pid, d); return; }
     const pb = cosPlanBasis(iso), jetzt = Math.max(0, Number(pt[pid]) || 0), basis = pb ? Math.max(0, Number(pb[pid]) || 0) : jetzt;
@@ -4296,7 +4307,7 @@ function cosModStart(p, mid, sid, text) {
   const b = { key: key, start: cosUhr(jm), ende: cosUhr(jm + min), bereich: COS_FARBEN[p.bereich] ? p.bereich : 'Sonstiges', titel: s ? s.titel : (md ? md.name : p.name), min: min,
     status: '', geplant: false, punkte: 0, taskTitel: '', taskFertig: false, task: '', gestartet: cosUhr(jm), sammel: [], beendet: '', nach: false, lokal: true, modul: mid, schritt: id || '' };
   if (!P.bloecke) P.bloecke = {};
-  P.bloecke[h] = (P.bloecke[h] || []).concat([b]).sort(nachStart);
+  P.bloecke[h] = (P.bloecke[h] || []).concat([b]).sort((x, y) => x.start.localeCompare(y.start));
   cosStartet = key; cosWahl = null; ansicht = 'tag'; tagIso = h;
   const eintrag = { art: 'cosPlan', tag: h, keys: [key], name: 'Gestartet' };
   merken(eintrag);
@@ -4466,7 +4477,7 @@ function cosEinplanen(liste, ohneVerlauf) {
     const s = C.schritte.find(y => y.id === x.id), p = s && cosNachName(s.projekt), a = minVon(x.start), key = 'lokal|' + (Date.now() + j);
     P.bloecke[h] = (P.bloecke[h] || []).concat([{ key: key, start: x.start, ende: cosUhr(Math.min(a + x.k * COS_MIN, 23 * 60 + 59)), bereich: p && COS_FARBEN[p.bereich] ? p.bereich : 'Sonstiges',
       titel: s ? s.titel : '', min: x.k * COS_MIN, status: '', geplant: true, punkte: 0, taskTitel: '', taskFertig: false, task: '', gestartet: '', sammel: [], beendet: '', nach: false, lokal: true, schritt: x.id }])
-      .sort(nachStart);
+      .sort((u, v) => u.start.localeCompare(v.start));
     eintrag.keys.push(key);
   });
   if (!ohneVerlauf) merken(eintrag);
@@ -4506,7 +4517,7 @@ function cosVerschieben(key, startMin, k, ohneVerlauf, danach, ende) {
   if (!ohneVerlauf) merken(eintrag);
   b.start = cosUhr(startMin); b.ende = cosUhr(Math.min(startMin + min, 23 * 60 + 59)); b.min = min; b.lokal = true;
   if (mitEnde) { b.beendet = endeText; fokusLokal(h); }
-  P.bloecke[h].sort(nachStart);
+  P.bloecke[h].sort((u, v) => u.start.localeCompare(v.start));
   haptik();
   zeichnen();
   (mitEnde ? cosNach('appChiefVerschieben', key, cosUhr(startMin), k || '', endeText) : cosNach('appChiefVerschieben', key, cosUhr(startMin), k || '')).then(d => {
@@ -5654,7 +5665,7 @@ var ZentraleUI = function(exports) {
     tageListe: () => tageListe(),
     hm: (m2) => hm(m2),
     jetztMin: () => jetztMin(),
-    minVon: (t2, iso) => minVon(t2, iso),
+    minVon: (t2) => minVon(t2),
     zeitText: (x2) => zeitText(x2),
     /* Server über dieselbe Schnittstelle wie die alte App (fn und args) */
     server: (fn, ...args) => server(fn, ...args),
@@ -13806,7 +13817,7 @@ var ZentraleUI = function(exports) {
       auf2 ? /* @__PURE__ */ jsxRuntimeExports.jsx(TerminWahl, { t: t2 }) : null
     ] });
   }
-  function Morgen() {
+  function Morgen$1() {
     const v2 = F.cosPlanAktuell(), aktiv = Z$1.C.projekte.filter((p2) => p2.status === "aktiv"), n2 = aktiv.reduce((a, p2) => a + (v2[p2.id] || 0), 0);
     const teile = aktiv.filter((p2) => v2[p2.id]).map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("i", { style: { background: F.cosProjektFarbe(p2) } }),
@@ -13846,7 +13857,7 @@ var ZentraleUI = function(exports) {
       else zeit2.splice(i2, 0, jetzt);
     }
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-tl", children: [
-      da2 ? null : /* @__PURE__ */ jsxRuntimeExports.jsx(Morgen, {}),
+      da2 ? null : /* @__PURE__ */ jsxRuntimeExports.jsx(Morgen$1, {}),
       zeit2.map((z2) => z2.el)
     ] });
   }
@@ -14034,7 +14045,7 @@ var ZentraleUI = function(exports) {
     const tf2 = A$2.P.felder.find((x2) => x2.typ === "tasks");
     const tasks = (tf2 ? (A$2.zelle(tf2.spalte, iso) || {}).tasks || [] : []).slice().sort((a, b) => String(a.zeit).localeCompare(String(b.zeit)));
     const vorbei = (x2) => x2.b.gestartet && (x2.b.beendet || iso < A$2.heute() || A$2.minVon(x2.b.ende) <= A$2.jetztMin());
-    const fertig = l2.filter((x2) => x2.b.status || vorbei(x2)).sort((a, b) => A$2.minVon(a.b.start, iso) - A$2.minVon(b.b.start, iso));
+    const fertig = l2.filter((x2) => x2.b.status || vorbei(x2)).sort((a, b) => a.b.start.localeCompare(b.b.start));
     if (!fertig.length && !tasks.length) return null;
     const nb2 = fertig.length, nt = tasks.length;
     const pkt = iso >= K.TASK_PUNKTE_AB, tsum = tasks.reduce((x2, t2) => x2 + A$2.taskPunkte(t2), 0);
@@ -14237,7 +14248,7 @@ var ZentraleUI = function(exports) {
     ] });
   }
   function FokusBalken({ iso, l: l2 }) {
-    const teile = l2.filter((x2) => F.zaehlt(x2.b)).sort((a, b) => A$2.minVon(a.b.start, iso) - A$2.minVon(b.b.start, iso)).map((x2) => {
+    const teile = l2.filter((x2) => F.zaehlt(x2.b)).sort((a, b) => a.b.start.localeCompare(b.b.start)).map((x2) => {
       const fm = F.fokusMin(iso, x2.b), breite = Math.max(x2.b.min || 0, fm, 1);
       return { breite, el: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: breite }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("i", { style: { width: Math.min(100, Math.round(fm / breite * 100)) + "%" } }) }, x2.i) };
     });
@@ -36833,15 +36844,12 @@ img.ProseMirror-separator {
       ] }, iso);
     }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hinweis", children: "Noch keine Tage." }) });
   }
-  function Raster$1({ pop }) {
-    const h2 = A$2.heute(), proj = F.cosRasProjekte(), minP = {};
-    F.cosHeuteBloecke().forEach((x2) => {
-      if (x2.s) minP[x2.s.projekt] = (minP[x2.s.projekt] || 0) + F.fokusMin(h2, x2.b);
-    });
-    const summe = proj.reduce((a, p2) => a + F.cosRasMenge(h2, p2.id), 0), st = F.cosStartVon(h2);
+  function Morgen({ pop }) {
+    const iso = F.cosVornehmenIso(), proj = F.cosRasProjekte(), st = F.cosStartVon(iso), nacht = iso === A$2.heute();
+    const summe = proj.reduce((a, p2) => a + F.cosRasMenge(iso, p2.id), 0);
     const zeilen = proj.map((p2) => {
-      const s = Z$1.C.schritte.find((x2) => x2.projekt === p2.name && F.cosOffen(x2)), k2 = F.cosRasMenge(h2, p2.id), gp = Math.floor((minP[p2.name] || 0) / K.MIN + 0.01);
-      const unter = (gp ? gp + " geschafft · " : "") + (s ? F.cosKurz(s.titel, 30) : "nichts offen") + (p2.deadline ? " · bis " + F.cosWt(p2.deadline) + " " + F.cosDatum(p2.deadline) + (p2.art === "extern" ? " extern" : "") : "");
+      const s = Z$1.C.schritte.find((x2) => x2.projekt === p2.name && F.cosOffen(x2)), k2 = F.cosRasMenge(iso, p2.id);
+      const unter = (s ? F.cosKurz(s.titel, 30) : "nichts offen") + (p2.deadline ? " · bis " + F.cosWt(p2.deadline) + " " + F.cosDatum(p2.deadline) + (p2.art === "extern" ? " extern" : "") : "");
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-pl cos-hv" + (k2 ? "" : " null") + (pop && pop.pid === p2.id ? " pop" : ""), style: { "--pf": F.cosProjektFarbe(p2) }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "cos-streif" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "cos-pl-t", children: [
@@ -36849,35 +36857,34 @@ img.ProseMirror-separator {
           /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: unter })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ras-st", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosMengeSetzen(h2, p2.id, -1), "aria-label": "Weniger " + p2.name, children: "−" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosVnMenge(iso, p2.id, -1), "aria-label": "Weniger " + p2.name, disabled: !k2, children: "−" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: k2 }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosMengeSetzen(h2, p2.id, 1), "aria-label": "Mehr " + p2.name, disabled: k2 >= 8, children: "+" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosVnMenge(iso, p2.id, 1), "aria-label": "Mehr " + p2.name, disabled: k2 >= 8, children: "+" })
         ] })
       ] }, p2.id);
     });
-    const hinweis = Date.now() - Z$1.vnHinweis < 8e3;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "cos-vn-k", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "ras-h2", children: "1 · Heute vornehmen" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "ras-h2", children: "Morgen vornehmen · " + F.cosWt(iso) + " " + F.cosDatum(iso) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("b", { className: pop ? "pop" : void 0, children: summe })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ras-start", children: [
         GLOCKE,
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: st ? "Start " + F.cosUhr(st) : "Ohne Startzeit" }),
-          " ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "leise", children: st ? "fest, aus der Woche" : "heute frei" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: st ? "Start " + F.cosUhr(st) : "Ohne Startzeit" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ras-st", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosStartAendern(iso, -1), "aria-label": "Start früher", disabled: !st, children: "−" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => F.cosStartAendern(iso, 1), "aria-label": "Start später", disabled: st >= 13 * 60, children: "+" })
         ] })
       ] }),
       zeilen.length ? zeilen : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "cos-tipp", children: "Kein aktives Projekt." }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ras-vn-t", children: "Übernommen aus dem Raster ✓ · mehr geht immer" }),
-      hinweis ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ras-hinweis", role: "status", children: K.HINWEIS_JOKER }) : null
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ras-vn-t", children: nacht ? "Noch bis 3 Uhr änderbar, dann gilt er." : "Änderbar bis heute Nacht 3 Uhr." })
     ] });
   }
+  const morgenAn = () => F.cosRasterAn() && (!!F.cosPlanLesen(A$2.heute()) || F.cosNachtFrei(A$2.heute()));
   function Innen() {
     const pp = Z$1.planPop, pop = pp && Date.now() - pp.t < 700 ? pp : null;
     if (!pop) Z$1.planPop = null;
-    if (F.cosPlanLesen(A$2.heute()) && F.cosRasterAn()) return /* @__PURE__ */ jsxRuntimeExports.jsx(Raster$1, { pop });
+    if (morgenAn()) return /* @__PURE__ */ jsxRuntimeExports.jsx(Morgen, { pop });
     const pl2 = F.cosPlanAktuell(), da2 = !!F.cosPlanLesen(A$2.heute()), g = F.cosTag(A$2.heute()).farben.length;
     const aktiv = Z$1.C.projekte.filter((p2) => p2.status === "aktiv"), summe = aktiv.reduce((a, p2) => a + pl2[p2.id], 0), minP = {};
     F.cosHeuteBloecke().forEach((x2) => {
@@ -36911,8 +36918,8 @@ img.ProseMirror-separator {
     ] });
   }
   function Vornehmen() {
-    if (!F.cosTagAn()) return null;
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "karte cos-vn-karte" + (F.cosPlanLesen(A$2.heute()) ? " ras-karte" : ""), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Innen, {}) });
+    if (morgenAn() ? !F.cosVornehmenAn() : !F.cosTagAn()) return null;
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "karte cos-vn-karte" + (morgenAn() ? " ras-karte" : ""), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Innen, {}) });
   }
   function uhr(m2) {
     const u2 = F.cosUhr(m2);
@@ -37004,6 +37011,7 @@ img.ProseMirror-separator {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ras-gitter", children: zeilen }),
       auswahl,
+      auswahl && Date.now() - Z$1.vnHinweis < 8e3 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ras-hinweis", role: "status", children: K.HINWEIS_JOKER }) : null,
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ras-fuss", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "ras-kap", onClick: () => F.cosRasWaehle("kap", ""), "aria-label": "Kästchen pro Woche ändern", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: summe + " von " + kap }),
         " ",
@@ -39225,8 +39233,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611260253';
-const PWA_NAME = "V140 Tagesgrenze 3 Uhr";
+const PWA_VERSION = '202611262118';
+const PWA_NAME = "V141 Morgen vornehmen";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -39260,8 +39268,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load', () => navigato
 </style>
 <script>
 /* ── Einstellungen ── */
-const TAG_GRENZE = 3;          // bis 3 Uhr nachts gilt der Vortag als heute (Server: BASIS.TAG_GRENZE)
-const TAG_GRENZE_AB = '2026-11-26';   // erster Tag mit Grenze, davor wie früher (nichts rückwirkend)
+const HEUTE_AB = 5;            // vor 5 Uhr öffnet die App noch den Vortag
 const ABFRAGE_SEKUNDEN = 30;   // so oft wird geschaut, ob sich in der Tabelle etwas geändert hat
 const SPEICHER = 'zentrale_paket_6';
 const START = null;
@@ -39291,9 +39298,7 @@ const TAGNAMEN = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
 let tagAls = null;
 function tagAlsAn() { return !!tagAls && performance.now() < tagAls.bis; }
 function tagAlsSetzen(iso) { tagAls = iso ? { iso: iso, bis: performance.now() + 300 } : null; }
-function heute() { return tagAlsAn() ? tagAls.iso : tagVon(Date.now()); }
-/* Tag eines Zeitpunkts: vor der Tagesgrenze noch der Vortag */
-function tagVon(ms) { const d = new Date(ms), vor = tagPlus(isoVon(d), -1); return vor >= TAG_GRENZE_AB && d.getHours() < TAG_GRENZE ? vor : isoVon(d); }
+function heute() { return tagAlsAn() ? tagAls.iso : isoVon(new Date()); }
 function tagPlus(iso, n) {
   const [y, m, d] = iso.split('-').map(Number);
   return isoVon(new Date(y, m - 1, d + n));
@@ -39533,7 +39538,7 @@ function macFarbe(b) { return MAC_FARBEN[b] || MAC_FARBEN.Sonstiges; }
 /* V93: auch Halsi und Migna in Köö (Karte Körper), gleicher Aufbau wie Stimmung */
 const CHECKIN_FELDER = ['Stimmung 1/10', 'Energie 1/10', 'Konzentration 1/10', 'Halsi 1/10', 'Migna 1/10'];
 const istCheckin = f => !!f && f.mehrfach && CHECKIN_FELDER.indexOf(f.spalte) !== -1;
-const CHECKIN = [['Morgens', 0, 12 * 60], ['Mittags', 12 * 60, 17 * 60], ['Abends', 17 * 60, (24 + TAG_GRENZE) * 60]];   // nach Mitternacht bis 3 Uhr noch abends
+const CHECKIN = [['Morgens', 0, 12 * 60], ['Mittags', 12 * 60, 17 * 60], ['Abends', 17 * 60, 24 * 60]];
 function checkinFenster(liste) {
   return CHECKIN.map(([name, von, bis]) => {
     const drin = liste.filter(e => { const m = /^\d{1,2}:\d{2}$/.test(e.zeit) ? minVon(e.zeit) : -1; return m >= von && m < bis; });
@@ -39689,7 +39694,7 @@ const LOB_START = ['Läuft. Die Uhr zählt.', 'Angefangen. Das war der schwerste
 function gestartet(b) { return !!b.gestartet || b.status === 'gemacht' || b.status === 'teils'; }
 function punkteTag(iso) {
   const l = bloeckeVon(iso);
-  const zaehlt = l.filter(b => b.min >= PUNKTE.MIN_DAUER && gestartet(b)).sort((a, b) => nachStart(a, b, iso));
+  const zaehlt = l.filter(b => b.min >= PUNKTE.MIN_DAUER && gestartet(b)).sort((a, b) => a.start.localeCompare(b.start));
   const pro = {};
   let bl = 0;
   zaehlt.forEach((b, i) => {
@@ -39717,15 +39722,15 @@ function blockSeit(iso, i, txt) {
 function fokusMin(iso, b) {
   if (b.nach) return Math.round(b.min * NACH_FAKTOR * (BLOCK_FAKTOR[b.status] == null ? 1 : BLOCK_FAKTOR[b.status]));
   if (b.gestartet) {
-    let e = minVon(b.beendet || b.ende, iso);
+    let e = b.beendet ? minVon(b.beendet) : minVon(b.ende);
     if (iso === heute() && !b.beendet && !b.status) e = Math.min(e, jetztMin());
-    return Math.max(0, e - minVon(b.gestartet, iso));
+    return Math.max(0, e - minVon(b.gestartet));
   }
   return Math.round(b.min * (BLOCK_FAKTOR[b.status] || 0));
 }
 function fokusTagMin(iso) { return bloeckeVon(iso).filter(zaehlt).reduce((n, b) => n + fokusMin(iso, b), 0); }
 function bloeckeVon(iso) { return (P && P.bloecke && P.bloecke[iso]) || []; }
-function begonnen(iso, b) { const h = heute(); return iso < h || (iso === h && minVon(b.start) <= jetztMin()); }
+function begonnen(iso, b) { const h = heute(); return iso < h || (iso === h && b.start <= jetztZeit()); }
 function dauerText(min) { return min >= 60 ? Math.floor(min / 60) + ':' + zwei(min % 60) + ' h' : min + ' min'; }
 
 /* ── Ringe (seit Säulen: drei Säulen neben der Tageszahl): Fokus, Körper, Kopf. Voll heißt: alles geholt, was der Bereich heute bringen kann ── */
@@ -39820,18 +39825,9 @@ try { dranMerk = JSON.parse(localStorage.getItem(DRAN_KEY) || '{}'); } catch (e)
 Object.keys(dranMerk).forEach(k => { if (Date.now() - Number(String(k).split('|')[1] || 0) > 3 * 864e5) delete dranMerk[k]; });
 let dranMeldung = null;
 
-/* Minuten am Tag. Vor der Tagesgrenze (3 Uhr) 24 Uhr plus: "00:40" = 1480, damit der Abend über Mitternacht weiterläuft.
-   Mit iso vor TAG_GRENZE_AB wie früher (Punkte vergangener Tage bleiben) */
-function minVon(hhmm, iso) {
-  const m = String(hhmm).match(/^(\d{1,2}):(\d{2})/); if (!m) return 0;
-  const h = Number(m[1]), alt = iso && iso < TAG_GRENZE_AB;
-  return (!alt && h < TAG_GRENZE ? h + 24 : h) * 60 + Number(m[2]);
-}
-function tagMinVon(ms) { const d = new Date(ms); return minVon(zwei(d.getHours()) + ':' + zwei(d.getMinutes())); }
-function jetztMin() { if (typeof tagAlsAn === 'function' && tagAlsAn()) return 23 * 60 + 59; return tagMinVon(Date.now()); }
+function minVon(hhmm) { const m = String(hhmm).match(/^(\d{1,2}):(\d{2})/); return m ? Number(m[1]) * 60 + Number(m[2]) : 0; }
+function jetztMin() { if (typeof tagAlsAn === 'function' && tagAlsAn()) return 23 * 60 + 59; const d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
 function hm(min) { return Math.floor(min / 60) + ':' + zwei(min % 60); }
-/* Sortieren nach Startzeit, nach Mitternacht hinten */
-function nachStart(a, b, iso) { return minVon(a.start, iso) - minVon(b.start, iso); }
 /* "Szene 12 · Lara bekommt den letzten Satz": vorne was, hinten der erste Schritt aus dem Planen */
 function titelTeile(b) {
   const t = String(b.titel || ''), i = t.indexOf(' · ');
@@ -39851,7 +39847,8 @@ function dranSpeichern(key, d) {
 function dranBasis(b, d) {
   let basis = minVon(b.gestartet || b.start);
   if (d.zuletzt) {
-    if (tagVon(d.zuletzt) === heute()) basis = Math.max(basis, tagMinVon(d.zuletzt));
+    const z = new Date(d.zuletzt);
+    if (z.toDateString() === new Date().toDateString()) basis = Math.max(basis, z.getHours() * 60 + z.getMinutes());
   }
   return basis;
 }
@@ -40315,7 +40312,7 @@ function fokusLokal(iso) {
 let plan = null;
 function planOeffnen(nach) {
   const h = heute();
-  plan = { tag: !nach && jetztMin() >= 17 * 60 ? tagPlus(h, 1) : h, min: 30, quelle: 'task', wahl: [],
+  plan = { tag: !nach && new Date().getHours() >= 17 ? tagPlus(h, 1) : h, min: 30, quelle: 'task', wahl: [],
     bereich: null, titel: '', schritt: '', tasks: null, bereiche: ['FW', 'Projekte', 'HFBK', 'Admin', 'Sport', 'System', 'Sonstiges'], nach: !!nach,
     dauern: [30, 75], fehler: '', sendet: false, start: '', slot: null, belegt: null };
   document.body.style.overflow = 'hidden';
@@ -40587,7 +40584,8 @@ function rueckgaengig() {
     if (b) b.gestartet = a.alt;
     fokusLokal(a.iso);
     zeichnen();
-    const [y, m, t] = a.iso.split('-').map(Number), d = new Date(y, m - 1, t, 0, minVon(a.alt));   // nach Mitternacht: Folgetag
+    const [hh, mm] = String(a.alt).split(':').map(Number), d = new Date();
+    d.setHours(hh, mm, 0, 0);
     nacheinander('appBlockStarten', a.key, true, d.getTime());
   } else if (a.art === 'start') {
     const b = bloeckeVon(a.iso).find(x => x.key === a.key);
@@ -40782,7 +40780,10 @@ function ortMelden() {
 }
 
 /* ── Start ── */
-function starttag() { return heute(); }   // bis 3 Uhr ist heute() noch der Vortag
+function starttag() {
+  const h = heute();
+  return new Date().getHours() < HEUTE_AB ? tagPlus(h, -1) : h;
+}
 let zuletztSichtbar = Date.now();
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState !== 'visible') { zuletztSichtbar = Date.now(); return; }
