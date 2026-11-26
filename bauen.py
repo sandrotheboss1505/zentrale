@@ -206,7 +206,8 @@ ersetze('<base target="_top">\n', '''<title>Zentrale</title>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Zentrale">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#073763">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#151514">
+<meta name="theme-color" content="#F4F3EF">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 ''')
