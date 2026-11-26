@@ -5455,6 +5455,36 @@ function senWerk(op, daten, name, lokal) {
   });
 }
 
+
+/* Ohne Handy vor dem Schlafen und nach dem Aufwachen (26.11.2026, nur Anzeige, keine Punkte).
+   sitz: Sitzungen am Handy [[von, bis], …] in Minuten ab 0 Uhr des Tages, 4 bis 4 Uhr (über 1440 nach Mitternacht, Handy.js).
+   auf, ein: Aufwach und Einschlaf aus der Tabelle als Tagesanteil (Einschlaf in der Zeile des Abends, unter 0.5 nach Mitternacht).
+   jetzt: Minuten seit 0 Uhr, nur heute, sonst null. Ergebnis je Seite null (Zeit fehlt) oder { min, uhr, seit, laeuft }. */
+function senHandyNacht(sitz, auf, ein, jetzt) {
+  if (!Array.isArray(sitz)) return null;
+  const zahl = x => typeof x === 'number' && isFinite(x);
+  const ab = 240, bis = 1680, s = sitz.slice().sort((p, q) => p[0] - q[0]);
+  const E = zahl(ein) ? Math.round(ein * 1440) + (ein < 0.5 ? 1440 : 0) : null;
+  const A = zahl(auf) ? Math.round(auf * 1440) : null;
+  let vor = null, nach = null;
+  if (E != null && !(jetzt != null && jetzt < E)) {
+    if (s.some(x => x[0] < E && x[1] >= E)) vor = { min: 0, uhr: E };
+    else {
+      const l = s.filter(x => x[1] < E).pop();
+      vor = l ? { min: E - l[1], uhr: l[1] } : { min: E - ab, uhr: ab, seit: true };
+    }
+  }
+  if (A != null && !(jetzt != null && jetzt < A)) {
+    if (s.some(x => x[0] <= A && x[1] > A)) nach = { min: 0, uhr: A };
+    else {
+      const f = s.find(x => x[0] > A);
+      if (f) nach = { min: f[0] - A, uhr: f[0] };
+      else if (jetzt != null) nach = { min: jetzt - A, uhr: jetzt, laeuft: true };
+      else nach = { min: (E != null ? E : bis) - A, uhr: E != null ? E : bis, seit: true };
+    }
+  }
+  return { vor: vor, nach: nach };
+}
 /* ── Blätter ── */
 function senBlattAuf(b) { senB = b; document.body.style.overflow = 'hidden'; senBlattZeichnen(true); }
 function senBlattZu() { senB = null; document.body.style.overflow = ''; senBlattZeichnen(); }
@@ -37464,6 +37494,7 @@ img.ProseMirror-separator {
     laden: (iso, erzwingen) => senLaden(iso, erzwingen),
     lies: (id2) => senLies(id2),
     isbn: (s) => senIsbnL(s),
+    handyNacht: (sitz, auf2, ein, jetzt) => senHandyNacht(sitz, auf2, ein, jetzt),
     start: (id2) => senStart(id2),
     stoppBlatt: () => senStoppBlatt(),
     seiteBlatt: (id2) => senSeiteBlatt(id2),
@@ -37651,7 +37682,8 @@ img.ProseMirror-separator {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "karte", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Kopf$2, { name: "Handy" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Frei, { hd: hd2 })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Frei, { hd: hd2 }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Nacht, { hd: hd2, iso: d.datum })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Felder, { hd: hd2 })
     ] });
@@ -37677,6 +37709,27 @@ img.ProseMirror-separator {
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "t", children: x2.von + " bis " + x2.bis }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sen-pkt null", children: A$2.hm(x2.min) })
       ] }, x2.von + "|" + i2)) }) : null
+    ] });
+  }
+  function Nacht({ hd: hd2, iso }) {
+    if (!Array.isArray(hd2.sitzungen)) return null;
+    const w2 = A$2.werteVon(iso) || {}, wert2 = (n2) => (w2[n2] || {}).wert;
+    const heute2 = iso === A$2.heute();
+    const r2 = S.handyNacht(hd2.sitzungen, wert2("Aufwach"), wert2("Einschlaf"), heute2 ? A$2.jetztMin() : null) || {};
+    const auf2 = wert2("Aufwach");
+    const nach2 = r2.nach, vor = r2.vor;
+    const zeit2 = (x2) => x2 ? (x2.seit ? "über " : "") + A$2.hm(x2.min) : "–";
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sen-handy sen-frei", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Nach dem Aufwachen" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: zeit2(nach2) }),
+        nach2 ? null : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: typeof auf2 === "number" ? "noch nicht wach" : "Aufwach fehlt" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Vor dem Schlafen" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: zeit2(vor) }),
+        vor ? null : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: heute2 ? "heute Abend" : "Einschlaf fehlt" })
+      ] })
     ] });
   }
   let iphoneAuf = false;
@@ -39265,8 +39318,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611262205';
-const PWA_NAME = "V142 Punktesystem";
+const PWA_VERSION = '202611262240';
+const PWA_NAME = "V143 Ohne Handy vor dem Schlafen und nach dem Aufwachen";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
