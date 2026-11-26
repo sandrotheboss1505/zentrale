@@ -39318,8 +39318,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611262240';
-const PWA_NAME = "V143 Ohne Handy vor dem Schlafen und nach dem Aufwachen";
+const PWA_VERSION = '202611262348';
+const PWA_NAME = "V144 Tempo sichere Schritte";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -41181,7 +41181,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ma
   }
   ortMelden();
   heuteLaden(true);
-  setTimeout(() => tasksVorladen(true), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht
+  setTimeout(() => tasksVorladen(false), 1500);   // Tasks schon mal holen, damit das Plus Fenster sofort steht. Aus dem Server Cache (10 Minuten), frisch holen die Fenster beim Öffnen selbst
 })();
 </script>
 </body>
