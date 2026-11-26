@@ -549,6 +549,9 @@
     text-overflow: ellipsis !important;
     white-space: nowrap !important
 }
+.tw-whitespace-normal {
+    white-space: normal !important
+}
 .tw-rounded-gross {
     border-radius: var(--radius-gross) !important
 }
@@ -5720,6 +5723,10 @@ var ZentraleUI = function(exports) {
     /* Tageswert und Ringe (tag/tageswert.js, tag/ringe.js): nur aufrufen */
     tagLive: (iso) => tagLive(iso),
     ringeRechnen: (iso) => ringeRechnen(iso),
+    pktNullDrinksDa: () => typeof pktNullDrinksDa === "function" ? pktNullDrinksDa() : false,
+    pktNullDrinks: () => pktNullDrinks(),
+    pktNeben: (iso) => typeof pktNeben === "function" ? pktNeben(iso) : null,
+    // seit 26.11.: ohne Alkohol, ohne Ott, Folgezeile
     ringDash: (i2, anteil) => ringDash(i2, anteil),
     get RING_R() {
       return RING_R;
@@ -36469,11 +36476,31 @@ img.ProseMirror-separator {
       /* @__PURE__ */ jsxRuntimeExports.jsx("b", { style: stil(A$2.ton(o, A$2.stufe(o, A$2.wertVon(o.spalte)))), children: A$2.anzeigeVon(o.spalte) || "–" })
     ] });
   }
+  function Neben({ n: n2 }) {
+    if (!n2) return null;
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Alkfrei" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("b", { children: [
+          n2.alkohol,
+          " von 7"
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Ottfrei" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("b", { children: [
+          n2.ott,
+          " von 7"
+        ] })
+      ] }),
+      n2.folge ? /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "tw-whitespace-normal", children: n2.folge }) : null
+    ] });
+  }
   function Tageszahl({ f: f2, oben, koe }) {
     const live = A$2.tagLive(A$2.tagIso), w2 = live != null ? live : A$2.wertVon(f2.spalte), s = A$2.stufe(f2, w2);
     const ringe = A$2.ringeRechnen(A$2.tagIso);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tageszahl", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "neben links" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "neben links", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Neben, { n: A$2.pktNeben(A$2.tagIso) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ringe", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ringe-kreis", id: "tagRinge", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(RingeSvg, { stand: ringe }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Zahl, { css: A$2.ton(f2, s) || "background:var(--chip)", text: live != null ? live.toFixed(1).replace(".", ",") : A$2.anzeigeVon(f2.spalte) || "–" })
@@ -36619,7 +36646,12 @@ img.ProseMirror-separator {
     sportLaden();
   }
   function drinkZeiten(f2) {
-    return K$1.fehlt || A$2.kleinName(f2) !== "drinks" ? null : /* @__PURE__ */ jsxRuntimeExports.jsx(Zeiten$1, { a: stand$1(A$2.tagIso).arten.drink });
+    if (A$2.kleinName(f2) !== "drinks") return null;
+    const null0 = A$2.pktNullDrinksDa() ? /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "jetzt", onClick: () => A$2.pktNullDrinks(), children: "0 Drinks gestern" }) : null;
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      K$1.fehlt ? null : /* @__PURE__ */ jsxRuntimeExports.jsx(Zeiten$1, { a: stand$1(A$2.tagIso).arten.drink }),
+      null0
+    ] });
   }
   function Koeoe() {
     if (!A$2.werteVon()) return /* @__PURE__ */ jsxRuntimeExports.jsx(LeerKarte, {});
@@ -39233,8 +39265,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611262118';
-const PWA_NAME = "V141 Morgen vornehmen";
+const PWA_VERSION = '202611262205';
+const PWA_NAME = "V142 Punktesystem";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
@@ -39571,6 +39603,162 @@ function umklappen(i) {
 /* Geld Karte: Ausgaben der letzten 7 Tage aufklappen. Gezeichnet in React (ui/src/felder/Sieben.jsx, Posten.jsx) */
 const SIEBEN = 'Ausgaben 7 Tage';
 function siebenKlappen() { if (auf.has(SIEBEN)) auf.delete(SIEBEN); else auf.add(SIEBEN); zeichnen(); }
+/**
+ * ZENTRALE · Punkte (neues Punktesystem, gilt ab Do 26.11.2026)
+ *
+ * Der eine Rechenort für den Tageswert ab 26.11.2026. Reine Rechnung ohne Google Aufrufe:
+ * läuft im Apps Script (PunkteServer.js), in der App (web/bauen.py bindet die Datei ein) und in Node (tests/punkte_test.js).
+ * Wahrheit: entwuerfe/punktesystem/PUNKTESYSTEM.md. Tage vor PKT26.AB rechnen weiter mit Tage!C und tagWertRechnen.
+ *
+ * Tageswert = 1 + 9 × (erreicht + bonus) / (möglich + bonus). Leere Messwerte fallen raus (weder erreicht noch möglich).
+ * Bonus nur Plus: kommt oben und unten in den Bruch, hebt nie über 10, senkt nie.
+ *
+ * Eingaben (alles optional, null oder fehlend = unbekannt):
+ *   plan: { soll, ist, joker } oder { unbekannt: true } (Menge da, geschaffte Kästchen nicht gemeldet: nur der Planposten fällt raus). Kästchen vom Vorabend (soll ohne Joker), geschafft gekappt, Joker. Ohne plan (oder soll+joker 0): Planblock fällt raus
+ *   arbeitMin: Fokusminuten ab Los ohne Bereich System
+ *   start: true, false oder null (null = noch offen oder kein Plan)
+ *   morgenSteht: true, false oder null
+ *   einschlaf: Uhrzeit als Tagesbruch (0,02 = 00:30), zählt für den Abend. aufwach, elvanse: Tagesbruch ('nein' oder leer: nicht genommen)
+ *   uhrfehlerAuf, uhrfehlerEin: true, wenn die Messung als Fehlmessung gilt (Dauer unter 2:00 oder Einschlaf 12 bis 20 Uhr)
+ *   drinks: Zahl oder null. ott: true/false. sport: true/false. sport7: Sporttage in den letzten 7 Tagen (mit heute)
+ *   handySchlaf, handyFrueh: true/false. vb: 'si', 'hmm', 'nono' oder leer. energie, konz, migna, halsi: 1 bis 10 oder leer
+ *   tasks: Taskpunkte. seiten: gelesene Seiten. knie: true/false
+ */
+const PKT26 = (function () {
+  const AB = '2026-11-26';
+  const T = (h, m) => (h + m / 60) / 24;   // Uhrzeit als Tagesbruch
+
+  /* Regeln ab 26.11.2026. Gleiche Zeilen schreibt Migration M4 in den Tab "Punkte" (gilt ab, nach Namen gelesen).
+     voll/null: Grenzen für stufenlos (zwischen voll und null gerade). Uhrzeiten als Tagesbruch, Einschlaf nach Mitternacht über 1. */
+  const REGELN = [
+    // Posten, Name, Bereich, Klasse, Gewicht, voll bis, null ab, Einheit, Hinweis
+    ['plan', 'Plan gehalten', 'Plan und Arbeit', 'Pflicht', 14, '', '', 'Anteil', 'Geschaffte Kästchen durch Menge vom Vorabend, Joker zählt als gehalten, über der Menge nicht über 1'],
+    ['arbeit', 'Arbeitszeit', 'Plan und Arbeit', 'Pflicht', 13, 180, 0, 'Minuten', 'Ab Los, stufenlos bis 3 h, Bereich System zählt nicht. Ohne Plan nur Plus (Bonus)'],
+    ['start', 'Start gehalten', 'Plan und Arbeit', 'Pflicht', 3, '', '', 'ja/nein', 'Erster Los höchstens 10 Minuten nach der Startzeit'],
+    ['morgen', 'Morgen steht', 'Plan und Arbeit', 'Pflicht', 3, '', '', 'ja/nein', 'Am Vorabend Menge und Reihenfolge gesetzt, zählt für den Abend'],
+    ['einschlaf', 'Einschlaf', 'Schlaf', 'Pflicht', 12, T(24, 45), T(26, 0), 'Uhrzeit', 'Zählt für den Abend. Voll bis 00:45, null ab 02:00'],
+    ['aufwach', 'Aufwach', 'Schlaf', 'Pflicht', 8, T(8, 15), T(10, 0), 'Uhrzeit', 'Voll bis 08:15, null ab 10:00. Nach Elvanse gilt die Elvanse Uhrzeit'],
+    ['alkohol', 'Alkohol', 'Verhalten', 'Pflicht', 10, 0, 3, 'Drinks', '0 voll, 1 bis 2 halb, ab 3 null, leer fällt raus'],
+    ['ott', 'Ott', 'Verhalten', 'Pflicht', 9, '', '', 'ja/nein', 'Nicht angehakt voll'],
+    ['sport', 'Sport', 'Verhalten', 'Pflicht', 5, 2, 0, 'Tage in 7', 'Heute voll, sonst letzte 7 Tage ab 2 voll, 1 halb'],
+    ['handy', 'Handy', 'Verhalten', 'Pflicht', 2, '', '', 'ja/nein', 'Ohne Handy eingeschlafen und bis zum Frühstück, je halb'],
+    ['vb', 'Vb', 'Kopf und Urteil', 'Pflicht', 10, '', '', 'si/hmm/nono', 'Am Morgen danach, bis dahin fällt Vb raus'],
+    ['energie', 'Energie', 'Kopf und Urteil', 'Pflicht', 3, 7, 4, '1 bis 10', '4 und weniger null, ab 7 voll'],
+    ['konz', 'Konzentration', 'Kopf und Urteil', 'Pflicht', 3, 7, 4, '1 bis 10', '4 und weniger null, ab 7 voll'],
+    ['migna', 'Migna', 'Körper', 'Pflicht', 3, 7, 4, '1 bis 10', 'Magen, 4 und weniger null, ab 7 voll'],
+    ['halsi', 'Halsi', 'Körper', 'Pflicht', 2, 7, 4, '1 bis 10', 'Hals, wie Migna'],
+    ['tasks', 'Tasks', 'Bonus', 'Bonus', 5, 6, 0, 'Taskpunkte', 'Leicht 1, mittel 2, zäh 4, +1 alt, voll ab 6'],
+    ['lesen', 'Lesen', 'Bonus', 'Bonus', 4, 20, 0, 'Seiten', '10 Seiten halb, ab 20 voll'],
+    ['knie', 'Knieübung', 'Bonus', 'Bonus', 2, '', '', 'ja/nein', ''],
+    ['elvanse', 'Elvanse', 'Bonus', 'Bonus', 2, T(0, 30), T(1, 0), 'Abstand', 'Voll bis 30 Minuten nach dem Aufwachen, null ab 60'],
+    ['arbeitBonus', 'Arbeit ohne Plan', 'Bonus', 'Bonus', 13, 180, 0, 'Minuten', 'An Tagen ohne Plan: Arbeitszeit nur als Plus']
+  ];
+  const KOPF = ['Posten', 'Name', 'Bereich', 'Klasse', 'Gewicht', 'voll bis', 'null ab', 'Einheit', 'gilt ab', 'Hinweis'];
+
+  /* Regeln als Objekt { posten: { g, voll, null } }. zeilen: wie REGELN mit "gilt ab" (Tab Punkte) oder nichts (dann REGELN).
+     Pro Posten gilt die Zeile mit dem spätesten "gilt ab" bis einschließlich iso. */
+  function regeln(zeilen, iso) {
+    const out = {};
+    if (!zeilen || !zeilen.length) {
+      REGELN.forEach(z => { out[z[0]] = { g: Number(z[4]) || 0, voll: z[5], null: z[6], bereich: z[2], klasse: z[3], name: z[1] }; });
+      return out;
+    }
+    const ab = {};
+    zeilen.forEach(z => {
+      const p = String(z.posten || '').trim(), g = String(z.giltAb || '');
+      if (!p || !g || (iso && g > iso)) return;
+      if (ab[p] && ab[p] > g) return;
+      ab[p] = g;
+      out[p] = { g: Number(z.gewicht) || 0, voll: z.voll, null: z.null, bereich: z.bereich, klasse: z.klasse, name: z.name };
+    });
+    return out;
+  }
+
+  const zahl = x => typeof x === 'number' && isFinite(x);
+  /* Stufenlos: bis voll 1, ab null 0, dazwischen gerade. Geht in beide Richtungen (kleiner besser oder größer besser). */
+  function stufenlos(x, voll, nul) {
+    if (!zahl(x)) return null;
+    voll = Number(voll); nul = Number(nul);
+    if (voll === nul) return x <= voll ? 1 : 0;
+    const a = (x - nul) / (voll - nul);
+    return Math.max(0, Math.min(1, a));
+  }
+  /* Uhrzeit für Einschlaf: vor 12 Uhr zählt als nach Mitternacht (+1 Tag) */
+  const nacht = x => zahl(x) ? (x < 0.5 ? x + 1 : x) : null;
+  const ja = x => x === true;
+
+  function tag(e, R) {
+    e = e || {};
+    R = R || regeln(null);
+    const posten = [];
+    let erreicht = 0, moeglich = 0, bonus = 0, bonusMoeglich = 0;
+    const teile = {};
+    const dazu = (p, anteil, info) => {
+      const r = R[p];
+      if (!r || !(r.g > 0)) return;
+      const bonusArt = r.klasse === 'Bonus';
+      const x = { posten: p, name: r.name, bereich: r.bereich, klasse: r.klasse, gewicht: r.g, anteil: anteil, erreicht: anteil == null ? null : r.g * anteil, info: info || '' };
+      posten.push(x);
+      if (anteil == null) return;
+      if (bonusArt) { bonus += r.g * anteil; bonusMoeglich += r.g; return; }
+      erreicht += r.g * anteil; moeglich += r.g;
+      const t = teile[r.bereich] = teile[r.bereich] || { erreicht: 0, moeglich: 0 };
+      t.erreicht += r.g * anteil; t.moeglich += r.g;
+    };
+
+    // Plan und Arbeit: fällt ganz raus an Tagen ohne Menge vom Vorabend
+    const p = e.plan, mitPlan = !!(p && (p.unbekannt || (Number(p.soll) || 0) + (Number(p.joker) || 0) > 0));
+    const arbeit = zahl(e.arbeitMin) ? stufenlos(e.arbeitMin, R.arbeit ? R.arbeit.voll : 180, R.arbeit ? R.arbeit.null : 0) : 0;
+    if (mitPlan) {
+      const soll = Math.max(0, Number(p.soll) || 0), j = Math.max(0, Number(p.joker) || 0);
+      const ist = Math.max(0, Math.min(soll, Number(p.ist) || 0));
+      dazu('plan', p.unbekannt ? null : (ist + j) / (soll + j));   // Menge da, Kästchen unbekannt (keine Meldung der App): Posten fällt raus
+      dazu('arbeit', arbeit);
+      dazu('start', e.start === true ? 1 : e.start === false ? 0 : null);
+      dazu('morgen', e.morgenSteht === true ? 1 : e.morgenSteht === false ? 0 : null);
+    } else {
+      dazu('arbeitBonus', arbeit > 0 ? arbeit : null);
+    }
+
+    // Schlaf
+    const ein = e.uhrfehlerEin ? null : nacht(e.einschlaf);
+    dazu('einschlaf', ein == null ? null : stufenlos(ein, R.einschlaf.voll, R.einschlaf.null));
+    let auf = e.uhrfehlerAuf || !zahl(e.aufwach) ? null : e.aufwach;
+    const elv = zahl(e.elvanse) ? e.elvanse : null;
+    if (auf != null && elv != null && auf > elv) auf = elv;   // nach Elvanse aufgewacht: Elvanse gilt als Aufwach
+    dazu('aufwach', auf == null ? null : stufenlos(auf, R.aufwach.voll, R.aufwach.null));
+
+    // Verhalten
+    dazu('alkohol', !zahl(e.drinks) ? null : e.drinks <= 0 ? 1 : e.drinks < 3 ? 0.5 : 0);
+    dazu('ott', ja(e.ott) ? 0 : 1);
+    const n7 = Number(e.sport7) || 0;
+    dazu('sport', ja(e.sport) ? 1 : n7 >= 2 ? 1 : n7 >= 1 ? 0.5 : 0);
+    dazu('handy', (ja(e.handySchlaf) ? 0.5 : 0) + (ja(e.handyFrueh) ? 0.5 : 0));
+
+    // Kopf und Urteil
+    dazu('vb', e.vb === 'si' ? 1 : e.vb === 'hmm' ? 0.5 : e.vb === 'nono' ? 0 : null);
+    dazu('energie', stufenlos(e.energie, R.energie.voll, R.energie.null));
+    dazu('konz', stufenlos(e.konz, R.konz.voll, R.konz.null));
+
+    // Körper
+    dazu('migna', stufenlos(e.migna, R.migna.voll, R.migna.null));
+    dazu('halsi', stufenlos(e.halsi, R.halsi.voll, R.halsi.null));
+
+    // Bonus
+    dazu('tasks', zahl(e.tasks) && e.tasks > 0 ? stufenlos(e.tasks, R.tasks.voll, R.tasks.null) : null);
+    dazu('lesen', zahl(e.seiten) && e.seiten > 0 ? stufenlos(e.seiten, R.lesen.voll, R.lesen.null) : null);
+    dazu('knie', ja(e.knie) ? 1 : null);
+    const abst = auf != null && elv != null ? Math.max(0, elv - auf) : null;
+    dazu('elvanse', abst == null ? null : (stufenlos(abst, R.elvanse.voll, R.elvanse.null) || null));
+
+    const wert = moeglich + bonus > 0 ? 1 + 9 * (erreicht + bonus) / (moeglich + bonus) : null;
+    return { wert: wert, erreicht: erreicht, moeglich: moeglich, bonus: bonus, bonusMoeglich: bonusMoeglich, teile: teile, posten: posten };
+  }
+
+  const gilt = iso => !!iso && String(iso) >= AB;
+  return { AB: AB, REGELN: REGELN, KOPF: KOPF, regeln: regeln, tag: tag, stufenlos: stufenlos, gilt: gilt, T: T };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = PKT26;
 /* ── Blöcke: Fokuspunkte. Gezählt wird das Anfangen. Dieselben Zahlen stehen in Bloecke.gs (BLK.PUNKTE) ── */
 const BLOCK_FAKTOR = { gemacht: 1, teils: 0.5, nicht: 0 };
 const ZAEHLT_NICHT = ['System'];   // wie BLK.ZAEHLT_NICHT: sichtbar, aber nicht in der Fokuszeit
@@ -39672,8 +39860,91 @@ function tagWertRechnen(iso, fokusMinuten, ueber, aus) {
   if (dAb > 0 && zahl(dr) && dr >= dAb) roh = Math.min(roh, dMax);
   return roh;   // ungerundet, gerundet wird beim Anzeigen
 }
+/* ── Seit 26.11.2026: neues Punktesystem (Punkte.js, PKT26). Nur wenn das Paket "punkte" hat (Tab Punkte nach Migration M4),
+   sonst bleibt alles beim alten Weg. Tage vor dem 26.11. rechnen immer wie oben. ── */
+function pktAn(iso) { return !!(P && P.punkte && typeof PKT26 !== 'undefined' && PKT26.gilt(iso)); }
+function pktWert(t, name) {
+  if (!t) return null;
+  if (t[name]) return t[name].wert;
+  const k = Object.keys(t).find(h => h.toLowerCase().indexOf(name.toLowerCase()) === 0);
+  return k ? t[k].wert : null;
+}
+function pktChief() { return typeof cosGehalten === 'function' && typeof C !== 'undefined' && C && Array.isArray(C.projekte); }
+/* Plan des Tages: aus Chief (wie Gehalten), sonst die Meldung im Paket, sonst nur "Menge da" (Planposten fällt raus) */
+function pktPlan(iso) {
+  if (pktChief()) {
+    const g = cosGehalten(iso);
+    return g.soll + g.joker > 0 ? { plan: { soll: g.soll, ist: g.ist, joker: g.joker }, start: g.start } : { plan: null, start: null };
+  }
+  const pk = P.punkte, pg = pk.pg && pk.pg[iso];
+  if (pg) return { plan: { soll: Number(pg.s) || 0, ist: Number(pg.i) || 0, joker: Number(pg.j) || 0 }, start: null };
+  return { plan: pk.menge && pk.menge[iso] ? { unbekannt: true } : null, start: null };
+}
+function pktEingaben(iso) {
+  const tg = P.werte[iso] || {}, v = n => pktWert(tg, n), zahl = x => typeof x === 'number' && isFinite(x);
+  const vor = P.werte[tagPlus(iso, -1)], nach = P.werte[tagPlus(iso, 1)];
+  const fehl = (e, d) => (zahl(d) && d < 2 / 24) || (zahl(e) && e >= 0.5 && e < 20 / 24);
+  let sport7 = 0;
+  for (let k = 0; k <= 6; k++) if (pktWert(P.werte[tagPlus(iso, -k)], 'Sport') === true) sport7++;
+  const pl = pktPlan(iso), h = heute(), m = tagPlus(iso, 1);
+  let morgen = (P.punkte.morgen || {})[iso];
+  if (iso === h && pktChief() && C.merk && Array.isArray(C.merk['pr|' + m]) && C.merk['pr|' + m].length && C.merk['pt|' + m]) morgen = true;
+  return {
+    plan: pl.plan, start: pl.start, morgenSteht: morgen == null ? null : morgen,
+    arbeitMin: iso === h ? fokusTagMin(iso) : (zahl(v('Fokus')) ? Math.round(v('Fokus') * 1440) : 0),
+    einschlaf: v('Einschlaf'), aufwach: v('Aufwach'), elvanse: v('Elvanse'),
+    uhrfehlerAuf: fehl(pktWert(vor, 'Einschlaf'), v('Dauer')), uhrfehlerEin: fehl(v('Einschlaf'), pktWert(nach, 'Dauer')),
+    drinks: zahl(v('Drinks')) ? v('Drinks') : null, ott: v('Ott') === true, sport: v('Sport') === true, sport7: sport7,
+    handySchlaf: v('X Handy Schlafen') === true, handyFrueh: v('X Handy Frühstück') === true, vb: String(v('Vb') || ''),
+    energie: v('Energie'), konz: v('Konzentration'), migna: v('Migna'), halsi: v('Halsi'),
+    tasks: zahl(v('Tasks')) ? v('Tasks') : 0, seiten: (P.punkte.seiten || {})[iso] || 0, knie: v('Knieübung') === true
+  };
+}
+function pktErgebnis(iso) { return PKT26.tag(pktEingaben(iso), PKT26.regeln(P.punkte.regeln, iso)); }
+/* Plan Zahlen an den Server melden (pg|Tag), damit er den Tageswert auch ohne App rechnen kann. Nur heute und gestern, nur bei Änderung */
+let pktGemeldet = {};
+function pktMelden(iso) {
+  if (!pktChief() || typeof cosMerkSetzen !== 'function' || (iso !== heute() && iso !== tagPlus(heute(), -1))) return;
+  const g = cosGehalten(iso);
+  if (!(g.soll + g.joker > 0)) return;
+  const w = { s: g.soll, i: g.ist, j: g.joker }, k = 'pg|' + iso, text = JSON.stringify(w);
+  if (pktGemeldet[k] === text || JSON.stringify((C.merk || {})[k] || null) === text) return;
+  pktGemeldet[k] = text;
+  setTimeout(() => cosMerkSetzen(k, w, true), 0);
+}
+/* "0 Drinks" für gestern: nur heute, nur wenn gestern Drinks leer ist (leer zählt nicht, 0 zählt voll). Ohne Rückgängig, korrigieren geht in Köö von gestern */
+function pktDrinksFeld() { return (P && P.felder || []).find(x => x.typ === 'zahl' && kleinName(x) === 'drinks'); }
+function pktNullDrinksDa() {
+  const g = tagPlus(heute(), -1), f = pktDrinksFeld();
+  return !!(f && tagIso === heute() && pktAn(g) && P.werte[g] && pktWert(P.werte[g], f.spalte) == null);
+}
+function pktNullDrinks() {
+  if (!pktNullDrinksDa()) return;
+  const g = tagPlus(heute(), -1), f = pktDrinksFeld();
+  P.werte[g][f.spalte] = { wert: 0, anzeige: '0' };
+  zeichnen();
+  nacheinander('appSpeichern', g, f.spalte, 0, f.typ);
+  melden('Gestern 0 Drinks');
+}
+/* Neben der Zahl: Tage ohne Alkohol und ohne Ott in den letzten 7, Folgezeile gestern zu heute */
+function pktNeben(iso) {
+  if (!pktAn(iso)) return null;
+  let alk = 0, ott = 0;
+  for (let k = 0; k <= 6; k++) { const t = P.werte[tagPlus(iso, -k)]; if (!t) continue; if (pktWert(t, 'Drinks') === 0) alk++; if (pktWert(t, 'Ott') !== true) ott++; }
+  const g = P.werte[tagPlus(iso, -1)], d = pktWert(g, 'Drinks'), e = pktWert(P.werte[iso], 'Energie');
+  let folge = '';
+  if (typeof d === 'number' && d > 0) folge = 'gestern ' + d + (d === 1 ? ' Drink' : ' Drinks') + (typeof e === 'number' ? ', heute Energie ' + tagText(e).replace(',0', '') : '');
+  else if (pktWert(g, 'Ott') === true) folge = 'gestern Ott' + (typeof e === 'number' ? ', heute Energie ' + tagText(e).replace(',0', '') : '');
+  return { alkohol: alk, ott: ott, folge: folge };
+}
+
 /* Heute ab ZEIT_AB: Tageswert mit der Fokuszeit von jetzt (statt dem Stand der Tabelle, der bis zu 15 Minuten alt ist) */
 function tagLive(iso) {
+  if (pktAn(iso)) {
+    const r = pktErgebnis(iso);
+    pktMelden(iso);
+    return r.wert == null ? null : Math.round(r.wert * 10) / 10;
+  }
   if (!P || iso !== heute() || iso < ZEIT_AB) return null;
   const x = tagWertRechnen(iso, fokusTagMin(iso));
   return x == null ? null : Math.round(x * 10) / 10;
@@ -39739,6 +40010,12 @@ const RING_R = [78, 67, 56];   // bis Säulen: Radien der Ringe, nur noch für a
 const SAEULE = { x: [110, 132, 154], unten: 125, oben: 43 };   // Säulen rechts neben der Zahl (Skizze 15), so hoch wie ihre Scheibe (36 bis 132), wachsen von unten
 let ringStand = { iso: null, teile: null, alt: null };   // zuletzt gezeigt, damit die Ringe vom alten Stand aus wachsen
 function ringTeile(iso) {
+  if (typeof pktAn === 'function' && pktAn(iso)) {   // seit 26.11.: Säulen aus dem neuen Punktesystem, nur was heute schon entschieden ist
+    const r = pktErgebnis(iso), t = r.teile, q = (...b) => { let e = 0, m = 0; b.forEach(k => { if (t[k]) { e += t[k].erreicht; m += t[k].moeglich; } }); return m > 0 ? Math.max(0, Math.min(1, e / m)) : null; };
+    const ab = r.posten.find(x => x.posten === 'arbeitBonus');
+    const arbeit = q('Plan und Arbeit');
+    return [arbeit != null ? arbeit : (ab && ab.anteil) || 0, q('Schlaf', 'Verhalten', 'Körper') || 0, q('Kopf und Urteil') || 0];
+  }
   const aus = {}, x = tagWertRechnen(iso, iso === heute() && iso >= ZEIT_AB ? fokusTagMin(iso) : undefined, null, aus);
   if (x == null || !aus.fokus) return null;
   return RINGE.map(([k]) => { const a = aus[k][0], b = aus[k][1]; return b > 0 ? Math.max(0, Math.min(1, a / b)) : 0; });
