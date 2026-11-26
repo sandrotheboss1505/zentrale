@@ -1289,6 +1289,14 @@
   .tg-fz.erst { border-top-left-radius: var(--radius-klein); border-bottom-left-radius: var(--radius-klein); }
   .tg-fz.letzt { border-top-right-radius: var(--radius-klein); border-bottom-right-radius: var(--radius-klein); }
   .tg-fz.gruppe { margin-left: var(--abstand-2); }
+  /* 27.11. Über der Menge: Plusfelder hinten dran, nach einer Lücke, Projektfarbe mit Goldrand. Bleiben farbig, auch wenn der Plan ganz ist */
+  .tg-fz.luecke { margin-left: var(--abstand-4); }
+  .tg-fz.plus { background: color-mix(in srgb, var(--pf) 12%, var(--karte)); box-shadow: inset 0 0 0 1.5px var(--gold-funken); }
+  .tg-bahn.ganz .tg-fz.plus { background: color-mix(in srgb, var(--pf) 12%, var(--karte)); }
+  .tg-bahn.ganz .tg-fz.plus .tg-ffuell { background: var(--pf); }
+  .tg-fz.plus .tg-ffuell { box-shadow: inset 0 0 0 1.5px var(--gold-funken); }
+  .tg-kopf .tg-mehr { margin-left: var(--abstand-3); padding: var(--abstand-1) var(--abstand-3); border-radius: var(--radius-rund); font-style: normal; font-weight: 700;
+    color: var(--halb); background: color-mix(in srgb, var(--gold-funken) 22%, var(--karte)); }
   .tg-ffuell { position: absolute; left: 0; top: 0; bottom: 0; overflow: hidden; border-radius: inherit; background: var(--pf);
     filter: saturate(var(--sat)) brightness(var(--hell)); }
   .tg-ffuell.an { box-shadow: 0 0 var(--gb) var(--gs) color-mix(in srgb, var(--gold-funken) var(--ga), transparent); }
@@ -2656,7 +2664,7 @@ function cosHalbeChips(jm) { const a = Math.ceil(jm / 30) * 30; return [0, 30, 6
 /* Zustand des Kopfs: leer (keine Menge aus dem Chief), vor (vor dem Start, bis 10 Minuten danach), vorbei (Start vorbei, noch nichts), sonst normal */
 function cosKopf(d) {
   const st = cosStartVon(d.h), g = d.g, nichts = g.erster === null && d.ist === 0 && !cosLaeuftEtwas();
-  const anteil = cosBalkenAnteil(d.balkenMin, d.menge), ueber = d.menge > 0 && d.ist > d.menge;
+  const anteil = cosBalkenAnteil(d.balkenMin, d.menge), z = cosKopfZahl(d), ueber = z.voll && z.plus > 0;   // 27.11. über erst, wenn jedes Projekt voll ist
   let art = 'normal';
   if (!d.summe) art = 'leer';
   else if (st && nichts && d.jm <= st + COS_START_TOL) art = 'vor';
@@ -2686,26 +2694,50 @@ function cosBalkenStil(anteil, ueber) {
   return { '--bf': bf, '--gb': Math.round((4 + 12 * t) * 10) / 10 + 'px', '--gs': '0px', '--ga': pz(0.15 + 0.5 * t) };
 }
 /* ── Ac Balken (entwuerfe/neu/TagAc): ein Feld pro Kästchen der Menge, nach Projekten in Rangfolge. m = Minuten im Feld (fertig plus bis zum
-   letzten Dran), g = Minuten seit dem letzten Dran (schraffiert, nur das laufende Projekt). q = Anteil des Ganzen, kante = Füllkante des laufenden
-   Projekts (0 bis 1, für die Funken). Über der Menge gekappt (R9) ── */
+   letzten Dran), g = Minuten seit dem letzten Dran (schraffiert, nur das laufende Projekt), ab = Minute im Projekt, an der das Feld beginnt.
+   q = Anteil der Menge (gekappt pro Projekt), kante = Füllkante des laufenden Projekts (0 bis 1 über alle Felder, für die Funken).
+   Über der Menge (27.11.): Plusfelder hinten dran, eine Gruppe pro Projekt, ganz nur, wenn jedes Projekt seine Menge hat ── */
 function cosBalkenFelder(d) {
-  const lauf = cosLaufendX(), lp = lauf && lauf.s ? cosNachName(lauf.s.projekt) : null, felder = [];
-  let n = 0, voll = 0, kante = null;
+  const lauf = cosLaufendX(), lp = lauf && lauf.s ? cosNachName(lauf.s.projekt) : null, felder = [], plus = [];
+  let n = 0, voll = 0, kante = null, planVoll = 0, plusVoll = 0, lpUeber = false;
+  const feld = (c, ab, mehr) => {
+    const m = Math.max(0, Math.min(COS_MIN, c.bMin - ab));
+    return { m: m, g: Math.max(0, Math.min(COS_MIN, c.bMin + mehr - ab)) - m, ab: ab, lauf: false };
+  };
   (d.chips || []).forEach(c => {
-    const k = Math.max(0, c.m - c.j);
-    if (!k) return;
-    const mehr = lp && lp.id === c.p.id ? c.wart || 0 : 0, gruppe = [], jl = lp && lp.id === c.p.id ? Math.min(k - 1, Math.floor(c.bMin / COS_MIN)) : -1;   // jl: das Feld, das gerade läuft (leuchtet)
-    for (let j = 0; j < k; j++) {
-      const m = Math.max(0, Math.min(COS_MIN, c.bMin - COS_MIN * j));
-      gruppe.push({ m: m, g: Math.max(0, Math.min(COS_MIN, c.bMin + mehr - COS_MIN * j)) - m, lauf: j === jl });
-      voll += m;
+    const k = Math.max(0, c.m - c.j), hier = !!lp && lp.id === c.p.id, mehr = hier ? c.wart || 0 : 0, gruppe = [];
+    for (let j = 0; j < k; j++) { const z = feld(c, COS_MIN * j, mehr); voll += z.m; if (z.m >= COS_MIN) planVoll++; gruppe.push(z); }
+    const drueber = Math.max(0, c.bMin + mehr - k * COS_MIN), pg = [];
+    for (let j = 0; j < Math.ceil(drueber / COS_MIN); j++) { const z = feld(c, (k + j) * COS_MIN, mehr); if (z.m >= COS_MIN) plusVoll++; pg.push(z); }
+    if (hier) {
+      const alle = gruppe.concat(pg), jl = Math.min(alle.length - 1, Math.floor(c.bMin / COS_MIN));
+      if (jl >= 0) alle[jl].lauf = true;
+      lpUeber = k > 0 ? c.bMin >= k * COS_MIN : pg.length > 0;
     }
-    if (lp && lp.id === c.p.id) kante = n + Math.min(k, c.bMin / COS_MIN);
-    felder.push({ p: c.p, farbe: cosProjektFarbe(c.p), felder: gruppe });
+    if (k) felder.push({ p: c.p, farbe: cosProjektFarbe(c.p), felder: gruppe });
+    if (pg.length) plus.push({ p: c.p, farbe: cosProjektFarbe(c.p), felder: pg, plus: true, k: k });
     n += k;
   });
+  // Füllkante in Feldern über Plan und Plus, damit die Funken auch im Plus an der richtigen Stelle sitzen
+  const nPlus = plus.reduce((a, g) => a + g.felder.length, 0), alle = n + nPlus;
+  if (lp) {
+    const c = (d.chips || []).find(x => x.p.id === lp.id), pg = plus.find(g => g.p.id === lp.id);
+    let vor = 0;
+    felder.concat(plus).forEach(g => {
+      if (kante !== null) return;
+      if (g.p.id === lp.id && (g === pg ? true : !pg)) kante = vor + Math.min(g.felder.length, Math.max(0, c.bMin - (g.plus ? g.k * COS_MIN : 0)) / COS_MIN);
+      else vor += g.felder.length;
+    });
+  }
   const q = n ? voll / (n * COS_MIN) : 0;
-  return { gruppen: felder, n: n, q: q, ganz: n > 0 && voll >= n * COS_MIN, kante: kante === null || !n ? null : kante / n };
+  return { gruppen: felder, plus: plus, n: n, nPlus: nPlus, q: q, ganz: n > 0 && voll >= n * COS_MIN, planVoll: planVoll, plusVoll: plusVoll, lpUeber: lpUeber,
+    kante: kante === null || !alle ? null : kante / alle };
+}
+/* Zahl im Kopf wie der Punkt Plan gehalten: geschaffte Kästchen pro Projekt höchstens bis zur Menge, der Rest als Plus */
+function cosKopfZahl(d) {
+  let gehalten = 0, plus = 0;
+  (d.chips || []).forEach(c => { const k = Math.max(0, c.m - c.j); gehalten += Math.min(c.d, k); plus += Math.max(0, c.d - k); });
+  return { gehalten: gehalten, plus: plus, voll: d.menge > 0 && gehalten >= d.menge };
 }
 /* Ac Jetzt, wenn nichts läuft: zuerst das Projekt der letzten Sitzung, wenn es noch übrig hat (nach Pause), sonst die erste To Do Zeile */
 function cosAlsNaechstes(d) {
@@ -13276,13 +13308,18 @@ var ZentraleUI = function(exports) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "alt-pill" + (t2.alt >= 3 * PL.ALT_TAGE ? " sehr" : ""), children: "+1" });
   }
   const min = (m2) => m2 >= 60 ? Math.floor(m2 / 60) + ":" + String(m2 % 60).padStart(2, "0") + " h" : m2 + " Min";
+  function ZahlText({ d }) {
+    const z2 = F.cosKopfZahl(d);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: z2.voll ? "ueber" : "", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: z2.gehalten }),
+      " von " + d.menge,
+      z2.plus > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("em", { className: "tg-mehr", "aria-label": z2.plus + " Kästchen über der Menge", children: "+" + z2.plus }) : null
+    ] });
+  }
   function Zahl$2({ d, k: k2 }) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tg-kopf", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Fokus" }),
-      k2.art === "leer" ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "keine Kästchen" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: k2.ueber || d.menge > 0 && d.ist >= d.menge ? "ueber" : "", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { children: d.ist }),
-        " von " + d.menge
-      ] })
+      k2.art === "leer" ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "keine Kästchen" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ZahlText, { d })
     ] });
   }
   const BAHN_MS = 1600, WACHS_STOSS = 450;
@@ -13302,7 +13339,7 @@ var ZentraleUI = function(exports) {
     let fx = null;
     if (m2 > alt.m + 0.5) {
       const v0 = Math.floor(alt.m / 30), v1 = Math.floor(m2 / 30);
-      fx = { wachs: true, proj: alt.proj, text: dran && v1 <= v0 ? "+" + Math.round(m2 - alt.m) + " Min" : (dran ? v1 : d.ist) + " von " + d.menge };
+      fx = { wachs: true, proj: alt.proj, text: dran && v1 <= v0 ? "+" + Math.round(m2 - alt.m) + " Min" : B2.lpUeber ? "+" + B2.plusVoll + " drüber" : B2.planVoll + " von " + d.menge };
     } else if (dran) fx = { wachs: false, proj: alt.proj, text: lf2.art === "dran" ? lf2.text : "dran " + F.cosUhr(F.jetztMin()) };
     if (fx) {
       fx.t = jetzt;
@@ -13328,27 +13365,28 @@ var ZentraleUI = function(exports) {
     if (k2.art === "leer") return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-bahn leer", role: "img", "aria-label": "Noch keine Kästchen festgelegt" });
     const B2 = F.cosBalkenFelder(d);
     if (!B2.n) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tg-bahn leer", role: "img", "aria-label": "Noch keine Kästchen festgelegt" });
-    const label2 = d.ist + " von " + d.menge + " Kästchen geschafft, " + Math.max(0, d.menge - d.ist) + " offen" + (k2.ueber ? ", über der Menge" : "");
+    const zk2 = F.cosKopfZahl(d), label2 = zk2.gehalten + " von " + d.menge + " Kästchen geschafft, " + Math.max(0, d.menge - zk2.gehalten) + " offen" + (zk2.plus ? ", " + zk2.plus + " darüber" : "");
     const neu = still ? null : bahnFxVon(d, k2, B2);
     if (neu) bahnFx = neu;
     const vb2 = bahnFx && bahnFx.tag === d.h ? Date.now() - bahnFx.t : BAHN_MS, fx = !still && vb2 < BAHN_MS ? bahnFx : null;
-    const stil2 = Object.assign({ gridTemplateColumns: "repeat(" + B2.n + ", minmax(0, 1fr))" }, glanzStil(B2.q, fx));
+    const stil2 = Object.assign({ gridTemplateColumns: "repeat(" + (B2.n + B2.nPlus) + ", minmax(0, 1fr))" }, glanzStil(B2.q, fx));
     if (fx) {
       stil2["--vb"] = vb2 + "ms";
       stil2["--ws"] = (fx.wachs ? WACHS_STOSS : 0) + "ms";
     }
     let i2 = 0;
     const zellen = [];
-    B2.gruppen.forEach((gr, gi2) => gr.felder.forEach((z2, j) => {
-      const alt = fx && fx.wachs && fx.proj ? Math.max(0, Math.min(30, (fx.proj[gr.p.id] || 0) - 30 * j)) : z2.m, waechst = alt !== z2.m;
-      const kl2 = "tg-fz" + (j === 0 ? " erst" : "") + (j === gr.felder.length - 1 ? " letzt" : "") + (j === 0 && gi2 > 0 ? " gruppe" : "") + (z2.lauf && !still ? " lauf" : "");
+    B2.gruppen.concat(B2.plus).forEach((gr, gi2) => gr.felder.forEach((z2, j) => {
+      const alt = fx && fx.wachs && fx.proj ? Math.max(0, Math.min(30, (fx.proj[gr.p.id] || 0) - z2.ab)) : z2.m, waechst = alt !== z2.m;
+      const erstPlus = gr.plus && gi2 === B2.gruppen.length && B2.n > 0;
+      const kl2 = "tg-fz" + (gr.plus ? " plus" : "") + (j === 0 ? " erst" : "") + (j === gr.felder.length - 1 ? " letzt" : "") + (j === 0 && gi2 > 0 ? erstPlus ? " luecke" : " gruppe" : "") + (z2.lauf && !still ? " lauf" : "");
       const fs = { width: pz$1(z2.m / 30), "--i": (i2 * 0.1).toFixed(2) + "s" };
       if (waechst) fs["--von"] = pz$1(alt / 30);
       zellen.push(
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: kl2, style: { "--pf": gr.farbe }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-ffuell" + (z2.m > 0 ? " an" : "") + (waechst ? " wachs" : ""), style: fs, children: B2.q >= 0.5 && z2.m > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "tg-fglanz" }) : null }, waechst ? "w" + fx.t : "f"),
           z2.g > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tg-fwart", style: { left: pz$1(z2.m / 30), width: pz$1(z2.g / 30) } }) : null
-        ] }, gr.p.id + j)
+        ] }, (gr.plus ? "p" : "") + gr.p.id + j)
       );
       i2++;
     }));
@@ -13632,7 +13670,7 @@ var ZentraleUI = function(exports) {
   }
   function AlsNaechstes({ d }) {
     const n2 = F.cosAlsNaechstes(d);
-    if (!n2) return d.menge > 0 && d.ist >= d.menge ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "jz-fertig", children: "Alles für heute geschafft." }) : null;
+    if (!n2) return F.cosKopfZahl(d).voll ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "jz-fertig", children: "Alles für heute geschafft." }) : null;
     const p2 = n2.z.p, s = n2.z.schritte[0], farbe = F.cosProjektFarbe(p2);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "jz-naechst", style: { "--pf": farbe }, onClick: () => F.cosTodoLos(p2.id), "aria-label": (n2.pause ? "Pause, weiter mit " : "Als Nächstes: ") + p2.name, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "jz-nt", children: [
@@ -39302,8 +39340,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611270011';
-const PWA_NAME = "V145 Woche über Notiz am Mac, Alkfrei und Ottfrei raus";
+const PWA_VERSION = '202611270016';
+const PWA_NAME = "V146 Fokus Plus über der Menge";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
