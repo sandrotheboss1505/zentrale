@@ -2826,7 +2826,9 @@ function cosGehalten(iso) {
 function cosTodoZeilen(d) {
   const lauf = cosLaufendX(), out = [];
   d.chips.forEach(c => {
-    const menge = Math.max(0, c.m - c.j), n = c.d, uebrig = Math.max(0, menge - n), laeuft = !!(lauf && lauf.s && lauf.s.projekt === c.p.name);
+    // Ein angefangenes Kästchen zählt gerundet schon als geschafft (20 Min = 1), der Balken aber nicht: bis er voll ist, bleibt es zum Weitermachen
+    const menge = Math.max(0, c.m - c.j), n = c.d, angefangen = c.bMin > 0 && c.bMin < menge * COS_MIN ? 1 : 0;
+    const uebrig = Math.max(angefangen, menge - n), laeuft = !!(lauf && lauf.s && lauf.s.projekt === c.p.name);
     if (!uebrig && !laeuft) return;
     const m = typeof cosModulDran === 'function' ? cosModulDran(c.p) : null;
     out.push({ p: c.p, menge: menge, n: n, uebrig: uebrig, bonus: Math.max(0, n - menge), modul: m, schritte: m ? m.offen : [], laeuft: laeuft });
@@ -39340,8 +39342,8 @@ img.ProseMirror-separator {
 <script>
 /* ── PWA (aus web/bauen.py) ── */
 const ZENTRALE_API = 'https://script.google.com/macros/s/AKfycby_mlOvm6veeRy8tqW0SyjI4XqaZJRVt_dUFyv5VV2n9KsCfKVsX45EeMVUHlcNyV0FXA/exec';
-const PWA_VERSION = '202611270016';
-const PWA_NAME = "V146 Fokus Plus über der Menge";
+const PWA_VERSION = '202611272053';
+const PWA_NAME = "V147 Weiter nach Pause";
 const SCHLUESSEL_SPEICHER = 'zentrale_k';
 (function () {
   // Einmal mit https://…/#k=SCHLUESSEL öffnen, dann ist er auf dem Gerät gespeichert
